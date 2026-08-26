@@ -1,0 +1,72 @@
+# Secrets and signing material (never commit)
+.env
+.env.*
+!.env.example
+**/key.properties
+**/signing.properties
+**/*.jks
+**/*.keystore
+**/*service*account*.json
+
+# Microsoft Word temporary / lock files
+~$*.docx
+~$*.docm
+
+# Generated documentation review artefacts (keep generated .docx trackable)
+plato_docs/generated/**/*.pdf
+plato_docs/generated/**/*.png
+plato_docs/generated/**/*.json
+plato_docs/generated/**/*.txt
+plato_docs/**/render/
+plato_docs/**/renders/
+
+# Flutter / Dart / Pub
+**/.dart_tool/
+**/.flutter-plugins-dependencies
+**/.pub/
+**/.pub-cache/
+**/build/
+**/coverage/
+**/doc/api/
+**/ios/Flutter/.last_build_id
+plato_gymapp/android/app/debug/
+plato_gymapp/android/app/profile/
+plato_gymapp/android/app/release/
+
+# Python
+.venv/
+**/.venv/
+**/__pycache__/
+*.py[cod]
+
+# IDE and editor metadata
+*.iml
+*.ipr
+*.iws
+.idea/
+.atom/
+*.swp
+*~
+
+# Logs and local diagnostic output
+*.log
+*.log.*
+**/analyze_out.txt
+**/analyze_output.txt
+**/analyze_report.txt
+
+# Platform-specific local files
+.DS_Store
+Thumbs.db
+
+# Flutter obfuscation and symbolication output
+app.*.map.json
+app.*.symbols
+
+# Other local build / migration artefacts
+.build/
+.buildlog/
+.history/
+.svn/
+.swiftpm/
+migrate_working_dir/

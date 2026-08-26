@@ -1,0 +1,57 @@
+# Android App Signing
+**/*.jks
+**/*.keystore
+android/key.properties
+
+# Android Studio will place build artifacts here
+/android/app/debug
+/android/app/profile
+/android/app/release
+
+# Environment variables
+.env
+.env.*
+
+# Flutter/Dart/Pub related
+**/doc/api/
+**/ios/Flutter/.last_build_id
+.dart_tool/
+.flutter-plugins-dependencies
+.pub/
+.pub-cache/
+/build/
+/coverage/
+
+# IDEs and Editors
+## IntelliJ related
+*.iml
+*.ipr
+*.iws
+.idea/
+
+## VS Code
+# The .vscode folder contains launch configuration and tasks you configure in
+# VS Code which you may wish to be included in version control, so this line
+# is commented out by default.
+#.vscode/
+.atom/
+
+# Miscellaneous
+*.class
+*.log
+*.pyc
+*.swp
+.DS_Store
+.build/
+.buildlog/
+.history
+.svn/
+.swiftpm/
+.venv/
+migrate_working_dir/
+
+# Obfuscation related
+app.*.map.json
+
+# Symbolication related
+app.*.symbols
