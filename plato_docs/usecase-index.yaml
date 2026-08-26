@@ -1,0 +1,25 @@
+usecases:
+  UC31:
+    title: "Quản lý chạy nền và quyền thông báo"
+    source: "plato_docs/usecases/UC31.md"
+    features:
+      - permissions
+      - background_workout
+    code_paths:
+      - "plato_gymapp/lib/features/profile/presentation/screens/profile_settings_screen.dart"
+      - "plato_gymapp/lib/features/profile/presentation/screens/settings_screen.dart"
+      - "plato_gymapp/lib/core/utils/workout_permission_helper.dart"
+    localization_keys:
+      - pre_permission_title
+      - pre_permission_desc
+      - pre_permission_btn_allow
+      - pre_permission_btn_later
+      - title_bg_workout
+      - desc_bg_workout
+      - title_permission_denied
+      - msg_permission_permanently_denied
+      - desc_permission_denied
+      - btn_open_settings
+      - err_permission_partial
+    related_usecases:
+      - UC15
