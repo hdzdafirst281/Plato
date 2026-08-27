@@ -1,312 +1,189 @@
-# Plato
+# Plato 🏋️‍♂️
 
-Plato is a Flutter fitness application for planning workouts, recording active
-training sessions, tracking nutrition and body progress, and rewarding
-consistency through XP and competitive ranks.
+![Version](https://img.shields.io/badge/version-1.1.1+9-blue.svg)
+![Flutter](https://img.shields.io/badge/Flutter-%5E3.11.4-02569B?logo=flutter)
 
-The application is designed around local-first storage. Core fitness data is
-stored in a Floor/SQLite database so that the main tracking experience can work
-without a constant network connection. Supabase provides email OTP
-authentication and cloud-backed profile, workout-history, and gamification
-data.
+**Plato** is a comprehensive, local-first Flutter fitness application designed to help users plan workouts, track active training sessions, monitor nutrition and body progress, and stay motivated through a robust gamification system (XP and competitive ranks).
 
-Current package version: `1.1.1+9`.
+Built with a focus on performance, rich UI/UX, and offline capability, Plato ensures your fitness journey is uninterrupted, whether you're at the gym or offline.
 
-## Main features
+---
 
-### Workout tracking
+## 🌟 Key Features
 
-- Browse bundled workout programs and save routines locally.
-- Create, edit, duplicate, reorder, and organize custom routines.
-- Browse the exercise library and create custom exercises with notes or images.
-- Record weight/repetition, repetition-only, timed, distance, and step-based
-  exercise sets.
-- Run an active workout with workout and rest timers, supersets, vibration,
-  sounds, notifications, and a persistent mini-player.
-- Calculate workout volume, estimated calories, personal records, muscle
-  distribution, training load, and muscle recovery.
-- Review workout history and schedule routines on the calendar.
-- A routine or session is limited to 50 unique exercises.
+### 🏋️ Workout Tracking
+- **Routine Management:** Browse bundled programs, or create, edit, duplicate, and reorder custom routines.
+- **Extensive Exercise Library:** Search built-in exercises or create custom ones with notes and media.
+- **Advanced Session Player:** Run active workouts with a persistent mini-player, rest timers, supersets, sound cues, vibrations, and background service support.
+- **Comprehensive Analytics:** Track workout volume, estimated calories, personal records (PRs), muscle distribution, training load, and recovery metrics.
+- **Flexible Set Types:** Record weight/reps, reps-only, timed, distance, and step-based sets. (Limit: 50 unique exercises per session).
 
-### Nutrition
+### 🥗 Nutrition & Diet
+- **Daily Log:** Track meals, calories, protein, carbohydrates, fat, and hydration (water intake).
+- **Food Encyclopedia:** Search the bundled food database or save custom foods.
+- **Smart Targets:** Automatically calculate nutrition targets based on user profile, goals, and body metrics (with manual override available).
+- **History & Analytics:** Copy previous meals and review historical nutrition trends.
 
-- Track daily meals, calories, protein, carbohydrates, fat, and water.
-- Search the bundled food encyclopedia and save custom foods.
-- Copy previous meal data and review nutrition history.
-- Calculate nutrition targets from the user's profile and goals.
+### 📈 Profile & Progress
+- **Guided Onboarding:** Tailor the app based on body measurements, experience level, environment, schedule, goals, injuries, and diet.
+- **Progress Tracking:** Monitor weight changes and activity heatmaps.
+- **Advanced Charts:** Visualize training load, muscle recovery, and workout history using interactive charts.
+- **Customization:** Light/Dark themes, dynamic scaling, and in-app tutorials (`ShowCaseView`).
 
-### Profile and progress
+### 🎮 Gamification
+- **XP & Rewards:** Earn XP and unlock rewards for consistency and personal records.
+- **Competitive Ranking System:** Progress through tiers and ranks. Rank calculations and promotions/demotions are handled dynamically via `RankCalculator` (45-day seasons).
+- **Rank History:** View historical performance and rank progression.
 
-- Guided onboarding for body measurements, experience, training environment,
-  availability, goals, injuries, and dietary restrictions.
-- Track weight measurements and edit calculated or custom nutrition targets.
-- View workout history, activity heatmaps, training-load analysis, recovery
-  charts, and other progress statistics.
-- Configure appearance, language, account settings, and in-app tutorials.
+### 📱 App Experience
+- **Responsive Design:** Optimized layouts for Narrow Mobile, standard Mobile, Tablet, and Desktop using `responsive_framework`.
+- **Localization:** Multilingual support (Vietnamese and English) powered by `slang`.
+- **Background Sync:** Seamless cloud synchronization when online, ensuring data integrity without blocking the UI.
 
-### Gamification
+---
 
-- Award XP and personal-record rewards for training activity.
-- Display levels, ranks, rank history, and promotion or demotion progress.
-- Rank calculations are handled by `RankCalculator`.
-- Rank seasons are defined as 45 days.
+## 🛠 Technology Stack
 
-### App experience
+Plato leverages modern Flutter ecosystem tools and architectural patterns to deliver a maintainable and scalable codebase:
 
-- Vietnamese and English localization; Vietnamese is currently the default.
-- Light and dark themes.
-- Responsive layouts for narrow phones, phones, tablets, and desktop-sized
-  viewports.
-- Android foreground workout service and local workout notifications.
-- Background cloud synchronization when a network connection is available.
-
-## Technology
-
-| Area | Implementation |
+| Area | Implementation / Package |
 | --- | --- |
-| UI | Flutter and Material |
-| State management | `flutter_bloc` with Cubits |
-| Navigation | `go_router` with a stateful multi-tab shell |
-| Dependency injection | GetIt and Injectable |
-| Local database | Floor over SQLite |
-| Lightweight local state | SharedPreferences |
-| Backend and authentication | Supabase |
-| Data classes | Freezed and JSON Serializable |
-| Localization | Easy Localization |
-| Background work | Workmanager and Flutter Background Service |
-| Charts and visuals | FL Chart, Lottie, Flutter SVG, and Shimmer |
+| **Framework** | Flutter & Material Design 3 |
+| **State Management** | `flutter_bloc` (Cubits) |
+| **Routing** | `go_router` (Stateful Multi-tab Shell) |
+| **Dependency Injection** | `get_it` & `injectable` |
+| **Local Database** | `floor` (SQLite) |
+| **Lightweight Storage** | `shared_preferences` |
+| **Backend & Auth** | Supabase (`supabase_flutter`) |
+| **Data Models** | `freezed` & `json_annotation` |
+| **Localization (i18n)** | `slang_flutter` (Type-safe i18n) |
+| **Background Tasks** | `workmanager` & `flutter_background_service` |
+| **Media & Feedback** | `just_audio`, `video_player`, `vibration`, `lottie` |
+| **Charts & Visuals** | `fl_chart`, `flutter_svg`, `shimmer` |
 
-## Project structure
+---
+
+## 📂 Project Architecture
+
+The project strictly follows a **Feature-First (Modular)** architecture combined with **Clean Architecture** principles within each feature.
 
 ```text
 lib/
 ├── main.dart
 ├── core/
-│   ├── bloc/             # Shared application state, including guided tours
-│   ├── database/         # Floor entities, DAOs, converters, and migrations
-│   ├── designsystem/     # Themes, colors, shapes, and reusable Gym widgets
-│   ├── di/               # GetIt and Injectable configuration
-│   ├── navigation/       # GoRouter routes, shell, and global workout player
-│   ├── network/          # Supabase initialization
-│   ├── utils/            # Time, search, focus, and tour utilities
-│   └── worker/           # Cloud sync and background workout service
+│   ├── bloc/             # Global App State (e.g., Guided Tours)
+│   ├── database/         # Floor DB, DAOs, Entities, and Migrations
+│   ├── designsystem/     # Theming, Colors, Shapes, and Reusable UI Components
+│   ├── di/               # GetIt and Injectable configurations
+│   ├── navigation/       # AppRouter, GoRouter configuration, Global Wrappers
+│   ├── network/          # Supabase Client Initialization
+│   ├── utils/            # Utilities (Time, Focus, Formatters)
+│   └── worker/           # Background Sync and Foreground Workout Services
 └── features/
-    ├── auth/
-    │   ├── data/         # User models and authentication repository
-    │   └── presentation/ # Splash, onboarding, OTP, and Cubits
-    ├── workout/
-    │   ├── data/         # Models, repositories, and bundled program seeder
-    │   ├── domain/       # Recovery, load, and workout calculations
-    │   └── presentation/ # Workout screens, components, and Cubits
-    ├── nutrition/
-    │   ├── data/         # Nutrition models and repository
-    │   ├── domain/       # Nutrition target calculator
-    │   └── presentation/ # Nutrition screens, components, and Cubit
-    ├── gamification/
-    │   ├── data/         # Rank and reward models/repository
-    │   ├── domain/       # Rank calculation rules
-    │   └── presentation/ # Gamification screens and Cubits
-    └── profile/
-        ├── domain/       # Profile chart helpers
-        └── presentation/ # Profile, settings, calendar, stats, and Cubits
+    ├── auth/             # Onboarding, OTP Auth, User Session
+    ├── gamification/     # XP, Ranks, Rewards, RankCalculator Domain
+    ├── nutrition/        # Food Tracking, Macro Calculation
+    ├── profile/          # Settings, Body Metrics, Stats, Calendar
+    └── workout/          # Exercise Library, Routine Editor, Active Session Player
 ```
 
-Other important directories:
-
+**Other Important Directories:**
 ```text
 assets/
-├── init_data.sql         # Bundled exercise and food seed data
-├── translations/        # en.json and vi.json
-├── logo/
-├── images/
-├── videos/
-├── sounds/
-├── svg/
-└── lottie/
+├── init_data.sql         # Bundled master data (Exercises & Foods)
+├── logo/                 # App logos for Splash & Icons
+├── lottie/               # Animations
+├── svg/                  # Vector graphics (Muscle maps, UI icons)
+└── sounds/               # Audio cues for timers
 
-android/ ios/ web/ windows/ linux/ macos/  # Flutter platform projects
-test/                                      # Automated tests
+android/ ios/ web/        # Platform-specific native code
+test/                     # Automated unit and widget tests
 ```
 
-Android and iOS are the primary mobile targets. The repository includes the
-standard Flutter desktop and web projects, but mobile-specific features such as
-foreground workout tracking, notification permissions, and background services
-must be tested separately before treating the other targets as production
-ready.
+---
 
-## Application flow
+## 🚀 Getting Started
 
-At startup, Plato:
+### Prerequisites
+- **Flutter SDK:** `^3.11.4`
+- **IDE:** Android Studio, IntelliJ, or VS Code
+- **Platform Tooling:** Xcode (for iOS), Android SDK (for Android)
+- **Supabase Project:** Configured with required tables and RPCs.
 
-1. Loads `.env` and initializes localization.
-2. Initializes background synchronization and workout services.
-3. Builds the GetIt/Injectable dependency graph, including Supabase,
-   SharedPreferences, and the Floor database.
-4. Seeds bundled workout programs when the local program table is empty.
-5. Opens the splash route, which directs the user into onboarding,
-   authentication, or the main application.
-
-The main application uses four persistent navigation branches:
-
-- Workout
-- Nutrition
-- Gamification
-- Profile
-
-An active workout is owned by a global `ActiveSessionCubit`, allowing its timer
-and mini-player to remain available while the user moves between tabs.
-
-## Local data
-
-The database file is named `plato_app_database.db` and currently uses Floor
-schema version 6. It contains:
-
-- Exercises and custom exercises
-- Foods and custom foods
-- Bundled workout programs
-- User routines
-- Workout history
-- Daily nutrition logs
-- Scheduled workouts
-- Local reward claims
-
-Floor migrations currently cover schema versions 2 through 6. Bundled exercise
-and food master data is refreshed independently through the seed version in
-`core/di/app_module.dart`.
-
-User profile and body-measurement data are stored in SharedPreferences. Records
-that participate in synchronization use states such as `PENDING` and `SYNCED`.
-
-## Supabase requirements
-
-Create a `.env` file in the project root:
-
+### 1. Supabase Environment Setup
+Create a `.env` file in the root of the project:
 ```dotenv
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_ANON_KEY=your-public-anon-key
 ```
+> **Warning:** Only put the public `ANON_KEY` in the `.env` file. Never expose your `SERVICE_ROLE` key in the frontend repository.
 
-The current source expects these Supabase tables:
+**Required Supabase Tables:**
+`users`, `workout_history`, `routines`, `reward_claims_ledger`, `user_rank_history`
 
-- `users`
-- `workout_history`
-- `routines`
-- `reward_claims_ledger`
-- `user_rank_history`
+**Required Supabase RPCs (PostgreSQL functions):**
+`check_email_exists`, `delete_user_account`, `get_server_time_ms`
 
-It also calls these PostgreSQL RPC functions:
-
-- `check_email_exists`
-- `delete_user_account`
-- `get_server_time_ms`
-
-The Supabase schema, policies, triggers, and RPC definitions are not included in
-this repository. They must already exist in the configured Supabase project.
-The rank and reward flow also depends on the backend returning the fields used
-by the repositories and sync worker.
-
-Only put public client configuration in `.env`. Flutter assets are bundled into
-the application, and this project currently includes `.env` in its asset list.
-Never place a Supabase service-role key, database password, or other private
-secret in this file.
-
-## Getting started
-
-### Prerequisites
-
-- Flutter with a Dart SDK compatible with `^3.11.4`
-- Android Studio/Android SDK for Android development
-- Xcode and CocoaPods for iOS development
-- A configured Supabase project matching the requirements above
-
-Check the local Flutter installation:
-
-```bash
-flutter doctor
-```
-
-### Install and run
-
+### 2. Install Dependencies
 ```bash
 flutter pub get
-flutter run
 ```
 
-The application requires a valid `.env` file before startup. If initialization
-fails, the current application displays a critical initialization error screen.
+### 3. Code Generation
+Plato relies heavily on generated code (`injectable`, `floor`, `freezed`, `json_serializable`, and `slang`). 
 
-### Generate source files
-
-The repository uses generated code for Injectable, Floor, Freezed, and JSON
-serialization. After modifying annotated models, DAOs, the database, or
-dependency registrations, run:
-
+Run the build runner to generate the necessary files:
 ```bash
 dart run build_runner build --delete-conflicting-outputs
 ```
+*(For active development, use `watch` instead of `build`)*
 
-For continuous generation during development:
-
+### 4. Run the Application
 ```bash
-dart run build_runner watch --delete-conflicting-outputs
+flutter run
 ```
 
-### Localization
+---
 
-Translations live in:
+## 🌍 Localization (i18n)
 
-- `assets/translations/en.json`
-- `assets/translations/vi.json`
+Translations are managed using `slang`. The JSON files are located in:
+- `lib/i18n/strings_vi.i18n.json` (Vietnamese - Default)
+- `lib/i18n/strings_en.i18n.json` (English)
 
-When adding a user-facing translation key, add it to both files. The app uses
-language-only locale codes and falls back to Vietnamese.
+After modifying translation files, always regenerate the dart code:
+```bash
+dart run slang
+```
 
-### App icons and splash screen
+---
 
-Configuration is stored in `pubspec.yaml`:
+## 🎨 App Icons & Splash Screen
 
+If you change the logo assets in `pubspec.yaml`, regenerate the native splash screens and icons:
 ```bash
 dart run flutter_launcher_icons
 dart run flutter_native_splash:create
 ```
 
-## Quality checks
+---
 
-Run static analysis and formatting:
+## ✅ Code Quality & Testing
 
+Format the code, run static analysis, and execute tests:
 ```bash
 dart format --output=none --set-exit-if-changed lib test
 flutter analyze
-```
-
-Run automated tests:
-
-```bash
 flutter test
 ```
+> **Note:** Mobile-specific features (Foreground Services, Notifications) require testing on physical devices or emulators, and cannot be fully validated via standard Flutter tests alone.
 
-The current `test/widget_test.dart` is still the default Flutter counter test
-and does not represent Plato's initialized dependency and navigation flow. It
-should be replaced before using the test suite as a release gate.
+---
 
-## Business-rule references
+## 🧠 Business Logic & Guidelines
 
-Feature-specific rules are documented in:
-
+Feature-specific rules and logic are documented in their respective domains:
 - `lib/features/workout/rules.md`
 - `lib/features/gamification/rules.md`
 
-Keep calculation rules in the appropriate domain layer rather than duplicating
-them in screens or widgets.
-
-## Current implementation notes
-
-- Cloud synchronization explicitly handles the user profile, workout history,
-  reward claims, XP, and rank history. Other local entities should not be
-  assumed to synchronize across devices unless their repository flow does so.
-- The local database and the bundled SQL seed have separate version numbers and
-  separate responsibilities.
-- Workmanager is currently initialized with debug mode enabled; change that for
-  a production release.
-- Android uses application ID `vn.zenithas.plato`. The iOS project currently
-  retains the placeholder bundle identifier `com.example.platoGymapp`.
+Always keep complex calculation rules in the **Domain Layer** (e.g., `RankCalculator`, `RecoveryCalculator`) rather than polluting Presentation/UI widgets.
