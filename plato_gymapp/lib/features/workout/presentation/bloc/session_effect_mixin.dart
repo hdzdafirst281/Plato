@@ -150,7 +150,7 @@ mixin SessionEffectMixin on Cubit<ActiveSessionState> {
     } else {
       String rawName = targetData.exercise.exercise.name;
       String translatedName = t.translateDynamic(rawName);
-      String setLabel = t.explore.label_set;
+      String setLabel = t.common.set;
       String setProgressStr = '$setLabel ${targetData.setIndex}/${targetData.exercise.sets.length}';
       String bodyContent = '$translatedName - $setProgressStr';
 
@@ -158,7 +158,7 @@ mixin SessionEffectMixin on Cubit<ActiveSessionState> {
         BackgroundWorkoutService().startRestTimer(
           duration: state.restTimerSeconds,
           restTitle: '$routineName - ${t.workout.status_resting}',
-          nextBody: '${t.workout.label_next}: $bodyContent',
+          nextBody: '${t.workout.lbl_next}: $bodyContent',
           postRestTitle: routineName,
         );
       } else {

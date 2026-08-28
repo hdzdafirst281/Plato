@@ -20,9 +20,9 @@ import 'package:intl/intl.dart';
 extension BarChartMetricExt on BarChartMetric {
   String getLocalizedLabel() {
     switch (this) {
-      case BarChartMetric.VOLUME: return t.workout.badge_vol;
-      case BarChartMetric.DURATION: return t.workout.badge_time;
-      case BarChartMetric.REPS: return t.workout.badge_reps;
+      case BarChartMetric.VOLUME: return t.common.volume;
+      case BarChartMetric.DURATION: return t.common.duration;
+      case BarChartMetric.REPS: return t.common.reps;
     }
   }
 
@@ -30,7 +30,7 @@ extension BarChartMetricExt on BarChartMetric {
     switch (this) {
       case BarChartMetric.VOLUME: return t.common.unit_kg;
       case BarChartMetric.DURATION: return ''; 
-      case BarChartMetric.REPS: return t.stats.unit_metric_reps;
+      case BarChartMetric.REPS: return t.common.reps.toLowerCase();
     }
   }
 }
@@ -104,7 +104,7 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(t.stats.label_history_info_metrics_title, style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.primary, fontSize: 14)),
+                    Text(t.stats.lbl_history_info_metrics_title, style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.primary, fontSize: 14)),
                     const SizedBox(height: 8),
                     buildMetricRow(Symbols.weight, 'stats.label_history_info_metrics_volume', 'stats.desc_history_info_metrics_volume'),
                     buildMetricRow(Symbols.timer, 'stats.label_history_info_metrics_duration', 'stats.desc_history_info_metrics_duration'),
@@ -126,7 +126,7 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
                       child: Icon(Symbols.lightbulb, fill: 1.0, color: Theme.of(context).gymColors.goldRank, size: 18),
                     ),
                   ),
-                  TextSpan(text: '${t.stats.label_history_info_tip_title} '),
+                  TextSpan(text: '${t.stats.lbl_history_info_tip_title} '),
                   TextSpan(text: t.stats.desc_history_info_tip, style: const TextStyle(fontWeight: FontWeight.normal)),
                 ],
               ),
@@ -247,7 +247,7 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      Text(t.stats.label_history_filter_by, style: TextStyle(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold, fontSize: 16)),
+                      Text(t.stats.lbl_history_filter_by, style: TextStyle(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold, fontSize: 16)),
                       TimeRangeSelectorButton(
                         selected: _timeRange,
                         onSelect: (v) => setState(() { _timeRange = v; _highlightIndex = -1; }),

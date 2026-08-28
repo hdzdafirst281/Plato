@@ -1,0 +1,1885 @@
+key,en,vi
+app_name,Plato,Plato
+company_name,Zenithas,Zenithas
+auth.err_account_not_found,Account does not exist. Please check again.,Tài khoản chưa tồn tại. Vui lòng kiểm tra lại.
+auth.btn_already_have_account,Already have an account? Log in now,Đã có tài khoản? Đăng nhập ngay
+auth.msg_backing_up_and_logout,Backing up and logging out...,Đang sao lưu và thoát...
+auth.msg_backing_up_current,Backing up current account data...,Đang sao lưu dữ liệu của tài khoản hiện tại...
+auth.desc_change_email,Change the linked email address,Thay đổi địa chỉ email liên kết mới
+auth.btn_change_email,Change Linked Email,Đổi Email liên kết
+auth.btn_click_to_resend,Click to resend,Gửi lại mã
+auth.btn_confirm_delete_email,Enter your email address to confirm:,Nhập email của bạn để xác nhận:
+auth.btn_confirm_delete_guest,Enter 'DELETE' to confirm:,Nhập 'DELETE' để xác nhận:
+auth.msg_delete_account_success,Account has been permanently deleted.,Tài khoản đã bị xóa vĩnh viễn.
+auth.msg_deleting_cloud_data,Deleting cloud data...,Đang xóa dữ liệu đám mây...
+auth.desc_did_not_get_code,Didn't receive the code?,Chưa nhận được mã?
+auth.err_email_in_use,"Email is already in use, please enter another email. Select Switch Account if this is yours.","Email đã được sử dụng, vui lòng nhập email khác. Hãy chọn Chuyển đổi tài khoản nếu đây là tài khoản của bạn."
+auth.lbl_email_input,Email address,Địa chỉ email
+auth.desc_email_instruction,Enter your email address to securely receive a verification code. Your data will be automatically synchronized.,Nhập địa chỉ thư điện tử của bạn để nhận mã xác nhận an toàn. Dữ liệu sẽ được tự động đồng bộ.
+auth.err_empty_email,Please enter your email address,Vui lòng nhập địa chỉ email
+auth.err_invalid_email,Invalid email format,Định dạng email không hợp lệ
+auth.title_link_email,Link Email,Liên kết Email
+auth.desc_link_email,Link your email to securely back up and protect your workout data.,Liên kết với email để sao lưu an toàn và bảo vệ dữ liệu tập luyện của bạn.
+auth.desc_link_email_screen,Link your account via email to protect your data.,Liên kết tài khoản của bạn qua email để bảo vệ dữ liệu.
+auth.title_login_sync,Login,Đăng nhập
+auth.desc_login_sync,Log in to sync and restore data from your existing account.,Đăng nhập để đồng bộ và khôi phục dữ liệu từ tài khoản đã có của bạn.
+auth.desc_login_sync_screen,Enter your email to log in to your existing account.,Nhập email để đăng nhập vào tài khoản đã có của bạn.
+auth.msg_merging_cloud_data,Merging and downloading cloud data...,Đang gộp và tải dữ liệu đám mây...
+auth.err_network_backup_failed,Network error: Could not backup current data. Switch cancelled.,Lỗi mạng: Không thể sao lưu dữ liệu hiện tại. Đã hủy chuyển đổi.
+auth.err_network_delete_failed,Error: Cannot delete account at this time. Please check your network.,Lỗi: Không thể xóa tài khoản lúc này. Vui lòng kiểm tra mạng.
+auth.err_network_logout_failed,Cannot log out without backing up data due to network error.,Không thể đăng xuất khi chưa sao lưu dữ liệu do rớt mạng.
+auth.lbl_otp_input,6-digit code,Mã gồm 6 chữ số
+auth.desc_otp_instruction,A verification code has been sent to {arg1}. Please check your inbox.,Mã xác nhận đã được gửi đến {arg1}. Vui lòng kiểm tra hộp thư.
+auth.msg_otp_sent_err,Connection error: Could not send the code. Please try again later.,Lỗi kết nối: Không thể gửi mã. Vui lòng thử lại sau.
+auth.err_otp_sent_failed,Connection error: Could not send code. Please try again later.,Lỗi kết nối: Không thể gửi mã. Vui lòng thử lại sau.
+auth.msg_otp_sent_success,A 6-digit verification code has been sent to your email!,Đã gửi mã xác nhận 6 số đến thư điện tử của bạn!
+auth.msg_processing,Processing...,Đang xử lý...
+auth.msg_pulling_cloud_data,Downloading cloud data...,Đang tải dữ liệu đám mây...
+auth.err_repo_missing_user_id,Could not retrieve user identity from the system.,Không lấy được định danh người dùng từ hệ thống.
+auth.btn_resend_cooldown,Resend in {time},Gửi lại sau {time}
+auth.btn_resend_otp,Resend OTP code,Gửi lại mã OTP
+auth.err_same_email,The target email cannot be the same as the current email.,Email chuyển đổi không được trùng với email hiện tại.
+auth.btn_send_otp,Send Verification Code,Gửi mã xác nhận
+auth.title_switch_account,Switch to Another Account,Chuyển đổi tài khoản khác
+auth.desc_switch_account,Log in with a different email (current data will be automatically backed up).,Đăng nhập bằng Email khác (dữ liệu hiện tại sẽ tự động sao lưu).
+auth.desc_switch_account_screen,Enter the email of the account you want to switch to. Current data will be automatically backed up.,Nhập email của tài khoản muốn chuyển đến. Dữ liệu hiện tại sẽ được tự động sao lưu.
+auth.msg_sync_complete,Synchronization complete! Your account is now linked.,Đồng bộ hoàn tất! Tài khoản đã được liên kết.
+auth.msg_sync_gamification,Processing Leaderboard & Records data...,Đang xử lý dữ liệu Xếp hạng & Kỷ lục...
+auth.msg_sync_result_err,A connection error occurred during synchronization.,Có lỗi kết nối xảy ra trong quá trình đồng bộ.
+auth.msg_sync_result_merged,Data on the server and device have been successfully merged!,Đã hợp nhất dữ liệu trên máy chủ và thiết bị!
+auth.msg_sync_result_new_user,Current data has been safely backed up to the server!,Đã sao lưu dữ liệu hiện tại lên máy chủ an toàn!
+auth.msg_sync_result_old_user,Successfully restored all your previous data!,Đã khôi phục toàn bộ dữ liệu cũ của bạn thành công!
+auth.msg_sync_workout,Synchronizing workout data...,Đang đồng bộ dữ liệu tập luyện...
+auth.msg_syncing_to_cloud,Synchronizing data to the cloud...,Đang đồng bộ dữ liệu lên đám mây...
+auth.err_target_account_not_found,Target account does not exist.,Tài khoản đích không tồn tại.
+auth.msg_unlink_success,Account successfully unlinked.,Đã ngắt liên kết tài khoản thành công.
+auth.msg_verify_err,The verification code is incorrect or has expired!,Mã xác nhận không đúng hoặc đã hết hiệu lực!
+auth.title_verify_otp,Enter Verification Code,Nhập mã xác nhận
+auth.msg_verify_success,Verification successful. Loading profile...,Xác thực thành công. Đang tải hồ sơ...
+auth.msg_verifying,Verifying...,Đang xác thực...
+calendar.lbl_choose_days,Choose days of the week:,Chọn ngày trong tuần:
+calendar.title_color,Display Color,Màu hiển thị
+calendar.title_config_recurrence,Recurrence Config,Cấu hình chu kì
+calendar.btn_confirm,Schedule,Tạo lịch
+calendar.title_day_dtl,Daily Schedule,Lịch trình ngày
+calendar.title_delete,Delete Workout,Xóa lịch tập
+calendar.opt_delete_all,Delete entire series,Xóa toàn bộ chuỗi
+calendar.msg_delete_confirm,Are you sure you want to delete this routine?,Bạn có chắc chắn muốn xóa lịch tập này không?
+calendar.opt_delete_one,Delete this event only,Chỉ xóa ngày này
+calendar.msg_delete_recurring,This workout is part of a recurring series. How would you like to delete?,Lịch tập này thuộc một chuỗi lặp lại. Bạn muốn xóa như thế nào?
+calendar.msg_empty,You have no scheduled workouts,Bạn chưa có lịch trình nào
+calendar.lbl_frequency,Repeat Frequency,Tần suất lặp lại
+calendar.global_max_days,Longest consecutive days: {days} days,Chuỗi ngày tập liên tiếp dài nhất: {days} ngày
+calendar.global_max_weeks,Longest consecutive weeks: {weeks} weeks,Chuỗi tuần tập liên tiếp dài nhất: {weeks} tuần
+calendar.global_workouts,Total Workouts: {count} sessions,Tổng số buổi tập: {count} buổi
+calendar.lbl_infinite,Infinite (Default),Vĩnh viễn (mặc định)
+calendar.lbl_interval_days,Every how many days?,Cách mấy ngày tập 1 lần?
+calendar.max_days,{days} days,{days} ngày
+calendar.max_weeks,{weeks} weeks,{weeks} tuần
+calendar.max_workouts,{count} sessions,{count} buổi tập
+calendar.msg_no_routines,You haven't created any routines yet.,Bạn chưa tạo Routine nào.
+calendar.lbl_occurrences,Total occurrences,Tổng số lần áp dụng
+calendar.title_planned,Planned:,Dự kiến:
+calendar.repeat_daily,Daily,Hàng ngày
+calendar.repeat_interval,Every X days,Cách X ngày tập 1 lần
+calendar.repeat_none,"Once, today only",Chỉ một lần hôm nay
+calendar.repeat_weekly,Weekly on specific days,Hàng tuần vào ngày cụ thể
+calendar.btn_schedule,Schedule,Lên lịch
+calendar.title_schedule_success,Schedule Created Successfully!,Tạo lịch thành công!
+calendar.msg_schedule_success,The new routine schedule has been added to your calendar.,Lịch tập mới đã được thêm vào lịch của bạn.
+calendar.section_upcoming,Planned Routines,Kế hoạch
+calendar.select_day_prompt,Select a day to view details,Chọn một ngày để xem chi tiết
+calendar.title_select_routine,Select Routine,Chọn buổi tập
+calendar.msg_success,Successfully scheduled!,Đã lên lịch thành công!
+calendar.suffix_days,days,ngày
+calendar.suffix_times,times,lần
+calendar.lbl_upcoming,Upcoming Workout,Lịch sắp tới
+calendar.view_month,Month,Tháng
+calendar.view_multi_year,Multi-Year,Nhiều Năm
+calendar.view_year,Year,Năm
+common.about_us,About Us,Về chúng tôi
+common.accept,Allow,Cho phép
+common.add,Add,Thêm
+common.agree,Agree,Đồng ý
+common.back,Back,Quay lại
+common.cancel,Cancel,Hủy
+common.close,Close,Đóng
+common.confirm,Confirm,Xác nhận
+common.create,Create,Tạo
+common.day_mon,Mon,T2
+common.day_tue,Tue,T3
+common.day_wed,Wed,T4
+common.day_thu,Thu,T5
+common.day_fri,Fri,T6
+common.day_sat,Sat,T7
+common.day_sun,Sun,CN
+common.decline,Decline,Từ chối
+common.delete,Delete,Xóa
+common.delete_all,Delete All,Xóa hết
+common.title_delete_dialog_main,Permanently delete this workout?,Xóa vĩnh viễn buổi tập này?
+common.msg_delete_dialog_warn,"Once confirmed, all data for this workout cannot be recovered.","Sau khi xác nhận, toàn bộ dữ liệu của buổi tập này không thể khôi phục lại."
+common.distance,Distance,Quãng đường
+common.done,Done,Xong
+common.duration,Duration,Thời lượng
+common.edit,Edit,Chỉnh sửa
+common.male,Male,Nam
+common.female,Female,Nữ
+common.other,Other,Khác
+common.info,Details,Thông tin chi tiết
+common.logout,Logout,Đăng xuất
+common.next,Next,Tiếp theo
+common.none,None,Không có
+common.open_settings,Open Settings,Mở Cài đặt
+common.reps,Reps,Lần lặp
+common.rest,Rest,Nghỉ ngơi
+common.save,Save,Lưu
+common.save_anyway,Save anyway,Vẫn lưu
+common.set,Set,Hiệp
+common.sets,Sets,Số hiệp
+common.skip,Skip,Bỏ qua
+common.start,Start,Bắt đầu
+common.steps,Steps,Bước
+common.time,Time,Thời gian
+common.time_0m,0m,0m
+common.time_days_hours_minutes,{days} days {hours} hours {minutes} minutes,{days} ngày {hours} giờ {minutes} phút
+common.time_h_m,{h}h {m}m,{h}h {m}m
+common.time_h_m_s,{h}h {m}m {s}s,{h}h {m}m {s}s
+common.time_hours_minutes,{hours} hours {minutes} minutes,{hours} giờ {minutes} phút
+common.time_m,{m}m,{m}m
+common.time_m_s,{m}m {s}s,{m}m {s}s
+common.time_s,{s}s,{s}s
+common.tutorial_title,Tutorial,Hướng dẫn sử dụng
+common.understood,Understood,Đã hiểu
+common.unit_cm,cm,cm
+common.unit_kcal,kcal,kcal
+common.unit_kg,kg,kg
+common.unit_km,km,km
+common.unit_lbs,lbs,lbs
+common.video_err,Failed to load tutorial video,Không thể tải video hướng dẫn
+common.volume,Volume,Tải trọng
+common.weight,Weight,Trọng lượng
+equipment.band,Resistance Band,Dây kháng lực
+equipment.barbell,Barbell,Tạ đòn
+equipment.bodyweight,Bodyweight,Không dụng cụ
+equipment.cable,Cable,Dây cáp
+equipment.dumbbell,Dumbbell,Tạ đơn
+equipment.kettlebell,Kettlebell,Tạ chuông
+equipment.machine,Machine,Máy tập
+equipment.rope,Jumping Rope,Dây nhảy
+exercises.name_arnold_press,Arnold Press,Đẩy vai Arnold
+exercises.desc_arnold_press,"1. Hold dumbbells at shoulder height with palms facing you.
+2. Exhale and press the dumbbells overhead. While pressing, smoothly rotate your wrists so your palms face forward at the top.
+3. Inhale, lower the dumbbells, and reverse the rotation back to the starting position.","1. Cầm tạ đơn ở ngang vai, lòng bàn tay hướng vào mặt.
+2. Thở ra và bắt đầu đẩy tạ lên cao qua đầu. Đồng thời từ từ xoay cổ tay sao cho khi tạ lên đỉnh, lòng bàn tay hướng về phía trước.
+3. Hít vào, từ từ hạ tạ xuống và xoay ngược cổ tay trở lại vị trí ban đầu."
+exercises.name_australian_pull_up,Australian Pull-Up,Kéo xà ngang
+exercises.desc_australian_pull_up,"1. Grip a low bar and position your body in a straight line from heels to head (like a reverse plank).
+2. Exhale, pull your shoulder blades back, and row your chest up to touch the bar.
+3. Squeeze at the top for 1 second, then inhale and slowly lower yourself until arms are fully extended.","1. Gồng chặt cơ mông và bụng để cơ thể tạo thành đường thẳng (như Plank ngửa) dưới thanh xà thấp.
+2. Thở ra, kéo bả vai ra sau và gập khuỷu tay để kéo ngực chạm vào thanh xà.
+3. Giữ đỉnh 1 giây, sau đó hít vào và từ từ hạ thân người xuống thẳng tay."
+exercises.name_barbell_curl,Barbell Bicep Curl,Cuốn tạ đòn tay trước
+exercises.desc_barbell_curl,"1. Keep your back straight, chest up, and elbows pinned to your sides.
+2. Exhale, squeeze your biceps, and curl the barbell in an arc toward your chest/chin.
+3. Inhale and slowly lower the bar back to the starting position to fully stretch the biceps.","1. Giữ lưng thẳng, ngực hơi ưỡn và ép khuỷu tay sát thân người.
+2. Thở ra, siết cơ bắp tay và cuốn tạ đòn lên theo đường vòng cung về phía ngực/cằm.
+3. Hít vào và từ từ hạ thanh tạ đòn xuống vị trí ban đầu với tốc độ chậm để giãn cơ."
+exercises.name_barbell_row,Barbell Row,Gập người kéo tạ đòn
+exercises.desc_barbell_row,"1. Bend over while keeping your back naturally straight. Brace your core and look slightly down.
+2. Exhale, retract your shoulder blades, and pull the bar toward your belly button.
+3. Keep your elbows relatively close to your body. Squeeze at the top.
+4. Inhale and lower the bar slowly until your arms are fully extended.","1. Cúi người, giữ lưng thẳng tự nhiên, gồng cơ core và mắt nhìn chếch xuống sàn.
+2. Thở ra, siết cơ lưng và kéo thanh tạ hướng thẳng về phía bụng dưới (hoặc rốn).
+3. Giữ hai cùi chỏ sát thân. Ở đỉnh chuyển động, kẹp chặt hai bả vai lại.
+4. Hít vào và hạ tạ xuống từ từ cho đến khi duỗi thẳng tay."
+exercises.name_barbell_squat,Barbell Squat,Squat tạ đòn
+exercises.desc_barbell_squat,"1. Rest the bar on your upper back. Take a deep breath into your belly to create intra-abdominal pressure (bracing).
+2. Push your hips back and bend your knees to squat down. Go as deep as your mobility allows while keeping a straight spine.
+3. Drive hard through the floor, exhale forcefully, and stand back up.","1. Đặt thanh tạ lên phần cơ cầu vai/lưng trên. Hít sâu xuống bụng (bracing) và gồng cứng cơ core.
+2. Đẩy hông ra sau và gập gối hạ người xuống có kiểm soát. Hạ sâu hết biên độ linh hoạt mà vẫn giữ lưng thẳng.
+3. Đạp mạnh sàn, thở ra dứt khoát và đẩy tạ đi thẳng lên đứng thẳng người."
+exercises.name_bench_dips,Bench Dips,Chống đẩy ngược trên ghế
+exercises.desc_bench_dips,"1. Place your hands on the edge of a bench and slide your hips off. Keep your arms straight.
+2. Inhale and slowly bend your elbows to lower your body until your upper arms are parallel to the floor.
+3. Exhale and push through your palms using your triceps to return to the start.","1. Tựa hai tay lên mép ghế, trượt mông ra ngoài. Duỗi thẳng tay để giữ trọng lượng.
+2. Hít vào, từ từ gập khuỷu tay hạ cơ thể xuống cho đến khi cánh tay trên song song với sàn.
+3. Thở ra, dồn lực vào lòng bàn tay dùng cơ tay sau đẩy người lên vị trí ban đầu."
+exercises.name_bench_press,Barbell Bench Press,Đẩy ngực tạ đòn
+exercises.desc_bench_press,"1. Unrack the barbell and hold it directly over your mid-chest.
+2. Inhale and lower the bar under control until it lightly touches your mid-chest. Do not bounce the bar.
+3. Pause briefly, then exhale, drive your feet into the floor, and press the bar back up in a slight arc toward your head.","1. Nhấc thanh tạ ra khỏi giá đỡ và giữ ngay trên vùng giữa ngực.
+2. Hít vào, kiểm soát và từ từ hạ tạ xuống cho đến khi chạm nhẹ vào giữa ngực. Không thả tạ rơi tự do.
+3. Dừng lại một tíc tắc, sau đó thở ra, đạp mạnh chân xuống sàn và đẩy tạ lên cao theo quỹ đạo hơi chéo về phía đầu."
+exercises.name_bicycle_crunches,Bicycle Crunches,Gập bụng đạp xe
+exercises.desc_bicycle_crunches,"1. Lie flat with hands behind your head and legs elevated.
+2. Exhale, extend your right leg out straight, and twist your torso to bring your right elbow toward your left knee.
+3. Inhale through the center, then exhale and switch sides in a continuous pedaling motion.","1. Nằm ngửa, hai tay đặt sau đầu. Nâng hai chân lên khỏi sàn.
+2. Thở ra, duỗi thẳng chân phải đồng thời vặn thân trên sang trái, đưa khuỷu tay phải hướng về đầu gối trái.
+3. Hít vào khi qua tâm, thở ra và thực hiện đổi bên luân phiên liên tục như đang đạp xe."
+exercises.name_bulgarian_split_squat,Bulgarian Split Squat,Squat một chân
+exercises.desc_bulgarian_split_squat,"1. Rest your rear foot on a bench. Keep your torso upright.
+2. Inhale and slowly drop your hips by bending both knees until your front thigh is parallel to the floor (rear knee almost touching the ground).
+3. Exhale and drive through your front heel to push back up.","1. Đặt mu bàn chân sau lên ghế. Giữ lưng thẳng, ngực ưỡn.
+2. Hít vào, từ từ gập gối hạ thấp hông xuống cho đến khi đùi trước song song với sàn (đầu gối sau gần chạm sàn).
+3. Thở ra, dồn lực vào gót chân trước đẩy người thẳng lên."
+exercises.name_burpees,Burpees,Nhảy Burpees
+exercises.desc_burpees,"1. Drop into a squat position and place your hands on the floor.
+2. Jump both feet back into a high plank position.
+3. Perform one push-up (optional).
+4. Jump your feet back into the squat, then explosively jump vertically with your hands reaching overhead.","1. Hạ người thành tư thế ngồi xổm, hai tay chống xuống sàn.
+2. Bật nhảy đưa hai chân ra sau vào tư thế Plank cao.
+3. Thực hiện một nhịp hít đất (tùy chọn theo thể lực).
+4. Bật nhảy thu chân về tư thế ngồi xổm, lập tức bật nhảy cao lên không trung và vung tay qua đầu."
+exercises.name_cable_crossover,Cable Crossover,Ép ngực chéo với cáp
+exercises.desc_cable_crossover,"1. Stand between high pulleys. Open your arms with a slight, locked bend in your elbows.
+2. Exhale and pull the handles together, crossing them over each other in front of your chest.
+3. Squeeze your chest hard for 1 second, then inhale and slowly open your arms.","1. Đứng giữa máy cáp cao. Mở rộng vòng tay, cùi chỏ cong nhẹ cố định.
+2. Thở ra, kéo ép hai tay bắt chéo qua nhau ở phía trước ngực.
+3. Ép chặt cơ ngực 1 giây, hít vào từ từ mở rộng cánh tay."
+exercises.name_cable_crunch,Cable Crunch,Gập bụng với cáp
+exercises.desc_cable_crunch,"1. Kneel facing the cable machine, holding the rope attachment behind your neck. Keep your hips locked.
+2. Exhale and crunch downward by flexing your spine, driving your elbows toward your thighs.
+3. Squeeze your abs for 1 second at the bottom.
+4. Inhale and slowly release the weight back up.","1. Quỳ gối đối diện máy cáp, cầm dây thừng sau gáy. Cố định hoàn toàn hông và đùi.
+2. Thở ra, cuộn tròn cột sống để gập người xuống, hướng khuỷu tay về phía đùi.
+3. Siết chặt cơ bụng ở điểm sâu nhất trong 1 giây.
+4. Hít vào và từ từ nhả cáp về vị trí ban đầu."
+exercises.name_cable_kickback,Cable Glute Kickback,Đá mông với cáp
+exercises.desc_cable_kickback,"1. Attach the ankle strap and hold onto the machine for balance. Brace your core.
+2. Exhale and squeeze your glutes to kick the working leg back and up in an arc.
+3. Hold the peak contraction for 1 second.
+4. Inhale and control the weight as you bring your leg back.","1. Gắn cáp vào cổ chân. Đứng trụ vững, gồng cơ core.
+2. Thở ra, siết cơ mông đá chân ra sau và lên cao theo quỹ đạo vòng cung.
+3. Giữ 1 giây khi cơ mông cuộn lại tối đa.
+4. Hít vào, từ từ kiểm soát cáp để đưa chân về."
+exercises.name_cable_lateral_raise,Cable Lateral Raise,Dang vai với cáp
+exercises.desc_cable_lateral_raise,"1. Stand next to a low pulley and grab the D-handle with your outside hand.
+2. With a slight bend in your elbow, exhale and raise your arm out to the side until it's parallel to the floor.
+3. Hold for a brief second, then inhale and lower slowly.","1. Đứng cạnh máy cáp, dùng tay phía ngoài nắm lấy tay cầm ở ròng rọc thấp.
+2. Hơi gập khuỷu tay. Thở ra, nâng tay sang ngang cho đến khi cánh tay song song với sàn.
+3. Giữ lại 1 nhịp ở đỉnh, sau đó hít vào và từ từ hạ xuống có kiểm soát."
+exercises.name_chest_dips,Chest Dips,Xà kép ép ngực
+exercises.desc_chest_dips,"1. On parallel bars, lean your torso forward about 30 degrees to target the chest.
+2. Inhale and lower your body until your shoulders drop below your elbows (feel the stretch in your lower chest).
+3. Exhale and push through your palms to return to the top.","1. Trên xà kép, đổ người ngả về phía trước khoảng 30 độ để nhắm vào cơ ngực.
+2. Hít vào, hạ cơ thể cho đến khi vai thấp hơn khuỷu tay (cảm nhận ngực dưới bị kéo căng).
+3. Thở ra, dồn lực lòng bàn tay siết ngực đẩy người lên."
+exercises.name_chest_supported_row,Chest-Supported Row,Nằm ghế dốc kéo lưng
+exercises.desc_chest_supported_row,"1. Lie face down on a 45-degree incline bench with your chest supported. Let dumbbells hang straight down.
+2. Exhale, pull your elbows up to the ceiling, and squeeze your shoulder blades.
+3. Inhale and slowly lower the dumbbells to stretch your back.","1. Nằm sấp ngực tựa chắc lên ghế dốc 45 độ. Hai tay buông thõng cầm tạ đơn.
+2. Thở ra, kéo cùi chỏ lên trần nhà ép chặt hai bả vai.
+3. Hít vào từ từ hạ tạ để giãn cơ lưng."
+exercises.name_chin_up,Chin-Up,Hít xà đơn
+exercises.desc_chin_up,"1. Grab the bar with an underhand (supinated) grip. Hang with arms fully extended.
+2. Exhale, engage your lats and biceps, and pull your body up until your chin clears the bar.
+3. Inhale and lower yourself under control back to a dead hang.","1. Nắm thanh xà với lòng bàn tay hướng về phía người. Treo người duỗi thẳng tay.
+2. Thở ra, siết lưng xô và bắp tay kéo người lên cho đến khi cằm vượt qua xà.
+3. Ép chặt hai bả vai. Hít vào và từ từ hạ thân người xuống hết cỡ (dead hang)."
+exercises.name_close_grip_pulldown,Close-Grip Lat Pulldown,Kéo xô hẹp tay
+exercises.desc_close_grip_pulldown,"1. Grab the V-bar attachment and slightly puff your chest out.
+2. Exhale and pull the bar down toward your mid-chest. Keep your elbows tucked close to your sides.
+3. Squeeze your lats at the bottom, then inhale and slowly let the bar back up to get a deep stretch.","1. Cầm tay cầm V-bar, ngực ưỡn nhẹ.
+2. Thở ra, kéo V-bar hướng xuống phần ngực giữa. Giữ cùi chỏ ép sát vào sườn.
+3. Ép bả vai ở điểm thấp nhất. Hít vào và nhả tạ lên từ từ để kéo giãn cơ xô."
+exercises.name_crunch,Crunch,Gập bụng cơ bản
+exercises.desc_crunch,"1. Lie on your back with knees bent. Inhale and engage your core.
+2. Slowly curl your head, neck, and upper back off the floor. Keep your lower back pressed into the mat.
+3. Hold the contraction for 1 second and exhale sharply. Inhale as you lower back down.","1. Nằm ngửa, gập gối. Hít sâu, siết cơ bụng.
+2. Từ từ cuộn người, nâng đầu và vai rời khỏi sàn. Lưng dưới (thắt lưng) vẫn ép chặt xuống thảm.
+3. Giữ 1 giây, thở ra dứt khoát. Hít vào và hạ người xuống từ từ."
+exercises.name_crunch_machine,Machine Crunch,Gập bụng với máy
+exercises.desc_crunch_machine,"1. Lock yourself into the ab crunch machine. Inhale deeply.
+2. Exhale and crunch your torso forward, contracting your abs hard.
+3. Hold the bottom position for 1 second, then inhale and slowly return to an upright position.","1. Ngồi cố định vào máy gập bụng. Hít sâu.
+2. Thở ra, cuộn thân trên gập người về trước, co thắt mạnh cơ bụng.
+3. Giữ nguyên 1 giây ở điểm sâu nhất, hít vào nhả máy từ từ."
+exercises.name_deadlift,Barbell Deadlift,Deadlift tạ đòn
+exercises.desc_deadlift,"1. Stand with shins close to the bar. Hinge down, grip the bar, puff your chest out, and engage your lats.
+2. Take a deep breath (brace). Drive your legs into the floor and pull your torso up simultaneously.
+3. Keep the bar dragging up your shins and thighs. Lock out your hips and squeeze your glutes at the top. Exhale.
+4. Hinge your hips back first to lower the bar to the floor.","1. Đứng cẳng chân sát thanh đòn. Gập hông cúi xuống, cầm tạ, ưỡn ngực kéo căng cơ xô.
+2. Hít sâu vào bụng. Đạp mạnh chân xuống sàn và đồng thời kéo thân đứng thẳng lên.
+3. Giữ thanh tạ trượt sát đùi. Siết mông ở đỉnh, thở ra.
+4. Đẩy hông ra sau để hạ tạ xuống đất có kiểm soát."
+exercises.name_decline_bench_press,Decline Barbell Bench Press,Đẩy ngực dưới tạ đòn
+exercises.desc_decline_bench_press,"1. Lie on a decline bench. Unrack the bar and hold it straight over your lower chest.
+2. Inhale and slowly lower the bar until it lightly touches your lower chest.
+3. Exhale and press the bar back up to the starting position.","1. Nằm trên ghế dốc xuống. Hít sâu, nhấc tạ ra khỏi giá nằm trên vùng ngực dưới.
+2. Hít vào, hạ tạ có kiểm soát chạm nhẹ vào ngực dưới.
+3. Thở ra, dùng lực ngực đẩy tạ lên thẳng vị trí ban đầu."
+exercises.name_decline_push_up,Decline Push-Up,Hít đất dốc xuống
+exercises.desc_decline_push_up,"1. Place your feet on an elevated box or bench so your body forms a downward slope.
+2. Inhale and lower your chest toward the floor, keeping your elbows tucked at a 45-degree angle.
+3. Exhale and push back up to fully extended arms.","1. Đặt hai chân lên bục/ghế cao. Cơ thể tạo đường thẳng dốc xuống.
+2. Hít vào, hạ ngực gần chạm sàn. Khuỷu tay gập góc khoảng 45 độ so với thân.
+3. Thở ra, dùng lực ngực trên đẩy người lên thẳng tay."
+exercises.name_diamond_push_up,Diamond Push-Up,Hít đất kim cương
+exercises.desc_diamond_push_up,"1. Form a diamond shape with your thumbs and index fingers placed directly under your chest.
+2. Inhale, lower your body until your chest nearly touches your hands. Keep your elbows tucked tight to your ribs.
+3. Exhale and forcefully push back up using your triceps.","1. Chống tay tạo hình kim cương (ngón cái và trỏ chạm nhau) ở ngay dưới ngực.
+2. Hít vào, hạ thân người xuống sát mu bàn tay, cùi chỏ ép sát sườn.
+3. Thở ra, siết cơ tay sau đẩy người lên thẳng."
+exercises.name_dumbbell_bench_press,Dumbbell Bench Press,Đẩy ngực tạ đơn
+exercises.desc_dumbbell_bench_press,"1. Lie flat on a bench, pressing dumbbells straight up over your chest.
+2. Inhale and lower the dumbbells to the sides of your chest. Flare your elbows out at roughly a 45 to 60-degree angle.
+3. Get a deep stretch, then exhale and press the weights back up.","1. Nằm ghế bằng, đẩy hai quả tạ thẳng lên trên ngực.
+2. Hít vào, hạ tạ xuống hai bên. Cùi chỏ mở góc khoảng 45-60 độ so với thân người.
+3. Hạ đến khi ngực căng tối đa. Thở ra, siết ngực đẩy tạ vút lên trên."
+exercises.name_dumbbell_curl,Dumbbell Curl,Cuốn tạ đơn tay trước
+exercises.desc_dumbbell_curl,"1. Keep your upper arms locked in place against your sides.
+2. Exhale and curl the dumbbells up toward your shoulders.
+3. Squeeze your biceps hard at the top, then inhale and lower under control.","1. Giữ cố định bắp tay (phần từ vai đến khuỷu tay) sát thân người.
+2. Thở ra, cuốn tạ lên về phía vai, xoay ngửa cổ tay.
+3. Siết bắp tay 1 giây ở đỉnh, hít vào hạ tạ có kiểm soát."
+exercises.name_dumbbell_deadlift,Dumbbell Deadlift,Deadlift tạ đơn
+exercises.desc_dumbbell_deadlift,"1. Hold dumbbells by your sides. Inhale, brace your core, hinge your hips back, and bend your knees to lower the weights.
+2. Drive your feet into the ground to pull the weights back up.
+3. Lock your hips and squeeze your glutes at the top. Exhale.","1. Cầm tạ hai bên hông. Hít sâu, đẩy hông ra sau và chùng gối hạ tạ xuống dọc đùi.
+2. Đạp mạnh hai chân xuống sàn, kéo tạ đứng thẳng lên.
+3. Siết mông ở đỉnh. Thở ra. Đẩy hông ra sau để lặp lại."
+exercises.name_dumbbell_fly,Dumbbell Fly,Ép ngực tạ đơn
+exercises.desc_dumbbell_fly,"1. Lie on a bench, pressing dumbbells straight up. Keep a slight bend in your elbows.
+2. Inhale and lower your arms out to the sides in a wide arc until you feel a deep stretch in your chest.
+3. Exhale and hug the weights back to the top following the same arc.","1. Nằm trên ghế, hai tay cầm tạ đẩy thẳng lên ngực. Hơi gập nhẹ khuỷu tay.
+2. Hít vào, mở rộng cánh tay sang hai bên theo quỹ đạo vòng cung cho đến khi ngực căng tối đa.
+3. Thở ra, ép tạ về lại vị trí ban đầu theo đúng quỹ đạo vòng cung đó."
+exercises.name_dumbbell_lateral_raise,Dumbbell Lateral Raise,Dang vai tạ đơn
+exercises.desc_dumbbell_lateral_raise,"1. Stand with a slight bend in your elbows.
+2. Exhale and raise the dumbbells out to the sides (like pouring water from a pitcher) until your arms are parallel to the floor.
+3. Inhale and lower the weights back down slowly without losing tension.","1. Đứng thẳng, hai tay cầm tạ. Hơi gập nhẹ khuỷu tay.
+2. Thở ra, nâng tạ sang ngang như đang hắt nước, cho đến khi cánh tay song song với sàn.
+3. Hít vào và từ từ hạ tạ xuống không để mất lực căng."
+exercises.name_dumbbell_lunges,Dumbbell Lunge,Bước gập gối tạ đơn
+exercises.desc_dumbbell_lunges,"1. Hold dumbbells by your sides. Inhale and take a step forward.
+2. Drop your hips straight down until both knees form a 90-degree angle.
+3. Exhale and push off your front foot to return to the starting position.","1. Cầm tạ hai tay. Hít vào, bước một chân lên phía trước một khoảng vừa đủ.
+2. Hạ thấp hông theo phương thẳng đứng đến khi hai đầu gối đều tạo góc 90 độ.
+3. Thở ra, dồn lực bật mạnh từ chân trước đẩy lùi người về vị trí xuất phát."
+exercises.name_dumbbell_rdl,Dumbbell Romanian Deadlift,Deadlift chân thẳng tạ đơn
+exercises.desc_dumbbell_rdl,"1. Stand tall holding dumbbells in front of your thighs. Keep a slight bend in your knees.
+2. Inhale, push your hips straight back, and glide the weights down your legs until you feel a deep hamstring stretch.
+3. Exhale, squeeze your glutes, and push your hips forward to stand back up.","1. Đứng thẳng, tạ đơn đặt sát đùi trước. Đầu gối hơi chùng nhẹ.
+2. Hít sâu, đẩy hông thẳng ra phía sau (hip hinge) và trượt tạ dọc xuống chân cho đến khi đùi sau căng.
+3. Thở ra, siết mông đẩy hông về trước để đứng thẳng lên."
+exercises.name_dumbbell_reverse_fly,Dumbbell Reverse Fly,Dang vai sau tạ đơn
+exercises.desc_dumbbell_reverse_fly,"1. Bend over so your torso is almost parallel to the floor. Keep a slight bend in your elbows.
+2. Exhale and raise the dumbbells out to your sides like spreading wings.
+3. Squeeze your rear delts at the top, then inhale and lower slowly.","1. Cúi gập người, lưng thẳng và song song với sàn. Khuỷu tay cong nhẹ.
+2. Thở ra, dang hai cánh tay giương rộng ra hai bên như đôi cánh.
+3. Ép bả vai ở đỉnh, hít vào và từ từ hạ tạ xuống."
+exercises.name_dumbbell_row,Dumbbell Row,Kéo tạ đơn
+exercises.desc_dumbbell_row,"1. Bend over keeping your back straight. Let the dumbbells hang down.
+2. Exhale and pull the dumbbells up toward your hips, driving your elbows to the ceiling.
+3. Squeeze your shoulder blades together at the top. Inhale and lower slowly.","1. Cúi gập người, lưng thẳng. Hai tay cầm tạ buông thõng tự nhiên.
+2. Thở ra, kéo hai quả tạ lên phía mạn sườn, hướng cùi chỏ lên trần nhà.
+3. Ép bả vai ở đỉnh. Hít vào và hạ tạ từ từ xuống."
+exercises.name_dumbbell_shoulder_press,Dumbbell Shoulder Press,Đẩy vai tạ đơn
+exercises.desc_dumbbell_shoulder_press,"1. Sit with chest up, holding dumbbells at shoulder level. Exhale and press them overhead.
+2. Bring the weights close together at the top without clanking them.
+3. Inhale and slowly lower them back down to ear/shoulder level.","1. Ngồi ưỡn ngực, cầm tạ ngang vai. Thở ra, đẩy tạ thẳng lên đỉnh đầu.
+2. Ép cơ vai ở đỉnh (hai quả tạ gần chạm nhau).
+3. Hít vào và từ từ hạ tạ xuống ngang tai."
+exercises.name_dumbbell_shrugs,Dumbbell Shrug,Nhún vai tạ đơn
+exercises.desc_dumbbell_shrugs,"1. Stand tall with dumbbells hanging naturally by your sides.
+2. Exhale and shrug your shoulders straight up toward your ears.
+3. Hold the top contraction for 1 second.
+4. Inhale and lower your shoulders all the way down to stretch your traps.","1. Hai tay cầm tạ buông thõng hoàn toàn.
+2. Thở ra, nhún hai bờ vai thẳng lên hướng về lỗ tai. Giữ đỉnh 1 giây.
+3. Hít vào, hạ vai xuống sâu để kéo giãn cơ cầu vai."
+exercises.name_face_pull,Face Pull,Kéo cáp ngang mặt
+exercises.desc_face_pull,"1. Attach a rope to a high pulley. Pull the rope toward your forehead.
+2. As you pull, pull the handles apart and rotate your wrists up, driving your elbows back past your ears.
+3. Squeeze your shoulder blades for 1 second. Inhale and slowly return.","1. Lắp dây thừng vào cáp cao. Kéo dây hướng về phía trán.
+2. Tách hai đầu dây ra, xoay cổ tay lên trên và kéo cùi chỏ ra phía sau mang tai.
+3. Ép bả vai 1 giây. Hít vào từ từ nhả tay."
+exercises.name_glute_bridge,Glute Bridge,Nâng hông
+exercises.desc_glute_bridge,"1. Lie on your back with knees bent. Inhale and brace your core.
+2. Exhale, drive through your heels, and squeeze your glutes to push your hips up until your body forms a straight line.
+3. Hold for 1-2 seconds at the top. Inhale and slowly lower your hips.","1. Nằm ngửa, gập gối. Hít sâu, gồng cơ bụng.
+2. Thở ra, dồn lực gót chân siết mông đẩy hông lên tạo đường thẳng từ gối đến vai.
+3. Giữ 1-2 giây ở đỉnh. Hít vào từ từ hạ hông xuống sàn."
+exercises.name_goblet_squat,Goblet Squat,Squat ôm tạ
+exercises.desc_goblet_squat,"1. Hold a dumbbell vertically against your chest. Inhale and brace your core.
+2. Push your hips back and squat down, letting your elbows drop between your knees.
+3. Exhale, drive through your heels, and stand back up.","1. Ôm dọc 1 quả tạ đơn sát trước ngực. Hít sâu, gồng cơ core.
+2. Đẩy hông ra sau và hạ người tư thế Squat. Hai cùi chỏ đi vào giữa hai đầu gối.
+3. Thở ra, dồn lực gót chân đứng thẳng dậy."
+exercises.name_hack_squat,Hack Squat,Hack Squat
+exercises.desc_hack_squat,"1. Position your back flat against the Hack Squat pad. Inhale and bend your knees to lower the sled.
+2. Descend until your thighs are parallel to the footplate.
+3. Exhale and drive forcefully through your heels to push the sled back up.","1. Áp sát lưng phẳng vào đệm máy Hack Squat. Hít vào, gập gối hạ người.
+2. Xuống đến khi đùi song song với bàn đạp.
+3. Thở ra, dồn lực gót chân đẩy máy vút lên vị trí cũ."
+exercises.name_hammer_curl,Hammer Curl,Cuốn tạ búa
+exercises.desc_hammer_curl,"1. Hold dumbbells with a neutral grip (palms facing each other). Keep upper arms fixed to your sides.
+2. Exhale and curl the weights up toward your shoulders, maintaining the neutral grip.
+3. Inhale and slowly lower the weights down.","1. Hai tay cầm tạ đơn, lòng bàn tay luôn hướng vào nhau. Cố định bắp tay sát sườn.
+2. Thở ra, cuốn tạ lên vai, giữ nguyên mặt phẳng tay (như đang đóng búa).
+3. Hít vào từ từ hạ tạ xuống."
+exercises.name_hanging_leg_raise,Hanging Leg Raise,Treo người nâng chân
+exercises.desc_hanging_leg_raise,"1. Hang from a pull-up bar. Brace your core tightly.
+2. Exhale and raise your legs straight in front of you until they are parallel to the floor (or higher).
+3. Hold for 1 second, then inhale and lower them with control.","1. Treo người trên xà. Siết chặt cơ core.
+2. Thở ra, nâng hai chân lên phía trước cho đến khi song song với sàn (hoặc cao hơn).
+3. Giữ 1 giây, hít vào và từ từ hạ chân có kiểm soát."
+exercises.name_high_knees,High Knees,Chạy nâng cao đùi
+exercises.desc_high_knees,"1. Run in place, driving one knee up to hip level at a time.
+2. Alternate your legs as fast as possible.
+3. Pump your arms rhythmically, keeping your chest up and core engaged.","1. Chạy tại chỗ, kéo cao một bên đầu gối ngang hông.
+2. Luân phiên đánh gối nhanh nhất có thể.
+3. Đánh tay nhịp nhàng như đang chạy nước rút."
+exercises.name_hip_abduction,Hip Abduction Machine,Máy đẩy đùi ngoài
+exercises.desc_hip_abduction,"1. Sit in the outer thigh machine with your legs closed against the pads.
+2. Exhale and push your knees outward as far as possible using your glutes.
+3. Hold the squeeze for 1 second. Inhale and slowly bring your legs back together.","1. Ngồi máy đẩy đùi ngoài, hai chân khép lại tựa vào đệm.
+2. Thở ra, dùng lực mông ngoài đẩy đùi mở rộng sang hai bên hết cỡ.
+3. Giữ siết cơ mông 1 giây, hít vào từ từ khép lại."
+exercises.name_hip_adduction,Hip Adduction Machine,Máy ép đùi trong
+exercises.desc_hip_adduction,"1. Sit in the inner thigh machine with your legs spread open against the pads.
+2. Exhale and squeeze your thighs together to close the pads.
+3. Hold for 1 second. Inhale and slowly let your legs open under control.","1. Ngồi máy ép đùi trong, mở rộng hai chân tựa vào đệm tì.
+2. Thở ra, dùng lực đùi trong ép hai chân sát lại với nhau.
+3. Giữ 1 giây. Hít vào từ từ nhả tạ mở chân ra."
+exercises.name_hip_thrust,Barbell Hip Thrust,Nâng hông tạ đòn
+exercises.desc_hip_thrust,"1. Rest your upper back on a bench with the barbell across your hips. Position your feet so your shins are vertical at the top of the movement.
+2. Inhale, brace your core, and tuck your chin slightly.
+3. Exhale, drive through your heels, and squeeze your glutes to thrust the bar up until your thighs and torso are parallel to the floor.
+4. Hold the top for 1-2 seconds, then slowly lower.","1. Tựa vai lên ghế, đặt thanh tạ ngang hông. Căn chỉnh sao cho khi đẩy hông lên đỉnh, cẳng chân vuông góc với mặt sàn.
+2. Hít vào, gồng cơ core, cằm hơi thu về phía ngực.
+3. Thở ra, dồn lực vào gót chân và siết cơ mông đẩy tạ lên cho đến khi đùi và thân trên song song với sàn.
+4. Giữ 1-2 giây, sau đó từ từ hạ hông xuống."
+exercises.name_hyperextensions,Back Extension,Gập lưng dưới
+exercises.desc_hyperextensions,"1. Lock yourself into a back extension bench. Inhale and bend forward at the hips until your torso is vertical to the floor.
+2. Exhale and use your lower back and glutes to pull your torso up until it forms a straight line with your legs.
+3. Hold the top for 1 second, then inhale and slowly lower back down.","1. Tựa hông vào ghế. Hít vào, gập người xuống vuông góc.
+2. Thở ra, dùng cơ lưng dưới và mông kéo thân người lên tạo thành đường thẳng.
+3. Giữ đỉnh 1 giây, hít vào hạ thân người chậm rãi."
+exercises.name_incline_barbell_press,Incline Barbell Bench Press,Đẩy ngực trên tạ đòn
+exercises.desc_incline_barbell_press,"1. Lie on an incline bench (30-45 degrees). Unrack the bar and hold it over your upper chest.
+2. Inhale and lower the bar under control until it lightly touches your upper chest/collarbone.
+3. Exhale and press the bar straight back up to the starting position.","1. Nằm ghế dốc lên (30-45 độ). Nhấc tạ đòn nằm trên vùng ngực trên (xương quai xanh).
+2. Hít vào, hạ tạ chạm nhẹ ngực trên có kiểm soát.
+3. Thở ra, đẩy thẳng tạ lên vị trí ban đầu."
+exercises.name_incline_dumbbell_fly,Incline Dumbbell Fly,Ép ngực trên tạ đơn
+exercises.desc_incline_dumbbell_fly,"1. Lie on an incline bench, pressing dumbbells straight up. Keep a slight bend in your elbows.
+2. Inhale and open your arms out to the sides until you feel a deep stretch in your upper chest.
+3. Exhale and hug the weights back to the top following the same path.","1. Nằm ghế dốc lên. Đẩy 2 tạ đơn thẳng lên trần. Hơi gập khuỷu tay.
+2. Hít vào, mở rộng cánh tay sang hai bên cho đến khi ngực trên căng tối đa.
+3. Thở ra, ép ngực đưa tạ về vị trí ban đầu."
+exercises.name_incline_dumbbell_press,Incline Dumbbell Press,Đẩy ngực trên tạ đơn
+exercises.desc_incline_dumbbell_press,"1. Lie on an incline bench and press dumbbells up over your upper chest.
+2. Inhale and lower the dumbbells to the sides. Flare your elbows out at a 45-degree angle.
+3. Exhale, squeeze your upper chest, and press the weights back up, bringing them close together at the top.","1. Nằm ghế dốc lên, đẩy 2 tạ đơn lên thẳng vùng ngực trên.
+2. Hít vào, hạ tạ xuống hai bên. Cùi chỏ mở góc khoảng 45 độ.
+3. Thở ra, siết ngực trên đẩy tạ vút lên, hai tạ gần chạm nhau ở đỉnh."
+exercises.name_incline_push_up,Incline Push-Up,Hít đất dốc lên
+exercises.desc_incline_push_up,"1. Place your hands on an elevated box or bench. Keep your body in a straight line.
+2. Inhale and lower your chest toward the box, keeping your elbows tucked at a 45-degree angle.
+3. Exhale and forcefully push back up to straight arms.","1. Chống hai tay lên bục/ghế cao. Lưng, hông, chân tạo thành một đường thẳng.
+2. Hít vào, gập cùi chỏ hạ ngực gần chạm mép bục.
+3. Thở ra, đẩy mạnh người lên thẳng tay."
+exercises.name_indoor_cycling,Indoor Cycling,Đạp xe trong nhà
+exercises.desc_indoor_cycling,"1. Start pedaling at a moderate pace to warm up.
+2. Keep your core slightly engaged to stabilize your upper body and maintain a smooth, circular pedal stroke.
+3. Adjust the resistance and speed based on your workout protocol.","1. Bắt đầu đạp tốc độ vừa phải để làm nóng khớp.
+2. Gồng nhẹ cơ bụng giữ ổn định thân trên, duy trì vòng đạp mượt mà, tròn vành.
+3. Điều chỉnh lực cản (resistance) theo giáo án tập luyện."
+exercises.name_jump_rope,Jump Rope,Nhảy dây
+exercises.desc_jump_rope,"1. Use your wrists to swing the rope over your head.
+2. Hop lightly on the balls of your feet just enough to clear the rope.
+3. Maintain a continuous rhythm and breathe steadily.","1. Dùng lực cổ tay xoay dây vòng qua đầu.
+2. Bật nhảy nhẹ nhàng bằng mũi chân vừa đủ để dây đi qua.
+3. Duy trì nhịp điệu liên tục và hít thở đều."
+exercises.name_jumping_jacks,Jumping Jacks,Nhảy bật vung tay
+exercises.desc_jumping_jacks,"1. Jump up and spread your legs wider than shoulder-width apart.
+2. Simultaneously swing your arms up in an arc over your head.
+3. Jump again to return your feet together and lower your arms continuously.","1. Bật nhảy dang hai chân rộng hơn vai.
+2. Đồng thời vung hai tay vòng qua đỉnh đầu.
+3. Bật nhảy thu chân và tay về vị trí cũ một cách liên tục."
+exercises.name_lat_pulldown,Lat Pulldown,Kéo xô với máy
+exercises.desc_lat_pulldown,"1. Sit at the machine, lean back slightly (10 degrees), and puff your chest out.
+2. Exhale and pull the bar down toward your upper chest, driving your elbows down and back.
+3. Squeeze your lats, then inhale and let the bar rise back up until your arms are fully extended.","1. Ngồi vào máy cáp, ngả người ra sau khoảng 10 độ, ưỡn ngực.
+2. Thở ra, gồng cơ xô kéo cùi chỏ hướng xuống thảm và ép ra sau.
+3. Thanh xà chạm ngực trên, hít vào nhả cáp từ từ lên tận cùng để giãn cơ xô."
+exercises.name_leg_extension,Leg Extension,Đá đùi trước
+exercises.desc_leg_extension,"1. Sit on the machine with your back flat against the pad.
+2. Exhale and use your quads to extend your legs fully straight.
+3. Squeeze your quads for 1-2 seconds at the top, then inhale and lower the weight slowly.","1. Ngồi ép sát toàn bộ lưng và mông vào ghế máy.
+2. Thở ra, dùng cơ đùi trước đá tạ lên tới khi hai chân duỗi thẳng.
+3. Giữ 1-2 giây siết đùi. Hít vào từ từ hạ tạ."
+exercises.name_leg_press,Leg Press,Đạp đùi
+exercises.desc_leg_press,"1. Sit in the leg press machine and place your feet on the sled. Inhale and slowly bend your knees to lower the weight toward your chest.
+2. Lower until your knees are at a 90-degree angle.
+3. Exhale and drive through your heels to push the sled back to the starting position.","1. Ngồi máy đạp đùi, chân đặt trên bàn đạp. Hít vào, gập gối hạ tạ về phía ngực.
+2. Hạ tới khi đùi và cẳng chân vuông góc (90 độ).
+3. Thở ra, dồn lực gót chân đẩy bàn đạp vút lên vị trí ban đầu."
+exercises.name_low_to_high_fly,High-to-Low Cable Fly,Ép ngực dưới với cáp
+exercises.desc_low_to_high_fly,"1. Stand between high pulleys. Open your arms with a slight bend in your elbows.
+2. Exhale and pull the handles down and across your body toward your hips.
+3. Squeeze your chest for 1 second at the bottom, then inhale and slowly open your arms.","1. Đứng giữa máy cáp cao. Mở rộng vòng tay, cùi chỏ cong nhẹ.
+2. Thở ra, kéo hai tay ép chéo đi xuống dưới hướng về phía bụng/hông.
+3. Ép ngực 1 giây ở điểm cuối, hít vào mở tay từ từ lên."
+exercises.name_lying_leg_curl,Lying Leg Curl,Nằm móc đùi sau
+exercises.desc_lying_leg_curl,"1. Lie face down on the machine, keeping your hips pressed firmly into the pad.
+2. Exhale and curl the pad up toward your glutes as far as possible using your hamstrings.
+3. Hold the peak contraction for 1 second. Inhale and lower the weight slowly without letting the plates touch.","1. Nằm sấp, ép chặt phần hông xuống nệm máy.
+2. Thở ra, dùng cơ đùi sau cuộn đệm tạ về phía mông hết mức có thể.
+3. Giữ đỉnh 1 giây. Hít vào nhả tạ chậm rãi, không để các phiến tạ chạm nhau."
+exercises.name_lying_leg_raise,Lying Leg Raise,Nằm nâng chân
+exercises.desc_lying_leg_raise,"1. Lie flat on your back, pressing your lower back firmly into the floor.
+2. Exhale and raise both legs straight up until they are perpendicular to the ceiling.
+3. Inhale and slowly lower them until they are a few inches above the floor, then repeat.","1. Nằm ngửa, thắt lưng ép chặt xuống sàn.
+2. Thở ra, nâng cả hai chân lên vuông góc với sàn.
+3. Hít vào, từ từ hạ chân xuống cách sàn 5-10cm (không chạm đất) và lặp lại."
+exercises.name_machine_chest_press,Machine Chest Press,Đẩy ngực với máy
+exercises.desc_machine_chest_press,"1. Sit in the machine and grip the handles firmly. Inhale deeply.
+2. Exhale and press the handles forward until your arms are nearly fully extended.
+3. Inhale and slowly let the handles return to the starting position, feeling the stretch in your chest.","1. Ngồi vào máy đẩy ngực, hai tay nắm chắc tay cầm.
+2. Thở ra, dùng cơ ngực đẩy mạnh tay cầm về phía trước.
+3. Hít vào, nhả tạ lùi về vị trí ngực giãn có kiểm soát."
+exercises.name_mountain_climbers,Mountain Climbers,Leo núi
+exercises.desc_mountain_climbers,"1. Start in a high plank push-up position.
+2. Quickly drive your right knee toward your chest, return it, and immediately drive your left knee up.
+3. Keep your core tight and hips stable as you alternate legs quickly.","1. Chống đẩy ở tư thế Plank cao.
+2. Rút nhanh luân phiên từng đầu gối hướng về phía ngực.
+3. Giữ cơ core ổn định, không để hông nảy lên xuống quá nhiều."
+exercises.name_one_arm_row,Single Arm Dumbbell Row,Kéo tạ đơn một tay
+exercises.desc_one_arm_row,"1. Support one knee and one hand on a bench. Hold a dumbbell with your free hand.
+2. Exhale and pull the dumbbell up to your side, driving your elbow high and back.
+3. Squeeze your back at the top. Inhale and lower the weight to fully stretch the shoulder blade.","1. Chống 1 gối và 1 tay lên ghế, tay kia cầm tạ buông thõng tự nhiên.
+2. Thở ra, kéo cùi chỏ lên cao qua lưng, ép sát mạn sườn.
+3. Hít vào, hạ tạ chậm để giãn hết biên độ bả vai."
+exercises.name_overhead_cable_triceps,Overhead Cable Triceps Extension,Duỗi tay sau qua đầu bằng dây cáp
+exercises.desc_overhead_cable_triceps,"1. Attach a rope to a low pulley of a cable machine. Stand facing away from the machine, grasp the rope with both hands, and pull it overhead so it rests behind your neck, with elbows pointing up.
+2. Exhale and extend both arms straight overhead, keeping your elbows locked close to your head.
+3. Inhale and slowly lower the rope back to the starting position behind your neck in a controlled manner.","1. Gắn dây thừng vào ròng rọc thấp của máy cáp. Đứng quay lưng lại với máy, cầm dây bằng cả hai tay và kéo qua đầu sao cho dây nằm sau gáy, cùi chỏ hướng lên.
+2. Thở ra, duỗi thẳng hai tay lên trên cao, giữ cùi chỏ cố định sát đầu.
+3. Hít vào, từ từ hạ dây thừng về vị trí ban đầu sau gáy có kiểm soát."
+exercises.name_overhead_press,Overhead Press,Đẩy vai tạ đòn qua đầu
+exercises.desc_overhead_press,"1. Take a deep breath, brace your core, and squeeze your glutes.
+2. Exhale and press the bar straight up. As the bar clears your face, slightly push your head forward to lock out the bar directly over your mid-foot.
+3. Inhale and lower the bar back to the front rack position under control.","1. Hít sâu, gồng chặt cơ bụng và mông.
+2. Thở ra, đẩy mạnh thanh đòn thẳng lên trần nhà. Khi thanh đòn vừa qua mặt, hơi đẩy đầu về phía trước để thanh đòn nằm ngay trên đỉnh đầu.
+3. Hít vào và từ từ hạ thanh đòn về lại vai trước."
+exercises.name_overhead_triceps_extension,Overhead Triceps Extension,Duỗi tay sau qua đầu
+exercises.desc_overhead_triceps_extension,"1. Hold one dumbbell straight overhead with both hands. Keep your upper arms pinned near your ears.
+2. Inhale and bend your elbows to lower the weight behind your head until your triceps stretch.
+3. Exhale and extend your elbows to push the weight back to the top.","1. Cầm 1 tạ đơn đưa qua đầu. Cố định phần bắp tay ép sát mang tai.
+2. Hít vào, gập khuỷu tay hạ tạ xuống gáy cho đến khi cơ tay sau căng.
+3. Thở ra, duỗi khuỷu tay đẩy quả tạ lên thẳng vị trí ban đầu."
+exercises.name_pec_deck_fly,Pec Deck Fly,Ép ngực với máy
+exercises.desc_pec_deck_fly,"1. Sit in the Pec Deck machine with arms spread wide. Inhale to stretch the chest.
+2. Exhale and squeeze your arms together in front of your chest.
+3. Hold the contraction for 1 second, then inhale and slowly let the arms open back up.","1. Ngồi máy Pec Deck, tay ngang ngực. Hít vào mở rộng tay về phía sau để giãn ngực.
+2. Thở ra, kéo hai tay cầm ép sát vào nhau ở ngay trước ngực.
+3. Siết chặt ngực 1 giây, hít vào nhả tay chậm rãi."
+exercises.name_pike_push_up,Pike Push-Up,Hít đất chúi đầu
+exercises.desc_pike_push_up,"1. Get into an inverted V position with your hips high in the air.
+2. Inhale and lower the crown of your head toward the floor, forming a triangle with your hands.
+3. Exhale and push through your shoulders and triceps back to the start.","1. Vào tư thế chữ V ngược (hông nhô cao lên trần).
+2. Hít vào, hạ đỉnh đầu xuống gần chạm sàn, tạo hình tam giác với 2 bàn tay.
+3. Thở ra, đẩy mạnh người về tư thế ban đầu."
+exercises.name_plank,Plank,Plank
+exercises.desc_plank,"1. Support your body on your forearms and toes, forming a straight line from head to heels.
+2. Actively brace your core, glutes, and quads.
+3. Hold this static position while breathing steadily.","1. Chống hai cùi chỏ xuống sàn. Cơ thể thẳng tắp từ gót chân tới đầu.
+2. Chủ động siết cơ bụng, gồng cơ mông và đùi trước.
+3. Giữ tư thế tĩnh và duy trì nhịp thở đều đặn."
+exercises.name_preacher_curl,Preacher Curl,Cuốn tay trước trên ghế tựa
+exercises.desc_preacher_curl,"1. Sit at a Preacher bench, locking your upper arms firmly into the pad. Hold a barbell with an underhand grip.
+2. Exhale and curl the weight toward your chin, squeezing your biceps.
+3. Inhale and lower the weight slowly until your arms are almost fully extended.","1. Ngồi ghế Preacher, khóa chặt bắp tay trên mặt đệm. Cầm tạ đòn ngửa tay.
+2. Thở ra, cuốn tạ về phía vai, siết chặt bắp tay.
+3. Hít vào, hạ tạ chậm đến khi tay gần duỗi thẳng."
+exercises.name_pull_up,Pull-Up,Hít xà đơn
+exercises.desc_pull_up,"1. Grip the bar with an overhand (pronated) grip. Brace your core to prevent swinging.
+2. Exhale and pull yourself up by driving your elbows down to the floor.
+3. Pull until your chin clears the bar. Inhale and slowly lower yourself to a full dead hang.","1. Nắm thanh xà lòng bàn tay hướng tới trước. Gồng cơ core chống đung đưa.
+2. Thở ra, kéo cùi chỏ hướng xuống để nâng người qua xà.
+3. Hít vào, từ từ hạ người xuống đến khi duỗi thẳng tay."
+exercises.name_push_up,Push-Up,Hít đất
+exercises.desc_push_up,"1. Start in a high plank position. Keep your body in a perfectly straight line.
+2. Inhale and bend your elbows to lower your body until your chest is about an inch from the floor.
+3. Exhale and press through your chest and triceps to return to the starting position.","1. Nằm sấp chống thẳng tay. Lưng, hông, chân tạo đường thẳng.
+2. Hít vào, gập cùi chỏ hạ ngực cách sàn khoảng 1-2cm.
+3. Thở ra, đẩy ngực và tay sau vươn người lên vị trí ban đầu."
+exercises.name_reverse_pec_deck,Reverse Pec Deck,Ép vai sau với máy
+exercises.desc_reverse_pec_deck,"1. Sit facing the machine. Grab the handles with a slight bend in your elbows.
+2. Exhale and pull your arms wide out to your sides and back.
+3. Squeeze your rear delts and shoulder blades together for 1 second. Inhale and slowly return.","1. Ngồi quay mặt vào máy Pec Deck. Cầm tay nắm, cùi chỏ hơi cong nhẹ.
+2. Thở ra, siết vai sau kéo hai tay giang rộng ra phía sau lưng.
+3. Ép chặt hai bả vai ở đỉnh, hít vào từ từ khép tay lại."
+exercises.name_romanian_deadlift,Barbell Romanian Deadlift,Deadlift chân thẳng tạ đòn
+exercises.desc_romanian_deadlift,"1. Stand holding a barbell against your thighs with a slight knee bend. Keep your chest up.
+2. Inhale, push your hips straight back (hip hinge), and glide the bar down your legs until your hamstrings fully stretch.
+3. Exhale, squeeze your glutes, and push your hips forward to stand tall.","1. Cầm thanh tạ sát đùi, đầu gối chùng nhẹ. Ưỡn ngực.
+2. Hít vào, đẩy hông thẳng ra sau (hip hinge), trượt tạ dọc chân tới khi đùi sau căng hết cỡ.
+3. Thở ra, siết mông đẩy hông về trước để đứng thẳng."
+exercises.name_russian_twist,Russian Twist,Ngồi xoay eo kiểu Nga
+exercises.desc_russian_twist,"1. Sit on the floor, lean back into a V-shape, and lift your feet off the ground.
+2. Exhale and forcefully twist your torso to the right side.
+3. Inhale as you return to the center, then exhale and twist to the left.","1. Ngồi ngả người ra sau hình chữ V, nhấc gót chân khỏi sàn.
+2. Thở ra, xoay mạnh thân trên (có hoặc không tạ) sang phải.
+3. Hít vào qua tâm, thở ra tiếp tục xoay sang trái luân phiên."
+exercises.name_seated_cable_row_vgrip,Seated Cable Row (V-Grip),Ngồi Kéo Cáp Hẹp Tay
+exercises.desc_seated_cable_row_vgrip,"1. Sit at the machine with your feet on the platforms, knees slightly bent, and grasp the V-bar.
+2. Keep your back straight, chest up, and pull the handle toward your belly button while keeping your elbows tucked close to your body.
+3. Squeeze your mid-back at the peak contraction, then slowly return to the starting position to stretch your lats.","1. Ngồi vào máy, đặt hai chân lên bục, gối hơi cong và hai tay nắm lấy tay cầm chữ V.
+2. Giữ lưng thẳng, ưỡn ngực, thở ra và kéo tay cầm về phía rốn, đảm bảo ép sát hai cùi chỏ vào mạn sườn.
+3. Siết chặt cơ lưng giữa ở nhịp kéo, hít vào và từ từ duỗi tay về vị trí ban đầu để cảm nhận lực giãn ở cơ xô."
+exercises.name_seated_cable_row_widegrip,Seated Cable Row (Wide Grip),Ngồi Kéo Cáp Rộng Tay
+exercises.desc_seated_cable_row_widegrip,"1. Sit at the machine and grasp the wide bar with an overhand grip, hands wider than shoulder-width.
+2. Keep your chest up and pull the bar toward your lower chest/upper stomach, flaring your elbows slightly outward.
+3. Squeeze your shoulder blades together to target the upper back and rear delts, then slowly extend your arms back.","1. Ngồi vào máy, hai tay nắm lấy thanh đòn rộng (lòng bàn tay úp xuống), khoảng cách hai tay rộng hơn vai.
+2. Giữ lưng thẳng, thở ra và kéo thanh đòn về phía ngực dưới, hai cùi chỏ hơi dang rộng ra hai bên.
+3. Siết chặt bả vai để tập trung vào cơ lưng trên và vai sau, hít vào và từ từ duỗi tay về vị trí ban đầu."
+exercises.name_seated_calf_raise,Seated Calf Raise,Ngồi nhón gót
+exercises.desc_seated_calf_raise,"1. Sit at the machine with the pads resting on your lower thighs.
+2. Inhale and lower your heels as far as possible to stretch your calves.
+3. Exhale and drive through the balls of your feet to raise your heels as high as possible. Hold for 1 second.","1. Ngồi máy nhón gót, đặt đệm tì lên đùi dưới.
+2. Hít vào, hạ gót chân xuống thấp nhất để kéo giãn cơ bắp chân.
+3. Thở ra, dùng mũi chân nhón gót lên cao nhất có thể. Giữ đỉnh 1 giây."
+exercises.name_seated_incline_curl,Incline Dumbbell Curl,Cuốn tay trước ghế dốc
+exercises.desc_seated_incline_curl,"1. Sit on a 45-60 degree incline bench, letting your arms hang straight down behind your torso.
+2. Keep your upper arms completely still. Exhale, curl the dumbbells up to your shoulders, and turn your palms up.
+3. Inhale and slowly lower the weights down to a full stretch.","1. Ngồi ghế dốc 45-60 độ, hai tay cầm tạ đơn buông thõng duỗi thẳng ra sau thân người.
+2. Cố định bắp tay, thở ra cuốn tạ lên phía vai, xoay ngửa lòng bàn tay.
+3. Hít vào từ từ hạ tạ xuống hoàn toàn để giãn bắp tay."
+exercises.name_seated_leg_curl,Seated Leg Curl,Ngồi móc đùi sau
+exercises.desc_seated_leg_curl,"1. Sit in the machine with the ankle pad locked just above your heels.
+2. Exhale and curl your legs down under the seat as far as possible.
+3. Inhale and slowly return the pad upwards without letting the weight stack touch.","1. Ngồi máy móc đùi sau, đệm tì khóa ngay trên gót chân (cổ chân).
+2. Thở ra, cuộn hai chân gập xuống gầm ghế hết mức.
+3. Hít vào, nhả tạ chậm lên trên không để chạm các phiến tạ khác."
+exercises.name_seated_wrist_curl,Seated Wrist Curl,Ngồi gập cổ tay
+exercises.desc_seated_wrist_curl,"1. Sit with your forearms resting on your thighs, holding a dumbbell or barbell palms up.
+2. Let the weight roll down to your fingertips to stretch the forearms. Exhale and forcefully curl your wrists upward.
+3. Inhale and slowly lower the weight back down.","1. Ngồi tựa cẳng tay lên đùi, lòng bàn tay ngửa cầm tạ.
+2. Nhả tạ trượt dần xuống các đốt ngón tay để giãn cẳng tay. Thở ra, gập mạnh cổ tay cuộn tạ lên.
+3. Hít vào nhả tạ chậm rãi."
+exercises.name_shoulder_press_machine,Machine Shoulder Press,Đẩy vai với máy
+exercises.desc_shoulder_press_machine,"1. Sit in the machine and grab the handles at shoulder level.
+2. Exhale and press the handles straight up overhead without locking out your elbows.
+3. Inhale and control the handles as they lower back to the starting position.","1. Ngồi máy đẩy vai, nắm chắc tay cầm ngang tầm vai.
+2. Thở ra, đẩy vút tạ thẳng lên trên đầu (nhưng không khóa chặt khớp cùi chỏ).
+3. Hít vào, kiểm soát hạ tạ xuống nhẹ nhàng về vị trí ban đầu."
+exercises.name_single_arm_lat_pulldown,Single Arm Lat Pulldown,Kéo xô cáp một tay
+exercises.desc_single_arm_lat_pulldown,"1. Sit at a high pulley holding a D-handle with one hand. Puff your chest up.
+2. Exhale and pull your elbow straight down into your side.
+3. Squeeze your lat at the bottom for 1 second, then inhale and slowly release the cable.","1. Ngồi máy cáp cao, một tay cầm tay nắm chữ D. Ưỡn ngực.
+2. Thở ra, kéo cùi chỏ nhắm thẳng xuống mạn sườn.
+3. Siết cơ xô ở điểm cuối 1 giây, hít vào nhả cáp từ từ."
+exercises.name_skull_crushers,Skullcrusher,Nằm duỗi tay sau tạ đòn
+exercises.desc_skull_crushers,"1. Lie flat on a bench pressing a barbell up. Angle your upper arms slightly backward toward your head (15 degrees).
+2. Inhale and bend your elbows to lower the bar toward your forehead.
+3. Exhale and extend your elbows forcefully to return the bar to the top.","1. Nằm ghế bằng, cầm tạ đòn đẩy lên. Nghiêng bắp tay về phía đầu khoảng 15 độ.
+2. Hít vào, gập cùi chỏ hạ tạ hướng về đỉnh đầu/trán.
+3. Thở ra, duỗi mạnh khuỷu tay đẩy tạ lên lại."
+exercises.name_smith_machine_squat,Smith Machine Squat,Squat máy Smith
+exercises.desc_smith_machine_squat,"1. Place the Smith machine bar across your shoulders. Position your feet slightly further forward than a free-weight squat.
+2. Inhale, push your hips back, and squat down to parallel.
+3. Exhale and drive through your heels to stand back up.","1. Đặt tạ máy Smith lên vai, đứng bước hai chân hơi tiến về phía trước một chút so với thanh đòn.
+2. Hít vào, đẩy hông hạ người xuống tư thế squat song song.
+3. Thở ra dồn lực gót chân đẩy người thẳng lên."
+exercises.name_squat,Bodyweight Squat,Squat cơ bản
+exercises.desc_squat,"1. Take a deep breath and brace your core. Hinge your hips back and bend your knees as if sitting in an invisible chair.
+2. Lower until your hip crease is below the top of your knees (if mobility allows). Keep your weight evenly distributed across your whole foot.
+3. Exhale, drive through the floor, squeeze your glutes and quads to stand back up.","1. Hít sâu, gồng cơ bụng. Đẩy hông ra sau và gập đầu gối như đang ngồi xuống một chiếc ghế vô hình.
+2. Hạ người xuống cho đến khi nếp gấp hông nằm thấp hơn đỉnh đầu gối (nếu độ dẻo dai cho phép). Trọng lượng dồn đều lên toàn bộ bàn chân.
+3. Thở ra, đạp mạnh bàn chân xuống sàn, siết cơ mông và đùi đẩy người đứng thẳng dậy."
+exercises.name_stair_climber,Stair Climber,Leo cầu thang bằng máy
+exercises.desc_stair_climber,"1. Step rhythmically onto the moving stairs.
+2. Place your entire foot on the step and push through your heels to maximally engage your glutes.","1. Bước nhịp nhàng lên các bậc thang của máy.
+2. Đặt toàn bộ bàn chân lên bậc, tập trung dồn lực đạp từ gót chân để ép cơ mông làm việc."
+exercises.name_standing_calf_raise,Standing Calf Raise,Đứng nhón gót
+exercises.desc_standing_calf_raise,"1. Stand with the balls of your feet on a raised platform. Inhale and let your heels drop to get a deep stretch.
+2. Exhale and raise your heels as high as possible. Keep your knees straight but not locked.
+3. Hold the contraction for 1-2 seconds, then lower slowly.","1. Đứng nửa bàn chân trên bục. Hít vào hạ gót chân xuống sâu nhất mặt bục.
+2. Thở ra, nhón gót lên cao hết cỡ. Đầu gối thẳng nhưng không khóa khớp.
+3. Giữ căng ở đỉnh 1-2 giây rồi từ từ hạ xuống."
+exercises.name_superman,Superman,Nằm sấp nâng tay chân
+exercises.desc_superman,"1. Lie face down on a mat with arms and legs fully extended.
+2. Squeeze your lower back and simultaneously lift your arms, chest, and legs off the floor.
+3. Hold the top position for 2-3 seconds, breathing shallowly, then lower back down.","1. Nằm sấp, duỗi thẳng tay và chân.
+2. Siết lưng dưới, đồng thời nâng tay, ngực và chân rời khỏi thảm uốn cong người.
+3. Giữ 2-3 giây ở đỉnh, hít thở nông rồi từ từ hạ xuống."
+exercises.name_t_bar_row,T-Bar Row,Kéo tạ chữ T
+exercises.desc_t_bar_row,"1. Bend over, straddling the T-bar. Keep your back naturally straight.
+2. Exhale, pull the bar forcefully toward your chest/stomach, and squeeze your shoulder blades together.
+3. Inhale and lower the bar under control to fully stretch your back.","1. Đứng khom người, hai tay cầm thanh T-Bar. Lưng thẳng tự nhiên.
+2. Thở ra, kéo mạnh thanh tạ hướng về bụng, ép hai bả vai sát nhau.
+3. Hít vào, hạ thanh tạ có kiểm soát để kéo giãn cơ lưng."
+exercises.name_treadmill,Treadmill,Chạy bộ trên máy
+exercises.desc_treadmill,"1. Start the belt at a slow speed before stepping on.
+2. Adjust the Speed and Incline to match your workout goals.
+3. Keep your posture upright, look forward, and pump your arms rhythmically.","1. Khởi động băng chạy ở tốc độ chậm rồi mới bước vào.
+2. Điều chỉnh Tốc độ (Speed) và Độ dốc (Incline) theo mục tiêu giáo án.
+3. Giữ người thẳng, mắt nhìn trước, đánh tay nhịp nhàng."
+exercises.name_tricep_pushdown,Triceps Pushdown,Kéo cáp tay sau
+exercises.desc_tricep_pushdown,"1. Stand at a high cable pulley. Pin your elbows tightly against your ribs.
+2. Exhale and push the bar/rope straight down until your arms are fully locked out.
+3. Inhale and slowly let the cable pull your forearms back up without moving your elbows.","1. Đứng ở máy cáp cao. Cố định cùi chỏ ép chặt mạn sườn.
+2. Thở ra, đẩy cáp thẳng xuống đất đến khi cánh tay duỗi thẳng.
+3. Hít vào, nhả cáp từ từ đi lên, không vung vẩy cùi chỏ."
+exercises.name_upright_row,Upright Row,Kéo tạ đòn thẳng đứng
+exercises.desc_upright_row,"1. Hold a barbell with a narrow grip resting against your thighs.
+2. Exhale and pull the bar straight up to your chin, leading with your elbows. Your elbows must always be higher than your wrists.
+3. Hold for 1 second at the top, then inhale and lower straight down.","1. Cầm thanh tạ đòn ép sát đùi.
+2. Thở ra, dùng cùi chỏ kéo tạ thẳng đứng lên vùng cằm. Cùi chỏ luôn phải cao hơn cổ tay.
+3. Giữ đỉnh 1 giây, hít vào hạ tạ xuống thẳng đứng."
+exercises.desc_warm_up,"Thoroughly rotate your wrists, ankles, shoulders, hips, and knees for 5-10 minutes to lubricate the joints and raise your heart rate.","Xoay kỹ các khớp: cổ tay, cổ chân, vai, hông và gối trong 5-10 phút để làm trơn khớp và tăng nhịp tim."
+exercises.type_cardio_dist,Distance & Time,Khoảng cách & Thời gian
+exercises.type_cardio_steps,Steps & Time,Bước chân & Thời gian
+exercises.type_reps_only,Reps Only,Chỉ đếm số lần
+exercises.type_time_only,Time Only,Chỉ tính thời gian
+exercises.type_wt_reps,Weight & Reps,Tạ & Số lần
+explore.btn_add_program_done,Already own this program,Đã sở hữu giáo án này
+explore.btn_add_program_new,Save this program,Lưu giáo án này về
+explore.badge_added,Saved,Đã lưu
+explore.lbl_all_other_exercises,Other exercises,Tất cả bài tập khác
+explore.desc_clear_filter,Clear current filter,Xóa bộ lọc hiện tại
+explore.btn_continue_exploring,Continue Exploring,Khám phá tiếp
+explore.title_create_cust_ex,Create Exercise,Tạo bài tập mới
+explore.lbl_cust_ex,Custom,Tự tạo
+explore.lbl_cust_ex_add_image,Add an image,Thêm ảnh minh họa
+explore.hint_cust_ex_inst,"Add form cues, notes, or things to remember...","Ghi chú cách tập, tư thế hoặc những điều cần lưu ý..."
+explore.msg_cust_ex_missing_fields,"Please fill in all required fields (Name, Type, Primary Muscle) to create a custom exercise.","Vui lòng điền đầy đủ tên, loại và nhóm cơ chính để tạo bài tập cá nhân."
+explore.lbl_cust_ex_name,Exercise Name,Tên bài tập
+explore.hint_cust_ex_name,e.g. Incline Dumbbell Press...,Ví dụ: Đẩy tạ đôi trên ghế dốc...
+explore.msg_cust_ex_name_empty,Please enter an exercise name,Vui lòng nhập tên bài tập
+explore.err_cust_ex_name_too_long,Exercise name cannot exceed 100 characters.,Tên bài tập không được vượt quá 100 ký tự.
+explore.lbl_cust_ex_type,Exercise Type,Loại bài tập
+explore.msg_delete_cust_ex_warn,Are you sure you want to delete this custom exercise? This action cannot be undone and will not affect your past workout history.,Bạn có chắc chắn muốn xoá bài tập tự tạo này không? Hành động này không thể hoàn tác và sẽ không ảnh hưởng đến lịch sử tập luyện cũ của bạn.
+explore.lbl_dist_short,Dist.,K/Cách
+explore.title_download_success,Program Downloaded,Đã tải giáo án về máy
+explore.msg_download_success,Program {arg1} has been added to your list.,Giáo án {arg1} đã được thêm vào danh sách của bạn.
+explore.title_edit_cust_ex,Edit Exercise,Sửa bài tập
+explore.desc_ex_dtl_demo,Detailed video tutorial,Video hướng dẫn chi tiết
+explore.fmt_ex_dtl_dist_km,{arg1}km,{arg1}km
+explore.msg_ex_dtl_image_err,Image connection error,Lỗi kết nối hình ảnh
+explore.title_ex_dtl_inst,Movement Instructions,Hướng dẫn động tác
+explore.msg_ex_dtl_no_data_range,No data recorded in this timeframe.,Chưa ghi nhận dữ liệu trong khoảng thời gian này.
+explore.msg_ex_dtl_no_history,You have never performed this exercise.,Bạn chưa thực hiện bài tập này bao giờ.
+explore.msg_ex_dtl_no_image,The system does not have an illustration for this exercise yet.,Hệ thống chưa có hình ảnh minh họa cho bài này
+explore.msg_ex_dtl_no_inst,Updating detailed instructions.,Đang cập nhật hướng dẫn chi tiết.
+explore.tab_ex_dtl_overview,Overview,Tổng quan
+explore.title_ex_dtl_personal_records,Highest Personal Records,Kỷ lục cá nhân cao nhất
+explore.title_ex_dtl_progress,Training Progress,Tiến độ tập luyện
+explore.tab_ex_dtl_progress,Progress,Tiến độ
+explore.fmt_ex_dtl_reps_only,{arg1} reps,{arg1} lần lặp
+explore.fmt_ex_dtl_sec_musc,Secondary Muscles: {arg1},Nhóm cơ phụ trợ: {arg1}
+explore.fmt_ex_dtl_set_number,Set {arg1},Hiệp {arg1}
+explore.fmt_ex_dtl_ssn_count,{arg1} sessions,{arg1} buổi
+explore.lbl_ex_dtl_total_sessions,Total Sessions Completed,Tổng số buổi đã tập
+explore.fmt_ex_dtl_wt_reps,{arg1}kg x {arg2},{arg1}kg x {arg2}
+explore.lbl_ex_list,Exercises List,Danh sách bài tập
+explore.lbl_filter_env,Environment,Môi trường
+explore.lbl_filter_equipment,Equipment,Dụng cụ
+explore.lbl_filter_goal,Primary Goal,Mục tiêu chính
+explore.lbl_filter_level,Difficulty,Độ khó
+explore.lbl_filter_level_advanced,Advanced,Nâng cao
+explore.lbl_filter_level_intermediate,Intermediate,Trung cấp
+explore.lbl_filter_level_newbie,Beginner,Cơ bản
+explore.lbl_filter_muscle,Muscle Group,Nhóm cơ
+explore.btn_library_add_selected_count,Confirm {arg1} selected,Xác nhận chọn {arg1} bài
+explore.desc_library_card_info,View movement details,Xem chi tiết động tác
+explore.title_library_create_cust,Create Custom Exercise,Tạo bài tập cá nhân
+explore.lbl_library_cust_inst,Notes or Instructions (Optional),Ghi chú hoặc hướng dẫn (Tùy chọn)
+explore.lbl_library_cust_muscle,Primary Muscle Targeted,Nhóm cơ tác động chính
+explore.lbl_library_cust_name,New Exercise Name,Tên bài tập mới
+explore.lbl_library_cust_type,Training Method,Phương pháp tập
+explore.title_library_dialog_multi,Select multiple exercises,Chọn nhiều bài tập
+explore.title_library_dialog_single,Select an exercise,Chọn một bài tập
+explore.lbl_library_filter_all,All Exercises,Tất cả bài tập
+explore.msg_library_loading,Loading database...,Đang nạp kho dữ liệu...
+explore.title_library_main,Exercise Library,Thư viện bài tập
+explore.msg_library_not_found,No matching results found,Không tìm thấy kết quả nào trùng khớp
+explore.hint_library_search,Search for exercises...,Tìm kiếm bài tập...
+explore.msg_loading,Loading library from server...,Đang tải thư viện từ máy chủ...
+explore.title_main,Explore Programs,Khám phá Giáo án
+explore.err_max_unique_exercises,You can only select up to 50 unique exercises!,Chỉ được chọn tối đa 50 bài tập khác nhau!
+explore.title_program_details_count,Program Details ({arg1} routines),Chi tiết giáo án ({arg1} lịch tập)
+explore.lbl_recent,Recent,Gần đây
+explore.fmt_reps_only,{arg1} reps,{arg1} lần
+explore.fmt_routines_count,{arg1} routines,{arg1} lịch tập
+explore.lbl_sec_muscle,Secondary Muscle,Nhóm cơ phụ
+explore.fmt_sets_reps_time,{arg1} sets x {arg2},{arg1} hiệp x {arg2}
+explore.lbl_suggested_for_you,Suggested,Đề xuất
+explore.fmt_toast_added,Added program {arg1},Đã thêm giáo án {arg1}
+explore.tooltip_hide_added,Hide Added Programs,Ẩn giáo án đã thêm
+explore.tooltip_show_all,Show All,Hiển thị tất cả
+explore.desc_view_ex_dtl,View instructions,Xem hướng dẫn
+explore.btn_view_program,View Program,Xem giáo án
+gamification.msg_chest_claimed,Successfully claimed reward!,Đã nhận thưởng thành công!
+gamification.fmt_chest_progress,{arg1} / {arg2},{arg1} / {arg2}
+gamification.fmt_chest_requirement,Complete {arg1}/{arg2} quests to open,Hoàn thành {arg1}/{arg2} nhiệm vụ để mở
+gamification.btn_claim_now,Claim Now,Nhận thưởng ngay
+gamification.btn_claim_reward,CLAIM,NHẬN
+gamification.dialog_chest_desc_success,You have excellently completed the weekly quests and unlocked the treasure chest.,Bạn đã xuất sắc hoàn thành nhiệm vụ tuần và mở khóa được rương báu.
+gamification.dialog_chest_title_success,Congratulations!,Chúc mừng!
+gamification.tab_leaderboard,Leaderboard,Xếp hạng
+gamification.leaderboard_you,You,Bạn
+gamification.msg_level_up_base,Level Up!,Thăng Cấp!
+gamification.title_main,Achievements,Thành tích
+gamification.msg_no_quests,No quests this week. Train hard to get quests next week!,Không có nhiệm vụ nào trong tuần này. Hãy tập luyện chăm chỉ để nhận nhiệm vụ vào tuần tới nhé!
+gamification.btn_open_chest,OPEN CHEST,MỞ RƯƠNG
+gamification.title_quest_1,Hardworking Warrior,Chiến binh chăm chỉ
+gamification.desc_quest_1,Complete 3 workouts,Hoàn thành 3 buổi tập
+gamification.title_quest_2,Explosive Power,Sức mạnh bùng nổ
+gamification.desc_quest_2,"Reach 10,000kg total volume",Đạt 10.000kg tổng khối lượng tạ
+gamification.title_quest_3,Limit Breaker,Phá vỡ giới hạn
+gamification.desc_quest_3,Achieve 1 new Personal Record (PR),Đạt 1 Kỷ lục cá nhân (PR) mới
+gamification.title_quest_4,Relentless Endurance,Bền bỉ không ngừng
+gamification.desc_quest_4,Train for a total of 120 minutes,Tập luyện tổng cộng 120 phút
+gamification.title_quest_5,Iron Discipline,Kỷ luật thép
+gamification.desc_quest_5,Complete 50 workout sets,Hoàn thành 50 hiệp tập (sets)
+gamification.title_quest_6,All-Around Athlete,Toàn diện
+gamification.desc_quest_6,Complete 15 exercises,Hoàn thành 15 bài tập
+gamification.tab_quests,Quests,Nhiệm vụ
+gamification.msg_rank_up,Rank Up!,Thăng Hạng!
+gamification.desc_top_1_icon,Rank 1,Hạng 1
+gamification.fmt_user_level,Level {arg1},Cấp {arg1}
+gamification.fmt_user_name_badge,{arg1} (You),{arg1} (Bạn)
+gamification.title_weekly_chest,Weekly Chest,Rương Tuần
+gamification.title_weekly_quests,This Week's Quests,Nhiệm vụ tuần này
+gamification.msg_workout_deleted,Workout deleted,Đã xóa buổi tập thành công
+gamification.lbl_xp_earned,XP Earned,XP Nhận được
+gamification.fmt_xp_progress,{arg1} / {arg2} XP,{arg1} / {arg2} XP
+gamification.fmt_xp_value,{arg1} XP,{arg1} XP
+main.toast_auth_success,Authentication successful!,Xác thực thành công!
+main.title_weekly_reminder,A week has passed! ⏳,Đã một tuần trôi qua! ⏳
+main.msg_weekly_reminder,"For the AI Coach to accurately analyze your charts and perfectly optimize your Calories, please take a moment to record your current weight!","Để Trợ lý ảo phân tích biểu đồ chính xác và tối ưu lượng Calo hoàn hảo nhất, bạn hãy dành chút thời gian ghi nhận lại cân nặng hiện tại của mình nhé!"
+main.btn_weekly_reminder_skip,Remind me later,Nhắc tôi sau
+main.btn_weekly_reminder_update,Log now,Ghi nhận ngay
+muscles.abductors,Abductors,Cơ mở đùi
+muscles.abs,Abs,Bụng
+muscles.adductors,Adductors,Cơ khép đùi
+muscles.arms,Arms,Tay
+muscles.back,Back,Lưng
+muscles.biceps,Biceps,Tay trước
+muscles.calves,Calves,Bắp chuối
+muscles.cardio,Cardio,Tim mạch
+muscles.chest,Chest,Ngực
+muscles.core,Core/Abs,Lõi
+muscles.forearms,Forearms,Cẳng tay
+muscles.front_delts,Front Delts,Vai trước
+muscles.full_body,Full Body,Toàn thân
+muscles.glutes,Glutes,Cơ mông
+muscles.hamstrings,Hamstrings,Đùi sau
+muscles.lats,Lats,Cơ xô
+muscles.legs,Legs,Chân
+muscles.lower_back,Lower Back,Lưng dưới
+muscles.lower_chest,Lower Chest,Ngực dưới
+muscles.middle_chest,Middle Chest,Ngực giữa
+muscles.neck,Neck,Cổ
+muscles.obliques,Obliques,Cơ liên sườn
+muscles.quads,Quads,Đùi trước
+muscles.rear_delts,Rear Delts,Vai sau
+muscles.shoulders,Shoulders,Vai
+muscles.side_delts,Side Delts,Vai giữa
+muscles.traps,Traps,Cơ thang
+muscles.triceps,Triceps,Tay sau
+muscles.upper_back,Upper Back,Lưng trên
+muscles.upper_chest,Upper Chest,Ngực trên
+nutrition.btn_add_food,Add This Food,Thêm món này
+nutrition.bmi_current,Current Body Mass Index (BMI),Chỉ số khối cơ thể (BMI) hiện tại
+nutrition.bmi_normal,normal,bình thường
+nutrition.bmi_obese,obese,béo phì
+nutrition.bmi_overweight,overweight,thừa cân
+nutrition.desc_bmi_prefix,This index indicates you are,Chỉ số này cho thấy bạn đang
+nutrition.bmi_severe_obese,severely obese,béo phì cấp độ nặng
+nutrition.fmt_bmi_suffix,{arg1}!,{arg1}!
+nutrition.bmi_target,Target Body Mass Index (BMI) at this weight,Chỉ số khối cơ thể (BMI) mục tiêu với mức cân nặng này
+nutrition.bmi_underweight,underweight,thiếu cân
+nutrition.lbl_consumed_vs_target,Consumed / Target,Đã nạp / Mục tiêu
+nutrition.msg_copy_empty,You haven't entered any food for this meal yesterday.,Hôm qua bạn chưa nhập liệu cho bữa này.
+nutrition.title_copy_meal,Copy Meal,Sao chép bữa ăn
+nutrition.msg_copy_success,Successfully copied yesterday's meal!,Đã sao chép bữa ăn hôm qua!
+nutrition.lbl_cust_foods,Custom Foods,Món ăn do bạn tạo
+nutrition.msg_cust_macro_pace_hidden,"Because you are using a custom Nutrition goal, the pace selection has been hidden. The expected timeline will automatically adjust corresponding to your new weight goal and Calories set.","Do bạn đang dùng mục tiêu Dinh dưỡng tùy chỉnh, phần lựa chọn tốc độ đã được ẩn. Timeline dự kiến sẽ tự động thay đổi tương ứng với mục tiêu cân nặng mới và lượng Calo bạn thiết lập."
+nutrition.title_cust_macros,Custom Nutrition,Tùy chỉnh Dinh dưỡng
+nutrition.lbl_dash_calories,Calories,Năng lượng
+nutrition.fmt_dash_calories,{arg1} / {arg2} kcal,{arg1} / {arg2} kcal
+nutrition.lbl_dash_calories_consumed,Calories Consumed,Năng lượng đã nạp
+nutrition.fmt_dash_calories_suffix,/ {arg1} kcal,/ {arg1} kcal
+nutrition.lbl_dash_cust,Custom,Tùy chỉnh
+nutrition.fmt_dash_macro_progress,{arg1} / {arg2} g,{arg1} / {arg2} g
+nutrition.lbl_dash_system,System,Hệ thống
+nutrition.btn_date_picker_select,Select,Chọn
+nutrition.msg_delete_cust_food,Are you sure you want to permanently delete this custom food from the list?,Bạn có chắc muốn xóa vĩnh viễn món ăn tự tạo này khỏi danh sách không?
+nutrition.msg_delete_success,Successfully deleted the food,Đã xóa món ăn thành công
+nutrition.lbl_demo_yesterday_meal,Beef Pho (Yesterday),Phở Bò (Hôm qua)
+nutrition.btn_deselect,Deselect,Bỏ chọn
+nutrition.title_edit_food,Edit Nutrition Info,Sửa thành phần dinh dưỡng
+nutrition.msg_empty_history,You have no food history yet,Bạn chưa có lịch sử ăn uống nào cả
+nutrition.btn_food_add_selected,Add {arg1} item(s) to meal,Đưa {arg1} món vào thực đơn
+nutrition.title_food_add_to_meal,Add to {arg1},Thêm vào {arg1}
+nutrition.err_food_cal,"Calories must be between 1 and 10,000 kcal.","Calories của món ăn phải từ 1 đến 10,000 kcal."
+nutrition.err_food_exceed_cal,"Food calories exceed the limit of 20,000 kcal per meal.","Lượng Calories vượt quá giới hạn 20,000 kcal của bữa ăn."
+nutrition.err_food_exceed_pcf,"Macro nutrients exceed the limit of 1,000g per meal.","Lượng Macro vượt quá giới hạn 1,000g của bữa ăn."
+nutrition.fmt_food_kcal_per_unit,{arg1} kcal / {arg2},{arg1} kcal / {arg2}
+nutrition.tab_food_library,Food Library,Thư viện thực phẩm
+nutrition.msg_food_loading,Connecting data...,Đang kết nối dữ liệu...
+nutrition.err_food_name,Food name must contain letters and be at most 50 characters long.,Tên món ăn phải chứa chữ cái và tối đa 50 ký tự.
+nutrition.food_name_almonds,Almonds,Hạnh Nhân
+nutrition.food_name_apple,Apple,Táo
+nutrition.food_name_avocado_smoothie,Avocado Smoothie,Sinh Tố Bơ
+nutrition.food_name_banana,Banana,Chuối
+nutrition.food_name_banh_cuon,Banh Cuon,Bánh Cuốn
+nutrition.food_name_banh_mi,Banh Mi Meat,Bánh Mì Thịt
+nutrition.food_name_beef_tenderloin,Beef Tenderloin,Thịt Bò Thăn
+nutrition.food_name_boiled_chicken_breast,Boiled Chicken Breast,Ức Gà Luộc
+nutrition.food_name_boiled_egg,Boiled Egg,Trứng Luộc
+nutrition.food_name_broccoli_boiled,Boiled Broccoli,Bông Cải Xanh Luộc
+nutrition.food_name_bun_bo_hue,Bun Bo Hue,Bún Bò Huế
+nutrition.food_name_bun_cha,Bun Cha,Bún Chả
+nutrition.food_name_com_tam,Com Tam (Broken Rice),Cơm Tấm
+nutrition.food_name_fresh_milk,Fresh Milk,Sữa Tươi
+nutrition.food_name_fried_egg,Fried Egg,Trứng Ốp La
+nutrition.food_name_goi_cuon,Spring Rolls,Gỏi Cuốn
+nutrition.food_name_greek_yogurt,Greek Yogurt,Sữa Chua Hy Lạp
+nutrition.food_name_hu_tieu,Hu Tieu,Hủ Tiếu
+nutrition.food_name_iced_coffee,Iced Milk Coffee,Cà Phê Sữa Đá
+nutrition.food_name_mi_quang,Mi Quang,Mỳ Quảng
+nutrition.food_name_oatmeal_raw,Raw Oatmeal,Yến Mạch (Sống)
+nutrition.food_name_olive_oil,Olive Oil,Dầu Ô-liu
+nutrition.food_name_orange_juice,Orange Juice,Nước Ép Cam
+nutrition.food_name_peanut_butter,Peanut Butter,Bơ Đậu Phộng
+nutrition.food_name_pho_bo,Beef Pho,Phở Bò
+nutrition.food_name_salmon_raw,Raw Salmon,Cá Hồi Tươi
+nutrition.food_name_sweet_potato,Sweet Potato,Khoai Lang
+nutrition.food_name_tofu,Tofu,Đậu Hũ
+nutrition.food_name_whey_protein,Whey Protein,Whey Protein
+nutrition.food_name_white_rice,White Rice,Cơm Trắng
+nutrition.food_name_xoi_man,Xoi Man (Savory Sticky Rice),Xôi Mặn
+nutrition.msg_food_not_found,No foods found,Không tìm thấy thực phẩm nào
+nutrition.err_food_pcf,Protein/Carb/Fat must not exceed 500g.,Protein/Carb/Fat của món ăn không vượt quá 500g.
+nutrition.tab_food_quick_add,Input Meal,Nhập món ăn
+nutrition.title_food_quick_input,How many Calories did you just consume?,Bạn vừa nạp bao nhiêu Năng lượng?
+nutrition.btn_food_quick_submit,QUICK ADD,THÊM NHANH
+nutrition.desc_food_remove,Remove food from meal plan,Bỏ món ăn khỏi thực đơn
+nutrition.hint_food_search,Search for food...,Tìm kiếm thực phẩm...
+nutrition.lbl_food_suggestions,Suggestions / Recent,Gợi ý / Ăn gần đây
+nutrition.lbl_food_unit_100g,100g,100g
+nutrition.lbl_food_unit_100ml,100ml,100ml
+nutrition.fmt_food_unit_pieces,1 {arg1},1 {arg1}
+nutrition.fmt_goal_current_date,Current ({arg1}),Hiện tại ({arg1})
+nutrition.fmt_goal_days_left,{days} days left,Còn {days} ngày
+nutrition.lbl_goal_due,Goal Due,Đạt mục tiêu trong
+nutrition.desc_goal_edit,Customize goal,Tùy chỉnh mục tiêu
+nutrition.msg_goal_maintained,Your target and current weight are aligned. Keep maintaining your diet and training!,Cân nặng mục tiêu và hiện tại của bạn đã đồng nhất. Hãy tiếp tục duy trì chế độ ăn và tập luyện nhé!
+nutrition.fmt_goal_speed,~{arg1} kg/week,~{arg1} kg/tuần
+nutrition.fmt_goal_target_date,Target ({arg1}),Mục tiêu ({arg1})
+nutrition.btn_goal_update_wt,Update Weight,Cập nhật cân nặng
+nutrition.title_history,Nutrition History,Lịch sử Dinh dưỡng
+nutrition.title_input_amount,Input Amount,Nhập số lượng
+nutrition.err_invalid_number,Please enter a valid number,Vui lòng nhập số hợp lệ
+nutrition.fmt_kcal,{arg1} kcal,{arg1} kcal
+nutrition.fmt_macro_c,C: {arg1}g,T: {arg1}g
+nutrition.err_macro_cal_target,"Calorie target must be between 500 and 20,000 kcal.","Mục tiêu Calories phải từ 500 đến 20,000 kcal."
+nutrition.fmt_macro_f,F: {arg1}g,B: {arg1}g
+nutrition.fmt_macro_p,P: {arg1}g,Đ: {arg1}g
+nutrition.err_macro_pcf_target,"Protein/Carb/Fat targets must be between 0 and 1,000g.","Mục tiêu Protein/Carb/Fat phải từ 0 đến 1,000g."
+nutrition.fmt_macro_ratio,{arg1}/{arg2}g,{arg1}/{arg2}g
+nutrition.err_macro_warn_target,"Warning: Total energy from P,C,F differs by more than 20% from Calories. Are you sure you want to save?","Cảnh báo: Tổng năng lượng từ P,C,F chênh lệch quá 20% so với Calories. Bạn có chắc chắn muốn lưu?"
+nutrition.title_main,Nutrition,Dinh dưỡng
+nutrition.btn_main_copy_yesterday,Copy yesterday's meal plan,Sao chép thực đơn hôm qua
+nutrition.title_manual_wt_input,Input Weight,Nhập cân nặng
+nutrition.err_max_wt,Weight must be {arg1} kg or lower,Cân nặng phải từ {arg1} kg trở xuống
+nutrition.btn_meal_add_first,Tap to add food,Nhấn để thêm thực phẩm
+nutrition.btn_meal_add_food,Add Food,Thêm món ăn
+nutrition.btn_meal_add_more,Add another food,Thêm món ăn khác
+nutrition.err_min_wt,Weight must be {arg1} kg or higher,Cân nặng phải từ {arg1} kg trở lên
+nutrition.name_meal_breakfast,Breakfast,Bữa Sáng
+nutrition.name_meal_dinner,Dinner,Bữa Tối
+nutrition.name_meal_lunch,Lunch,Bữa Trưa
+nutrition.name_meal_snack,Snack,Ăn Vặt
+nutrition.btn_never_remind_again,Never remind again,Đừng nhắc lại
+nutrition.fmt_pace_days,~{arg1} days,~{arg1} ngày
+nutrition.err_pace_too_fast,You need at least {arg1} days to achieve this goal safely.,Bạn cần ít nhất {arg1} ngày để đạt mục tiêu này một cách an toàn.
+nutrition.placeholder_quick_food_name,Example: Beef Pho,Ví dụ: Phở bò
+nutrition.err_portion_qty,Portion must be between 0.01 and 100.,Khẩu phần phải từ 0.01 đến 100.
+nutrition.err_portion_scale,Portion must be between 1 and 5000 (g/ml).,Khẩu phần phải từ 1 đến 5000 (g/ml).
+nutrition.title_portion_warn,Portion Warning,Cảnh báo khẩu phần
+nutrition.lbl_quick_add,Quick Add,Nhập nhanh
+nutrition.lbl_quick_food_name,Food Name (Optional),Tên món ăn (Tùy chọn)
+nutrition.lbl_quick_portion,Number of Servings,Số lượng phần ăn
+nutrition.btn_quick_save_log,Save to Diary,Lưu vào Nhật ký
+nutrition.desc_review_accept,Accept your current weight and switch to a maintenance goal.,Chấp nhận cân nặng hiện tại và chuyển sang mục tiêu duy trì.
+nutrition.btn_review_accept,Accept Results,Chốt thành quả
+nutrition.fmt_review_bmi_suggestion,"Based on your new index ({arg1}), the system suggests the next steps:","Dựa trên chỉ số mới ({arg1}), hệ thống đề xuất hướng đi tiếp theo:"
+nutrition.fmt_review_congrats,Congratulations on successfully reaching your {arg1} kg weight goal!,Chúc mừng bạn đã đạt thành công mức cân nặng {arg1} kg!
+nutrition.btn_review_continue_gain,Continue gaining weight,Tiếp tục tăng cân
+nutrition.btn_review_continue_lose,Continue losing weight,Tiếp tục giảm cân
+nutrition.desc_review_diet_break,Eat at maintenance calories for 14 days to recover your metabolism.,Ăn ở mức duy trì năng lượng trong 14 ngày để phục hồi quá trình trao đổi chất.
+nutrition.btn_review_diet_break,Diet Break (Refeed),Nghỉ ngơi (Ăn bù)
+nutrition.title_review_expired,Expected time has expired,Đã hết thời gian dự kiến
+nutrition.desc_review_extend,The system will recalculate a new completion date.,Hệ thống sẽ tính toán lại ngày hoàn thành mới.
+nutrition.btn_review_extend,Extend time,Gia hạn thêm thời gian
+nutrition.fmt_review_failed,"You are currently at {arg1} kg (Target: {arg2} kg). Don't worry, everyone's biological progress is different!","Bạn hiện đang ở mức {arg1} kg (Mục tiêu: {arg2} kg). Đừng lo lắng, tiến độ sinh học của mỗi người là khác nhau!"
+nutrition.btn_review_maintain,Maintain current weight,Duy trì mức cân nặng hiện tại
+nutrition.title_review_success,Goal Achieved!,Hoàn thành mục tiêu!
+nutrition.btn_review_switch_gain,Switch to gaining weight,Chuyển sang tăng cân
+nutrition.btn_review_switch_lose,Switch to losing weight,Chuyển sang giảm cân
+nutrition.lbl_system_foods,System Suggestions,Gợi ý cho bạn
+nutrition.lbl_target_cust_date,Or select a specific completion date:,Hoặc chọn ngày hoàn thành cụ thể:
+nutrition.fmt_target_date_approx,{arg1} (~ {arg2} days),{arg1} (~ {arg2} ngày)
+nutrition.title_target_dialog,Set New Goal,Thiết lập Mục tiêu mới
+nutrition.msg_target_maintain_active,Maintain weight goal is active. No completion time needed.,Mục tiêu Duy trì cân nặng đang được bật. Không cần thiết lập thời gian hoàn thành.
+nutrition.fmt_target_min_days,Requires a minimum of {arg1} days to ensure medical safety.,Yêu cầu tối thiểu {arg1} ngày để đảm bảo an toàn y khoa.
+nutrition.desc_target_pick_date,Pick date,Chọn ngày
+nutrition.msg_total_foods_consumed,Total {arg1} foods consumed,Tổng cộng {arg1} món ăn đã nạp
+nutrition.lbl_unit_gram,grams,gam
+nutrition.unit_liters,Liters,Lít
+nutrition.lbl_unit_ml,ml,ml
+nutrition.lbl_unit_oz,oz,oz
+nutrition.lbl_unit_quantity,piece,cái
+nutrition.lbl_unit_serving,serving,phần
+nutrition.warn_unhealthy_target_bmi,This weight goal is in a range that is not ideal for your health. Please consider setting a more sustainable goal to ensure your well-being.,Mục tiêu cân nặng này nằm trong vùng không tốt cho sức khỏe. Hãy cân nhắc thiết lập mục tiêu ở mức an toàn hơn để đảm bảo sức khỏe của bạn.
+nutrition.desc_water_add,Add water intake,Thêm lượng nước uống
+nutrition.lbl_water_consumed,Consumed,Đã uống
+nutrition.err_water_current,Water intake must not exceed 10 liters.,Nước đã uống không được vượt quá 10 lít.
+nutrition.title_water_limit,Water Limit Reached,Giới hạn lượng nước
+nutrition.fmt_water_liters,%.2f / 2.5 Liters,%.2f / 2.5 Lít
+nutrition.title_water_settings,Water Settings,Thiết lập Nước
+nutrition.lbl_water_target,Target,Mục tiêu
+nutrition.err_water_target,Water target must be between 0.5 liters and 10 liters.,Mục tiêu nước uống phải từ 0.5 lít đến 10 lít.
+nutrition.fmt_water_target_suffix,/ {arg1} L,/ {arg1} L
+nutrition.title_water_tracker,Water Tracker,Nước uống
+nutrition.msg_wt_anti_cheat,This change is larger than normal physiological limits. Are you sure you entered the correct weight?,Sự thay đổi này lớn hơn mức sinh lý thông thường. Bạn có chắc chắn đã nhập đúng số cân không?
+nutrition.title_wt_dialog,Log Weight,Ghi nhận cân nặng
+nutrition.lbl_wt_input,Current Weight (kg),Cân nặng hiện tại (kg)
+nutrition.msg_wt_instruction,Update your weight on time for the system to calculate Calories and Nutrition accurately.,Cập nhật cân nặng đúng hạn để hệ thống tính toán lại Năng lượng và Dinh dưỡng chuẩn xác nhất.
+onboarding.hint_age,"Enter age (e.g., 25)",Nhập số tuổi (VD: 25)
+onboarding.lbl_ai_safe,AI Assistant: Medical safety configured,Trợ lý ảo: Đã cấu hình an toàn y tế
+onboarding.msg_alert_back,Replaced heavy back exercises with safer variations,Thay thế bài tập kéo tạ lưng bằng biến thể an toàn hơn
+onboarding.msg_alert_cardio,Limited heart rate to a safe threshold,Giới hạn nhịp tim ở ngưỡng an toàn
+onboarding.msg_alert_knee,Removed exercises that place heavy stress on knee joints,Đã loại bỏ các bài tập tạo áp lực mạnh lên khớp gối
+onboarding.msg_alert_peanut,Removed allergic nuts from the meal plan,Thực đơn đã loại bỏ các loại hạt gây dị ứng
+onboarding.lbl_and,and,và
+onboarding.lbl_bot_name,Plato AI Coach,Plato AI Coach
+onboarding.lbl_bot_status,Online,Trực tuyến
+onboarding.msg_chat_0,"Hi there! 👋 I'm Plato - your personal AI Coach. To make things easy, what would you like me to call you?","Chào đằng ấy! 👋 Mình là Plato - AI Coach cá nhân của bạn. Để tiện xưng hô, bạn muốn mình gọi bằng tên gì nhỉ?"
+onboarding.msg_chat_1,Hello {name}! ✨ Please let me know your gender and current age.,Chào {name}! ✨ Cho mình biết giới tính và số tuổi hiện tại của bạn nhé.
+onboarding.msg_chat_2,"Got it! Next, I need your height and weight to calculate your Total Daily Energy Expenditure (TDEE).","Ghi nhận! Tiếp theo, mình cần chiều cao và cân nặng để tính mức năng lượng tiêu thụ (TDEE) cho bạn."
+onboarding.msg_chat_3_bmi,"Height <b>{height} cm</b>, weight <b>{weight} kg</b>.
+Your Body Mass Index (BMI) is currently {bmi} (Category: {category}).","Chiều cao <b>{height} cm</b>, nặng <b>{weight} kg</b>.
+Chỉ số khối cơ thể (BMI) của bạn đang là {bmi} (Thuộc mức: {category})."
+onboarding.msg_chat_3_new_goal,"Based on your current physique, what is your upcoming training and nutrition goal, {name}?","Dựa trên thể trạng hiện tại, mục tiêu tập luyện và định hướng dinh dưỡng sắp tới của {name} là gì?"
+onboarding.msg_chat_4_activity,"Next, let me know your daily activity level and training experience.","Kế tiếp, hãy cho mình biết mức độ hoạt động hàng ngày và kinh nghiệm tập luyện của bạn nhé."
+onboarding.msg_chat_5_skip_maintain,"Since {name} chose to maintain weight, I will keep your current weight as the goal for your roadmap!","Vì {name} chọn giữ cân, mình sẽ duy trì mức cân nặng hiện tại làm mục tiêu cho lộ trình của bạn nhé!"
+onboarding.msg_chat_5_target_wt,"To achieve this goal, what is {name}'s target weight and desired pace of change?","Để đạt được mục tiêu này, cân nặng đích và tốc độ thay đổi mà {name} mong muốn là bao nhiêu?"
+onboarding.msg_chat_6,Almost done! Where do you plan to work out and how many days a week can you commit?,Gần xong rồi! Bạn dự định tập luyện ở môi trường nào và có thể dành ra mấy buổi một tuần?
+onboarding.msg_chat_7,"Last question: To ensure absolute safety, does {name} have any injuries, medical conditions, or dietary restrictions?","Câu hỏi cuối cùng: Để đảm bảo an toàn tuyệt đối, {name} có đang gặp chấn thương, bệnh lý hay cần kiêng cữ thực phẩm nào không?"
+onboarding.msg_chat_8_done,All set! Here is the Profile Summary and Roadmap tailored just for you:,Hoàn tất! Dưới đây là Tóm tắt Hồ sơ và Lộ trình dành riêng cho bạn:
+onboarding.msg_chat_8_processing,"Thank you so much, {name}! Give me a moment to analyze and set up your profile... 🚀",Cảm ơn {name} rất nhiều! Đợi mình một xíu để phân tích và thiết lập hồ sơ cho bạn nhé... 🚀
+onboarding.msg_chat_8_ready,"Ready, {name}? Tap the button below to start your journey right now! 🔥",Sẵn sàng chưa {name}? Nhấn nút bên dưới để bắt đầu hành trình ngay bây giờ nhé! 🔥
+onboarding.fmt_days_approx,~ {arg1} days,~ {arg1} ngày
+onboarding.fmt_days_cust,Custom ({arg1} days),Tùy chỉnh ({arg1} ngày)
+onboarding.hint_diet_other,Foods to avoid...,Món cần kiêng...
+onboarding.msg_err_age_empty,Please enter your age,Vui lòng nhập độ tuổi
+onboarding.msg_err_age_invalid,"Invalid age, please provide an age between 13 and 100","Độ tuổi không hợp lệ, vui lòng nhập trong khoảng 13 - 100 tuổi"
+onboarding.msg_err_diet_empty,Please enter your Diet details,Vui lòng nhập chi tiết Chế độ ăn của bạn
+onboarding.msg_err_goal_mismatch,Warning: The {arg1} goal does not match your target weight! You need to select {arg2}.,Cảnh báo: Mục tiêu {arg1} không khớp với cân nặng mong muốn! Bạn cần chọn {arg2}.
+onboarding.msg_err_height_empty,Please enter your height,Vui lòng nhập chiều cao
+onboarding.msg_err_height_invalid,Valid height is between 100-250 cm,Chiều cao hợp lệ từ 100-250 cm
+onboarding.msg_err_injury_empty,Please enter your Medical/Injury details,Vui lòng nhập chi tiết Bệnh lý / Chấn thương của bạn
+onboarding.msg_err_name_empty,Please enter a display name,Vui lòng nhập tên hiển thị
+onboarding.msg_err_wt_empty,Please enter your weight,Vui lòng nhập cân nặng
+onboarding.msg_err_wt_invalid,Valid weight is between 30-650 kg,Cân nặng hợp lệ từ 30-650 kg
+onboarding.lbl_estimated_completion,Estimated completion by,Dự kiến hoàn thành vào
+onboarding.fmt_freq,"{arg1}
+({arg2})","{arg1}
+({arg2})"
+onboarding.hint_height,"e.g., 170 (cm)",VD: 170 (cm)
+onboarding.hint_injury_other,Describe medical condition...,Mô tả bệnh lý...
+onboarding.lbl_kcal_day,Energy (kcal),Năng lượng (kcal)
+onboarding.fmt_kg,{arg1} kg,{arg1} kg
+onboarding.msg_loading_network,Please maintain a stable network connection for a few moments,Vui lòng giữ kết nối mạng ổn định trong ít phút
+onboarding.msg_loading_process,Analyzing roadmap & loading data...,Đang phân tích lộ trình & tải dữ liệu...
+onboarding.lbl_macro_carbs,Carbs,Tinh bột
+onboarding.lbl_macro_fat,Fat,Chất béo
+onboarding.lbl_macro_protein,Protein,Đạm
+onboarding.name_cust_program,Personalized Program,Giáo án cá nhân hóa
+onboarding.fmt_nutrition_needs,Daily nutrition needs ({arg1}),Nhu cầu dinh dưỡng mỗi ngày ({arg1})
+onboarding.title_program_ready,Your program is ready!,Giáo án của bạn đã sẵn sàng!
+onboarding.desc_program_ready,"Based on your complete profile, we have compiled the following program into your folder:","Dựa trên toàn bộ hồ sơ, chúng tôi đã biên soạn giáo án sau vào thư mục của bạn:"
+onboarding.lbl_select_date,Select date,Chọn ngày
+onboarding.btn_start_journey,Start journey,Bắt đầu hành trình
+onboarding.title_step_biometrics,Biometric Profile,Hồ sơ sinh học
+onboarding.desc_step_biometrics,For calculating basic body metrics,Phục vụ tính toán các chỉ số cơ thể cơ bản
+onboarding.title_step_commitment,Training Commitment,Cam kết tập luyện
+onboarding.desc_step_commitment,Setting up the most feasible schedule for your time,Thiết lập lịch trình khả thi nhất với thời gian của bạn
+onboarding.title_step_health,Health Check,Kiểm tra Y tế
+onboarding.desc_step_health,For the AI to filter out dangerous exercises & allergens,Để Trợ lý ảo loại bỏ bài tập nguy hiểm & món ăn gây dị ứng
+onboarding.title_step_lifestyle,Lifestyle & Experience,Lối sống & Kinh nghiệm
+onboarding.desc_step_lifestyle,System needs to determine your activity multiplier for energy calculation,Hệ thống cần xác định hệ số vận động để tính năng lượng
+onboarding.title_step_sum,Action Plan,Kế hoạch Hành động
+onboarding.desc_step_sum,The system has established the optimal roadmap for you,Hệ thống đã thiết lập lộ trình tối ưu cho bạn
+onboarding.title_step_target,Goal & Nutrition,Mục tiêu & Dinh dưỡng
+onboarding.desc_step_target,Detailing your personalized plan,Chi tiết hóa kế hoạch cá nhân của bạn
+onboarding.fmt_time_tweak,Time tweak: {arg1} days,Tinh chỉnh thời gian: {arg1} ngày
+onboarding.hint_username,Enter your username...,Nhập username của bạn...
+onboarding.msg_warn_cardio,"Important Note: With a cardiovascular history, you must consult a specialist before starting this program.","Lưu ý quan trọng: Với tiền sử tim mạch, bạn cần tham khảo ý kiến bác sĩ chuyên khoa trước khi bắt đầu lộ trình."
+onboarding.hint_wt,"e.g., 65 (kg)",VD: 65 (kg)
+onboarding.lbl_you_fallback,you,bạn
+onboarding.eula_intro,"This agreement is a legal contract between you (the User) and {brand} (We/Us) regarding the use of the {app} mobile application. By installing or using the app, you agree to abide by the following terms:","Thỏa thuận này là hợp đồng pháp lý giữa bạn (Người dùng) và {brand} (Chúng tôi) về việc sử dụng ứng dụng di động {app}. Bằng việc cài đặt hoặc sử dụng ứng dụng, bạn đồng ý tuân thủ các điều khoản sau:"
+onboarding.eula_p1_desc,"We grant you a limited, non-exclusive, non-transferable, and revocable license to download, install, and use {app} on your personal mobile devices for personal, non-commercial purposes.","Chúng tôi cấp cho bạn một giấy phép giới hạn, không độc quyền, không thể chuyển nhượng và có thể thu hồi để tải xuống, cài đặt và sử dụng {app} trên các thiết bị di động thuộc quyền sở hữu của bạn, phục vụ cho mục đích cá nhân và không thương mại."
+onboarding.eula_p1_title,1. License Grant,1. Cấp phép sử dụng
+onboarding.eula_p2_desc1,"All rights, title, and interest in and to the {app} application, including but not limited to:","Toàn bộ quyền, danh nghĩa và lợi ích đối với ứng dụng {app}, bao gồm nhưng không giới hạn ở:"
+onboarding.eula_p2_desc2,All of these are the exclusive intellectual property of {brand}. Any unauthorized copying or use is a violation of the law.,Tất cả đều là tài sản trí tuệ độc quyền của {brand}. Mọi hành vi sao chép hoặc sử dụng trái phép đều vi phạm pháp luật.
+onboarding.eula_p2_item1,• Technology: Algorithms for calculating Rate of Perceived Exertion (RPE) and assessing Muscle Readiness.,"• Công nghệ: Các thuật toán tính toán mức độ nỗ lực (RPE), logic đánh giá độ sẵn sàng của cơ bắp (Muscle Readiness)."
+onboarding.eula_p2_item2,"• Design: User Interface (UI), User Experience (UX), the {brand} logo, and the {app} icon.","• Thiết kế: Giao diện người dùng (UI), trải nghiệm người dùng (UX), logo {brand} và biểu tượng {app}."
+onboarding.eula_p2_item3,"• Content: Sample workout templates, instructional data, and chart structures.","• Nội dung: Các gói tập mẫu, dữ liệu hướng dẫn và cấu trúc biểu đồ."
+onboarding.eula_p2_title,2. Intellectual Property Rights,2. Quyền sở hữu trí tuệ
+onboarding.eula_p3_desc1,"You agree not to engage in, and not to permit any third party to engage in, the following activities:",Bạn cam kết không thực hiện và không cho phép bên thứ ba thực hiện các hành vi sau:
+onboarding.eula_p3_item1,"• Reverse engineer, decompile, or attempt to extract the source code of the application.","• Dịch ngược (reverse engineer), tháo rời hoặc tìm cách trích xuất mã nguồn của ứng dụng."
+onboarding.eula_p3_item2,• Copy {app}'s calculation formulas and recovery logic to build a competing product.,• Sao chép các công thức tính toán và logic phục hồi của {app} để xây dựng sản phẩm cạnh tranh.
+onboarding.eula_p3_item3,• Use the application for any illegal purposes or in violation of medical safety disclaimers.,• Sử dụng ứng dụng cho bất kỳ mục đích bất hợp pháp hoặc vi phạm các tuyên bố về an toàn y tế.
+onboarding.eula_p3_title,3. Prohibited Conduct,3. Các hành vi bị nghiêm cấm
+onboarding.eula_p4_desc,Your use of the application is also subject to our Privacy Policy. You understand that data will be stored locally (SQLite) and synced via cloud services to ensure the best experience. You have the right to request the deletion of your account and all related data at any time.,Việc sử dụng ứng dụng của bạn cũng tuân theo Chính sách bảo mật của chúng tôi. Bạn hiểu rằng dữ liệu sẽ được lưu trữ cục bộ (SQLite) và đồng bộ hóa qua dịch vụ đám mây để đảm bảo trải nghiệm tốt nhất. Bạn có quyền yêu cầu xóa tài khoản và toàn bộ dữ liệu liên quan bất cứ lúc nào.
+onboarding.eula_p4_title,4. Data and Privacy,4. Dữ liệu và Quyền riêng tư
+onboarding.eula_p5_item1,• Reference nature: {app} provides metrics based on your input data and is not a substitute for professional medical advice.,• Tính chất tham khảo: {app} cung cấp các chỉ số dựa trên dữ liệu đầu vào của bạn và không thay thế cho lời khuyên y tế chuyên nghiệp.
+onboarding.eula_p5_item2,• Personal risk: You are solely responsible for any risk of injury arising during workouts suggested by the application.,• Rủi ro: Bạn tự chịu trách nhiệm về mọi rủi ro chấn thương phát sinh trong quá trình tập luyện theo gợi ý của ứng dụng.
+onboarding.eula_p5_item3,"• Service: As this is a free version, we are not liable for data loss due to technical errors or force majeure events.","• Dịch vụ: Vì đây là phiên bản miễn phí, chúng tôi không chịu trách nhiệm về các sự cố mất mát dữ liệu do lỗi kỹ thuật hoặc sự cố bất khả kháng."
+onboarding.eula_p5_title,5. Limitation of Liability and Medical Disclaimer,5. Giới hạn trách nhiệm và Miễn trừ y tế
+onboarding.eula_p6_desc,This agreement remains in effect until terminated by you or us. We reserve the right to suspend or block your access to the application without prior notice if a violation of these terms is detected.,Thỏa thuận này có hiệu lực cho đến khi bạn hoặc chúng tôi chấm dứt. Chúng tôi có quyền tạm ngừng hoặc khóa quyền truy cập ứng dụng của bạn nếu phát hiện vi phạm các điều khoản này mà không cần thông báo trước.
+onboarding.eula_p6_title,6. Termination,6. Chấm dứt thỏa thuận
+onboarding.eula_updated,Last updated: April 2026,Cập nhật lần cuối: Tháng 4/2026
+onboarding.lbl_agree_terms,I have read and agree to the,Tôi đã đọc và đồng ý với
+onboarding.lbl_eula_link,EULA Agreement,Thỏa thuận EULA
+onboarding.lbl_terms_link,Terms of Use,Điều khoản sử dụng
+onboarding.terms_p1_desc1,"Not professional advice: Content and features in the app such as RPE calculation, Muscle Readiness assessment, or workout roadmaps are for reference only. {app} is not a medical organization; our algorithms do not replace advice or diagnosis from a doctor or specialist.","Không phải lời khuyên chuyên môn: Nội dung và các tính năng trong ứng dụng như tính toán RPE, đánh giá Muscle Readiness hay lộ trình tập luyện chỉ mang tính chất tham khảo. {app} không phải là tổ chức y tế; các thuật toán của chúng tôi không thay thế cho sự tư vấn, chẩn đoán từ bác sĩ hoặc chuyên gia."
+onboarding.terms_p1_desc2,Personal risk: You voluntarily perform the exercises and are solely responsible for any injuries or damages incurred during training.,Rủi ro cá nhân: Bạn hoàn toàn tự nguyện thực hiện các bài tập và tự chịu trách nhiệm cho bất kỳ tổn thương hoặc thiệt hại nào phát sinh trong quá trình tập luyện.
+onboarding.terms_p1_desc3,"Listen to your body: {app} does not guarantee absolute accuracy of metrics compared to actual physiological status. Stop exercising immediately if you feel tightness, dizziness, or shortness of breath.","Lắng nghe cơ thể: {app} không đảm bảo sự chính xác tuyệt đối của các chỉ số so với tình trạng sinh lý thực tế. Hãy dừng tập ngay lập tức nếu cảm thấy đau thắt, chóng mặt hoặc khó thở."
+onboarding.terms_p1_title,1. Medical Disclaimer,1. Tuyên bố miễn trừ trách nhiệm y tế
+onboarding.terms_p2_desc1,We commit that collected data is used solely for the purpose of personalizing your workout roadmap and calculating muscle recovery.,Chúng tôi cam kết dữ liệu được thu thập duy nhất nhằm mục đích cá nhân hóa lộ trình tập luyện và tính toán khả năng phục hồi của cơ bắp.
+onboarding.terms_p2_desc2,"Information collected: Includes email, display name, physical data (height, weight, gender, age), and activity logs (workout history, RPE indices).","Thông tin thu thập: Bao gồm email, tên hiển thị, dữ liệu thể chất (chiều cao, cân nặng, giới tính, tuổi) và nhật ký hoạt động (lịch sử bài tập, chỉ số RPE)."
+onboarding.terms_p2_desc3,"Commercial commitment: We do not share, sell, or provide your personal data to any third party for commercial or advertising purposes.","Cam kết thương mại: Chúng tôi không chia sẻ, bán hoặc cung cấp dữ liệu cá nhân của bạn cho bất kỳ bên thứ ba nào vì mục đích thương mại hay quảng cáo."
+onboarding.terms_p2_title,2. Data Collection and Use,2. Thu thập và sử dụng dữ liệu
+onboarding.terms_p3_desc1,Local storage (SQLite): A portion of data and personal settings are stored directly on your device to ensure quick access and offline functionality. Data is synced to the cloud only when a network connection is available.,Lưu trữ cục bộ (SQLite): Một phần dữ liệu và cài đặt cá nhân được lưu trữ trực tiếp trên thiết bị của bạn để đảm bảo tốc độ truy xuất và khả năng hoạt động ngoại tuyến (offline). Dữ liệu chỉ được đồng bộ lên hệ thống đám mây khi có kết nối mạng.
+onboarding.terms_p3_desc2,Infrastructure services (Supabase): We use {brand} to host the database and authenticate users. Data is securely encrypted in transit and at rest according to international standards.,Dịch vụ hạ tầng (Supabase): Chúng tôi sử dụng {brand} để lưu trữ cơ sở dữ liệu và xác thực người dùng. Dữ liệu được mã hóa an toàn khi truyền tải (in transit) và khi lưu trữ (at rest) theo tiêu chuẩn quốc tế.
+onboarding.terms_p3_desc3,Data Security: We apply Row Level Security (RLS) to ensure each user can only access their own data.,Bảo mật dữ liệu: Chúng tôi áp dụng Row Level Security (RLS) để đảm bảo mỗi người dùng chỉ có thể truy cập vào dữ liệu của chính mình.
+onboarding.terms_p3_title,3. Storage and Third-Party Service Providers,3. Lưu trữ và Bên thứ ba cung cấp dịch vụ
+onboarding.terms_p4_desc1,"In compliance with Decree 13/2023 (VN) and international laws, you have full control over your personal data:
+• Right to edit: You can change your personal information in the Profile section at any time.
+• Right to delete: You have the right to request ""Delete account"". At that point, all data linked to your email will be permanently wiped from the Database or completely anonymized.","Tuân thủ Nghị định 13/2023 (VN) và luật quốc tế, bạn có toàn quyền đối với dữ liệu cá nhân của mình:
+• Quyền chỉnh sửa: Bạn có thể thay đổi thông tin cá nhân trong phần Profile bất kỳ lúc nào.
+• Quyền xóa bỏ: Bạn có quyền yêu cầu ""Xóa tài khoản"". Khi đó, toàn bộ dữ liệu liên kết với email của bạn sẽ được xóa sạch khỏi Database hoặc ẩn danh hóa hoàn toàn."
+onboarding.terms_p4_title,4. User Control Rights,4. Quyền kiểm soát của người dùng
+onboarding.terms_p5_desc1,Service nature: {app} provides all current features for free. We reserve the right to change the business model or add premium features in the future and will notify users in advance.,Tính chất dịch vụ: {app} cung cấp toàn bộ tính năng hiện có miễn phí. Chúng tôi bảo lưu quyền thay đổi mô hình kinh doanh hoặc thêm các tính năng cao cấp trong tương lai và sẽ thông báo trước cho người dùng.
+onboarding.terms_p5_desc2,"Limitation of liability: To the extent permitted by law, {brand} is not liable for damages arising from the use of the application or technical errors, data loss due to force majeure events.","Giới hạn trách nhiệm: Trong phạm vi pháp luật cho phép, {brand} không chịu trách nhiệm cho các thiệt hại phát sinh từ việc sử dụng ứng dụng hoặc các lỗi kỹ thuật, mất mát dữ liệu do sự cố bất khả kháng."
+onboarding.terms_p5_title,5. Service and System Liability,5. Dịch vụ và Trách nhiệm hệ thống
+onboarding.title_eula,END USER LICENSE AGREEMENT ({app}),THỎA THUẬN CẤP PHÉP NGƯỜI DÙNG CUỐI ({app})
+onboarding.title_terms,PRIVACY POLICY AND TERMS OF USE ({app}),CHÍNH SÁCH BẢO MẬT VÀ ĐIỀU KHOẢN SỬ DỤNG ({app})
+profile.activity_active,Very Active,Năng động
+profile.activity_light,Lightly Active,Nhẹ nhàng
+profile.activity_moderate,Moderately Active,Vừa phải
+profile.activity_sedentary,Sedentary,Ít vận động
+profile.activity_title,Daily Activity Level,Mức độ vận động hàng ngày
+profile.title_crop_avatar,Crop Avatar,Cắt ảnh đại diện
+profile.title_crop_image,Crop Image,Cắt ảnh
+profile.title_delete_account,Permanently Delete Account?,Xóa tài khoản vĩnh viễn?
+profile.desc_delete_account,"All your workout data, rankings, and personal information will be permanently deleted from the system. You cannot undo this action.","Mọi dữ liệu tập luyện, xếp hạng và thông tin cá nhân của bạn sẽ bị xóa vĩnh viễn khỏi hệ thống. Bạn không thể hoàn tác hành động này."
+profile.btn_delete_account,Delete Account,Xóa tài khoản
+profile.desc_delete_account_short,Permanently delete your identity and data from the server.,Xóa vĩnh viễn định danh và dữ liệu của bạn trên máy chủ.
+profile.btn_delete_confirm,Confirm Deletion,Chắc chắn Xóa
+profile.lbl_delete_current_avatar,Delete current avatar,Xóa ảnh hiện tại
+profile.msg_delete_success,Account successfully deleted.,Tài khoản đã bị xóa.
+profile.diet_cust,Other (Custom Allergy),Khác (Dị ứng tùy chỉnh)
+profile.diet_dairy,Dairy Allergy,Dị ứng sữa
+profile.diet_gluten,Gluten Intolerant,Không nạp Gluten
+profile.diet_meat,Avoid Red Meat,Tránh các loại thịt đỏ
+profile.diet_peanut,Peanut Allergy,Dị ứng đậu phộng
+profile.diet_plan_balanced,Balanced Diet,Cân bằng dinh dưỡng
+profile.diet_plan_dash,DASH Diet,Chế độ giảm huyết áp
+profile.diet_plan_high_protein,High Protein,Tập trung nhiều đạm
+profile.diet_plan_keto,Keto Diet,Chế độ ăn Keto
+profile.diet_plan_low_carb,Low Carb,Hạn chế tinh bột
+profile.diet_plan_low_fat,Low Fat,Hạn chế chất béo
+profile.diet_plan_mediterranean,Mediterranean Diet,Chế độ Địa Trung Hải
+profile.diet_plan_paleo,Paleo Diet,Chế độ Nguyên thủy
+profile.diet_plan_title,Preferred Diet Plan,Chế độ ăn ưu tiên
+profile.diet_title,Special Diets / Allergies,Chế độ ăn uống đặc biệt / Dị ứng
+profile.diet_vegan,Vegan,Ăn thuần chay
+profile.diet_vegetarian,Vegetarian,Ăn chay
+profile.fmt_duration_hm,{arg1}h {arg2}m,{arg1}h {arg2}m
+profile.fmt_duration_m,{arg1}m,{arg1}m
+profile.env_gym,Gym,Phòng tập
+profile.env_home_bodyweight,Home (No equipment),Tại nhà (Không dụng cụ)
+profile.env_home_dumbbell,Home (With dumbbells),Tại nhà (Có tạ đơn)
+profile.env_title,Training Environment,Môi trường tập
+profile.msg_err_text_required,Please enter a description in text.,Vui lòng nhập mô tả bằng chữ.
+profile.freq_chill,Relaxed,Thư giãn
+profile.freq_high,5-7 sessions/week,5-7 buổi/tuần
+profile.freq_low,1-3 sessions/week,1-3 buổi/tuần
+profile.freq_mid,3-5 sessions/week,3-5 buổi/tuần
+profile.freq_title,Training Frequency per Week,Tần suất tập mỗi tuần
+profile.freq_tryhard,Intense,Cao độ
+profile.goal_bulk,Build Muscle / Bulk,Tăng cơ
+profile.goal_cut,Lose Fat / Cut,Giảm mỡ / Cắt nét
+profile.goal_gain_wt,Gain Weight,Tăng cân
+profile.goal_lose_wt,Lose Weight,Giảm cân
+profile.goal_maintain_wt,Maintain Weight,Giữ cân
+profile.goal_nutrition_title,Nutrition Goal,Mục tiêu dinh dưỡng
+profile.goal_strength,Increase Strength,Tăng sức mạnh
+profile.goal_title,Goal Strategy,Chiến lược mục tiêu
+profile.goal_workout_title,Training Goal,Mục tiêu tập luyện
+profile.msg_history_empty,You have no workout history yet,Bạn chưa có lịch sử tập luyện nào
+profile.fmt_history_more_exercises,+ {arg1} more...,+ {arg1} bài khác...
+profile.btn_history_see_all,See All ({arg1}),Xem tất cả ({arg1})
+profile.fmt_history_sets,{arg1} sets,{arg1} hiệp
+profile.fmt_history_sum,{arg1} exercises • {arg2},{arg1} bài tập • {arg2}
+profile.injury_back,Lower Back Pain,Đau thắt lưng
+profile.injury_blood_pressure,High Blood Pressure,Huyết áp cao
+profile.injury_cardio,Cardiovascular Disease,Bệnh lý tim mạch
+profile.injury_cholesterol,High Cholesterol,Mỡ trong máu cao
+profile.injury_cust,Other (Custom Condition),Khác (Bệnh lý tùy chỉnh)
+profile.injury_diabetes,Diabetes,Bệnh tiểu đường
+profile.injury_knee,Knee Pain,Đau khớp gối
+profile.injury_shoulder,Shoulder Pain,Đau khớp vai
+profile.injury_title,Joint Issues or Medical Conditions,Vấn đề xương khớp hoặc Bệnh lý
+profile.err_invalid_body_fat,Body fat percentage must be between 3% and 100%.,Tỉ lệ mỡ phải từ 3% đến 100%.
+profile.err_invalid_measurement,Invalid measurement (10 - 500 cm).,Số đo vô lý (10 - 500 cm).
+profile.level_advanced,Advanced (Over 2 years),Chuyên nghiệp (Trên 2 năm)
+profile.level_intermediate,Intermediate (6 months to 2 years),Có kinh nghiệm (6 tháng đến 2 năm)
+profile.level_newbie,Beginner (Under 6 months),Người mới (Dưới 6 tháng)
+profile.level_title,Training Experience,Kinh nghiệm tập luyện
+profile.btn_logout,Log out securely from this device,Đăng xuất an toàn khỏi thiết bị này
+profile.title_logout_dialog,Logout of Account?,Đăng xuất tài khoản?
+profile.desc_logout_dialog,Your current login session will be safely logged out from the device. Your data has been stored on the cloud.,Phiên đăng nhập hiện tại sẽ được đăng xuất an toàn khỏi thiết bị. Dữ liệu của bạn đã được lưu trữ trên đám mây.
+profile.msg_logout_success,Successfully logged out.,Đã đăng xuất thành công.
+profile.title_main,Profile,Cá nhân
+profile.lbl_max_rank,You have reached the maximum rank,Bạn đã đạt mức Hạng Tối Đa
+profile.measure_biceps,Biceps (cm),Bắp tay (cm)
+profile.measure_calves,Calves (cm),Bắp chuối (cm)
+profile.measure_chest,Chest (cm),Vòng Ngực (cm)
+profile.measure_hips,Hips (cm),Vòng Mông (cm)
+profile.measure_neck,Neck (cm),Vòng Cổ (cm)
+profile.measure_shoulders,Shoulders (cm),Vòng Vai (cm)
+profile.measure_thighs,Thighs (cm),Vòng Đùi (cm)
+profile.measure_waist,Waist (cm),Vòng Eo (cm)
+profile.btn_menu_cal,Calendar,Lịch trình
+profile.btn_menu_edit,Profile,Hồ sơ
+profile.btn_menu_exercises,Exercises,Bài tập
+profile.btn_menu_stats,Statistics,Thống kê
+profile.metric_age,Age,Tuổi
+profile.metric_body_fat,Body Fat (%),Tỉ lệ mỡ cơ thể (%)
+profile.metric_gender,Gender,Giới tính
+profile.metric_height,Height (cm),Chiều cao (cm)
+profile.metric_name,Display Name,Tên hiển thị
+profile.metric_wt,Weight (kg),Cân nặng (kg)
+profile.pace_fast,Fast,Nhanh
+profile.pace_normal,Standard,Tiêu chuẩn
+profile.pace_relaxed,Relaxed,Thư thả
+profile.lbl_pick_from_gallery,Choose from gallery,Chọn ảnh từ thư viện
+profile.desc_rank_icon,Rank Icon,Biểu tượng Xếp hạng
+profile.title_recent_history,Recent History,Lịch sử gần đây
+profile.desc_rp_to_next_rank,Only {rp} RP away from the next rank!,Còn {rp} RP nữa để thăng hạng
+profile.title_save_success,Profile saved successfully!,Lưu hồ sơ thành công!
+profile.msg_save_success,Your profile information has been updated and saved safely.,Thông tin hồ sơ đã được cập nhật và lưu lại an toàn.
+profile.title_settings_main,Profile & Configuration,Hồ sơ & Cấu hình
+profile.title_settings_sec_health,Health & Conditions,Sức khỏe & Bệnh lý
+profile.title_settings_sec_lifestyle,Lifestyle & Training,Lối sống & Tập luyện
+profile.title_settings_sec_metrics,Detailed Body Metrics,Số đo chi tiết cơ thể
+profile.side_left,Left Side,Bên Trái
+profile.side_right,Right Side,Bên Phải
+profile.lbl_stats_followers,followers,người theo dõi
+profile.lbl_stats_following,following,đang theo dõi
+profile.lbl_stats_workouts,workouts,buổi tập
+profile.target_pace,Desired Pace of Change,Tốc độ thay đổi mong muốn
+profile.target_wt,Target Weight,Cân nặng mong muốn
+profile.btn_unlink_confirm,Unlink,Hủy liên kết
+profile.title_unlink_dialog,Unlink Account,Hủy liên kết tài khoản
+profile.desc_unlink_dialog,Are you sure you want to unlink? Your data will no longer be synced to the cloud.,Bạn có chắc chắn muốn hủy liên kết? Dữ liệu của bạn sẽ không còn được đồng bộ lên mây nữa.
+profile.msg_unlink_success,Successfully unlinked account,Đã hủy liên kết thành công
+programs.cardio_gym_int_desc,"A cardiovascular training system with continuously varying, powerful intensities. Strongly emphasizes massive calorie burn, eliminating stubborn fat, and elevating endurance to a completely new standard.","Hệ thống bài tập rèn luyện hệ tim mạch với cường độ thay đổi liên tục và mạnh mẽ. Chú trọng đặc biệt vào khả năng đốt cháy lượng calo khổng lồ, loại bỏ mỡ thừa ngoan cố và nâng tầm sức bền thể lực lên một tiêu chuẩn hoàn toàn mới."
+programs.cardio_gym_int_name,Fat Burning Cardio & HIIT (Gym),Cardio & HIIT Đốt Mỡ (Phòng Tập)
+programs.combo_db_adv_desc,"Challenge every limit of endurance at home with a relentless 5-day rotating schedule. By pushing dumbbell intensity to the max, this routine drains energy and forces the body to adapt by growing bigger and stronger.","Thách thức mọi giới hạn sức chịu đựng tại nhà với lịch tập năm buổi luân phiên không ngừng nghỉ. Bằng cách đẩy cường độ tạ đơn lên mức cao nhất, giáo án này vắt kiệt năng lượng và ép buộc cơ thể phải thích nghi bằng cách phát triển to hơn và mạnh hơn."
+programs.combo_db_adv_name,PPL & Upper/Lower - Advanced (Dumbbell),Đẩy Kéo Chân & Trên Dưới - Nâng Cao (Tạ Đơn)
+programs.combo_db_beg_desc,"A hybrid dumbbell version over 3 days a week acting as a primer. Gentle and easy to execute, but still provides enough stimulus for muscles to recognize the need for change and begin a stronger rebuilding process.","Phiên bản kết hợp sử dụng tạ đơn trong ba ngày mỗi tuần mang tính chất khởi động. Nhẹ nhàng, dễ thực hiện nhưng vẫn đảm bảo sự kích thích đủ để cơ bắp nhận biết được sự thay đổi và bắt đầu quá trình tái tạo mạnh mẽ hơn."
+programs.combo_db_beg_name,PPL & Upper/Lower - Beginner (Dumbbell),Đẩy Kéo Chân & Trên Dưới - Cơ Bản (Tạ Đơn)
+programs.combo_db_int_desc,A scientifically split 5-day home routine. Maximizes dumbbell utility to deliver clear physique development while still leaving enough time for muscle groups to rest and grow.,Lịch trình năm buổi mỗi tuần tại nhà được phân chia nhóm cơ cực kỳ khoa học và tinh tế. Tận dụng tối đa tạ đơn để mang lại hiệu quả phát triển vóc dáng rõ rệt trong khi vẫn chừa đủ thời gian để các nhóm cơ nghỉ ngơi và phát triển.
+programs.combo_db_int_name,PPL & Upper/Lower - Intermediate (Dumbbell),Đẩy Kéo Chân & Trên Dưới - Trung Cấp (Tạ Đơn)
+programs.combo_gym_adv_desc,The pinnacle of workout programming with 5 of the most grueling sessions. Tailored specifically for seasoned individuals who want to force their bodies into continuous stress to achieve physical perfection.,"Đỉnh cao của nghệ thuật lập trình tập luyện với năm buổi cường độ gắt gao nhất. Giáo án này được thiết kế riêng cho những cá nhân đã dày dặn kinh nghiệm, muốn áp đặt cơ thể vào trạng thái căng thẳng liên tục để đạt được sự hoàn mỹ về vóc dáng."
+programs.combo_gym_adv_name,PPL & Upper/Lower - Advanced (Gym),Đẩy Kéo Chân & Trên Dưới - Nâng Cao (Phòng Tập)
+programs.combo_gym_beg_desc,Creates a gentle transitional stepping stone with 3 days a week for the body to adapt before moving to the intensive 5-day hybrid routine. Helps build a solid foundation and physical readiness for harsher challenges.,Tạo bước đệm chuyển tiếp nhẹ nhàng với ba ngày mỗi tuần để cơ thể dần làm quen trước khi tiến tới lịch tập kết hợp năm ngày chuyên sâu. Giúp xây dựng nền móng vững chắc và chuẩn bị thể lực cho những thử thách khắc nghiệt hơn.
+programs.combo_gym_beg_name,PPL & Upper/Lower - Beginner (Gym),Đẩy Kéo Chân & Trên Dưới - Cơ Bản (Phòng Tập)
+programs.combo_gym_int_desc,The 5-day structure provides the perfect balance between muscle hypertrophy goals and maximal strength gains. Smart rotation between workout days optimizes recovery capacity and prevents overtraining.,Cấu trúc năm buổi mỗi tuần mang đến sự cân bằng hoàn hảo giữa mục tiêu phát triển độ lớn cơ bắp và gia tăng sức mạnh tối đa. Sự luân phiên thông minh giữa các ngày tập giúp tối ưu hóa khả năng phục hồi và ngăn ngừa tình trạng quá tải.
+programs.combo_gym_int_name,PPL & Upper/Lower - Intermediate (Gym),Đẩy Kéo Chân & Trên Dưới - Trung Cấp (Phòng Tập)
+programs.fb_bw_adv_desc,"A journey of primal strength training through advanced calisthenics movements like pull-ups, dips, and hard-to-control variations. Requires a perfect blend of raw power, balance, and absolute core strength.","Hành trình rèn luyện sức mạnh nguyên thủy thông qua các động tác nâng cao như hít xà đơn, xà kép và các biến thể khó kiểm soát. Đòi hỏi sự kết hợp hoàn hảo giữa sức mạnh thuần túy, sự thăng bằng và sức mạnh hệ cơ lõi tuyệt đối."
+programs.fb_bw_adv_name,Full Body - Advanced (Bodyweight),Toàn Thân - Nâng Cao (Không Tạ)
+programs.fb_bw_beg_desc,"Use your own body weight as resistance to train balance and strengthen the core. A gentle, easily accessible routine for any space, helping you build discipline without investing in complex equipment.","Sử dụng chính trọng lượng cơ thể làm sức cản để rèn luyện thăng bằng và củng cố sức mạnh vùng cơ lõi. Lịch trình nhẹ nhàng, dễ tiếp cận ở mọi không gian, giúp bạn hình thành thói quen kỷ luật mà không cần đầu tư bất kỳ dụng cụ phức tạp nào."
+programs.fb_bw_beg_name,Full Body - Beginner (Bodyweight),Toàn Thân - Cơ Bản (Không Tạ)
+programs.fb_bw_int_desc,"Increase the challenge through complex bodyweight exercise variations. This routine not only burns massive energy but also develops agility, flexibility, and spatial body control.","Đẩy mạnh mức độ thử thách thông qua các bài tập thể dục trọng lượng cơ thể biến thể phức tạp hơn. Giáo án này không chỉ đốt cháy năng lượng mạnh mẽ mà còn phát triển sự dẻo dai, linh hoạt và khả năng kiểm soát cơ thể trong không gian."
+programs.fb_bw_int_name,Full Body - Intermediate (Bodyweight),Toàn Thân - Trung Cấp (Không Tạ)
+programs.fb_db_adv_desc,"Exhaust the entire body using slow, controlled tempos and peak dumbbell intensity. Forces every muscle fiber to engage, delivering muscle-building and shredding results far beyond expectations.","Vắt kiệt sức lực toàn thân bằng các kỹ thuật kiểm soát nhịp độ chậm rãi và cường độ tập luyện đỉnh cao cùng tạ đơn. Giáo án ép buộc mọi sợi cơ phải tham gia vào quá trình vận động, đem lại hiệu quả tăng cơ và cắt nét vượt xa mong đợi."
+programs.fb_db_adv_name,Full Body - Advanced (Dumbbell),Toàn Thân - Nâng Cao (Tạ Đơn)
+programs.fb_db_beg_desc,"A comprehensive, time-saving home workout solution using just a pair of dumbbells. Wakes up every muscle group through fundamental movements, perfect for busy individuals wanting to maintain an active habit.","Giải pháp tập luyện toàn diện tại nhà cực kỳ tiết kiệm thời gian chỉ với một đôi tạ đơn. Giáo án giúp đánh thức mọi nhóm cơ trên cơ thể thông qua các chuyển động cơ bản, rất phù hợp cho những người bận rộn muốn duy trì thói quen vận động."
+programs.fb_db_beg_name,Full Body - Beginner (Dumbbell),Toàn Thân - Cơ Bản (Tạ Đơn)
+programs.fb_db_int_desc,"Elevate overall fitness by increasing volume and incorporating diverse dumbbell exercises. Ensures the entire body is trained evenly, bringing about tone, fat loss, and significant cardiovascular improvements.","Nâng cao thể lực tổng thể bằng cách gia tăng số hiệp và kết hợp nhiều bài tập tạ đơn đa dạng. Lịch trình này đảm bảo toàn bộ cơ thể được rèn luyện đồng đều, mang lại sự săn chắc, giảm mỡ thừa và cải thiện sức khỏe tim mạch đáng kể."
+programs.fb_db_int_name,Full Body - Intermediate (Dumbbell),Toàn Thân - Trung Cấp (Tạ Đơn)
+programs.fb_gym_adv_desc,"Requires incredible stamina with 3 horrifyingly intense sessions per week. This routine constantly challenges both neural and full-body muscular endurance, designed to shatter the physical limits of veteran lifters.","Đòi hỏi sự bền bỉ đáng kinh ngạc với ba buổi tập cường độ khủng khiếp mỗi tuần. Giáo án này liên tục thử thách khả năng chịu đựng của cả hệ thần kinh lẫn hệ cơ bắp toàn thân, được thiết kế để phá vỡ mọi giới hạn thể chất của người tập lâu năm."
+programs.fb_gym_adv_name,Full Body - Advanced (Gym),Toàn Thân - Nâng Cao (Phòng Tập)
+programs.fb_gym_beg_desc,"Activate all major muscle groups in a single session with a frequency of 2-3 times per week. The perfect stepping stone to introduce beginners to resistance, optimizing time while mastering basic movement techniques.","Kích hoạt toàn bộ các nhóm cơ chính trên cơ thể chỉ trong một buổi tập với tần suất hai đến ba lần mỗi tuần. Đây là bước đệm hoàn hảo giúp người mới làm quen với sự kháng lực của tạ, tối ưu hóa thời gian và làm quen với kỹ thuật chuyển động cơ bản."
+programs.fb_gym_beg_name,Full Body - Beginner (Gym),Toàn Thân - Cơ Bản (Phòng Tập)
+programs.fb_gym_int_desc,"A 3-day-per-week routine inspired by professional strength athletes. Focuses heavily on heavyweight barbell exercises to fire up the central nervous system, resulting in superior foundational strength and dense muscle mass.","Lịch tập ba buổi mỗi tuần lấy cảm hứng từ các vận động viên sức mạnh chuyên nghiệp. Tập trung chủ yếu vào các bài tập tạ đòn hạng nặng để kích hoạt hệ thần kinh trung ương, từ đó mang lại sức mạnh nền tảng vượt trội và khối lượng cơ bắp dày dặn."
+programs.fb_gym_int_name,Full Body - Intermediate (Gym),Toàn Thân - Trung Cấp (Phòng Tập)
+programs.ppl_db_adv_desc,"Apply advanced training techniques and push muscles to exhaustion with 6 days a week using dumbbells. Requires intense focus, maximizing free-weight efficiency to sculpt a sharp and detailed physique.","Áp dụng các kỹ thuật tập luyện nâng cao và đẩy cơ bắp đến ngưỡng kiệt sức với sáu buổi mỗi tuần cùng tạ đơn. Giáo án đòi hỏi sự tập trung cao độ, khai thác tối đa hiệu quả của tạ tự do để điêu khắc vóc dáng sắc nét và chi tiết."
+programs.ppl_db_adv_name,Push Pull Legs - Advanced (Dumbbell),Đẩy Kéo Chân - Nâng Cao (Tạ Đơn)
+programs.ppl_db_beg_desc,"Start your physique transformation journey at home with just 3 days a week and a pair of dumbbells. This routine offers maximum convenience, helping beginners easily access resistance training safely and effectively in their own space.","Bắt đầu hành trình thay đổi vóc dáng tại nhà chỉ với ba buổi mỗi tuần cùng một đôi tạ đơn. Lịch tập này mang lại sự tiện lợi tối đa, giúp người mới dễ dàng tiếp cận việc tập luyện kháng lực một cách an toàn và đạt hiệu quả cao ngay tại không gian riêng."
+programs.ppl_db_beg_name,Push Pull Legs - Beginner (Dumbbell),Đẩy Kéo Chân - Cơ Bản (Tạ Đơn)
+programs.ppl_db_int_desc,"Fully exploit the potential of dumbbells with a challenging 6-day-per-week schedule. By varying movement angles and increasing sets, this routine ensures muscles continuously receive strong growth signals even when training at home.","Khai thác triệt để tiềm năng của tạ đơn với lịch trình sáu buổi mỗi tuần đầy thử thách. Bằng cách đa dạng hóa góc độ chuyển động và tăng cường số hiệp tập, giáo án này đảm bảo cơ bắp liên tục nhận được tín hiệu phát triển mạnh mẽ ngay cả khi tập tại nhà."
+programs.ppl_db_int_name,Push Pull Legs - Intermediate (Dumbbell),Đẩy Kéo Chân - Trung Cấp (Tạ Đơn)
+programs.ppl_gym_adv_desc,"Push your body past its limits with an extremely high-intensity 6-day routine. Maximizes heavy loads on compound movements and refines muscle details through isolation exercises, specifically designed to break plateaus and drive maximum muscle growth.","Đẩy cơ thể vượt qua giới hạn với lịch tập sáu buổi mỗi tuần mang cường độ cực cao. Tối đa hóa mức tạ nặng ở các bài tập phức hợp và tinh chỉnh chi tiết cơ bắp thông qua các bài tập cô lập, thiết kế đặc biệt để phá vỡ độ chững và thúc đẩy sự phát triển cơ bắp tối đa."
+programs.ppl_gym_adv_name,Push Pull Legs - Advanced (Gym),Đẩy Kéo Chân - Nâng Cao (Phòng Tập)
+programs.ppl_gym_beg_desc,"Ideal roadmap to get used to a 3-day-per-week training rhythm using safe fixed machines. This routine helps beginners build a solid muscular foundation, grasp proper technique, and minimize injury risk in the early stages.","Giáo án lý tưởng để làm quen với nhịp độ tập luyện ba buổi mỗi tuần thông qua các máy tập cố định an toàn. Lịch tập này giúp người mới xây dựng nền tảng cơ bắp vững chắc, nắm bắt kỹ thuật chuẩn xác và hạn chế tối đa nguy cơ chấn thương trong giai đoạn đầu."
+programs.ppl_gym_beg_name,Push Pull Legs - Beginner (Gym),Đẩy Kéo Chân - Cơ Bản (Phòng Tập)
+programs.ppl_gym_int_desc,"Elevate the challenge with a 6-day-per-week intensity flexibly combining barbells and dumbbells. Focuses on increasing overall training volume, stimulating balanced muscle growth, and visibly improving foundational strength.","Nâng tầm thử thách với cường độ sáu buổi mỗi tuần kết hợp linh hoạt giữa tạ đòn và tạ đơn. Giáo án này tập trung vào việc gia tăng khối lượng tập luyện tổng thể, kích thích cơ bắp phát triển đồng đều và cải thiện rõ rệt sức mạnh nền tảng."
+programs.ppl_gym_int_name,Push Pull Legs - Intermediate (Gym),Đẩy Kéo Chân - Trung Cấp (Phòng Tập)
+programs.ul_db_adv_desc,"A brutally strict dumbbell schedule requiring absolute discipline. Optimizes time under tension to create an ideal growth environment, delivering muscle-building results that rival professional gym training.","Một lịch trình tạ đơn vô cùng khắt khe yêu cầu sự kỷ luật tuyệt đối. Tối ưu hóa thời gian cơ bắp chịu áp lực liên tục để tạo ra môi trường phát triển lý tưởng, mang lại hiệu quả tăng cơ không thua kém việc tập luyện tại phòng gym chuyên nghiệp."
+programs.ul_db_adv_name,Upper Lower - Advanced (Dumbbell),Trên Dưới - Nâng Cao (Tạ Đơn)
+programs.ul_db_beg_desc,"A streamlined and highly effective 4-day home routine using dumbbells. This schedule equally divides focus between upper and lower body, helping you build a solid physical foundation without spending too much time.","Giáo án bốn buổi mỗi tuần được thiết kế tinh gọn và hiệu quả cho người tập tại nhà bằng tạ đơn. Lịch trình này chia đều sự tập trung cho thân trên và thân dưới, giúp bạn xây dựng nền tảng thể lực vững vàng mà không tốn quá nhiều thời gian."
+programs.ul_db_beg_name,Upper Lower - Beginner (Dumbbell),Trên Dưới - Cơ Bản (Tạ Đơn)
+programs.ul_db_int_desc,"Challenge muscle endurance at home with high-intensity dumbbell variations over 4 days a week. The structure is scientifically arranged to ensure continuous stimulation, visibly transforming your physique week by week.","Thử thách sức bền cơ bắp tại nhà bằng những bài tập tạ đơn biến thể mang cường độ cao trong bốn ngày mỗi tuần. Cấu trúc bài tập được sắp xếp khoa học để đảm bảo sự kích thích liên tục, giúp vóc dáng biến đổi rõ rệt qua từng tuần."
+programs.ul_db_int_name,Upper Lower - Intermediate (Dumbbell),Trên Dưới - Trung Cấp (Tạ Đơn)
+programs.ul_gym_adv_desc,Face a massive training volume and relentless progressive overload meant for seasoned lifters. This 4-day schedule optimizes neural endurance and maximally activates fast-twitch muscle fibers.,Đối mặt với khối lượng bài tập khổng lồ và cường độ ép tải liên tục dành riêng cho những người tập luyện dày dặn kinh nghiệm. Lịch trình bốn buổi mỗi tuần này tối ưu hóa sức bền thần kinh và kích hoạt tối đa các sợi cơ co rút nhanh.
+programs.ul_gym_adv_name,Upper Lower - Advanced (Gym),Trên Dưới - Nâng Cao (Phòng Tập)
+programs.ul_gym_beg_desc,"Divide the body into upper and lower halves with a 4-day-per-week rhythm. This smart structure provides optimal rest periods, helping beginners recover fully while maintaining necessary stimulation for muscle growth.","Phân chia cơ thể thành hai phần thân trên và thân dưới với nhịp độ bốn buổi mỗi tuần. Cấu trúc thông minh này mang lại khoảng thời gian nghỉ ngơi hợp lý, giúp người mới phục hồi năng lượng tối ưu trong khi vẫn duy trì sự kích thích cần thiết để phát triển cơ bắp."
+programs.ul_gym_beg_name,Upper Lower - Beginner (Gym),Trên Dưới - Cơ Bản (Phòng Tập)
+programs.ul_gym_int_desc,"Shift focus to heavy multi-joint barbell exercises across 4 days a week. This routine is the key to increasing explosive power, driving muscle size, and creating a leap in body mass.","Chuyển trọng tâm sang các bài tập đa khớp với tạ đòn siêu nặng trong bốn buổi mỗi tuần. Giáo án này là chìa khóa để gia tăng sức mạnh bùng nổ, thúc đẩy phát triển kích thước cơ bắp và tạo ra bước nhảy vọt về khối lượng cơ thể."
+programs.ul_gym_int_name,Upper Lower - Intermediate (Gym),Trên Dưới - Trung Cấp (Phòng Tập)
+rank.desc_achieved_icon,Achieved,Đã hoàn thành
+rank.lbl_active_points,Form:,Phong độ:
+rank.msg_all_time_chart,Chart showing your highest rank achieved each year.,Biểu đồ đang hiển thị hạng cao nhất bạn đạt được ở mỗi năm.
+rank.msg_calc_demoted,Demoted (45-day season summary),Tụt hạng (Tổng kết mùa giải 45 ngày)
+rank.msg_calc_maintained,Maintained status (45-day season summary),Giữ vững phong độ (Tổng kết mùa giải 45 ngày)
+rank.msg_calc_promoted,Promoted (45-day season summary),Thăng hạng (Tổng kết mùa giải 45 ngày)
+rank.badge_current,CURRENT,HIỆN TẠI
+rank.fmt_cycle_duration,45-day season: {arg1} - {arg2},Mùa giải 45 ngày: {arg1} - {arg2}
+rank.tab_history,History,Lịch sử
+rank.title_history_chart,Rank History,Lịch sử thăng hạng
+rank.msg_history_empty,No promotion or demotion events yet.,Chưa có sự kiện thăng hoặc tụt hạng nào
+rank.title_info_dialog,About RP (Rank Points),Về RP (Rank Point)
+rank.desc_info_rp_abbreviation,RP,RP
+rank.desc_info_rp_definition,is a measure of your effort in each 45-day season. Every completed set equals 1 RP.,là thước đo sự nỗ lực của bạn trong mỗi mùa giải 45 ngày. Mỗi hiệp tập hoàn thành tương đương 1 RP.
+rank.title_info_zone_green,Green Zone (Promote),Vùng Xanh (Thăng hạng)
+rank.desc_info_zone_green,"Pass this threshold in the current season, and you will be promoted in the next season.","Vượt qua mốc điểm này trong mùa giải hiện tại, bạn sẽ được thăng cấp vào mùa giải tiếp theo."
+rank.title_info_zone_red,Red Zone (Demote),Vùng Đỏ (Rớt hạng)
+rank.desc_info_zone_red,"If your RP remains in the red zone at the end of the 45-day season, the system will automatically demote you.","Nếu kết thúc mùa giải 45 ngày mà RP của bạn vẫn nằm ở vùng đỏ, hệ thống sẽ tự động giáng hạng."
+rank.title_info_zone_yellow,Yellow Zone (Maintain),Vùng Vàng (Giữ phong độ)
+rank.desc_info_zone_yellow,"Safe buffer zone. If your RP ends up here at the end of the season, you will keep your current rank.","Khoảng đệm an toàn. Khi kết thúc mùa giải nếu RP của bạn nằm trong vùng này, bạn sẽ giữ vững hạng hiện tại."
+rank.tab_journey,Journey,Hành trình
+rank.title_main,Ranking System,Hệ thống Xếp hạng
+rank.lbl_maintain_prefix,Maintain threshold:,Mốc giữ hạng:
+rank.name_bronze_1,Bronze I,Đồng I
+rank.name_bronze_2,Bronze II,Đồng II
+rank.name_diamond_1,Diamond,Kim Cương
+rank.name_gold_1,Gold I,Vàng I
+rank.name_gold_2,Gold II,Vàng II
+rank.name_gold_3,Gold III,Vàng III
+rank.name_silver_1,Silver I,Bạc I
+rank.name_silver_2,Silver II,Bạc II
+rank.lbl_promote_prefix,Promote threshold:,Mốc thăng hạng:
+rank.fmt_rp,{arg1} RP,{arg1} RP
+rank.msg_season_ended,Season has ended,Mùa giải đã kết thúc
+rank.stat_demotions,Demotions,Rớt hạng
+rank.stat_max_streak,Promotion Streak,Chuỗi thăng hạng
+rank.stat_peak_rank,Peak Rank,Hạng cao nhất
+rank.stat_promotions,Promotions,Thăng hạng
+rank.title_status_demotion,Risk of Demotion!,Nguy cơ rớt hạng!
+rank.desc_status_demotion,Workout now to maintain your standing.,Tập luyện ngay để giữ vững phong độ của bạn.
+rank.title_status_max,Defending the Throne,Bảo vệ ngôi vương
+rank.desc_status_max,You are at the peak of the leaderboard.,Bạn đang ở đỉnh cao bảng xếp hạng.
+rank.title_status_promote,Ready to Promote!,Sẵn sàng thăng hạng!
+rank.desc_status_promote,You have surpassed the promotion threshold for this season.,Bạn đã vượt mốc điểm thăng hạng cho mùa giải này.
+rank.title_status_safe,Safe Zone,Vùng an toàn
+rank.fmt_status_safe,Great maintenance! Need {arg1} more RP to rank up.,Duy trì rất tốt! Cần thêm {arg1} RP để thăng hạng.
+routines.cardio_1,Cardio 1,Cardio 1
+routines.cardio_2,Cardio 2,Cardio 2
+routines.full_1,Full Body 1,Toàn Thân 1
+routines.full_2,Full Body 2,Toàn Thân 2
+routines.full_3,Full Body 3,Toàn Thân 3
+routines.hiit_1,HIIT 1,HIIT 1
+routines.hiit_2,HIIT 2,HIIT 2
+routines.legs_1,Legs 1,Chân 1
+routines.legs_2,Legs 2,Chân 2
+routines.lower_1,Lower 1,Thân Dưới 1
+routines.lower_2,Lower 2,Thân Dưới 2
+routines.pull_1,Pull 1,Kéo 1
+routines.pull_2,Pull 2,Kéo 2
+routines.push_1,Push 1,Đẩy 1
+routines.push_2,Push 2,Đẩy 2
+routines.upper_1,Upper 1,Thân Trên 1
+routines.upper_2,Upper 2,Thân Trên 2
+settings.title_account_management,Account Management,Quản lý Tài khoản
+settings.msg_auth_linked,Linked (Automatic Secure Backup),Đã liên kết (Tự động sao lưu an toàn)
+settings.title_auth_section,Data Protection,Bảo vệ dữ liệu
+settings.msg_auth_unlinked,Unlinked (Risk of Data Loss),Chưa liên kết (Nguy cơ mất dữ liệu)
+settings.title_bg_workout,Background Workout & Notifications,Chạy dưới nền & Thông báo
+settings.desc_bg_workout,Allow the app to run in the background and show workout progress,Cho phép ứng dụng hoạt động dưới nền và hiển thị tiến trình bài tập
+settings.title_dialog_main,App Settings,Cài đặt Ứng dụng
+settings.msg_email_app_err,Could not open Email app,Không thể mở ứng dụng Email
+settings.title_feedback,Feedback & Suggestions,Góp ý & Phản hồi
+settings.desc_feedback,Experiencing a bug or want a new feature? Let us know:,Bạn đang gặp lỗi hoặc muốn tính năng mới? Hãy cho chúng tôi biết:
+settings.hint_feedback_input,Write your feedback here...,Viết phản hồi của bạn tại đây...
+settings.desc_feedback_short,Help us improve the app,Giúp chúng tôi cải thiện ứng dụng
+settings.btn_feedback_submit,Submit Feedback,Gửi phản hồi
+settings.msg_feedback_success,Thank you for your feedback!,Cảm ơn bạn đã đóng góp ý kiến!
+settings.msg_intent_email_chooser,Open email app...,Mở ứng dụng thư điện tử...
+settings.msg_intent_email_subject,Feedback for Plato App,Góp ý về ứng dụng Plato
+settings.lbl_item_contact,Contact & Help,Liên hệ & Trợ giúp
+settings.lbl_item_language,Language,Ngôn ngữ
+settings.desc_item_tutorial,Review feature tutorial videos,Xem lại các video hướng dẫn tính năng
+settings.lbl_item_version,Version,Phiên bản
+settings.title_language_dialog,Select Language,Chọn ngôn ngữ
+settings.title_notifications_section,Notifications,Thông báo
+settings.desc_notifications_section,Receive notifications for rest reminders and workout reports,Nhận thông báo nhắc nhở thời gian nghỉ và báo cáo buổi tập
+settings.title_permission_denied,Permission Denied,Quyền truy cập bị từ chối
+settings.desc_permission_denied,You have previously denied notification permissions. Please open your phone's Settings and enable Notifications for this app.,Bạn đã từ chối quyền thông báo trước đó. Vui lòng mở Cài đặt của điện thoại và bật Thông báo cho ứng dụng này.
+settings.msg_permission_permanently_denied,The app requires notification and activity permissions to run in the background. Please open Settings and grant them manually.,Ứng dụng cần quyền thông báo và hoạt động để có thể chạy dưới nền. Vui lòng mở Cài đặt và cấp quyền thủ công.
+settings.title_restart_dialog,Restart Application,Khởi động lại ứng dụng
+settings.msg_restart_dialog,The app needs to restart to apply the new language. Do you want to do it now?,Ứng dụng cần khởi động lại để áp dụng ngôn ngữ mới. Bạn có muốn thực hiện ngay bây giờ không?
+settings.btn_theme_dark,Dark,Tối
+settings.btn_theme_light,Light,Sáng
+settings.title_theme_section,Appearance,Giao diện
+settings.btn_theme_system,System,Theo hệ thống
+settings.tutorial_cal_desc,"Plan your upcoming workouts, set recurring schedules, and manage your planned routines directly on the calendar.","Lên lịch tập luyện cho các ngày sắp tới, thiết lập tần suất lặp lại, và quản lý các kế hoạch ngay trên lịch."
+settings.tutorial_cal_title,Track your schedule,Theo dõi lịch trình
+settings.tutorial_logworkout_desc,"A detailed guide on how to start a workout, add exercises, log metrics, create supersets, and manage your rest timer.","Hướng dẫn chi tiết cách bắt đầu buổi tập, thêm bài tập, ghi lại thông số, tạo superset và quản lý thời gian nghỉ."
+settings.tutorial_logworkout_title,Logging Your Workout,Thao tác trong buổi tập
+settings.tutorial_nutrition_desc,"Set your weight goal, customize your nutritional targets (calories, macros), and learn how to log foods for your daily meals.","Thiết lập mục tiêu cân nặng, tùy chỉnh chỉ số dinh dưỡng (calo, macro) và cách thêm món ăn vào nhật ký hàng ngày."
+settings.tutorial_nutrition_title,Control your nutrition,Kiểm soát dinh dưỡng
+settings.tutorial_workout_desc,"Discover and preview available workout plans from the library, and download them to add to your personal list.","Khám phá, xem trước các giáo án tập luyện có sẵn từ thư viện và tải về để thêm vào danh sách của riêng bạn."
+settings.tutorial_workout_title,Manage your workout routine,Quản lý chương trình tập
+settings.desc_eula_link,End user license agreement and usage rights,Thỏa thuận cấp phép và quyền sử dụng
+settings.desc_terms_link,Terms of Use and Privacy Policy,Điều khoản và Chính sách bảo mật
+stats.fmt_cal_extra_sessions,+{arg1},+{arg1}
+stats.title_cal_main,Workout Calendar,Lịch tập luyện
+stats.fmt_cal_rest_days,{arg1} days,{arg1} ngày
+stats.lbl_cal_rest_title,Rest Days,Số ngày nghỉ
+stats.title_cal_select_workout_dialog,Select detailed workout,Chọn buổi tập chi tiết
+stats.lbl_cal_streak_title,Week Streak,Chuỗi tuần
+stats.fmt_cal_streak_weeks,{arg1} weeks,{arg1} tuần
+stats.desc_cal_switch_view,Switch calendar view,Chuyển đổi giao diện lịch
+stats.btn_cal_today,Today,Hôm nay
+stats.fmt_cal_workout_item,{arg1} - {arg2} kg,{arg1} - {arg2} kg
+stats.fmt_cal_year_title,Year {arg1},Năm {arg1}
+stats.title_card_activity_history,Activity Log,Nhật ký hoạt động
+stats.desc_card_activity_history,"Volume, Duration, Reps","Tải trọng, Thời gian, Số lần lặp"
+stats.title_card_body_heatmap,Muscle Heatmap,Bản đồ nhiệt cơ bắp
+stats.desc_card_body_heatmap,Workout distribution density,Mật độ phân bổ tập luyện
+stats.title_card_load_analysis,Training Load,Tải trọng tập luyện
+stats.desc_card_load_analysis,Intensity & risk analysis,Phân tích cường độ & rủi ro
+stats.title_card_muscle_balance,Muscle Balance,Cân bằng cơ bắp
+stats.desc_card_muscle_balance,Comprehensive development chart,Biểu đồ phát triển toàn diện
+stats.msg_chart_no_data,Not enough workout data to draw this chart,Chưa có đủ dữ liệu tập luyện để vẽ biểu đồ.
+stats.msg_equivalent_blacksmith,on par with the hammer swings of a master blacksmith,ngang ngửa số lần vung búa của một thợ rèn cừ khôi
+stats.msg_equivalent_boeing,an entire commercial airplane,cả một chiếc máy bay dân dụng
+stats.msg_equivalent_bootcamp,equal to an intense military bootcamp,bằng một khóa huấn luyện quân sự cường độ cao
+stats.msg_equivalent_building,enough to finish the foundation of a large building if every rep was a brick,đủ để xây xong móng của một công trình lớn nếu mỗi lần lặp là một viên gạch
+stats.msg_equivalent_bus,a large double-decker bus,một chiếc xe buýt hai tầng cỡ lớn
+stats.msg_equivalent_diamond,"masterful, your muscles have been forged like cold steel!","đạt đến cảnh giới thượng thừa, cơ bắp đã được tôi luyện như thép nguội!"
+stats.msg_equivalent_eagle,equivalent to the continuous wingbeats of an eagle crossing the sea,tương đương số nhịp đập cánh liên tục của một chú đại bàng vượt biển
+stats.msg_equivalent_fleet,an entire naval fleet. Your strength can now move mountains and fill seas!,cả một hạm đội tàu chiến. Sức mạnh của bạn giờ có thể dời non lấp biển!
+stats.msg_equivalent_flight,enough to fly around the Earth 2 times consecutively,đủ để ngồi máy bay vòng quanh Trái Đất 2 lần liên tục
+stats.msg_equivalent_gym_home,proof that the gym has officially become your second home!,chứng minh phòng tập đã chính thức trở thành ngôi nhà thứ hai của bạn rồi!
+stats.msg_equivalent_iss,the International Space Station,Trạm vũ trụ bay trên quỹ đạo
+stats.msg_equivalent_language,enough time to learn a new language from scratch,đủ thời gian để học một ngôn ngữ mới từ con số 0
+stats.msg_equivalent_machine,proof you are a tireless weightlifting machine,chứng minh bạn chính là một cỗ máy dập tạ không biết mệt mỏi
+stats.msg_equivalent_marathon,more than the footsteps of someone finishing a Marathon,nhiều hơn số bước chạy của một người vừa vượt qua chặng Marathon
+stats.msg_equivalent_movie,enough to binge-watch several long TV series,đủ để cày trọn vẹn vài bộ phim dài tập
+stats.msg_equivalent_rhinos,several adult rhinos,vài con tê giác trưởng thành
+stats.msg_equivalent_submarine,a solid submarine,một chiếc tàu ngầm nguyên khối
+stats.msg_equivalent_tank,an armored battle tank,một chiếc xe tăng chiến đấu bọc thép
+stats.msg_equivalent_vacation,equal to a half-month vacation... but you just worked out,bằng một kỳ nghỉ phép dài nửa tháng... nhưng bạn chỉ tập luyện
+stats.msg_equivalent_walk,enough to walk the entire length of the country,đủ để đi bộ dọc theo toàn bộ chiều dài đất nước
+stats.msg_equivalent_whale,a giant ocean whale,một con cá voi khổng lồ lớn nhất đại dương
+stats.fmt_fun_fact_duration,"Incredible! With {arg1} hours of sweating in the last {arg2}, this time is {arg3} ⏳","Đỉnh của chóp! Với {arg1} giờ đổ mồ hôi trong {arg2}, khoảng thời gian này {arg3} ⏳"
+stats.fmt_fun_fact_reps,Endurance! You performed {arg1} reps in the last {arg2}. That's truly {arg3} 🤖,Bền bỉ! Bạn đã thực hiện {arg1} lần lặp trong {arg2}. Thật sự {arg3} 🤖
+stats.fmt_fun_fact_volume,Awesome! The total weight you lifted over the past {arg1} is {arg2} kg. That's equivalent to lifting {arg3}! 😱,Tuyệt vời! Tổng tạ bạn nâng trong {arg1} qua là {arg2} kg. Tương đương với việc bạn đã nhấc bổng {arg3} rồi đấy! 😱
+stats.lbl_heatmap_back_body,Back,Mặt sau
+stats.lbl_heatmap_front_body,Front,Mặt trước
+stats.desc_heatmap_info_frequency,Displays muscle groups hit at least once in the last 7 days. Helps you quickly identify neglected weak points.,Hiển thị các nhóm cơ đã được tác động ít nhất một lần trong 1 tuần gần nhất. Giúp bạn nhanh chóng nhận ra các điểm yếu đang bị bỏ quên.
+stats.lbl_heatmap_info_frequency_title,By Frequency (Last 7 Days):,Theo Tần Suất (7 ngày qua):
+stats.desc_heatmap_info_general,This map visualizes your workout data to help you track the development of muscle groups on your body.,Bản đồ này trực quan hóa dữ liệu tập luyện để giúp bạn theo dõi sự phát triển của các nhóm cơ trên cơ thể.
+stats.desc_heatmap_info_intensity,"Analyzes the level of stimulation and effort dedicated to each muscle group over the past month. The darker the color, the more the muscle was worked.",Phân tích mức độ kích thích và nỗ lực dành cho từng nhóm cơ trong vòng 1 tháng qua. Màu càng đậm chứng tỏ nhóm cơ đó được tập luyện càng nhiều.
+stats.lbl_heatmap_info_intensity_title,By Intensity (Last 30 Days):,Theo Cường Độ (30 ngày qua):
+stats.lbl_heatmap_legend_done,Worked,Đã tập
+stats.lbl_heatmap_legend_extreme,Extreme,Cực độ
+stats.lbl_heatmap_legend_high,High,Cao
+stats.lbl_heatmap_legend_low,Low,Nhẹ
+stats.lbl_heatmap_legend_medium,Med,Vừa
+stats.lbl_heatmap_legend_unused,Unused,Chưa tập
+stats.lbl_heatmap_mode_frequency,Frequency,Tần suất
+stats.lbl_heatmap_mode_intensity,Intensity,Cường độ
+stats.lbl_heatmap_select_muscle_prompt,Muscle name,Tên nhóm cơ
+stats.lbl_heatmap_timeframe_frequency,Data displayed in the last 7 days,Dữ liệu hiển thị trong 7 ngày gần nhất
+stats.lbl_heatmap_timeframe_intensity,Data displayed in the last 30 days,Dữ liệu hiển thị trong 30 ngày gần nhất
+stats.title_hexagon_comparison_header,Comparing the last 30 days with the previous month,So sánh 30 ngày qua với tháng trước
+stats.desc_hexagon_info_rank_prefix,This chart evaluates the training volume of each muscle group. The ranks ranging from,Biểu đồ này đánh giá mức độ tập luyện của từng nhóm cơ. Các mức hạng trải dài từ
+stats.desc_hexagon_info_rank_suffix,indicate whether you have reached the recommended training thresholds. Focus on improving the muscle groups with lower ranks to achieve a well-rounded and balanced physique.,cho biết bạn đã tập đủ khối lượng khuyến nghị hay chưa. Hãy tập trung cải thiện những nhóm cơ đang ở hạng thấp để cơ thể phát triển toàn diện và cân đối.
+stats.lbl_hexagon_legend_current,Current,Hiện tại
+stats.lbl_hexagon_legend_previous,Last Month,Tháng trước
+stats.title_hexagon_main,Muscle Distribution Chart,Biểu đồ Phân bổ Cơ bắp
+stats.lbl_history_filter_by,Filter by:,Thống kê theo:
+stats.desc_history_info_general,This chart paints the big picture of your fitness journey.,Biểu đồ này là bức tranh toàn cảnh về hành trình tập luyện của bạn.
+stats.desc_history_info_metrics_duration,The hours of hard work you've put in.,Tổng số giờ bạn đã nỗ lực đổ mồ hôi.
+stats.desc_history_info_metrics_reps,The total number of repetitions completed.,Tổng số lần lặp (reps) đã hoàn thành.
+stats.lbl_history_info_metrics_title,Switch perspectives:,Thay đổi góc nhìn:
+stats.desc_history_info_metrics_volume,The total weight you've conquered.,Tổng khối lượng tạ bạn đã chinh phục.
+stats.desc_history_info_tip,Tap on any bar in the chart to see the exact numbers for that period!,Hãy chạm vào từng thanh trên biểu đồ để xem con số chi tiết của giai đoạn đó nhé!
+stats.lbl_history_info_tip_title,Tip:,Mẹo:
+stats.title_history_main,Activity History Chart,Biểu đồ Lịch sử hoạt động
+stats.fmt_history_tooltip_data,{arg1}: {arg2} {arg3},{arg1}: {arg2} {arg3}
+stats.lbl_load_acute,Acute Load,Tải trọng Cấp
+stats.desc_load_acwr_ratio,Current Exertion / Tolerance Capacity,Mức độ gắng sức hiện tại / Khả năng chịu đựng
+stats.fmt_load_acwr_ratio,%.2f,%.2f
+stats.lbl_load_chronic,Chronic Load,Tải trọng Mãn
+stats.title_load_current_acwr,Current Ratio,Tỉ lệ Hiện tại
+stats.title_load_history_header,Last 12 weeks history,Lịch sử 12 tuần qua
+stats.desc_load_info_acute,"Reflects your total training volume over the past week. The higher this volume, the more immediate fatigue your body is experiencing.","Phản ánh tổng khối lượng tập luyện của bạn trong tuần gần nhất. Khối lượng càng cao, cơ thể bạn đang phải chịu mức độ mệt mỏi càng lớn."
+stats.lbl_load_info_acute_title,Short-term Load (Fatigue),Tải trọng ngắn hạn (Mệt mỏi)
+stats.desc_load_info_acwr,This metric helps you weigh your current fatigue against your built-up fitness. It is a key indicator to show whether you are training safely or pushing too hard.,Chỉ số này giúp bạn đặt lên bàn cân giữa sự mệt mỏi hiện tại và nền tảng thể lực đã tích lũy. Đây là thước đo quan trọng để biết cơ thể bạn đang ở trạng thái an toàn hay quá sức.
+stats.desc_load_info_chronic,"Your average training volume over the past 4 weeks. This represents your stamina, endurance, and the fitness foundation you have built.","Trung bình khối lượng tập luyện trong 4 tuần qua. Chỉ số này đại diện cho sự bền bỉ, sức chịu đựng và nền tảng thể dục mà bạn đã cất công xây dựng."
+stats.lbl_load_info_chronic_title,Long-term Load (Fitness),Tải trọng dài hạn (Thể lực)
+stats.desc_load_info_recommendation,Tip: Try to keep this ratio in the sweet spot (between 0.8 and 1.3) to maximize muscle growth and minimize the risk of injury.,Lời khuyên: Hãy duy trì tỉ lệ này trong vùng lý tưởng (từ 0.8 đến 1.3) để tối ưu hóa việc phát triển cơ bắp và hạn chế tối đa nguy cơ chấn thương.
+stats.msg_load_insufficient_data,The system hasn't recorded enough data to analyze.,Hệ thống chưa ghi nhận đủ dữ liệu để phân tích.
+stats.lbl_load_legend_acute,Acute (This Week),Cấp tính (Tuần này)
+stats.lbl_load_legend_chronic,Chronic (4-Week Avg),Mãn tính (TB 4 tuần)
+stats.title_load_main,Training Load Ratio,Tỉ lệ Tải trọng Tập luyện
+stats.title_main_dash,Dashboard,Bảng Tổng quan
+stats.desc_main_prompt,Select a chart for detailed analysis,Chọn một biểu đồ để phân tích chi tiết
+stats.lbl_metric_duration,Total Duration,Tổng thời gian
+stats.lbl_metric_reps,Total Reps,Tổng số lần lặp
+stats.lbl_metric_volume,Total Volume,Tổng tải trọng
+stats.lbl_model_metric_best_reps,Most Reps,Số lần lặp nhiều nhất
+stats.lbl_model_metric_best_set_vol,Best Set Volume,Tải trọng tốt nhất mỗi Hiệp
+stats.lbl_model_metric_best_steps,Most Steps,Số bước chân nhiều nhất
+stats.lbl_model_metric_best_time,Longest Duration,Thời gian bền bỉ nhất
+stats.lbl_model_metric_best_wt,Heaviest Weight,Mức tạ nặng nhất
+stats.lbl_model_metric_longest_dist,Longest Distance,Quãng đường xa nhất
+stats.lbl_model_metric_one_rm,Highest 1RM,Kỷ lục đẩy 1 lần lớn nhất
+stats.lbl_model_metric_pace,Best Pace,Vận tốc cao nhất
+stats.lbl_model_metric_ssn_reps,Total Session Reps,Tổng số lần lặp mỗi Buổi
+stats.lbl_model_metric_ssn_vol,Total Session Volume,Tổng tải trọng mỗi Buổi
+stats.lbl_time_range_3_months,3 Months,3 Tháng
+stats.lbl_time_range_all,All Time,Toàn bộ
+stats.lbl_time_range_month,1 Month,1 Tháng
+stats.lbl_time_range_week,1 Week,1 Tuần
+stats.lbl_time_range_year,1 Year,1 Năm
+stats.unit_metric_duration,hours,giờ
+tour.cal_day_desc,Tap to view past workouts or schedule new routines in the future.,Ấn vào để xem lại các buổi tập trong quá khứ hoặc lên lịch tập mới trong tương lai.
+tour.cal_day_title,Logs & Schedule,Nhật ký & Lên lịch
+tour.cal_toggle_desc,"Tap to switch between Month, Year, or Multi-Year calendar views.","Ấn để chuyển đổi chế độ xem của lịch theo Tháng, Năm hoặc Nhiều Năm."
+tour.cal_toggle_title,View Mode,Chế độ xem
+tour.library_add_cust_desc,Can't find your exercise? Create a custom one here to fit your needs.,Không tìm thấy bài bạn muốn tập? Hãy tạo bài tập tuỳ chỉnh của riêng bạn tại đây.
+tour.library_add_cust_title,Custom Exercise,Bài tập tuỳ chỉnh
+tour.log_dash_desc,"Use this to track time and statistics related to metrics like total load, total exercises, total sets,...","Dùng để theo dõi thời gian và thống kê các số liệu liên quan như tổng tải trọng, tổng số bài tập, tổng hiệp,..."
+tour.log_dash_title,Statistics Dashboard,Bảng thống kê
+tour.log_ex_options_desc,"Tap here to replace exercises, change order, combine Supersets, or remove exercises from the workout.","Bấm vào đây để thay thế bài tập, thay đổi thứ tự, ghép Superset hoặc xóa bài tập ra khỏi buổi tập."
+tour.log_ex_options_title,Exercise Options,Tuỳ chọn bài tập
+tour.log_fab_add_desc,"Tap here to add new exercises, change order of exercises, or cancel the workout.","Bấm vào đây để thêm bài tập mới, thay đổi thứ tự hàng loạt hoặc hủy buổi tập."
+tour.log_fab_add_title,Expand,Mở rộng
+tour.log_minimize_desc,"When you press this button or exit the workout, the data will still run in the background so you can view other screens without affecting your workout progress!",Khi ấn nút này hoặc thoát ra buổi tập thì dữ liệu vẫn sẽ chạy ngầm để bạn có thể xem các màn hình khác mà không ảnh hưởng tiến độ tập luyện!
+tour.log_minimize_title,Minimize Workout,Thu nhỏ buổi tập
+tour.log_set_row_desc,Enter your workout data and tap the circle to complete the set. The rest timer will automatically start afterward!,Nhập số liệu tập và bấm vào ô tròn để hoàn thành hiệp tập. Đồng hồ nghỉ sẽ tự động chạy ngay sau đó!
+tour.log_set_row_title,Log Set,Ghi nhận Hiệp tập
+tour.log_timer_play_desc,"Tap the time to adjust:
+• Start from 00:00 ➔ Stopwatch
+• Set a specific time ➔ Countdown
+
+The mode locks once started. You can select a new time to reset it.","Chạm vào thời gian để thay đổi:
+• Bắt đầu từ 00:00 ➔ Chế độ bấm giờ
+• Nhập thời gian cụ thể ➔ Chế độ đếm ngược
+
+Trạng thái sẽ bị khóa sau khi bắt đầu. Chọn lại thời gian để thiết lập lại từ đầu."
+tour.log_timer_play_title,Smart Timer,Bộ đếm giờ thông minh
+tour.nutrition_dash_desc,"Track Calories and Macros.
+Tip: Tap this card to customize your daily goals!","Theo dõi lượng Calo và Macros.
+Mẹo: Bấm trực tiếp vào thẻ này để tự do điều chỉnh mục tiêu của bạn!"
+tour.nutrition_dash_title,Nutrition Dashboard,Tóm tắt Dinh dưỡng
+tour.nutrition_history_desc,Review your past meals and track your long-term progress here.,Xem lại các bữa ăn trước đây và theo dõi tiến độ dài hạn của bạn tại đây.
+tour.nutrition_meal_desc,"Log your daily meals.
+Tip: Tap 'Add food', or use the Copy icon to quickly duplicate yesterday's data!","Ghi chép lượng calo nạp vào.
+Mẹo: Nhấn 'Thêm thực phẩm', hoặc dùng biểu tượng Copy để sao chép nhanh dữ liệu từ hôm qua!"
+tour.nutrition_meal_title,Meal Log,Nhật ký Bữa ăn
+tour.nutrition_water_desc,"Stay hydrated!
+Tip: Tap the card to set a target, or use +/- to log your intake.","Đừng quên uống đủ nước!
+Mẹo: Bấm vào thẻ để thay đổi mục tiêu, và dùng nút +/- để ghi nhận lượng nước đã uống."
+tour.nutrition_water_title,Water Tracker,Theo dõi Nước
+tour.nutrition_wt_desc,"Track your progress.
+Tip: Tap 'Update' to log your current weight, or the edit icon to edit your goal!","Theo dõi hành trình của bạn.
+Mẹo: Bấm 'Cập nhật' để nhập cân nặng mới, hoặc biểu tượng Chỉnh sửa để thay đổi mục tiêu!"
+tour.nutrition_wt_title,Weight Goal,Lộ trình Cân nặng
+tour.workout_explore_desc,Tap here to explore and add professional workout Programs to your list.,Nhấn vào đây để khám phá và thêm các gói giáo án mẫu chuyên nghiệp vào danh sách của bạn.
+tour.workout_folder_add_btn_title,Add Folder,Thêm Thư mục
+tour.workout_folder_desc,Use this section to manage and organize your workout routines.,Dùng tính năng này để quản lý và sắp xếp các lịch tập của bạn.
+tour.workout_folder_smart_empty_desc,Tap here to create a new empty folder to organize your routines.,Nhấn vào đây để tạo một thư mục trống mới và bắt đầu sắp xếp lịch tập.
+tour.workout_folder_title,Routine Management,Quản lý Lịch tập
+tour.workout_recovery_desc,Monitor the time and level of recovery for your muscle groups after workouts to optimize effectiveness.,Theo dõi thời gian và mức độ phục hồi của các nhóm cơ sau những buổi tập để tối ưu hóa hiệu quả.
+workout.badge_1rm,1RM,1RM
+workout.title_active_ssn_conflict,Active session in progress,Đang có buổi tập diễn ra
+workout.msg_active_ssn_conflict,Starting a new workout will delete all data from the current session. Are you sure you want to continue?,Bắt đầu một buổi tập mới sẽ xóa toàn bộ dữ liệu của buổi tập hiện tại. Bạn có chắc chắn muốn tiếp tục?
+workout.title_auto_finish,Workout Complete?,Hoàn thành buổi tập?
+workout.desc_auto_finish,You've completed all sets. The workout will auto-save in 5 minutes if there are no changes.,Bạn đã hoàn thành tất cả các set. Buổi tập sẽ tự động lưu sau 5 phút nếu không có thay đổi.
+workout.title_auto_finish_success,Workout Auto-Saved,Buổi tập đã được tự lưu
+workout.msg_auto_finish_success,The system has automatically ended and saved your previous workout session.,Hệ thống đã tự động kết thúc và lưu lại dữ liệu buổi tập trước đó của bạn.
+workout.pr_best_1rm,Best 1RM: {arg1}kg (+{arg2}kg),1RM tốt nhất: {arg1}kg (+{arg2}kg)
+workout.pr_best_pace,Best Pace: {arg1} km/h (+{arg2} km/h),Vận tốc cao nhất: {arg1} km/h (+{arg2} km/h)
+workout.pr_best_reps,Best Reps: {arg1} reps (+{arg2}),Số lần lặp nhiều nhất: {arg1} reps (+{arg2})
+workout.pr_best_volume,Best Volume: {arg1}kg (+{arg2}kg),Tải trọng lớn nhất: {arg1}kg (+{arg2}kg)
+workout.pr_best_wt,Best Weight: {arg1}kg (+{arg2}kg),Trọng lượng lớn nhất: {arg1}kg (+{arg2}kg)
+workout.title_cal_day_dtl,Day Details,Chi tiết ngày
+workout.lbl_copy_suffix,(Copy),(Bản sao)
+workout.btn_create_empty_folder,Create Empty Folder,Tạo thư mục rỗng
+workout.title_create_folder,Create Folder,Tạo thư mục
+workout.title_create_routine_success,Create Workout Routine Success,Tạo lịch tập thành công!
+workout.msg_create_routine_success,New workout routine has been saved to My Routines.,Lịch tập mới đã được lưu vào mục Lịch tập của tôi.
+workout.title_create_superset,"Create Superset:
+{base}","Ghép Superset bài:
+{base}"
+workout.lbl_danger_limit,{weight}kg,{weight}kg
+workout.lbl_default_folder,My Routines,Lịch tập của tôi
+workout.lbl_default_name,Freeform,Tự do
+workout.lbl_default_routine_name,New Routine,Lịch tập mới
+workout.title_delete_confirm,Confirm delete?,Xác nhận xóa?
+workout.menu_delete_folder,Delete folder,Xóa bỏ thư mục
+workout.msg_delete_irreversible,Data for this routine will disappear permanently.,Dữ liệu của lịch tập này sẽ biến mất vĩnh viễn.
+workout.msg_diff_added,Added {count} exercises,Đã thêm {count} bài tập
+workout.msg_diff_intro,You have modified the structure of this session compared to the original routine:,Bạn đã thay đổi cấu trúc của buổi tập này so với lịch tập gốc:
+workout.msg_diff_prompt_save,Do you want to save these structural changes to the original Routine?,Bạn có muốn lưu các cấu trúc mới này vào lịch tập gốc không?
+workout.msg_diff_removed,Removed {count} exercises,Đã xóa {count} bài tập
+workout.msg_diff_reordered,Reordered exercises,Đã sắp xếp lại vị trí bài tập
+workout.msg_diff_replaced,Replaced {count} exercises,Đã thay thế {count} bài tập
+workout.btn_do_not_save,Don't save,Không lưu
+workout.desc_drag_handle,Drag and drop,Kéo thả
+workout.desc_dropset,"When you can no longer lift the weight, immediately reduce it (by about 20-30%) and continue training immediately without rest to push the muscles to their final growth limit.","Khi không thể đẩy thêm được nữa, lập tức giảm mức tạ xuống (khoảng 20-30%) và tiếp tục tập ngay lập tức không nghỉ để ép cơ bắp đến giới hạn phì đại cuối cùng."
+workout.title_dtl_delete_dialog,Delete from History?,Xóa khỏi Lịch sử?
+workout.msg_dtl_delete_dialog,This action will permanently delete this workout from your timeline.,Hành động này sẽ xóa vĩnh viễn buổi tập này khỏi dòng thời gian của bạn.
+workout.title_dtl_exercises,Exercises Performed,Các bài tập đã thực hiện
+workout.fmt_dtl_exercises_count,Completed {arg1} exercises,Đã hoàn thành {arg1} bài tập
+workout.title_dtl_main,Workout Details,Chi tiết Buổi tập
+workout.desc_dtl_menu,Open menu,Mở trình đơn
+workout.btn_dtl_muscle_collapse,Collapse,Thu gọn lại
+workout.btn_dtl_muscle_expand,View Full,Xem đầy đủ
+workout.title_dtl_muscle_split,Muscles Targeted,Nhóm cơ được tác động
+workout.msg_dtl_not_found,System could not find data for this workout.,Hệ thống không tìm thấy dữ liệu của buổi tập này.
+workout.fmt_dtl_pr_badge,New Record {arg1},Kỷ lục mới {arg1}
+workout.fmt_dtl_pr_count,{arg1} Records,{arg1} Kỷ lục
+workout.lbl_dtl_rpe_unrated,Unrated,Chưa tự đánh giá
+workout.fmt_dtl_rpe_value,{arg1}/10,{arg1}/10
+workout.fmt_dtl_set_dist_time,"{arg1} km
+{arg2}","{arg1} km
+{arg2}"
+workout.fmt_dtl_set_steps_time,"{arg1} steps
+{arg2}","{arg1} bước
+{arg2}"
+workout.lbl_dtl_stat_calories,Burned,Đốt cháy
+workout.lbl_dtl_stat_rpe,RPE,Độ mệt mỏi
+workout.lbl_dtl_stat_sets,Total Sets,Tổng số hiệp
+workout.fmt_dtl_xp_earned,{arg1},{arg1}
+workout.msg_err_folder_name_empty,Please enter a folder name,Vui lòng nhập tên thư mục
+workout.title_expand_superset,"Add exercises to group:
+{base}","Thêm bài tập vào nhóm:
+{base}"
+workout.btn_explore,Explore,Khám phá
+workout.desc_failure,Train beyond all limits until the muscles are completely exhausted and cannot complete any more reps with proper form. Usually only applied in the final set of an exercise.,Tập vượt qua mọi giới hạn cho đến khi cơ bắp kiệt sức hoàn toàn và không thể hoàn thành thêm bất kỳ một rep nào đúng form. Thường chỉ áp dụng ở hiệp cuối cùng của bài tập.
+workout.btn_finish_now,Finish Now,Kết thúc ngay
+workout.msg_finish_prompt,Tap Done to save your workout,Nhấn Hoàn thành để lưu kết quả
+workout.msg_finish_workout_confirm,Have you completed this workout? Please ensure you have finished all exercises and sets before finishing.,Bạn đã hoàn thành buổi tập này chưa? Hãy chắc chắn rằng bạn đã hoàn thành tất cả các bài tập và hiệp của mình trước khi kết thúc.
+workout.folder_empty,You haven't created any folders yet. Press the + button to create a new folder.,Bạn chưa tạo thư mục nào. Hãy ấn nút + để tạo thư mục mới.
+workout.lbl_folder_name_input,Folder Name,Tên thư mục
+workout.desc_folder_options,Folder options,Tùy chọn thư mục
+workout.title_ghost_workout,Workout Too Short,Buổi tập quá ngắn
+workout.msg_ghost_workout,Your workout has only been going for a few minutes. Do you want to finish it now?,"Buổi tập của bạn chỉ mới diễn ra vài phút thôi, bạn có muốn kết thúc liền không?"
+workout.fmt_history_hm,{arg1}h {arg2}m,{arg1}g {arg2}p
+workout.lbl_hour,Hour,Giờ
+workout.err_invalid_dist_time,Please enter valid distance and time!,Vui lòng nhập số km và thời gian hợp lệ!
+workout.err_invalid_reps,Please enter a valid number of reps!,Vui lòng nhập số hiệp hợp lệ!
+workout.err_invalid_reps_max,Number of reps is too high (>999).,Số reps quá lớn (>999).
+workout.err_invalid_speed_max,Speed exceeds limit (>=45km/h).,Vận tốc vượt quá giới hạn (>=45km/h).
+workout.err_invalid_steps_time,Please enter valid steps and time!,Vui lòng nhập số bước và thời gian hợp lệ!
+workout.err_invalid_wt,Please enter a valid weight!,Vui lòng nhập trọng lượng hợp lệ!
+workout.err_invalid_wt_max,Weight is not reasonable (>=2000kg).,Trọng lượng bất hợp lý (>=2000kg).
+workout.btn_keep_ssn,Keep old session,Giữ buổi tập cũ
+workout.btn_keep_training,Keep Training,Tập thêm
+workout.status_last_set_done,Last set completed,Hoàn thành set cuối
+workout.msg_load_manager_caution_spike,High challenge (+{arg1}%). Pay close attention to proper form.,Thử thách cao (+{arg1}%). Hãy chú ý kỹ thuật thật chuẩn.
+workout.msg_load_manager_danger_spike,Warning! Weight increased too fast (+{arg1}%). Recent record: {arg2}kg.,Cảnh báo! Mức tạ tăng quá nhanh (+{arg1}%). Kỷ lục gần đây: {arg2}kg.
+workout.msg_load_manager_optimal,Excellent! Training load is optimal for sustainable growth.,Tuyệt vời! Tải trọng tập luyện đang ở mức tối ưu để phát triển bền vững.
+workout.msg_load_manager_overreaching,Careful! You are slightly overreaching (+30%). Make sure to get enough sleep and proper nutrition.,Cẩn thận! Bạn đang tập hơi quá sức (+30%). Hãy chú ý ngủ đủ giấc và ăn uống đầy đủ.
+workout.msg_load_manager_overtraining,WARNING: You are overtraining (+50%). High risk of injury. Proactively lower weights next week.,CẢNH BÁO: Bạn đang tập quá tải (+50%). Nguy cơ chấn thương rất cao. Hãy chủ động giảm tạ vào tuần sau.
+workout.msg_load_manager_undertraining,You are training lighter than usual ({arg1}). Consider increasing intensity to maintain muscle.,Bạn đang tập nhẹ hơn bình thường ({arg1}). Hãy cân nhắc tăng cường độ để duy trì cơ bắp.
+workout.btn_log_add_ex,Add Exercises,Thêm bài tập
+workout.btn_log_cancel,Discard Workout,Hủy buổi tập
+workout.title_log_cancel_confirm,Confirm Cancel?,Xác nhận Hủy bỏ?
+workout.msg_log_cancel_confirm,All your effort so far will not be recorded in the system.,Mọi nỗ lực nãy giờ của bạn sẽ không được ghi nhận vào hệ thống.
+workout.btn_log_create_new,Create New Template,Tạo mẫu mới
+workout.btn_log_delete_finish,Finish,Kết thúc
+workout.btn_log_delete_swipe,DELETE,XÓA BỎ
+workout.msg_log_empty,"No exercises added.
+Please add exercises to get started.","Chưa có bài tập nào.
+Hãy thêm bài tập để bắt đầu."
+workout.msg_log_end_reached,"You have reached the last exercise of this workout.
+Remember to stretch thoroughly after finishing!","Bạn đã đến bài tập cuối cùng của buổi tập này.
+Hãy nhớ xả cơ thật kỹ sau khi tập xong nhé!"
+workout.title_log_incomplete,Incomplete,Chưa hoàn thành
+workout.msg_log_incomplete,You have empty sets not marked as complete. The system will automatically delete them to finish the workout?,Bạn có các hiệp trống chưa được đánh dấu hoàn thành. Hệ thống sẽ tự động xóa chúng đi để kết thúc buổi tập?
+workout.title_log_main,Workout Log,Nhật ký Tập luyện
+workout.btn_log_save_history_only,Save to History Only,Chỉ lưu vào Lịch sử
+workout.title_log_save_new,Save as New Routine,Lưu thành Lịch tập mới
+workout.msg_log_save_new,Turn this new workout into a template Routine to use for next time?,Biến buổi tập mới này thành một Lịch tập mẫu để dùng lại cho lần sau?
+workout.title_log_save_result,Finish & Save,Kết thúc & Ghi nhận
+workout.btn_log_update_routine,Overwrite Original,Ghi đè Lịch tập gốc
+workout.msg_log_update_routine,The structure of this workout has changed. Do you want to save these changes to the original Routine?,Cấu trúc buổi tập này đã có sự thay đổi. Bạn có muốn lưu lại sự thay đổi này cho Lịch tập gốc luôn không?
+workout.pr_longest_dist,Longest Distance: {arg1}km (+{arg2}km),Quãng đường dài nhất: {arg1}km (+{arg2}km)
+workout.pr_longest_time,Longest Time: {arg1} (+{arg2}),Thời gian dài nhất: {arg1} (+{arg2})
+workout.title_main,Workout,Tập luyện
+workout.err_max_sets_ex,Maximum of 30 sets per exercise!,Tối đa 30 hiệp cho một bài tập!
+workout.err_max_sets_ssn,Maximum of 100 sets per session!,Tối đa 100 hiệp trong 1 buổi tập!
+workout.title_mini_player_cancel_dialog,Stop workout?,Dừng buổi tập?
+workout.msg_mini_player_cancel_warn,Are you sure you want to cancel the ongoing workout? All your effort so far will be lost.,Bạn có chắc muốn hủy bỏ buổi tập đang diễn ra không? Toàn bộ công sức nãy giờ sẽ biến mất.
+workout.btn_mini_player_confirm_delete,Delete now,Xóa ngay
+workout.desc_mini_player_delete,Cancel workout,Hủy bỏ buổi tập
+workout.btn_mini_player_dismiss_dialog,Keep training,Vẫn tập tiếp
+workout.btn_mini_player_resume,Resume,Tiếp tục
+workout.lbl_mini_player_status,System recording...,Hệ thống đang ghi nhận...
+workout.lbl_minute,Minute,Phút
+workout.pr_most_steps,Most Steps: {arg1} steps (+{arg2}),Số bước nhiều nhất: {arg1} steps (+{arg2})
+workout.title_my_notes,My Notes,Ghi chú của tôi
+workout.msg_new_pr_generic,New personal record established!,Kỷ lục cá nhân mới đã được thiết lập!
+workout.title_new_workout,New workout,Buổi tập mới
+workout.lbl_next,Up next,Tiếp theo
+workout.title_no_ex_workout,Cannot Finish,Không thể hoàn tất
+workout.msg_no_ex_workout,Your workout has not completed any exercises. Please complete at least 1 exercise or Cancel this workout.,Buổi tập của bạn chưa có hiệp tập nào được hoàn thành. Vui lòng hoàn thành ít nhất 1 hiệp tập hoặc Hủy buổi tập này.
+workout.msg_no_routine_generic,Folder is empty.,Thư mục trống.
+workout.msg_no_routine_in_folder,You haven't saved any routines here. Create one or find one in Explore.,Bạn chưa lưu lịch tập nào ở đây. Hãy tự tạo hoặc tìm từ mục Khám phá.
+workout.desc_normal,Perform reps and weight according to the standard target. Focus on controlling form and rhythm.,Thực hiện số lần lặp lại và mức tạ theo mục tiêu thông thường. Trọng tâm vào việc kiểm soát form và nhịp độ.
+workout.lbl_note_input,Add notes for this exercise...,Thêm ghi chú cho bài tập này...
+workout.title_noti_permission,Notification Permission,Cấp quyền thông báo
+workout.desc_noti_permission,We need notification permissions to remind you of rest times and report your workout results.,Chúng tôi cần quyền thông báo để nhắc nhở thời gian nghỉ và báo cáo kết quả tập luyện của bạn.
+workout.badge_pace,Pace,Vận tốc
+workout.err_permission_partial,You need to grant both Notification and Physical Activity permissions to enable this feature.,
+workout.btn_pr_awesome,AWESOME,TUYỆT VỜI
+workout.title_pr_congrats,NEW ACHIEVEMENT!,THÀNH TÍCH MỚI!
+workout.msg_pr_count,Outstanding! You just broke {arg1} of your own personal records!,Quá xuất sắc! Bạn vừa tự phá vỡ {arg1} kỷ lục của chính mình!
+workout.pre_permission_btn_allow,Allow Now,Cấp quyền ngay
+workout.pre_permission_btn_later,Later,Để sau
+workout.pre_permission_desc,"To keep the rest timer running when the screen is off and automatically track your steps, Plato needs Notification and Physical Activity permissions.","Để tính năng đếm giờ nghỉ tiếp tục hoạt động khi bạn tắt màn hình và tự động đếm số bước chân, Plato cần quyền gửi Thông báo và Hoạt động thể chất."
+workout.pre_permission_title,Run Workout in Background,Chạy nền buổi tập
+workout.title_recovery,Muscle Recovery,Phục hồi cơ bắp
+workout.title_recovery_status,Recovery Status,Trạng thái Phục hồi
+workout.menu_rename_folder,Rename folder,Đổi tên thư mục
+workout.menu_reorder_folders,Reorder folders,Sắp xếp thư mục
+workout.desc_reorder_instruction,"Press and hold to drag and drop, or use the arrow buttons beside.","Nhấn đè để chọn và kéo thả, hoặc dùng hai nút mũi tên bên cạnh."
+workout.fmt_rest_minutes,{arg1} minutes,{arg1} phút
+workout.lbl_rest_off,Timer Off,Tắt bộ đếm
+workout.status_rest_over,Rest time is over!,Hết giờ nghỉ!
+workout.fmt_rest_seconds,{arg1} seconds,{arg1} giây
+workout.title_rest_time,Rest Timer,Bộ đếm giờ nghỉ
+workout.status_resting,Resting,Nghỉ ngơi
+workout.btn_routine_create_add_ex,ADD EXERCISE,CHỌN BÀI TẬP
+workout.btn_routine_create_add_set,Add set,Thêm hiệp
+workout.title_routine_create_confirm_update,Update,Cập nhật
+workout.msg_routine_create_confirm_update,Do you want to overwrite these changes to the current Routine?,Bạn muốn ghi đè các thay đổi này cho Lịch tập hiện tại?
+workout.title_routine_create_edit,Edit Routine,Chỉnh sửa Lịch tập
+workout.hint_routine_create_name,Enter routine name ...,Nhập tên lịch tập (ví dụ: Tập thân trên)...
+workout.title_routine_create_new,Create New Routine,Tạo Lịch tập mới
+workout.title_routine_create_reorder,Reorder,Sắp xếp thứ tự
+workout.menu_routine_create_reorder,Reorder,Đảo thứ tự
+workout.menu_routine_create_replace,Replace exercise,Đổi bài khác
+workout.lbl_routine_create_rest_off,Rest time off,Tắt thời gian nghỉ
+workout.fmt_routine_create_rest_time,{arg1} rest,{arg1} nghỉ
+workout.btn_routine_delete,Delete Routine,Xóa lịch tập
+workout.menu_routine_duplicate,Duplicate,Nhân bản
+workout.fmt_routine_exercises_count,{arg1} exercises,{arg1} bài tập
+workout.err_routine_exercises_empty,Please add at least one exercise to the routine,Vui lòng thêm ít nhất một bài tập vào lịch tập
+workout.col_routine_history,HISTORY,LỊCH SỬ
+workout.err_routine_name_empty,Routine name cannot be empty,Tên lịch tập không được để trống
+workout.lbl_rpe_completed,Completed,Hoàn thành
+workout.msg_safety_threshold_desc,Your 30-day history shows your maximum weight is {arg1} kg. Recommendation: Do not attempt to lift at this weight.,Lịch sử 30 ngày qua cho thấy mức tạ tối đa của bạn là {arg1} kg. Khuyến cáo bạn không thử sức bản thân với mức tạ này.
+workout.title_safety_warn,Safety Warning,Cảnh báo sốc tạ
+workout.menu_save_as_routine,Save as New Routine,Lưu thành lịch tập mới
+workout.btn_save_changes,Save changes,Lưu thay đổi
+workout.lbl_second,Second,Giây
+workout.lbl_select_hour,Select duration,Chọn thời lượng
+workout.title_select_set_type,Customize Set {set},Tùy chỉnh Set {set}
+workout.title_select_time,Set Timer,Hẹn giờ báo
+workout.title_ssn_sum_acwr_card,Safe Load Analysis,Phân tích Tải trọng an toàn
+workout.fmt_ssn_sum_acwr_ratio,Endurance Ratio: {arg1},Tỉ lệ sức bền: {arg1}
+workout.fmt_ssn_sum_acwr_stats,This Week: {arg1} / Base: {arg2},Tuần này: {arg1} / Cơ sở: {arg2}
+workout.lbl_ssn_sum_advice_title,AI Analysis:,Phân tích từ AI:
+workout.title_ssn_sum_complete,AWESOME!,TUYỆT VỜI!
+workout.lbl_ssn_sum_default_name,New Workout,Buổi tập mới
+workout.btn_ssn_sum_home,BACK TO HOME,VỀ LẠI TRANG CHỦ
+workout.title_ssn_sum_rpe_card,Self-Assess Exertion Level,Tự đánh giá mức độ mệt mỏi
+workout.lbl_ssn_sum_rpe_max,10 - Complete failure,10 - Gục ngã hoàn toàn
+workout.lbl_ssn_sum_rpe_min,1 - Very easy,1 - Rất thoải mái
+workout.desc_ssn_sum_rpe_slider,Drag the slider so AI understands your exertion level,Kéo thanh trượt để AI hiểu mức độ gắng sức của bạn
+workout.lbl_ssn_sum_stat_xp,XP,XP
+workout.lbl_ssn_sum_zone_optimal,Optimal,Đang Tối Ưu
+workout.lbl_ssn_sum_zone_overreach,Overreaching,Gắng Sức
+workout.lbl_ssn_sum_zone_overtrain,INJURY RISK,CHẤN THƯƠNG
+workout.lbl_ssn_sum_zone_under,Training Light,Tập Hơi Nhẹ
+workout.btn_start_new,Start New Workout,Bắt đầu buổi tập mới
+workout.btn_start_new_ssn,Start new,Bắt đầu mới
+workout.btn_start_routine,Start Routine,Bắt đầu tập
+workout.fmt_sum_km,{arg1} km,{arg1} km
+workout.desc_superset,"Perform different exercises consecutively without rest in between. This method helps maximize intensity, save time, and pump blood into the muscles to their fullest extent.","Thực hiện liên tiếp các bài tập khác nhau mà không có thời gian nghỉ ở giữa. Phương pháp này giúp tăng cường độ tột đỉnh, tiết kiệm thời gian và bơm máu vào cơ bắp tối đa."
+workout.btn_superset_add,Create / Add Superset,Tạo / Thêm Superset
+workout.title_superset_add_to_group,"Add {base} to group:
+{targets}","Thêm {base} vào nhóm:
+{targets}"
+workout.title_superset_create_new,"Create Superset:
+{base} & {targets}","Tạo Superset:
+{base} & {targets}"
+workout.title_superset_expand_base,"Add {targets} to group:
+{base}","Thêm {targets} vào nhóm:
+{base}"
+workout.msg_superset_limit,You can only combine up to 3 exercises in a single Superset to ensure your muscles aren't overworked and to optimize effectiveness!,Chỉ được ghép tối đa 3 bài tập trong 1 Superset để đảm bảo cơ bắp không bị kiệt sức và tối ưu hiệu quả!
+workout.msg_superset_limit_proactive,Exceeds maximum limit of 3 exercises per Superset.,Vượt quá giới hạn tối đa 3 bài tập trong 1 Superset.
+workout.btn_superset_remove,Remove Superset,Hủy Superset
+workout.err_time_exceed_global,Set time cannot exceed the actual total workout duration,Thời gian của set tập không được vượt quá tổng thời gian tập thực tế
+workout.fmt_time_hms,{arg1}h {arg2}m {arg3}s,{arg1}g {arg2}p {arg3}s
+workout.fmt_time_m_s,{arg1}:{arg2},{arg1}:{arg2}
+workout.fmt_time_ms,{arg1}m {arg2}s,{arg1}p {arg2}s
+workout.err_time_zero,Time is invalid (must be greater than 0),Thời gian không hợp lệ (phải lớn hơn 0)
+workout.btn_timer_minus_15s,-15s,-15s
+workout.btn_timer_plus_15s,+15s,+15s
+workout.tooltip_view_details,View details,Xem chi tiết
+workout.type_dropset,Drop-set,Drop-set
+workout.type_failure,Failure,Thất bại
+workout.type_normal,Normal,Tiêu chuẩn
+workout.type_superset,Superset,Superset
+workout.type_warmup,Warm up,Khởi động
+workout.title_unsaved_changes,Unsaved Changes,Thay đổi chưa được lưu
+workout.msg_unsaved_changes,Are you sure you want to leave this page without saving your changes? All unsaved changes will be lost.,Bạn có chắc muốn rời khỏi trang này mà không lưu lại những thay đổi vừa thực hiện không? Mọi thay đổi sẽ bị mất nếu bạn tiếp tục.
+workout.title_update_routine,Update Routine,Cập nhật Lịch tập
+workout.title_update_structure,Update Routine Structure?,Cập nhật cấu trúc lịch tập?
+workout.desc_warmup,"Use very light weight (30-50% of maximum) to warm up the muscles, lubricate joints, and prepare the nervous system. Absolutely do not train to failure in this set.","Sử dụng mức tạ rất nhẹ (30-50% sức tối đa) để làm nóng cơ bắp, bôi trơn khớp và chuẩn bị hệ thần kinh. Tuyệt đối không tập đến ngưỡng mỏi ở hiệp này."
+workout.err_warmup_time_max,Warm-up time cannot exceed 60 minutes,Thời gian khởi động không được vượt quá 60 phút
+workout.btn_warn_apply_suggestion,Drop to {arg1}kg,Giảm xuống {arg1}kg
+workout.title_warn_caution_spike,Weight Caution,Chú ý mức tạ
+workout.msg_warn_caution_spike,This is slightly higher than your recent e1RM. Pay attention to your form.,Mức này hơi cao so với e1RM gần nhất. Hãy chú ý form tập.
+workout.title_warn_danger_spike,Overload Warning,Cảnh báo quá sức
+workout.msg_warn_danger_spike,This is significantly higher than your recent max (e1RM). High risk of injury!,Mức này cao hơn đáng kể so với sức mạnh tối đa (e1RM) gần nhất. Nguy cơ chấn thương cao!
+workout.desc_warn_muscle_info_general,"The system uses a physiological model to estimate fatigue. Calculated based on Total Volume and Exertion of the last session, combined with natural recovery rate.","Hệ thống sử dụng mô hình sinh lý học để ước tính mức độ mỏi. Tính toán dựa trên Tổng tải trọng và Độ nỗ lực của buổi tập gần nhất, kết hợp với tốc độ phục hồi tự nhiên."
+workout.desc_warn_muscle_info_icon,Medical Information,Thông tin y khoa
+workout.title_warn_muscle_zone_green,Green (Ready),Màu Xanh (Sẵn sàng)
+workout.desc_warn_muscle_zone_green,Physiologically recovered. You can confidently train at maximum intensity.,Đã phục hồi sinh lý. Bạn có thể tự tự tin tập luyện với cường độ tối đa.
+workout.title_warn_muscle_zone_red,Red (Danger),Màu Đỏ (Nguy hiểm)
+workout.desc_warn_muscle_zone_red,Muscles are overloaded! Need more rest to avoid muscle tears.,Cơ bắp đang quá tải! Cần nghỉ ngơi thêm để tránh đứt rách sợi cơ.
+workout.title_warn_muscle_zone_yellow,Yellow (Recovering),Màu Vàng (Đang hồi phục)
+workout.desc_warn_muscle_zone_yellow,"Muscles are still slightly fatigued. If you must train, choose moderate intensity.","Cơ bắp vẫn còn hơi mỏi. Nếu bắt buộc tập, hãy chọn cường độ vừa phải."
+workout.msg_warn_no_data,Not enough data to evaluate.,Chưa có đủ dữ liệu để đánh giá.
+workout.msg_warn_recovery_achieved,Recovered {arg1}%!,Đã hồi phục {arg1}%!
+workout.fmt_warn_recovery_percent,{arg1}%,{arg1}%
+workout.fmt_warn_recovery_time_remaining,"To reach {arg1}%, rest another {arg2}h {arg3}m",Để đạt {arg1}% cần nghỉ thêm {arg2}g {arg3}p
+workout.msg_warn_safe,Safe weight.,Mức tạ an toàn.
+workout.status_working,Working out,Đang tập
+workout.status_workout_done,Workout finished,Đã hoàn thành buổi tập
+workout.lbl_workout_in_progress,Working out...,Đang tập luyện...
+workout.col_workout_name,Workout Name,Tên buổi tập

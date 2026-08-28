@@ -35,7 +35,7 @@ class TutorialScreen extends StatelessWidget {
                   Tab(text: t.workout.title_main),
                   Tab(text: t.workout.title_log_main), // NEW: Tab Log Workout
                   Tab(text: t.nutrition.title_main),
-                  Tab(text: t.profile.btn_menu_calendar),
+                  Tab(text: t.profile.btn_menu_cal),
                 ],
               ),
               Expanded(
@@ -60,8 +60,8 @@ class TutorialScreen extends StatelessWidget {
                     ),
                     _TutorialTabContent(
                       videoPath: 'assets/videos/calendar_vid.mp4',
-                      title: t.settings.tutorial_calendar_title,
-                      description: t.settings.tutorial_calendar_desc,
+                      title: t.settings.tutorial_cal_title,
+                      description: t.settings.tutorial_cal_desc,
                     ),
                   ],
                 ),
@@ -185,7 +185,7 @@ class _TutorialTabContentState extends State<_TutorialTabContent> {
             Icon(Symbols.error_outline, color: colorScheme.error, size: 32),
             const SizedBox(height: 8),
             Text(
-              t.common.video_error,
+              t.common.video_err,
               style: TextStyle(color: colorScheme.error),
             ),
           ],

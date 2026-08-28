@@ -188,7 +188,7 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
 
     // Name
     if (_draftProfile.displayName.trim().isEmpty) {
-      _nameError = t.onboarding.msg_error_name_empty;
+      _nameError = t.onboarding.msg_err_name_empty;
       valid = false;
     } else {
       _nameError = null;
@@ -196,12 +196,12 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
 
     // Age
     if (_ageStr.trim().isEmpty) {
-      _ageError = t.onboarding.msg_error_age_empty;
+      _ageError = t.onboarding.msg_err_age_empty;
       valid = false;
     } else {
       int? age = int.tryParse(_ageStr);
       if (age == null || age < 13 || age > 100) {
-        _ageError = t.onboarding.msg_error_age_invalid;
+        _ageError = t.onboarding.msg_err_age_invalid;
         valid = false;
       } else {
         _ageError = null;
@@ -210,12 +210,12 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
 
     // Height
     if (_heightStr.trim().isEmpty) {
-      _heightError = t.onboarding.msg_error_height_empty;
+      _heightError = t.onboarding.msg_err_height_empty;
       valid = false;
     } else {
       double? h = double.tryParse(_heightStr);
       if (h == null || h < 100 || h > 250) {
-        _heightError = t.onboarding.msg_error_height_invalid;
+        _heightError = t.onboarding.msg_err_height_invalid;
         valid = false;
       } else {
         _heightError = null;
@@ -224,12 +224,12 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
 
     // Weight
     if (_weightStr.trim().isEmpty) {
-      _weightError = t.onboarding.msg_error_weight_empty;
+      _weightError = t.onboarding.msg_err_wt_empty;
       valid = false;
     } else {
       double? w = double.tryParse(_weightStr);
       if (w == null || w < 30 || w > 650) {
-        _weightError = t.onboarding.msg_error_weight_invalid;
+        _weightError = t.onboarding.msg_err_wt_invalid;
         valid = false;
       } else {
         _weightError = null;
@@ -261,13 +261,13 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
       String txt = _otherInjuryCtrl.text.trim();
       if (txt.isEmpty) {
         if (_injuryOtherTouched) {
-          _injuryError = t.onboarding.msg_error_injury_empty;
+          _injuryError = t.onboarding.msg_err_injury_empty;
         } else {
           _injuryError = null;
         } 
         valid = false;
       } else if (!RegExp(r'[a-zA-ZÀ-ỹ]').hasMatch(txt)) {
-        _injuryError = t.profile.msg_error_text_required;
+        _injuryError = t.profile.msg_err_text_required;
         valid = false;
       } else {
         _injuryError = null;
@@ -279,13 +279,13 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
       String txt = _otherDietCtrl.text.trim();
       if (txt.isEmpty) {
         if (_dietOtherTouched) {
-          _dietError = t.onboarding.msg_error_diet_empty;
+          _dietError = t.onboarding.msg_err_diet_empty;
         } else {
           _dietError = null;
         }
         valid = false;
       } else if (!RegExp(r'[a-zA-ZÀ-ỹ]').hasMatch(txt)) {
-        _dietError = t.profile.msg_error_text_required;
+        _dietError = t.profile.msg_err_text_required;
         valid = false;
       } else {
         _dietError = null;
@@ -652,7 +652,7 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
               const SizedBox(width: 12),
               Expanded(
                 child: _ProfileTextField(
-                  label: t.profile.metric_weight, 
+                  label: t.profile.metric_wt, 
                   value: _weightStr, 
                   isNumber: true, 
                   errorText: _weightError,
@@ -693,7 +693,7 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
           ),
           const SizedBox(height: 24),
 
-          Text(t.profile.target_weight, style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text(t.profile.target_wt, style: const TextStyle(fontWeight: FontWeight.bold)),
           const SizedBox(height: 16),
           BMIVisualizer(bmiValue: currentBMI, title: t.nutrition.bmi_target),
           const SizedBox(height: 16),
@@ -714,7 +714,7 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                 );
               },
               child: Text(
-                t.onboarding.format_kg(arg1: _formatDouble(_draftProfile.targetGoalWeightKg ?? currentWeight)), 
+                t.onboarding.fmt_kg(arg1: _formatDouble(_draftProfile.targetGoalWeightKg ?? currentWeight)), 
                 style: TextStyle(color: Theme.of(context).gymColors.success, fontSize: 42, fontWeight: FontWeight.bold), 
                 textAlign: TextAlign.center
               ),

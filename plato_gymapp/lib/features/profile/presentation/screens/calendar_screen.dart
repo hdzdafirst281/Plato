@@ -273,7 +273,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
       titleLabel = DateFormat("MMMM yyyy", currentLangCode).format(_activeDate);
     } else {
       final y = _activeYears.isNotEmpty ? _activeYears[_currentYearIndex] : DateTime.now().year;
-      titleLabel = t.stats.format_calendar_year_title(arg1: y.toString());
+      titleLabel = t.stats.fmt_cal_year_title(arg1: y.toString());
     }
 
     final isLeftArrowActive = _viewMode == CalendarViewMode.MONTH ? _currentMonthIndex > 0 : _currentYearIndex > 0;
@@ -309,8 +309,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
             GymTourTarget(
               isActive: !context.read<TourCubit>().state.hasSeenCalendar || forceShowTour,
               tourKey: TourKeys.calendarViewToggleBtn,
-              title: t.tour.calendar_toggle_title,
-              description: t.tour.calendar_toggle_desc,
+              title: t.tour.cal_toggle_title,
+              description: t.tour.cal_toggle_desc,
               borderRadius: 12.0, 
               targetPadding: EdgeInsets.zero,
               child: Theme(
@@ -364,7 +364,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         actions: [
           TextButton(
             onPressed: _onTodayPressed,
-            child: Text(t.stats.btn_calendar_today, style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.primary)),
+            child: Text(t.stats.btn_cal_today, style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.primary)),
           ),
           const SizedBox(width: 8),
         ],
@@ -395,7 +395,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               child: _CompactStatCard(
                                 icon: Symbols.local_fire_department,
                                 gradientColors: isDark ? const [streakGradientStartDark, streakGradientEndDark] : const [streakGradientStartLight, streakGradientEndLight],
-                                title: t.stats.label_calendar_streak_title,
+                                title: t.stats.lbl_cal_streak_title,
                                 value: "${statsState.weeklyStreak}",
                               ),
                             ),
@@ -404,7 +404,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               child: _CompactStatCard(
                                 icon: Symbols.bedtime,
                                 gradientColors: isDark ? const [restGradientStartDark, restGradientEndDark] : const [restGradientStartLight, restGradientEndLight],
-                                title: t.stats.label_calendar_rest_title,
+                                title: t.stats.lbl_cal_rest_title,
                                 value: "${statsState.restDays}",
                               ),
                             ),
@@ -600,7 +600,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         context: parentContext,
         title: t.calendar.title_delete,
         message: t.calendar.msg_delete_confirm,
-        cancelText: t.calendar.btn_cancel,
+        cancelText: t.common.cancel,
         confirmText: t.common.delete,
       );
       if (confirm == true) {
@@ -643,7 +643,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(t.calendar.title_day_detail, style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold)),
+                    Text(t.calendar.title_day_dtl, style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold)),
                     const SizedBox(height: 4),
                     Text(dateStr, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
                   ],
@@ -736,7 +736,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                 Text("${t.calendar.title_planned} ${t.translateDynamic(displayRoutineName)}", 
                                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: colorScheme.onSurface), maxLines: 1, overflow: TextOverflow.ellipsis),
                                 const SizedBox(height: 4),
-                                Text(t.calendar.label_upcoming, style: TextStyle(fontSize: 12, color: cardColor, fontWeight: FontWeight.bold)),
+                                Text(t.calendar.lbl_upcoming, style: TextStyle(fontSize: 12, color: cardColor, fontWeight: FontWeight.bold)),
                               ],
                             ),
                           ),
@@ -770,7 +770,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
              ...pastSessions.map((s) {
               final rpeColor = _getRpeColor(parentContext, s.rpe);
               final durationStr = _formatDuration(s.totalDurationSeconds);
-              final exercisesCountStr = t.workout.format_detail_exercises_count(arg1: s.exercises.length.toString());
+              final exercisesCountStr = t.workout.fmt_dtl_exercises_count(arg1: s.exercises.length.toString());
               
               return Container(
                 margin: const EdgeInsets.only(bottom: 16),
@@ -1177,7 +1177,7 @@ class _RecurrenceConfigPageState extends State<_RecurrenceConfigPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(t.calendar.label_frequency, style: TextStyle(color: colorScheme.primary, fontSize: 12, fontWeight: FontWeight.bold)),
+                Text(t.calendar.lbl_frequency, style: TextStyle(color: colorScheme.primary, fontSize: 12, fontWeight: FontWeight.bold)),
                 const SizedBox(height: 4),
                 Theme(
                   data: Theme.of(context).copyWith(
@@ -1239,7 +1239,7 @@ class _RecurrenceConfigPageState extends State<_RecurrenceConfigPage> {
               children: [
                 if (_repeatType == 2) ...[
                   const SizedBox(height: 16),
-                  Text(t.calendar.label_choose_days, style: const TextStyle(fontWeight: FontWeight.bold)),
+                  Text(t.calendar.lbl_choose_days, style: const TextStyle(fontWeight: FontWeight.bold)),
                   const SizedBox(height: 8),
                   Wrap(
                     spacing: 8, runSpacing: 8,
@@ -1274,7 +1274,7 @@ class _RecurrenceConfigPageState extends State<_RecurrenceConfigPage> {
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       decoration: InputDecoration(
-                        labelText: t.calendar.label_interval_days,
+                        labelText: t.calendar.lbl_interval_days,
                         suffixText: t.calendar.suffix_days,
                         border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                       ),
@@ -1285,7 +1285,7 @@ class _RecurrenceConfigPageState extends State<_RecurrenceConfigPage> {
                 if (_repeatType != 0) ...[
                   const SizedBox(height: 16),
                   CheckboxListTile(
-                    title: Text(t.calendar.label_infinite, style: const TextStyle(fontWeight: FontWeight.bold)),
+                    title: Text(t.calendar.lbl_infinite, style: const TextStyle(fontWeight: FontWeight.bold)),
                     value: _isInfinite,
                     contentPadding: EdgeInsets.zero,
                     onChanged: (val) => setState(() => _isInfinite = val ?? true),
@@ -1298,7 +1298,7 @@ class _RecurrenceConfigPageState extends State<_RecurrenceConfigPage> {
                         keyboardType: TextInputType.number,
                         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                         decoration: InputDecoration(
-                          labelText: t.calendar.label_occurrences,
+                          labelText: t.calendar.lbl_occurrences,
                           suffixText: t.calendar.suffix_times,
                           border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
                         ),
@@ -1696,8 +1696,8 @@ class _MonthCalendarGrid extends StatelessWidget {
                 cellWidget = GymTourTarget(
                   isActive: !context.read<TourCubit>().state.hasSeenCalendar || forceShowTour,
                   tourKey: TourKeys.calendarDayCell,
-                  title: t.tour.calendar_day_title,
-                  description: t.tour.calendar_day_desc,
+                  title: t.tour.cal_day_title,
+                  description: t.tour.cal_day_desc,
                   tooltipPosition: isTablet ?  null : TooltipPosition.top,
                   targetPadding: EdgeInsets.zero,
                   child: cellWidget,

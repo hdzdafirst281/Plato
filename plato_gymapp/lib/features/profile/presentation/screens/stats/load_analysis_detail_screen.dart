@@ -109,7 +109,7 @@ class _LoadAnalysisDetailScreenState extends State<LoadAnalysisDetailScreen> wit
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(t.stats.label_load_info_acute_title, style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).gymColors.success, fontSize: 14)),
+                    Text(t.stats.lbl_load_info_acute_title, style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).gymColors.success, fontSize: 14)),
                     const SizedBox(height: 4),
                     Text(t.stats.desc_load_info_acute, style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13)),
                   ],
@@ -128,7 +128,7 @@ class _LoadAnalysisDetailScreenState extends State<LoadAnalysisDetailScreen> wit
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(t.stats.label_load_info_chronic_title, style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).gymColors.warning, fontSize: 14)),
+                    Text(t.stats.lbl_load_info_chronic_title, style: TextStyle(fontWeight: FontWeight.bold, color: Theme.of(context).gymColors.warning, fontSize: 14)),
                     const SizedBox(height: 4),
                     Text(t.stats.desc_load_info_chronic, style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13)),
                   ],
@@ -253,7 +253,7 @@ class _LoadAnalysisDetailScreenState extends State<LoadAnalysisDetailScreen> wit
                             children: [
                               Container(width: 12, height: 12, decoration: BoxDecoration(color: Theme.of(context).gymColors.success, borderRadius: BorderRadius.circular(4))),
                               const SizedBox(width: 8),
-                              Text(t.stats.label_load_legend_acute, style: TextStyle(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold, fontSize: 13)),
+                              Text(t.stats.lbl_load_legend_acute, style: TextStyle(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold, fontSize: 13)),
                             ],
                           ),
                           const SizedBox(width: 32),
@@ -262,7 +262,7 @@ class _LoadAnalysisDetailScreenState extends State<LoadAnalysisDetailScreen> wit
                             children: [
                               Container(width: 12, height: 12, decoration: BoxDecoration(color: Theme.of(context).gymColors.warning, borderRadius: BorderRadius.circular(4))),
                               const SizedBox(width: 8),
-                              Text(t.stats.label_load_legend_chronic, style: TextStyle(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold, fontSize: 13)),
+                              Text(t.stats.lbl_load_legend_chronic, style: TextStyle(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold, fontSize: 13)),
                             ],
                           ),
                         ],
@@ -303,10 +303,10 @@ class _CurrentLoadCard extends StatelessWidget {
 
   String _getZoneName() {
     switch (analysis.zone) {
-      case LoadZone.UNDERTRAINING: return t.workout.label_session_summary_zone_under;
-      case LoadZone.OPTIMAL: return t.workout.label_session_summary_zone_optimal;
-      case LoadZone.OVERREACHING: return t.workout.label_session_summary_zone_overreach;
-      case LoadZone.OVERTRAINING: return t.workout.label_session_summary_zone_overtrain;
+      case LoadZone.UNDERTRAINING: return t.workout.lbl_ssn_sum_zone_under;
+      case LoadZone.OPTIMAL: return t.workout.lbl_ssn_sum_zone_optimal;
+      case LoadZone.OVERREACHING: return t.workout.lbl_ssn_sum_zone_overreach;
+      case LoadZone.OVERTRAINING: return t.workout.lbl_ssn_sum_zone_overtrain;
     }
   }
 
@@ -360,7 +360,7 @@ class _CurrentLoadCard extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(t.stats.label_load_acute, style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.w600)),
+                    Text(t.stats.lbl_load_acute, style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.w600)),
                     const SizedBox(height: 4),
                     Text(analysis.acuteLoad.toInt().toString(), style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 24)),
                   ],
@@ -368,7 +368,7 @@ class _CurrentLoadCard extends StatelessWidget {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.end,
                   children: [
-                    Text(t.stats.label_load_chronic, style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.w600)),
+                    Text(t.stats.lbl_load_chronic, style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.w600)),
                     const SizedBox(height: 4),
                     Text(analysis.chronicLoad.toInt().toString(), style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 24)),
                   ],
@@ -517,8 +517,8 @@ class _LoadChartPainter extends CustomPainter {
       final textSpan = TextSpan(
         children: [
           TextSpan(text: "Tuần: $weekStr\n", style: TextStyle(color: colorScheme.surface.withValues(alpha: 0.8), fontSize: 11)),
-          TextSpan(text: "${t.stats.label_load_acute}: ${d.acuteLoad.toInt()}\n", style: TextStyle(color: gymColors.success, fontSize: 13, fontWeight: FontWeight.w900, height: 1.5)),
-          TextSpan(text: "${t.stats.label_load_chronic}: ${d.chronicLoad.toInt()}", style: TextStyle(color: gymColors.warning, fontSize: 13, fontWeight: FontWeight.w900)),
+          TextSpan(text: "${t.stats.lbl_load_acute}: ${d.acuteLoad.toInt()}\n", style: TextStyle(color: gymColors.success, fontSize: 13, fontWeight: FontWeight.w900, height: 1.5)),
+          TextSpan(text: "${t.stats.lbl_load_chronic}: ${d.chronicLoad.toInt()}", style: TextStyle(color: gymColors.warning, fontSize: 13, fontWeight: FontWeight.w900)),
         ]
       );
       final textPainter = TextPainter(text: textSpan, textDirection: ui.TextDirection.ltr, textAlign: TextAlign.center)..layout();

@@ -53,7 +53,7 @@ class _ExerciseDetailsScreenState extends State<ExerciseDetailsScreen> with Sing
     final confirmed = await GymDialog.showDestructive(
       context: context,
       title: t.common.title_delete_dialog_main,
-      message: t.explore.msg_delete_custom_exercise_warning,
+      message: t.explore.msg_delete_cust_ex_warn,
       cancelText: t.common.cancel,
       confirmText: t.common.delete,
     );
@@ -123,8 +123,8 @@ class _ExerciseDetailsScreenState extends State<ExerciseDetailsScreen> with Sing
             dividerColor: colorScheme.outlineVariant.withValues(alpha: 0.3),
             labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 13), 
             tabs: [
-              Tab(text: t.explore.tab_exercise_detail_overview),
-              Tab(text: t.explore.tab_exercise_detail_progress), 
+              Tab(text: t.explore.tab_ex_dtl_overview),
+              Tab(text: t.explore.tab_ex_dtl_progress), 
               Tab(text: t.rank.tab_history),
             ],
           ),
@@ -162,7 +162,7 @@ class _OverviewTab extends StatelessWidget {
       children: [
         Icon(Symbols.image_not_supported, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5), size: 64),
         const SizedBox(height: 16), 
-        Text(t.explore.msg_exercise_detail_no_image, style: TextStyle(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold)),
+        Text(t.explore.msg_ex_dtl_no_image, style: TextStyle(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold)),
       ],
     );
   }
@@ -225,7 +225,7 @@ class _OverviewTab extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    String instructionText = t.explore.msg_exercise_detail_no_instructions;
+    String instructionText = t.explore.msg_ex_dtl_no_inst;
     if (exercise.instructions?.isNotEmpty == true) {
       instructionText = exercise.isCustom ? exercise.instructions! : (t.translateDynamic(exercise.instructions!));
     }
@@ -278,7 +278,7 @@ class _OverviewTab extends StatelessWidget {
         
         const SizedBox(height: 32),
 
-        Text(t.explore.title_exercise_detail_instructions, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 20)),
+        Text(t.explore.title_ex_dtl_inst, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 20)),
         const SizedBox(height: 16),
         Text(instructionText, style: TextStyle(color: colorScheme.onSurfaceVariant, height: 1.6, fontSize: 15)),
         
@@ -346,17 +346,17 @@ class _ProgressTabState extends State<_ProgressTab> {
 
   String _getMetricLabel(ExerciseMetric metric) {
     switch (metric) {
-      case ExerciseMetric.BEST_WEIGHT: return t.stats.label_model_metric_best_weight;
-      case ExerciseMetric.BEST_TIME: return t.stats.label_model_metric_best_time;
-      case ExerciseMetric.LONGEST_DISTANCE: return t.stats.label_model_metric_longest_distance;
-      case ExerciseMetric.BEST_STEPS: return t.stats.label_model_metric_best_steps;
-      case ExerciseMetric.BEST_REPS: return t.stats.label_model_metric_best_reps;
-      case ExerciseMetric.ONE_RM: return t.stats.label_model_metric_one_rm;
-      case ExerciseMetric.BEST_SET_VOL: return t.stats.label_model_metric_best_set_vol;
-      case ExerciseMetric.SESSION_VOL: return t.stats.label_model_metric_session_vol;
-      case ExerciseMetric.SESSION_REPS: return t.stats.label_model_metric_session_reps;
-      case ExerciseMetric.SESSION_TIME: return t.stats.label_model_metric_session_time;
-      case ExerciseMetric.PACE: return t.stats.label_model_metric_pace;
+      case ExerciseMetric.BEST_WEIGHT: return t.stats.lbl_model_metric_best_wt;
+      case ExerciseMetric.BEST_TIME: return t.stats.lbl_model_metric_best_time;
+      case ExerciseMetric.LONGEST_DISTANCE: return t.stats.lbl_model_metric_longest_dist;
+      case ExerciseMetric.BEST_STEPS: return t.stats.lbl_model_metric_best_steps;
+      case ExerciseMetric.BEST_REPS: return t.stats.lbl_model_metric_best_reps;
+      case ExerciseMetric.ONE_RM: return t.stats.lbl_model_metric_one_rm;
+      case ExerciseMetric.BEST_SET_VOL: return t.stats.lbl_model_metric_best_set_vol;
+      case ExerciseMetric.SESSION_VOL: return t.stats.lbl_model_metric_ssn_vol;
+      case ExerciseMetric.SESSION_REPS: return t.stats.lbl_model_metric_ssn_reps;
+      case ExerciseMetric.SESSION_TIME: return t.stats.lbl_metric_duration;
+      case ExerciseMetric.PACE: return t.stats.lbl_model_metric_pace;
     }
   }
 
@@ -376,9 +376,9 @@ class _ProgressTabState extends State<_ProgressTab> {
   }
 
   String _getTimeRangeLabel(ChartTimeRange range) {
-    if (range == ChartTimeRange.THREE_MONTHS) return t.stats.label_time_range_3_months;
-    if (range == ChartTimeRange.YEAR) return t.stats.label_time_range_year; 
-    return t.stats.label_time_range_all;
+    if (range == ChartTimeRange.THREE_MONTHS) return t.stats.lbl_time_range_3_months;
+    if (range == ChartTimeRange.YEAR) return t.stats.lbl_time_range_year; 
+    return t.stats.lbl_time_range_all;
   }
 
   List<_LocalChartPoint> _getAggregatedData() {
@@ -542,7 +542,7 @@ class _ProgressTabState extends State<_ProgressTab> {
 
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Text(t.explore.title_exercise_detail_personal_records, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 20)),
+            child: Text(t.explore.title_ex_dtl_personal_records, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 20)),
           ),
           
           const SizedBox(height: 16),
@@ -607,9 +607,9 @@ class _ProgressTabState extends State<_ProgressTab> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(t.explore.label_exercise_detail_total_sessions, style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13, fontWeight: FontWeight.bold)),
+                      Text(t.explore.lbl_ex_dtl_total_sessions, style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13, fontWeight: FontWeight.bold)),
                       const SizedBox(height: 4),
-                      Text(t.explore.format_exercise_detail_session_count(arg1: widget.history.length.toString()), style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.w900, fontSize: 20)),
+                      Text(t.explore.fmt_ex_dtl_ssn_count(arg1: widget.history.length.toString()), style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.w900, fontSize: 20)),
                     ],
                   ),
                 )
@@ -649,7 +649,7 @@ class _HistoryTab extends StatelessWidget {
           children: [
             Icon(Symbols.history_toggle_off, size: 64, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5)),
             const SizedBox(height: 16),
-            Text(t.explore.msg_exercise_detail_no_history, style: TextStyle(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold, fontSize: 16)),
+            Text(t.explore.msg_ex_dtl_no_history, style: TextStyle(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold, fontSize: 16)),
           ],
         )
       );
@@ -712,20 +712,20 @@ class _HistoryTab extends StatelessWidget {
                       Row(
                         crossAxisAlignment: CrossAxisAlignment.center,
                         children: [
-                          SizedBox(width: 40, child: Text(t.explore.label_set, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant))),
+                          SizedBox(width: 40, child: Text(t.common.set, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant))),
                           
                           if (exercise.type == ExerciseType.TIME_ONLY) ...[
-                            Expanded(child: Text(t.explore.label_time, textAlign: TextAlign.right, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant))),
+                            Expanded(child: Text(t.common.time, textAlign: TextAlign.right, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant))),
                           ] else ...[
                             if (exercise.type != ExerciseType.REPS_ONLY) ...[
                               Expanded(child: Text(
-                                exercise.type == ExerciseType.CARDIO_DISTANCE ? t.explore.label_distance_short : 
-                                exercise.type == ExerciseType.CARDIO_STEPS ? t.explore.label_steps_short : t.explore.label_weight_short,
+                                exercise.type == ExerciseType.CARDIO_DISTANCE ? t.explore.lbl_dist_short : 
+                                exercise.type == ExerciseType.CARDIO_STEPS ? t.common.steps : t.common.weight,
                                 textAlign: TextAlign.center, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant)
                               )),
                             ],
                             Expanded(child: Text(
-                              (exercise.type == ExerciseType.CARDIO_DISTANCE || exercise.type == ExerciseType.CARDIO_STEPS) ? t.explore.label_time : t.explore.label_reps_short,
+                              (exercise.type == ExerciseType.CARDIO_DISTANCE || exercise.type == ExerciseType.CARDIO_STEPS) ? t.common.time : t.common.reps,
                               textAlign: TextAlign.right, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant)
                             )),
                           ]

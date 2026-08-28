@@ -372,7 +372,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ListTile(
                       contentPadding: itemPadding,
                       leading: const Icon(Symbols.language),
-                      title: Text(t.settings.label_item_language, style: titleStyle),
+                      title: Text(t.settings.lbl_item_language, style: titleStyle),
                       subtitle: Text(currentLang, style: subtitleStyle),
                       trailing: const Icon(Symbols.chevron_right),
                       onTap: () => _showLanguageDialog(context),
@@ -382,7 +382,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ListTile(
                       contentPadding: itemPadding,
                       leading: const Icon(Symbols.mail),
-                      title: Text(t.settings.label_item_contact, style: titleStyle),
+                      title: Text(t.settings.lbl_item_contact, style: titleStyle),
                       subtitle: Text("support.plato@zenithas.vn", style: subtitleStyle),
                       trailing: const Icon(Symbols.chevron_right),
                       onTap: _sendSupportEmail,
@@ -392,7 +392,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ListTile(
                       contentPadding: itemPadding,
                       leading: const Icon(Symbols.description),
-                      title: Text(t.onboarding.label_terms_link, style: titleStyle),
+                      title: Text(t.onboarding.lbl_terms_link, style: titleStyle),
                       subtitle: Text(t.settings.desc_terms_link, style: subtitleStyle),
                       trailing: const Icon(Symbols.chevron_right),
                       onTap: () => _showTermsDialog(context),
@@ -402,7 +402,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ListTile(
                       contentPadding: itemPadding,
                       leading: const Icon(Symbols.contract),
-                      title: Text(t.onboarding.label_eula_link, style: titleStyle),
+                      title: Text(t.onboarding.lbl_eula_link, style: titleStyle),
                       subtitle: Text(t.settings.desc_eula_link, style: subtitleStyle),
                       trailing: const Icon(Symbols.chevron_right),
                       onTap: () => _showEulaDialog(context),
@@ -412,7 +412,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ListTile(
                       contentPadding: itemPadding,
                       leading: const Icon(Symbols.info),
-                      title: Text(t.settings.label_item_version, style: titleStyle),
+                      title: Text(t.settings.lbl_item_version, style: titleStyle),
                       subtitle: Text("1.1.1", style: subtitleStyle),
                     ),
 

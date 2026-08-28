@@ -37,9 +37,9 @@ class _ExploreProgramsScreenState extends State<ExploreProgramsScreen> {
   }
 
   String _translateLevel(String l) {
-    if (l == "BEGINNER") return t.explore.label_filter_level_newbie;
-    if (l == "ADVANCED") return t.explore.label_filter_level_advanced;
-    return t.explore.label_filter_level_intermediate;
+    if (l == "BEGINNER") return t.explore.lbl_filter_level_newbie;
+    if (l == "ADVANCED") return t.explore.lbl_filter_level_advanced;
+    return t.explore.lbl_filter_level_intermediate;
   }
 
   String _translateGoal(WorkoutGoal g) {
@@ -172,7 +172,7 @@ class _ExploreProgramsScreenState extends State<ExploreProgramsScreen> {
                         child: _buildCustomFilterMenu<WorkoutGoal>(
                           context: context,
                           activeValue: _filterGoal,
-                          defaultHint: t.explore.label_filter_goal,
+                          defaultHint: t.explore.lbl_filter_goal,
                           items: WorkoutGoal.values,
                           labelBuilder: _translateGoal,
                           onClear: () => setState(() => _filterGoal = null),
@@ -184,7 +184,7 @@ class _ExploreProgramsScreenState extends State<ExploreProgramsScreen> {
                         child: _buildCustomFilterMenu<String>(
                           context: context,
                           activeValue: _filterLevel,
-                          defaultHint: t.explore.label_filter_level,
+                          defaultHint: t.explore.lbl_filter_level,
                           items: const ["BEGINNER", "INTERMEDIATE", "ADVANCED"],
                           labelBuilder: _translateLevel,
                           onClear: () => setState(() => _filterLevel = null),
@@ -196,7 +196,7 @@ class _ExploreProgramsScreenState extends State<ExploreProgramsScreen> {
                         child: _buildCustomFilterMenu<WorkoutEnvironment>(
                           context: context,
                           activeValue: _filterEnv,
-                          defaultHint: t.explore.label_filter_env,
+                          defaultHint: t.explore.lbl_filter_env,
                           items: WorkoutEnvironment.values,
                           labelBuilder: _translateEnv,
                           onClear: () => setState(() => _filterEnv = null),
@@ -385,7 +385,7 @@ class _ProgramCard extends StatelessWidget {
                               : Colors.grey.shade600.withValues(alpha: isAdded ? 0.4 : 1.0),
                         ),
                         ThemedTagChip(
-                          text: t.explore.format_routines_count(arg1: program.routines.length.toString()),
+                          text: t.explore.fmt_routines_count(arg1: program.routines.length.toString()),
                           color: Colors.grey.shade600.withValues(alpha: isAdded ? 0.4 : 1.0),
                         ),
                       ],
@@ -504,7 +504,7 @@ class _ProgramDetailView extends StatelessWidget {
                          }
                       }
                       
-                      final setStr = t.profile.format_history_sets(arg1: ex.sets.length.toString());
+                      final setStr = t.profile.fmt_history_sets(arg1: ex.sets.length.toString());
                       final finalDisplayStr = targetStr.isNotEmpty ? "$setStr • $targetStr" : setStr;
 
                       return InkWell(

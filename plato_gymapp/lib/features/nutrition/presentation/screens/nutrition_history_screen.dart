@@ -94,7 +94,7 @@ class _HistoryCard extends StatelessWidget {
                 ),
                 const SizedBox(width: 8),
                 // ĐÃ FIX: Đồng bộ key format_kcal
-                Text(t.nutrition.format_kcal(arg1: f.calculatedTotalCalories.toString()), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: colorScheme.primary)),
+                Text(t.nutrition.fmt_kcal(arg1: f.calculatedTotalCalories.toString()), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: colorScheme.primary)),
               ],
             ),
           )),
@@ -162,11 +162,11 @@ class _HistoryCard extends StatelessWidget {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Expanded(child: _MacroStat(label: t.nutrition.label_dashboard_calories, value: '${daily.dailyTotalCalories}', suffix: 'kcal', color: colorScheme.primary)),
+              Expanded(child: _MacroStat(label: t.nutrition.lbl_dash_calories, value: '${daily.dailyTotalCalories}', suffix: 'kcal', color: colorScheme.primary)),
               // ĐÃ FIX: Đồng bộ màu sắc
-              Expanded(child: _MacroStat(label: t.onboarding.label_macro_protein, value: '${daily.dailyTotalProtein}', suffix: 'g', color: gymColors.fireHexagon)),
-              Expanded(child: _MacroStat(label: t.onboarding.label_macro_carbs, value: '${daily.dailyTotalCarbs}', suffix: 'g', color: gymColors.success)),
-              Expanded(child: _MacroStat(label: t.onboarding.label_macro_fat, value: '${daily.dailyTotalFat}', suffix: 'g', color: gymColors.goldRank)),
+              Expanded(child: _MacroStat(label: t.onboarding.lbl_macro_protein, value: '${daily.dailyTotalProtein}', suffix: 'g', color: gymColors.fireHexagon)),
+              Expanded(child: _MacroStat(label: t.onboarding.lbl_macro_carbs, value: '${daily.dailyTotalCarbs}', suffix: 'g', color: gymColors.success)),
+              Expanded(child: _MacroStat(label: t.onboarding.lbl_macro_fat, value: '${daily.dailyTotalFat}', suffix: 'g', color: gymColors.goldRank)),
             ],
           ),
           

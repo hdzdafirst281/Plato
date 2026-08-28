@@ -194,8 +194,8 @@ class _NutritionScreenState extends State<NutritionScreen> {
       final dashboardWidget = GymTourTarget(
         isActive: !context.read<TourCubit>().state.hasSeenNutrition || forceShowTour,
         tourKey: TourKeys.nutritionDashboard,
-        title: t.tour.nutrition_dashboard_title,
-        description: t.tour.nutrition_dashboard_desc,
+        title: t.tour.nutrition_dash_title,
+        description: t.tour.nutrition_dash_desc,
         borderRadius: 24.0,
         targetPadding: EdgeInsets.zero,
         tooltipPosition: isTablet ? TooltipPosition.right : null,
@@ -318,8 +318,8 @@ class _NutritionScreenState extends State<NutritionScreen> {
           GymTourTarget(
             isActive: !context.read<TourCubit>().state.hasSeenNutrition || forceShowTour,
             tourKey: TourKeys.nutritionWeightGoal,
-            title: t.tour.nutrition_weight_title,
-            description: t.tour.nutrition_weight_desc,
+            title: t.tour.nutrition_wt_title,
+            description: t.tour.nutrition_wt_desc,
             tooltipPosition: isTablet ? TooltipPosition.right : null,
             borderRadius: 24.0,
             targetPadding: EdgeInsets.zero,
@@ -381,7 +381,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
             icon: GymTourTarget(
               isActive: !context.read<TourCubit>().state.hasSeenNutrition || forceShowTour,
               tourKey: TourKeys.nutritionHistoryBtn,
-              title: t.tour.nutrition_history_title,
+              title: t.nutrition.title_history,
               description: t.tour.nutrition_history_desc,
               // FIX LỖI TRÀN VIỀN: Ép thành hình tròn khít
               customShapeBorder: const CircleBorder(), 
@@ -550,7 +550,7 @@ class _MealSectionCard extends StatelessWidget {
                     FittedBox(
                       fit: BoxFit.scaleDown,
                       child: Text(
-                        t.nutrition.format_kcal(arg1: totalCal.toString()), 
+                        t.nutrition.fmt_kcal(arg1: totalCal.toString()), 
                         style: TextStyle(fontWeight: FontWeight.w900, color: colorScheme.primary, fontSize: 16)
                       ),
                     ),
@@ -647,11 +647,11 @@ class _FoodItemRow extends StatelessWidget {
 
     String unitName;
     switch (food.measurementUnit) {
-      case FoodUnit.GRAM: unitName = t.nutrition.label_unit_gram; break;
-      case FoodUnit.ML: unitName = t.nutrition.label_unit_ml; break;
-      case FoodUnit.QUANTITY: unitName = t.nutrition.label_unit_quantity; break;
-      case FoodUnit.SERVING: unitName = t.nutrition.label_unit_serving; break;
-      case FoodUnit.OZ: unitName = t.nutrition.label_unit_oz; break;
+      case FoodUnit.GRAM: unitName = t.nutrition.lbl_unit_gram; break;
+      case FoodUnit.ML: unitName = t.nutrition.lbl_unit_ml; break;
+      case FoodUnit.QUANTITY: unitName = t.nutrition.lbl_unit_quantity; break;
+      case FoodUnit.SERVING: unitName = t.nutrition.lbl_unit_serving; break;
+      case FoodUnit.OZ: unitName = t.nutrition.lbl_unit_oz; break;
     }
 
     final String unitLabel = '$amountStr $unitName';
@@ -927,7 +927,7 @@ class _FoodBottomSheetState extends State<FoodBottomSheet> {
             
             GymTextField(
               initialValue: _name,
-              labelText: t.nutrition.label_quick_food_name,
+              labelText: t.nutrition.lbl_quick_food_name,
               errorText: _nameError,
               isNumber: false,
               onChanged: (v) { _name = v; _validateEdit(); },
@@ -937,9 +937,9 @@ class _FoodBottomSheetState extends State<FoodBottomSheet> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(child: GymTextField(initialValue: _cal, labelText: t.nutrition.label_dashboard_calories, unitText: 'kcal', isInteger: true, errorText: _calError, onChanged: (v) { _cal = v; _validateEdit(); })),
+                Expanded(child: GymTextField(initialValue: _cal, labelText: t.nutrition.lbl_dash_calories, unitText: 'kcal', isInteger: true, errorText: _calError, onChanged: (v) { _cal = v; _validateEdit(); })),
                 const SizedBox(width: 16),
-                Expanded(child: GymTextField(initialValue: _pro, labelText: t.onboarding.label_macro_protein, unitText: 'g', isInteger: true, errorText: _proError, onChanged: (v) { _pro = v; _validateEdit(); })),
+                Expanded(child: GymTextField(initialValue: _pro, labelText: t.onboarding.lbl_macro_protein, unitText: 'g', isInteger: true, errorText: _proError, onChanged: (v) { _pro = v; _validateEdit(); })),
               ],
             ),
             const SizedBox(height: 16),
@@ -947,9 +947,9 @@ class _FoodBottomSheetState extends State<FoodBottomSheet> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(child: GymTextField(initialValue: _carb, labelText: t.onboarding.label_macro_carbs, unitText: 'g', isInteger: true, errorText: _carbError, onChanged: (v) { _carb = v; _validateEdit(); })),
+                Expanded(child: GymTextField(initialValue: _carb, labelText: t.onboarding.lbl_macro_carbs, unitText: 'g', isInteger: true, errorText: _carbError, onChanged: (v) { _carb = v; _validateEdit(); })),
                 const SizedBox(width: 16),
-                Expanded(child: GymTextField(initialValue: _fat, labelText: t.onboarding.label_macro_fat, unitText: 'g', isInteger: true, errorText: _fatError, onChanged: (v) { _fat = v; _validateEdit(); })),
+                Expanded(child: GymTextField(initialValue: _fat, labelText: t.onboarding.lbl_macro_fat, unitText: 'g', isInteger: true, errorText: _fatError, onChanged: (v) { _fat = v; _validateEdit(); })),
               ],
             ),
             
@@ -958,7 +958,7 @@ class _FoodBottomSheetState extends State<FoodBottomSheet> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(t.nutrition.label_quick_portion, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                Text(t.nutrition.lbl_quick_portion, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                 UniversalFoodStepper(
                   consumedAmount: _consumedAmount,
                   unit: widget.food.measurementUnit,

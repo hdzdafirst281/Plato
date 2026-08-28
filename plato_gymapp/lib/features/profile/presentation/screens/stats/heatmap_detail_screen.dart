@@ -83,7 +83,7 @@ class _HeatmapDetailScreenState extends State<HeatmapDetailScreen> with SingleTi
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(t.stats.label_heatmap_info_frequency_title, style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.primary, fontSize: 14)),
+                    Text(t.stats.lbl_heatmap_info_frequency_title, style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.primary, fontSize: 14)),
                     const SizedBox(height: 4),
                     Text(t.stats.desc_heatmap_info_frequency, style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13)),
                   ],
@@ -102,7 +102,7 @@ class _HeatmapDetailScreenState extends State<HeatmapDetailScreen> with SingleTi
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(t.stats.label_heatmap_info_intensity_title, style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.secondary, fontSize: 14)),
+                    Text(t.stats.lbl_heatmap_info_intensity_title, style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.secondary, fontSize: 14)),
                     const SizedBox(height: 4),
                     Text(t.stats.desc_heatmap_info_intensity, style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13)),
                   ],
@@ -270,7 +270,7 @@ class _BodyHeatmapState extends State<_BodyHeatmap> {
                     SizedBox(
                       height: 30,
                       child: Text(
-                        _selectedMuscle?.getLocalizedName() ?? t.stats.label_heatmap_select_muscle_prompt, 
+                        _selectedMuscle?.getLocalizedName() ?? t.stats.lbl_heatmap_select_muscle_prompt, 
                         style: TextStyle(
                           fontSize: 18, 
                           fontWeight: FontWeight.bold, 
@@ -285,8 +285,8 @@ class _BodyHeatmapState extends State<_BodyHeatmap> {
                       duration: const Duration(milliseconds: 300),
                       child: Text(
                         widget.mode == HeatmapMode.INTENSITY 
-                            ? t.stats.label_heatmap_timeframe_intensity 
-                            : t.stats.label_heatmap_timeframe_frequency,
+                            ? t.stats.lbl_heatmap_timeframe_intensity 
+                            : t.stats.lbl_heatmap_timeframe_frequency,
                         key: ValueKey(widget.mode),
                         style: TextStyle(
                           fontSize: 12,
@@ -338,7 +338,7 @@ class _BodyHeatmapState extends State<_BodyHeatmap> {
               SizedBox(
                 height: 30,
                 child: Text(
-                  _selectedMuscle?.getLocalizedName() ?? t.stats.label_heatmap_select_muscle_prompt, 
+                  _selectedMuscle?.getLocalizedName() ?? t.stats.lbl_heatmap_select_muscle_prompt, 
                   style: TextStyle(
                     fontSize: 18, 
                     fontWeight: FontWeight.bold, 
@@ -369,8 +369,8 @@ class _BodyHeatmapState extends State<_BodyHeatmap> {
                 duration: const Duration(milliseconds: 300),
                 child: Text(
                   widget.mode == HeatmapMode.INTENSITY 
-                      ? t.stats.label_heatmap_timeframe_intensity 
-                      : t.stats.label_heatmap_timeframe_frequency,
+                      ? t.stats.lbl_heatmap_timeframe_intensity 
+                      : t.stats.lbl_heatmap_timeframe_frequency,
                   key: ValueKey('timeframe_${widget.mode}'),
                   style: TextStyle(
                     fontSize: 12,
@@ -466,8 +466,8 @@ class _BetterSegmentedControl extends StatelessWidget {
         children: modes.map((mode) {
           final isSelected = currentMode == mode;
           final label = mode == HeatmapMode.INTENSITY 
-              ? t.stats.label_heatmap_mode_intensity 
-              : t.stats.label_heatmap_mode_frequency;
+              ? t.stats.lbl_heatmap_mode_intensity 
+              : t.stats.lbl_heatmap_mode_frequency;
 
           return AnimatedContainer(
             duration: const Duration(milliseconds: 200),
@@ -592,7 +592,7 @@ class _MuscleSelectorSectionState extends State<_MuscleSelectorSection> {
       children: [
         Padding(
           padding: const EdgeInsets.only(left: 16), 
-          child: Text(t.stats.label_heatmap_front_body, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurfaceVariant))
+          child: Text(t.stats.lbl_heatmap_front_body, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurfaceVariant))
         ),
         SingleChildScrollView(
           controller: _frontScrollCtrl,
@@ -606,7 +606,7 @@ class _MuscleSelectorSectionState extends State<_MuscleSelectorSection> {
 
         Padding(
           padding: const EdgeInsets.only(left: 16, top: 4), 
-          child: Text(t.stats.label_heatmap_back_body, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurfaceVariant))
+          child: Text(t.stats.lbl_heatmap_back_body, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.onSurfaceVariant))
         ),
         SingleChildScrollView(
           controller: _backScrollCtrl,
@@ -658,24 +658,24 @@ class _HeatmapLegend extends StatelessWidget {
       return Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _LegendItem(gymColors.heatmapUnused, t.stats.label_heatmap_legend_unused),
+          _LegendItem(gymColors.heatmapUnused, t.stats.lbl_heatmap_legend_unused),
           const SizedBox(width: 12),
-          _LegendItem(gymColors.heatmapLow, t.stats.label_heatmap_legend_low),
+          _LegendItem(gymColors.heatmapLow, t.stats.lbl_heatmap_legend_low),
           const SizedBox(width: 12),
-          _LegendItem(gymColors.heatmapMed, t.stats.label_heatmap_legend_medium),
+          _LegendItem(gymColors.heatmapMed, t.stats.lbl_heatmap_legend_medium),
           const SizedBox(width: 12),
-          _LegendItem(gymColors.heatmapHigh, t.stats.label_heatmap_legend_high),
+          _LegendItem(gymColors.heatmapHigh, t.stats.lbl_heatmap_legend_high),
           const SizedBox(width: 12),
-          _LegendItem(gymColors.heatmapExtreme, t.stats.label_heatmap_legend_extreme),
+          _LegendItem(gymColors.heatmapExtreme, t.stats.lbl_heatmap_legend_extreme),
         ],
       );
     }
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        _LegendItem(gymColors.heatmapUnused, t.stats.label_heatmap_legend_unused),
+        _LegendItem(gymColors.heatmapUnused, t.stats.lbl_heatmap_legend_unused),
         const SizedBox(width: 16),
-        _LegendItem(gymColors.heatmapFreqDone, t.stats.label_heatmap_legend_done),
+        _LegendItem(gymColors.heatmapFreqDone, t.stats.lbl_heatmap_legend_done),
       ],
     );
   }

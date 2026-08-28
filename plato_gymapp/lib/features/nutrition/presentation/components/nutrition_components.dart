@@ -264,15 +264,15 @@ class UniversalFoodStepper extends StatelessWidget {
   String get _suffix {
     switch (unit) {
       case FoodUnit.GRAM:
-        return t.nutrition.label_unit_gram;
+        return t.nutrition.lbl_unit_gram;
       case FoodUnit.ML:
-        return t.nutrition.label_unit_ml;
+        return t.nutrition.lbl_unit_ml;
       case FoodUnit.QUANTITY:
-        return t.nutrition.label_unit_quantity;
+        return t.nutrition.lbl_unit_quantity;
       case FoodUnit.SERVING:
-        return t.nutrition.label_unit_serving;
+        return t.nutrition.lbl_unit_serving;
       case FoodUnit.OZ:
-        return t.nutrition.label_unit_oz;
+        return t.nutrition.lbl_unit_oz;
       
     }
   }
@@ -370,7 +370,7 @@ class UniversalFoodStepper extends StatelessWidget {
     void validateRealTime(String v) {
       final val = double.tryParse(v);
       if (val == null) {
-        errorNotifier.value = t.nutrition.error_invalid_number;
+        errorNotifier.value = t.nutrition.err_invalid_number;
         return;
       }
 
@@ -555,23 +555,23 @@ class MacroText extends StatelessWidget {
       children: [
         if (calories != null) ...[
           Text(
-            t.nutrition.format_kcal(arg1: calories.toString()),
+            t.nutrition.fmt_kcal(arg1: calories.toString()),
             style: textStyle,
           ),
           Text('|', style: textStyle),
         ],
         Text(
-          t.nutrition.format_macro_p(arg1: protein.toString()),
+          t.nutrition.fmt_macro_p(arg1: protein.toString()),
           style: textStyle.copyWith(color: colorP),
         ),
         Text('•', style: textStyle),
         Text(
-          t.nutrition.format_macro_c(arg1: carbs.toString()),
+          t.nutrition.fmt_macro_c(arg1: carbs.toString()),
           style: textStyle.copyWith(color: colorC),
         ),
         Text('•', style: textStyle),
         Text(
-          t.nutrition.format_macro_f(arg1: fat.toString()),
+          t.nutrition.fmt_macro_f(arg1: fat.toString()),
           style: textStyle.copyWith(color: colorF),
         ),
         if (unitSuffix != null) Text(unitSuffix!, style: textStyle),
@@ -689,8 +689,8 @@ class NutritionDashboard extends StatelessWidget {
                       const SizedBox(width: 6),
                       Text(
                         isCustomMacros
-                            ? t.nutrition.label_dashboard_custom.toUpperCase()
-                            : t.nutrition.label_dashboard_system.toUpperCase(),
+                            ? t.nutrition.lbl_dash_cust.toUpperCase()
+                            : t.nutrition.lbl_dash_system.toUpperCase(),
                         style: TextStyle(
                           fontSize: 10,
                           fontWeight: FontWeight.bold,
@@ -758,7 +758,7 @@ class NutritionDashboard extends StatelessWidget {
                   ),
                   const SizedBox(height: 16),
                   Text(
-                    t.nutrition.label_consumed_vs_target,
+                    t.nutrition.lbl_consumed_vs_target,
                     style: TextStyle(
                       fontSize: 12,
                       color: colorScheme.onSurface.withValues(alpha: 0.7),
@@ -783,7 +783,7 @@ class NutritionDashboard extends StatelessWidget {
                           ),
                         ),
                         Text(
-                          t.nutrition.format_dashboard_calories_suffix(
+                          t.nutrition.fmt_dash_calories_suffix(
                             arg1: targetCal.toString(),
                           ),
                           style: TextStyle(
@@ -800,21 +800,21 @@ class NutritionDashboard extends StatelessWidget {
                 // 3. Khối 3 thanh Macros
                 final macrosRows = [
                   _MacroRow(
-                    label: t.onboarding.label_macro_protein,
+                    label: t.onboarding.lbl_macro_protein,
                     current: currentDaily.dailyTotalProtein,
                     target: targetMacros.protein,
                     color: gymColors.fireHexagon,
                   ),
                   const SizedBox(height: 12),
                   _MacroRow(
-                    label: t.onboarding.label_macro_carbs,
+                    label: t.onboarding.lbl_macro_carbs,
                     current: currentDaily.dailyTotalCarbs,
                     target: targetMacros.carbs,
                     color: gymColors.success,
                   ),
                   const SizedBox(height: 12),
                   _MacroRow(
-                    label: t.onboarding.label_macro_fat,
+                    label: t.onboarding.lbl_macro_fat,
                     current: currentDaily.dailyTotalFat,
                     target: targetMacros.fat,
                     color: gymColors.goldRank,
@@ -913,7 +913,7 @@ class NutritionDashboard extends StatelessWidget {
     GymDialog.showCustom(
       context: context,
       titleWidget: Text(
-        t.nutrition.title_custom_macros,
+        t.nutrition.title_cust_macros,
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
       ),
       contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
@@ -1015,23 +1015,23 @@ class NutritionDashboard extends StatelessWidget {
 
                 buildField(
                   calCtrl,
-                  t.nutrition.label_dashboard_calories,
+                  t.nutrition.lbl_dash_calories,
                   'kcal',
                   calError,
                 ),
                 buildField(
                   proCtrl,
-                  t.onboarding.label_macro_protein,
+                  t.onboarding.lbl_macro_protein,
                   'g',
                   proError,
                 ),
                 buildField(
                   carbCtrl,
-                  t.onboarding.label_macro_carbs,
+                  t.onboarding.lbl_macro_carbs,
                   'g',
                   carbError,
                 ),
-                buildField(fatCtrl, t.onboarding.label_macro_fat, 'g', fatError),
+                buildField(fatCtrl, t.onboarding.lbl_macro_fat, 'g', fatError),
 
                 const SizedBox(height: 8),
                 Builder(
@@ -1188,7 +1188,7 @@ class NutritionDashboard extends StatelessWidget {
                                           setLocalState(() {
                                             generalWarning = t
                                                 .nutrition
-                                                .err_macro_warning_target;
+                                                .err_macro_warn_target;
                                             isSoftWarningConfirmed = true;
                                           });
                                           return;
@@ -1270,7 +1270,7 @@ class _MacroRow extends StatelessWidget {
               ),
             ),
             Text(
-              t.nutrition.format_macro_ratio(
+              t.nutrition.fmt_macro_ratio(
                 arg1: current.toString(),
                 arg2: target.toString(),
               ),
@@ -1464,7 +1464,7 @@ class WaterTrackerCard extends StatelessWidget {
                                 ),
                               ),
                               Text(
-                                t.nutrition.format_water_target_suffix(
+                                t.nutrition.fmt_water_target_suffix(
                                   arg1: _formatDouble(
                                     targetLiters,
                                     decimals: 2,
@@ -1706,8 +1706,8 @@ class WeightGoalChartCard extends StatelessWidget {
         ? Symbols.trending_flat
         : (isCut ? Symbols.trending_down : Symbols.trending_up);
     final titleLabel = isMaintain
-        ? t.profile.goal_maintain_weight
-        : (isCut ? t.profile.goal_lose_weight : t.profile.goal_gain_weight);
+        ? t.profile.goal_maintain_wt
+        : (isCut ? t.profile.goal_lose_wt : t.profile.goal_gain_wt);
 
     final nowMillis = DateTime.now().millisecondsSinceEpoch;
     final startMillis = profile.goalStartTimestampMillis ?? nowMillis;
@@ -1864,7 +1864,7 @@ class WeightGoalChartCard extends StatelessWidget {
                       fit: BoxFit.scaleDown,
                       alignment: Alignment.centerLeft,
                       child: Text(
-                        t.nutrition.format_goal_current_date(arg1: currentDateStr),
+                        t.nutrition.fmt_goal_current_date(arg1: currentDateStr),
                         style: TextStyle(
                           fontSize: 12,
                           color: colorScheme.onSurfaceVariant,
@@ -1872,7 +1872,7 @@ class WeightGoalChartCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      t.onboarding.format_kg(arg1: _formatDouble(currentWt)),
+                      t.onboarding.fmt_kg(arg1: _formatDouble(currentWt)),
                       style: const TextStyle(
                         fontWeight: FontWeight.w900,
                         fontSize: 16,
@@ -1890,7 +1890,7 @@ class WeightGoalChartCard extends StatelessWidget {
                         fit: BoxFit.scaleDown,
                         alignment: Alignment.centerRight,
                         child: Text(
-                          t.nutrition.format_goal_target_date(arg1: targetDateStr),
+                          t.nutrition.fmt_goal_target_date(arg1: targetDateStr),
                           style: TextStyle(
                             fontSize: 12,
                             color: colorScheme.onSurfaceVariant,
@@ -1898,7 +1898,7 @@ class WeightGoalChartCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        t.onboarding.format_kg(arg1: _formatDouble(targetWt)),
+                        t.onboarding.fmt_kg(arg1: _formatDouble(targetWt)),
                         style: TextStyle(
                           fontWeight: FontWeight.w900,
                           fontSize: 16,
@@ -1928,7 +1928,7 @@ class WeightGoalChartCard extends StatelessWidget {
             ),
             onPressed: onUpdateWeight,
             child: Text(
-              t.nutrition.btn_goal_update_weight,
+              t.nutrition.btn_goal_update_wt,
               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
             ),
           ),
@@ -2030,7 +2030,7 @@ Future<void> showUpdateWeightDialog(
   await GymDialog.showCustom(
     context: context,
     titleWidget: Text(
-      t.nutrition.title_weight_dialog,
+      t.nutrition.title_wt_dialog,
       style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
     ),
     contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
@@ -2059,7 +2059,7 @@ Future<void> showUpdateWeightDialog(
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        t.nutrition.msg_weight_anti_cheat,
+                        t.nutrition.msg_wt_anti_cheat,
                         style: TextStyle(
                           fontSize: 12,
                           color: colorScheme.onSurface,
@@ -2071,7 +2071,7 @@ Future<void> showUpdateWeightDialog(
               )
             else
               Text(
-                t.nutrition.msg_weight_instruction,
+                t.nutrition.msg_wt_instruction,
                 style: TextStyle(
                   fontSize: 14,
                   color: colorScheme.onSurfaceVariant,
@@ -2091,7 +2091,7 @@ Future<void> showUpdateWeightDialog(
               onChanged: (_) => clearErrors(),
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               decoration: InputDecoration(
-                labelText: t.nutrition.label_weight_input,
+                labelText: t.nutrition.lbl_wt_input,
                 suffixText: "kg",
                 errorText: errorMsg,
                 border: OutlineInputBorder(
@@ -2143,13 +2143,13 @@ Future<void> showUpdateWeightDialog(
 
                     if (val == null) {
                       setLocalState(
-                        () => errorMsg = t.nutrition.error_invalid_number,
+                        () => errorMsg = t.nutrition.err_invalid_number,
                       );
                       return;
                     }
                     if (val < minWeight) {
                       setLocalState(
-                        () => errorMsg = t.nutrition.error_min_weight(
+                        () => errorMsg = t.nutrition.err_min_wt(
                           arg1: _formatDouble(minWeight),
                         ),
                       );
@@ -2157,7 +2157,7 @@ Future<void> showUpdateWeightDialog(
                     }
                     if (val > maxWeight) {
                       setLocalState(
-                        () => errorMsg = t.nutrition.error_max_weight(
+                        () => errorMsg = t.nutrition.err_max_wt(
                           arg1: _formatDouble(maxWeight),
                         ),
                       );
@@ -2174,8 +2174,8 @@ Future<void> showUpdateWeightDialog(
                   },
                   child: Text(
                     showWarning
-                        ? t.nutrition.btn_weight_save_anyway
-                        : t.nutrition.btn_goal_update_weight,
+                        ? t.common.save_anyway
+                        : t.nutrition.btn_goal_update_wt,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 15,
@@ -2234,7 +2234,7 @@ Future<void> showWaterSettingsDialog(
                 if (errorMsg != null) setLocalState(() => errorMsg = null);
               },
               decoration: InputDecoration(
-                labelText: t.nutrition.label_water_consumed,
+                labelText: t.nutrition.lbl_water_consumed,
                 suffixText: t.nutrition.unit_liters,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -2259,7 +2259,7 @@ Future<void> showWaterSettingsDialog(
                 if (errorMsg != null) setLocalState(() => errorMsg = null);
               },
               decoration: InputDecoration(
-                labelText: t.nutrition.label_water_target,
+                labelText: t.nutrition.lbl_water_target,
                 suffixText: t.nutrition.unit_liters,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -2461,7 +2461,7 @@ class _UpdateGoalDialogState extends State<UpdateGoalDialog> {
     if (_targetWeight != widget.profile.weightInKg && _paceMode == "CUSTOM") {
       if (_customDays < _minDays) {
         setState(
-          () => _errorMsg = t.nutrition.error_pace_too_fast(
+          () => _errorMsg = t.nutrition.err_pace_too_fast(
             arg1: _minDays.toString(),
           ),
         );
@@ -2494,7 +2494,7 @@ class _UpdateGoalDialogState extends State<UpdateGoalDialog> {
         const SizedBox(height: 32),
 
         Text(
-          t.profile.target_weight,
+          t.profile.target_wt,
           style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
         ),
         const SizedBox(height: 16),
@@ -2521,7 +2521,7 @@ class _UpdateGoalDialogState extends State<UpdateGoalDialog> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Text(
-                t.onboarding.format_kg(arg1: _formatDouble(_targetWeight)),
+                t.onboarding.fmt_kg(arg1: _formatDouble(_targetWeight)),
                 style: TextStyle(
                   color: colorScheme.primary,
                   fontSize: 48,
@@ -2573,7 +2573,7 @@ class _UpdateGoalDialogState extends State<UpdateGoalDialog> {
               const SizedBox(width: 16),
               Expanded(
                 child: Text(
-                  t.nutrition.msg_custom_macro_pace_hidden,
+                  t.nutrition.msg_cust_macro_pace_hidden,
                   style: TextStyle(
                     fontSize: 14,
                     color: colorScheme.onSurface,
@@ -2647,7 +2647,7 @@ class _UpdateGoalDialogState extends State<UpdateGoalDialog> {
                       ? DateFormat('dd/MM/yy').format(
                           DateTime.now().add(Duration(days: _customDays)),
                         )
-                      : t.nutrition.label_target_custom_date,
+                      : t.nutrition.lbl_target_cust_date,
                   isSelected: _paceMode == "CUSTOM",
                   isSubtitlePrimary: _customDays > 0,
                   onTap: () async {
@@ -2802,7 +2802,7 @@ class _UpdateGoalDialogState extends State<UpdateGoalDialog> {
                       const SizedBox(width: 8),
                       Expanded(
                         child: Text(
-                          t.nutrition.warning_unhealthy_target_bmi,
+                          t.nutrition.warn_unhealthy_target_bmi,
                           style: TextStyle(
                             color: Theme.of(context).gymColors.warning,
                             fontSize: 13,
@@ -2829,7 +2829,7 @@ class _UpdateGoalDialogState extends State<UpdateGoalDialog> {
                 onPressed: _validateAndConfirm,
                 child: Text(
                   _showWarning
-                      ? t.nutrition.btn_weight_save_anyway
+                      ? t.common.save_anyway
                       : t.common.confirm,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
@@ -3070,11 +3070,11 @@ Future<void> showGoalReviewDialog(
           BMIVisualizer(bmiValue: bmi, title: t.nutrition.bmi_target),
           const SizedBox(height: 16),
           Text(
-            t.nutrition.format_review_congrats(arg1: _formatDouble(currentWt)),
+            t.nutrition.fmt_review_congrats(arg1: _formatDouble(currentWt)),
           ),
           const SizedBox(height: 16),
           Text(
-            t.nutrition.format_review_bmi_suggestion(arg1: _formatDouble(bmi)),
+            t.nutrition.fmt_review_bmi_suggestion(arg1: _formatDouble(bmi)),
             style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant),
           ),
           const SizedBox(height: 12),
@@ -3134,7 +3134,7 @@ Future<void> showGoalReviewDialog(
           ),
         ] else ...[
           Text(
-            t.nutrition.format_review_failed(
+            t.nutrition.fmt_review_failed(
               arg1: _formatDouble(currentWt),
               arg2: _formatDouble(targetWt),
             ),
@@ -3650,7 +3650,7 @@ Future<void> showManualWeightInputDialog(
   await GymDialog.showCustom(
     context: context,
     titleWidget: Text(
-      t.nutrition.title_manual_weight_input,
+      t.nutrition.title_manual_wt_input,
       style: TextStyle(
         fontSize: 18,
         fontWeight: FontWeight.bold,
@@ -3719,13 +3719,13 @@ Future<void> showManualWeightInputDialog(
                     double? val = double.tryParse(ctrl.text);
                     if (val == null) {
                       setLocalState(
-                        () => errorMsg = t.nutrition.error_invalid_number,
+                        () => errorMsg = t.nutrition.err_invalid_number,
                       );
                       return;
                     }
                     if (val < minWeight) {
                       setLocalState(
-                        () => errorMsg = t.nutrition.error_min_weight(
+                        () => errorMsg = t.nutrition.err_min_wt(
                           arg1: _formatDouble(minWeight),
                         ),
                       );
@@ -3733,7 +3733,7 @@ Future<void> showManualWeightInputDialog(
                     }
                     if (val > maxWeight) {
                       setLocalState(
-                        () => errorMsg = t.nutrition.error_max_weight(
+                        () => errorMsg = t.nutrition.err_max_wt(
                           arg1: _formatDouble(maxWeight),
                         ),
                       );

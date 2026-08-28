@@ -58,14 +58,14 @@ class _GymCountdownTextState extends State<GymCountdownText> {
     }
 
     if (_diffMillis <= 0) {
-      return Text(t.nutrition.label_goal_due, style: widget.style.copyWith(color: widget.highlightColor));
+      return Text(t.nutrition.lbl_goal_due, style: widget.style.copyWith(color: widget.highlightColor));
     }
 
     const int oneDayMillis = 24 * 60 * 60 * 1000;
     if (_diffMillis >= oneDayMillis) {
       final daysLeft = (_diffMillis / oneDayMillis).ceil();
       return Text(
-        t.nutrition.format_goal_days_left(days: daysLeft.toString()),
+        t.nutrition.fmt_goal_days_left(days: daysLeft.toString()),
         style: widget.style.copyWith(color: widget.highlightColor),
       );
     }

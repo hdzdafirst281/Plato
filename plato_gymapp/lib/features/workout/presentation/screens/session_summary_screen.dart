@@ -175,10 +175,10 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
 
   (Color, String) _getZoneInfo(LoadZone zone, ColorScheme colorScheme) {
     switch (zone) {
-      case LoadZone.UNDERTRAINING: return (colorScheme.onSurfaceVariant, t.workout.label_session_summary_zone_under);
-      case LoadZone.OPTIMAL: return (Theme.of(context).gymColors.success, t.workout.label_session_summary_zone_optimal);
-      case LoadZone.OVERREACHING: return (Theme.of(context).gymColors.warning, t.workout.label_session_summary_zone_overreach);
-      case LoadZone.OVERTRAINING: return (colorScheme.error, t.workout.label_session_summary_zone_overtrain);
+      case LoadZone.UNDERTRAINING: return (colorScheme.onSurfaceVariant, t.workout.lbl_ssn_sum_zone_under);
+      case LoadZone.OPTIMAL: return (Theme.of(context).gymColors.success, t.workout.lbl_ssn_sum_zone_optimal);
+      case LoadZone.OVERREACHING: return (Theme.of(context).gymColors.warning, t.workout.lbl_ssn_sum_zone_overreach);
+      case LoadZone.OVERTRAINING: return (colorScheme.error, t.workout.lbl_ssn_sum_zone_overtrain);
     }
   }
 
@@ -211,7 +211,7 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
                   constraints: const BoxConstraints(maxWidth: 600),
                   child: ElevatedButton.icon(
                     icon: const Icon(Symbols.home, fill: 1.0),
-                    label: Text(t.workout.btn_session_summary_home, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                    label: Text(t.workout.btn_ssn_sum_home, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                     style: ElevatedButton.styleFrom(
                       backgroundColor: colorScheme.primary, 
                       foregroundColor: colorScheme.onPrimary, 
@@ -240,7 +240,7 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
         
         final rawName = _targetSession!.name;
         final sessionName = rawName.isEmpty 
-            ? t.workout.label_session_summary_default_name 
+            ? t.workout.lbl_ssn_sum_default_name 
             : t.translateDynamic(rawName); 
             
         final currentRpe = _rpeValue ?? 5.0;
@@ -269,7 +269,7 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
                           _buildTrophyIcon(),
                           const SizedBox(height: 24),
                           
-                          Text(t.workout.title_session_summary_complete, textAlign: TextAlign.center, style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.w900, fontSize: 28)),
+                          Text(t.workout.title_ssn_sum_complete, textAlign: TextAlign.center, style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.w900, fontSize: 28)),
                           const SizedBox(height: 4),
                           Text(sessionName, textAlign: TextAlign.center, style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 16)),
                           const SizedBox(height: 40),
@@ -281,11 +281,11 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
                               children: [
                                 Row(
                                   children: [
-                                    Expanded(child: _SummaryStatCard(label: t.workout.label_session_summary_stat_time, value: _formatDuration(safeDuration))),
+                                    Expanded(child: _SummaryStatCard(label: t.common.time, value: _formatDuration(safeDuration))),
                                     const SizedBox(width: 12),
-                                    Expanded(child: _SummaryStatCard(label: t.stats.label_metric_volume, value: t.workout.format_summary_kg(arg1: safeVolume.toInt().toString()))),
+                                    Expanded(child: _SummaryStatCard(label: t.stats.lbl_metric_volume, value: t.onboarding.fmt_kg(arg1: safeVolume.toInt().toString()))),
                                     const SizedBox(width: 12),
-                                    Expanded(child: _SummaryStatCard(label: t.workout.label_session_summary_stat_xp, value: "+$safeXp", highlight: true, colorScheme: colorScheme)),
+                                    Expanded(child: _SummaryStatCard(label: t.workout.lbl_ssn_sum_stat_xp, value: "+$safeXp", highlight: true, colorScheme: colorScheme)),
                                   ],
                                 ),
                                 const SizedBox(height: 32),
@@ -357,9 +357,9 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(t.workout.title_session_summary_rpe_card, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+                      Text(t.workout.title_ssn_sum_rpe_card, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                       const SizedBox(height: 4),
-                      Text(t.workout.desc_session_summary_rpe_slider, style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant)),
+                      Text(t.workout.desc_ssn_sum_rpe_slider, style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant)),
                     ],
                   ),
                 ),
@@ -394,8 +394,8 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(t.workout.label_session_summary_rpe_min, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant)),
-                Text(t.workout.label_session_summary_rpe_max, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant)),
+                Text(t.workout.lbl_ssn_sum_rpe_min, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant)),
+                Text(t.workout.lbl_ssn_sum_rpe_max, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant)),
               ],
             )
           ],
@@ -423,7 +423,7 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(t.workout.title_session_summary_acwr_card, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            Text(t.workout.title_ssn_sum_acwr_card, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
             const SizedBox(height: 24),
             
             RepaintBoundary(
@@ -459,9 +459,9 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(t.workout.format_session_summary_acwr_ratio(arg1: safeRatio.toStringAsFixed(2)), style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 24)),
+                      Text(t.workout.fmt_ssn_sum_acwr_ratio(arg1: safeRatio.toStringAsFixed(2)), style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 24)),
                       const SizedBox(height: 4),
-                      Text(t.workout.format_session_summary_acwr_stats(arg1: safeAcute.toString(), arg2: safeChronic.toString()), style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant)),
+                      Text(t.workout.fmt_ssn_sum_acwr_stats(arg1: safeAcute.toString(), arg2: safeChronic.toString()), style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant)),
                     ],
                   ),
                 ),
@@ -492,7 +492,7 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(t.workout.label_session_summary_advice_title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: colorScheme.primary)),
+                      Text(t.workout.lbl_ssn_sum_advice_title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: colorScheme.primary)),
                       const SizedBox(height: 4),
                       Text(_getAdvice(analysis.zone), style: TextStyle(fontSize: 14, height: 1.5, color: colorScheme.onSurface)),
                     ],

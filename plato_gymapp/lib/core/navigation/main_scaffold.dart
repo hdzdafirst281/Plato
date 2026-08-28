@@ -147,9 +147,9 @@ class _MainScaffoldState extends State<MainScaffold> with TickerProviderStateMix
               children: [
                 _buildResultRow(t.workout.col_workout_name, session.name, colorScheme),
                 const SizedBox(height: 8),
-                _buildResultRow(t.stats.label_metric_volume, '${session.totalVolume} kg', colorScheme),
+                _buildResultRow(t.stats.lbl_metric_volume, '${session.totalVolume} kg', colorScheme),
                 const SizedBox(height: 8),
-                _buildResultRow(t.gamification.label_xp_earned, '+${session.xpEarned} XP', colorScheme, valueColor: Theme.of(context).gymColors.goldRank),
+                _buildResultRow(t.gamification.lbl_xp_earned, '+${session.xpEarned} XP', colorScheme, valueColor: Theme.of(context).gymColors.goldRank),
               ],
             ),
           )

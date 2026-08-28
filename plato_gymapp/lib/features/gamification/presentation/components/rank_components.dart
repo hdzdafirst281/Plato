@@ -140,7 +140,7 @@ class _RankGaugeHeader extends StatelessWidget {
                           ),
                           SizedBox(height: 10 * scaleFactor),
                           _RPTypography(
-                            text: t.rank.format_rp(arg1: points.toString()), 
+                            text: t.rank.fmt_rp(arg1: points.toString()), 
                             fontSize: 40.0 * scaleFactor, 
                           ),
                         ],
@@ -157,7 +157,7 @@ class _RankGaugeHeader extends StatelessWidget {
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Text(
-                      t.rank.format_cycle_duration(arg1: startDate, arg2: endDate), 
+                      t.rank.fmt_cycle_duration(arg1: startDate, arg2: endDate), 
                       style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 11, fontWeight: FontWeight.normal)
                     ),
                     const SizedBox(height: 6),
@@ -683,12 +683,12 @@ class _HistoryLineChartState extends State<_HistoryLineChart> {
                 child: Row(
                   children: [
                     _TimeFilterChip(
-                      label: t.stats.label_time_range_year, 
+                      label: t.stats.lbl_time_range_year, 
                       isSelected: _selectedRange == RankChartTimeRange.oneYear,
                       onTap: () => setState(() => _selectedRange = RankChartTimeRange.oneYear),
                     ),
                     _TimeFilterChip(
-                      label: t.stats.label_time_range_all, 
+                      label: t.stats.lbl_time_range_all, 
                       isSelected: _selectedRange == RankChartTimeRange.allTime,
                       onTap: () => setState(() => _selectedRange = RankChartTimeRange.allTime),
                     ),

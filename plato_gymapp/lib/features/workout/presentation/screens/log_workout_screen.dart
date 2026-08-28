@@ -389,8 +389,8 @@ class _LogWorkoutScreenState extends State<LogWorkoutScreen> with SingleTickerPr
   void _showNoExerciseCompletedDialog() {
     GymDialog.showInfo(
       context: context,
-      title: t.workout.title_no_exercise_workout,
-      message: t.workout.msg_no_exercise_workout,
+      title: t.workout.title_no_ex_workout,
+      message: t.workout.msg_no_ex_workout,
       buttonText: t.common.confirm,
       icon: Symbols.warning,
       iconColor: Theme.of(context).colorScheme.error,
@@ -503,7 +503,7 @@ class _LogWorkoutScreenState extends State<LogWorkoutScreen> with SingleTickerPr
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerLeft,
               child: Text(
-                t.explore.format_exercise_detail_reps_only(arg1: _cachedTotalReps.toString()), 
+                t.explore.fmt_ex_dtl_reps_only(arg1: _cachedTotalReps.toString()), 
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: colorScheme.onSurface)
               ),
             ),
@@ -762,7 +762,7 @@ class _LogWorkoutScreenState extends State<LogWorkoutScreen> with SingleTickerPr
           if (currentTotalSets + exs.length > 100) {
             GymSnackbar.show(
               context, 
-              message: t.workout.err_max_sets_session,
+              message: t.workout.err_max_sets_ssn,
               icon: Symbols.error,
               accentColor: colorScheme.error,
             );
@@ -796,7 +796,7 @@ class _LogWorkoutScreenState extends State<LogWorkoutScreen> with SingleTickerPr
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Text(t.workout.title_detail_main, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: colorScheme.onSurface)),
+                Text(t.workout.title_dtl_main, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: colorScheme.onSurface)),
                 const SizedBox(height: 24),
                 
                 BlocBuilder<ActiveSessionCubit, ActiveSessionState>(
@@ -805,7 +805,7 @@ class _LogWorkoutScreenState extends State<LogWorkoutScreen> with SingleTickerPr
                   builder: (context, state) {
                     final fullStats = [
                       {
-                        'label': t.workout.label_session_summary_stat_time, 
+                        'label': t.common.time, 
                         'value': GymTimerHelper.formatTime(state.workoutTimerSeconds), 
                         'icon': Symbols.timer
                       },
@@ -916,13 +916,13 @@ _calculateStatsOnce(currentSession);
     final double workoutProgress = totalSetsCount == 0 ? 0.0 : (completedSetsCount / totalSetsCount);
 
     List<Map<String, dynamic>> extraStats = [];
-    if (_cachedTotalVol > 0) extraStats.add({'label': t.stats.label_metric_volume, 'value': '${_fmtDouble(_cachedTotalVol)} kg', 'icon': Symbols.exercise});
-    if (_cachedTotalSets > 0) extraStats.add({'label': t.workout.label_detail_stat_sets, 'value': '$_cachedTotalSets', 'icon': Symbols.format_list_numbered});
-    if (_cachedTotalReps > 0) extraStats.add({'label': t.stats.label_metric_reps, 'value': '$_cachedTotalReps', 'icon': Symbols.repeat});
-    if (_cachedTotalDist > 0) extraStats.add({'label': t.workout.label_summary_distance, 'value': '${_fmtDouble(_cachedTotalDist)} km', 'icon': Symbols.directions_run});
-    if (_cachedTotalSteps > 0) extraStats.add({'label': t.workout.label_summary_steps, 'value': '$_cachedTotalSteps', 'icon': Symbols.directions_walk});
+    if (_cachedTotalVol > 0) extraStats.add({'label': t.stats.lbl_metric_volume, 'value': '${_fmtDouble(_cachedTotalVol)} kg', 'icon': Symbols.exercise});
+    if (_cachedTotalSets > 0) extraStats.add({'label': t.workout.lbl_dtl_stat_sets, 'value': '$_cachedTotalSets', 'icon': Symbols.format_list_numbered});
+    if (_cachedTotalReps > 0) extraStats.add({'label': t.stats.lbl_metric_reps, 'value': '$_cachedTotalReps', 'icon': Symbols.repeat});
+    if (_cachedTotalDist > 0) extraStats.add({'label': t.common.distance, 'value': '${_fmtDouble(_cachedTotalDist)} km', 'icon': Symbols.directions_run});
+    if (_cachedTotalSteps > 0) extraStats.add({'label': t.common.steps, 'value': '$_cachedTotalSteps', 'icon': Symbols.directions_walk});
     if (_cachedTotalExercises > 0) extraStats.add({'label': t.profile.btn_menu_exercises, 'value': '$_cachedTotalExercises', 'icon': Symbols.format_list_bulleted});
-    if (_cachedTotalPRs > 0) extraStats.add({'label': t.workout.label_detail_stat_pr, 'value': '$_cachedTotalPRs', 'icon': Symbols.trophy});
+    if (_cachedTotalPRs > 0) extraStats.add({'label': t.gamification.title_main, 'value': '$_cachedTotalPRs', 'icon': Symbols.trophy});
 
 
 
@@ -936,21 +936,21 @@ _calculateStatsOnce(currentSession);
           _calculateStatsOnce(session);
 
           List<Map<String, dynamic>> extraStats = [];
-          if (_cachedTotalVol > 0) extraStats.add({'label': t.stats.label_metric_volume, 'value': '${_fmtDouble(_cachedTotalVol)} kg', 'icon': Symbols.exercise});
-          if (_cachedTotalSets > 0) extraStats.add({'label': t.workout.label_detail_stat_sets, 'value': '$_cachedTotalSets', 'icon': Symbols.format_list_numbered});
-          if (_cachedTotalReps > 0) extraStats.add({'label': t.stats.label_metric_reps, 'value': '$_cachedTotalReps', 'icon': Symbols.repeat});
-          if (_cachedTotalDist > 0) extraStats.add({'label': t.workout.label_summary_distance, 'value': '${_fmtDouble(_cachedTotalDist)} km', 'icon': Symbols.directions_run});
-          if (_cachedTotalSteps > 0) extraStats.add({'label': t.workout.label_summary_steps, 'value': '$_cachedTotalSteps', 'icon': Symbols.directions_walk});
+          if (_cachedTotalVol > 0) extraStats.add({'label': t.stats.lbl_metric_volume, 'value': '${_fmtDouble(_cachedTotalVol)} kg', 'icon': Symbols.exercise});
+          if (_cachedTotalSets > 0) extraStats.add({'label': t.workout.lbl_dtl_stat_sets, 'value': '$_cachedTotalSets', 'icon': Symbols.format_list_numbered});
+          if (_cachedTotalReps > 0) extraStats.add({'label': t.stats.lbl_metric_reps, 'value': '$_cachedTotalReps', 'icon': Symbols.repeat});
+          if (_cachedTotalDist > 0) extraStats.add({'label': t.common.distance, 'value': '${_fmtDouble(_cachedTotalDist)} km', 'icon': Symbols.directions_run});
+          if (_cachedTotalSteps > 0) extraStats.add({'label': t.common.steps, 'value': '$_cachedTotalSteps', 'icon': Symbols.directions_walk});
           if (_cachedTotalExercises > 0) extraStats.add({'label': t.profile.btn_menu_exercises, 'value': '$_cachedTotalExercises', 'icon': Symbols.format_list_bulleted});
-          if (_cachedTotalPRs > 0) extraStats.add({'label': t.workout.label_detail_stat_pr, 'value': '$_cachedTotalPRs', 'icon': Symbols.trophy});
+          if (_cachedTotalPRs > 0) extraStats.add({'label': t.gamification.title_main, 'value': '$_cachedTotalPRs', 'icon': Symbols.trophy});
 
       final showMoreBtn = extraStats.length > 2;
       Map<String, dynamic>? midStat;
           if (_cachedTotalVol > 0) {
-            midStat = {'label': t.stats.label_metric_volume, 'value': '${_fmtDouble(_cachedTotalVol)} kg', 'icon': Symbols.exercise};
-          } else if (_cachedTotalDist > 0) midStat = {'label': t.workout.label_summary_distance, 'value': '${_fmtDouble(_cachedTotalDist)} km', 'icon': Symbols.directions_run};
-          else if (_cachedTotalSteps > 0) midStat = {'label': t.workout.label_summary_steps, 'value': '$_cachedTotalSteps', 'icon': Symbols.directions_walk};
-          else if (_cachedTotalReps > 0) midStat = {'label': t.stats.label_metric_reps, 'value': '$_cachedTotalReps', 'icon': Symbols.repeat};
+            midStat = {'label': t.stats.lbl_metric_volume, 'value': '${_fmtDouble(_cachedTotalVol)} kg', 'icon': Symbols.exercise};
+          } else if (_cachedTotalDist > 0) midStat = {'label': t.common.distance, 'value': '${_fmtDouble(_cachedTotalDist)} km', 'icon': Symbols.directions_run};
+          else if (_cachedTotalSteps > 0) midStat = {'label': t.common.steps, 'value': '$_cachedTotalSteps', 'icon': Symbols.directions_walk};
+          else if (_cachedTotalReps > 0) midStat = {'label': t.stats.lbl_metric_reps, 'value': '$_cachedTotalReps', 'icon': Symbols.repeat};
 
       final allStatWidgets = <Widget>[
         BlocSelector<ActiveSessionCubit, ActiveSessionState, int>(
@@ -958,7 +958,7 @@ _calculateStatsOnce(currentSession);
           builder: (context, seconds) {
             final timerColor = seconds > 240 * 60 ? colorScheme.error : 
                                (seconds > 120 * 60 ? Theme.of(context).gymColors.warning : colorScheme.primary);
-            return WorkoutStatItem(label: t.workout.label_session_summary_stat_time, value: GymTimerHelper.formatTime(seconds), icon: Symbols.timer, color: timerColor);
+            return WorkoutStatItem(label: t.common.time, value: GymTimerHelper.formatTime(seconds), icon: Symbols.timer, color: timerColor);
           }
         ),
       ];
@@ -971,12 +971,12 @@ _calculateStatsOnce(currentSession);
             icon: Symbols.format_list_bulleted
           ),
         );
-        allStatWidgets.add(WorkoutStatItem(label: t.workout.col_routine_create_set, value: "$_cachedTotalSets", icon: Symbols.format_list_numbered));
+        allStatWidgets.add(WorkoutStatItem(label: t.common.set.toUpperCase(), value: "$_cachedTotalSets", icon: Symbols.format_list_numbered));
         
-        if (_cachedTotalVol > 0) allStatWidgets.add(WorkoutStatItem(label: t.stats.label_metric_volume, value: '${_fmtDouble(_cachedTotalVol)} kg', icon: Symbols.exercise));
-        if (_cachedTotalReps > 0) allStatWidgets.add(WorkoutStatItem(label: t.stats.label_metric_reps, value: '$_cachedTotalReps', icon: Symbols.repeat));
-        if (_cachedTotalDist > 0) allStatWidgets.add(WorkoutStatItem(label: t.workout.label_summary_distance, value: '${_fmtDouble(_cachedTotalDist)} km', icon: Symbols.directions_run));
-        if (_cachedTotalSteps > 0) allStatWidgets.add(WorkoutStatItem(label: t.workout.label_summary_steps, value: '$_cachedTotalSteps', icon: Symbols.directions_walk));
+        if (_cachedTotalVol > 0) allStatWidgets.add(WorkoutStatItem(label: t.stats.lbl_metric_volume, value: '${_fmtDouble(_cachedTotalVol)} kg', icon: Symbols.exercise));
+        if (_cachedTotalReps > 0) allStatWidgets.add(WorkoutStatItem(label: t.stats.lbl_metric_reps, value: '$_cachedTotalReps', icon: Symbols.repeat));
+        if (_cachedTotalDist > 0) allStatWidgets.add(WorkoutStatItem(label: t.common.distance, value: '${_fmtDouble(_cachedTotalDist)} km', icon: Symbols.directions_run));
+        if (_cachedTotalSteps > 0) allStatWidgets.add(WorkoutStatItem(label: t.common.steps, value: '$_cachedTotalSteps', icon: Symbols.directions_walk));
         
         if (_cachedTotalPRs > 0) {
           allStatWidgets.add(
@@ -991,7 +991,7 @@ _calculateStatsOnce(currentSession);
                   children: [
                     Icon(Symbols.trophy, size: 16, color: Theme.of(context).gymColors.goldRank, fill: 1.0),
                     const SizedBox(width: 6),
-                    Text(t.workout.label_detail_stat_pr, style: TextStyle(fontSize: 12, color: Theme.of(context).gymColors.goldRank.withValues(alpha: 0.8), fontWeight: FontWeight.bold)),
+                    Text(t.gamification.title_main, style: TextStyle(fontSize: 12, color: Theme.of(context).gymColors.goldRank.withValues(alpha: 0.8), fontWeight: FontWeight.bold)),
                   ],
                 ),
               ],
@@ -1084,8 +1084,8 @@ _calculateStatsOnce(currentSession);
       return GymTourTarget(
         isActive: !context.read<TourCubit>().state.hasSeenLogWorkout || forceShowTour,
         tourKey: TourKeys.logWorkoutDashboard,
-        title: t.tour.log_dashboard_title,
-        description: t.tour.log_dashboard_desc,
+        title: t.tour.log_dash_title,
+        description: t.tour.log_dash_desc,
         tooltipPosition: isTablet ? TooltipPosition.right : null,
         borderRadius: 24.0,
         targetPadding: EdgeInsets.zero,

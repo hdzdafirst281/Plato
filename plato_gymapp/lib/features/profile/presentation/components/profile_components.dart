@@ -14,11 +14,11 @@ import '../../../../core/database/enums.dart';
 extension ChartTimeRangeExt on ChartTimeRange {
   String getLocalizedLabel() {
     switch (this) {
-      case ChartTimeRange.WEEK: return t.stats.label_time_range_week;
-      case ChartTimeRange.MONTH: return t.stats.label_time_range_month;
-      case ChartTimeRange.THREE_MONTHS: return t.stats.label_time_range_3_months;
-      case ChartTimeRange.YEAR: return t.stats.label_time_range_year;
-      case ChartTimeRange.ALL_TIME: return t.stats.label_time_range_all;
+      case ChartTimeRange.WEEK: return t.stats.lbl_time_range_week;
+      case ChartTimeRange.MONTH: return t.stats.lbl_time_range_month;
+      case ChartTimeRange.THREE_MONTHS: return t.stats.lbl_time_range_3_months;
+      case ChartTimeRange.YEAR: return t.stats.lbl_time_range_year;
+      case ChartTimeRange.ALL_TIME: return t.stats.lbl_time_range_all;
     }
   }
 }
@@ -137,8 +137,8 @@ class BetterSegmentedControl extends StatelessWidget {
         children: HeatmapMode.values.map((mode) {
           final isSelected = currentMode == mode;
           final label = mode == HeatmapMode.INTENSITY 
-              ? t.stats.label_heatmap_mode_intensity 
-              : t.stats.label_heatmap_mode_frequency;
+              ? t.stats.lbl_heatmap_mode_intensity 
+              : t.stats.lbl_heatmap_mode_frequency;
 
           return InkWell(
             onTap: () => onModeChanged(mode),
@@ -270,7 +270,7 @@ String getFunComparisonText(BarChartMetric metricType, double totalVal, ChartTim
         equiv = t.stats.msg_equivalent_submarine;
       }
       else equiv = t.stats.msg_equivalent_fleet;
-      return t.stats.format_fun_fact_volume(arg1: timeLabel, arg2: fmtVal, arg3: equiv);
+      return t.stats.fmt_fun_fact_volume(arg1: timeLabel, arg2: fmtVal, arg3: equiv);
       
     case BarChartMetric.DURATION:
       String equiv = "";
@@ -290,7 +290,7 @@ String getFunComparisonText(BarChartMetric metricType, double totalVal, ChartTim
       } else {
         equiv = t.stats.msg_equivalent_gym_home;
       }
-      return t.stats.format_fun_fact_duration(arg1: fmtVal, arg2: timeLabel, arg3: equiv);
+      return t.stats.fmt_fun_fact_duration(arg1: fmtVal, arg2: timeLabel, arg3: equiv);
       
     case BarChartMetric.REPS:
       String equiv = "";
@@ -301,7 +301,7 @@ String getFunComparisonText(BarChartMetric metricType, double totalVal, ChartTim
       else if (totalVal < 60000) equiv = t.stats.msg_equivalent_machine;
       else if (totalVal < 120000) equiv = t.stats.msg_equivalent_eagle;
       else equiv = t.stats.msg_equivalent_diamond;
-      return t.stats.format_fun_fact_reps(arg1: fmtVal, arg2: timeLabel, arg3: equiv);
+      return t.stats.fmt_fun_fact_reps(arg1: fmtVal, arg2: timeLabel, arg3: equiv);
   }
 }
 

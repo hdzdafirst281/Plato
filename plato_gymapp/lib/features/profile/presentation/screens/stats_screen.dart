@@ -121,7 +121,7 @@ class _StatsDashboard extends StatelessWidget {
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
-      appBar: GymTopBar(title: t.stats.title_main_dashboard, onBackClick: onBack),
+      appBar: GymTopBar(title: t.stats.title_main_dash, onBackClick: onBack),
       body: SafeArea(
         // [REFACTOR] Align + ConstrainedBox để chống stretch thẻ card trên Tablet/Desktop
         child: Align(

@@ -459,7 +459,7 @@ class _WorkoutExpandableActionFabState extends State<WorkoutExpandableActionFab>
                   children: [
                     _buildOption(
                       context: context,
-                      label: t.workout.btn_log_add_exercise,
+                      label: t.workout.btn_log_add_ex,
                       icon: Symbols.add,
                       color: colorScheme.primary,
                       onTap: widget.onAdd,
@@ -868,7 +868,7 @@ class GymTimerHelper {
                           (sec) => Center(
                             child: Text(
                               sec == 0
-                                  ? t.workout.label_rest_off
+                                  ? t.workout.lbl_rest_off
                                   : formatRestTime(sec),
                               style: TextStyle(color: colorScheme.onSurface),
                             ),
@@ -1693,14 +1693,14 @@ class ActiveExerciseCardState extends State<ActiveExerciseCard> with AutomaticKe
 
   String _getMetricLabel(ExerciseMetric metric) {
     switch (metric) {
-      case ExerciseMetric.BEST_WEIGHT: return t.stats.label_model_metric_best_weight;
-      case ExerciseMetric.ONE_RM: return t.stats.label_model_metric_one_rm;
-      case ExerciseMetric.BEST_SET_VOL: return t.stats.label_model_metric_best_set_vol;
-      case ExerciseMetric.BEST_TIME: return t.stats.label_model_metric_best_time;
-      case ExerciseMetric.BEST_STEPS: return t.stats.label_model_metric_best_steps;
-      case ExerciseMetric.LONGEST_DISTANCE: return t.stats.label_model_metric_longest_distance;
-      case ExerciseMetric.BEST_REPS: return t.stats.label_model_metric_best_reps;
-      case ExerciseMetric.PACE: return t.stats.label_model_metric_pace;
+      case ExerciseMetric.BEST_WEIGHT: return t.stats.lbl_model_metric_best_wt;
+      case ExerciseMetric.ONE_RM: return t.stats.lbl_model_metric_one_rm;
+      case ExerciseMetric.BEST_SET_VOL: return t.stats.lbl_model_metric_best_set_vol;
+      case ExerciseMetric.BEST_TIME: return t.stats.lbl_model_metric_best_time;
+      case ExerciseMetric.BEST_STEPS: return t.stats.lbl_model_metric_best_steps;
+      case ExerciseMetric.LONGEST_DISTANCE: return t.stats.lbl_model_metric_longest_dist;
+      case ExerciseMetric.BEST_REPS: return t.stats.lbl_model_metric_best_reps;
+      case ExerciseMetric.PACE: return t.stats.lbl_model_metric_pace;
       default: return '';
     }
   }
@@ -1770,8 +1770,8 @@ class ActiveExerciseCardState extends State<ActiveExerciseCard> with AutomaticKe
     if (exType == ExerciseType.WEIGHT_REPS) {
         if (fillReps <= 0) { isValid = false; errorValidationKey = t.workout.err_invalid_reps; } 
         else if (fillReps > 999) { isValid = false; errorValidationKey = t.workout.err_invalid_reps_max; } 
-        else if (fillWeight < 0) { isValid = false; errorValidationKey = t.workout.err_invalid_weight; } 
-        else if (fillWeight > 2000.0) { isValid = false; errorValidationKey = t.workout.err_invalid_weight_max; }
+        else if (fillWeight < 0) { isValid = false; errorValidationKey = t.workout.err_invalid_wt; } 
+        else if (fillWeight > 2000.0) { isValid = false; errorValidationKey = t.workout.err_invalid_wt_max; }
     } else if (exType == ExerciseType.REPS_ONLY) {
         if (fillReps <= 0) { isValid = false; errorValidationKey = t.workout.err_invalid_reps; } 
         else if (fillReps > 999) { isValid = false; errorValidationKey = t.workout.err_invalid_reps_max; }
@@ -1780,7 +1780,7 @@ class ActiveExerciseCardState extends State<ActiveExerciseCard> with AutomaticKe
         else if (isWarmupEx && fillTime >= 3600) { isValid = false; errorValidationKey = t.workout.err_warmup_time_max; }
         else if (fillTime > maxAllowedTime) { isValid = false; errorValidationKey = t.workout.err_time_exceed_global; } 
     } else if (exType == ExerciseType.CARDIO_DISTANCE) {
-        if (fillDistance <= 0 || fillTime <= 0) { isValid = false; errorValidationKey = t.workout.err_invalid_distance_time; } 
+        if (fillDistance <= 0 || fillTime <= 0) { isValid = false; errorValidationKey = t.workout.err_invalid_dist_time; } 
         else if (fillTime > maxAllowedTime) { isValid = false; errorValidationKey = t.workout.err_time_exceed_global; }
         else {
             double speedKmH = fillDistance / (fillTime / 3600.0);
@@ -1918,10 +1918,10 @@ class ActiveExerciseCardState extends State<ActiveExerciseCard> with AutomaticKe
         return timeStr;
       case ExerciseType.CARDIO_DISTANCE:
         if (previousSet.distanceInKm == 0 && previousSet.durationTimeSeconds == 0) return "-";
-        return t.workout.format_detail_set_distance_time(arg1: d, arg2: timeStr);
+        return t.workout.fmt_dtl_set_dist_time(arg1: d, arg2: timeStr);
       case ExerciseType.CARDIO_STEPS:
         if (previousSet.steps == 0 && previousSet.durationTimeSeconds == 0) return "-";
-        return t.workout.format_detail_set_steps_time(arg1: st, arg2: timeStr);
+        return t.workout.fmt_dtl_set_steps_time(arg1: st, arg2: timeStr);
       
     }
   }
@@ -1953,7 +1953,7 @@ class ActiveExerciseCardState extends State<ActiveExerciseCard> with AutomaticKe
     if (exType == ExerciseType.WEIGHT_REPS) {
       double maxPastWeight = _allPastSetsForThisEx.isEmpty ? 0.0 : _allPastSetsForThisEx.map((s) => s.weight).reduce(max);
       if (achievedPRMetrics.contains(ExerciseMetric.BEST_WEIGHT)) {
-        prDialogMsgs.add(t.workout.pr_best_weight(arg1: _fmtDouble(setData.weight), arg2: _fmtDouble(setData.weight - maxPastWeight)));
+        prDialogMsgs.add(t.workout.pr_best_wt(arg1: _fmtDouble(setData.weight), arg2: _fmtDouble(setData.weight - maxPastWeight)));
       }
       double maxPast1RM = _allPastSetsForThisEx.isEmpty ? 0.0 : _allPastSetsForThisEx.map((s) => s.weight * (1 + s.reps / 30.0)).reduce(max);
       double current1RM = setData.weight * (1 + setData.reps / 30.0);
@@ -1978,7 +1978,7 @@ class ActiveExerciseCardState extends State<ActiveExerciseCard> with AutomaticKe
     } else if (exType == ExerciseType.CARDIO_DISTANCE) {
       double maxPastDist = _allPastSetsForThisEx.isEmpty ? 0.0 : _allPastSetsForThisEx.map((s) => s.distanceInKm).reduce(max);
       if (achievedPRMetrics.contains(ExerciseMetric.LONGEST_DISTANCE)) {
-        prDialogMsgs.add(t.workout.pr_longest_distance(arg1: _fmtDouble(setData.distanceInKm), arg2: _fmtDouble(setData.distanceInKm - maxPastDist)));
+        prDialogMsgs.add(t.workout.pr_longest_dist(arg1: _fmtDouble(setData.distanceInKm), arg2: _fmtDouble(setData.distanceInKm - maxPastDist)));
       }
       int maxPastTimeDist = _allPastSetsForThisEx.isEmpty ? 0 : _allPastSetsForThisEx.map((s) => s.durationTimeSeconds).reduce(max);
       if (achievedPRMetrics.contains(ExerciseMetric.BEST_TIME)) {
@@ -2361,8 +2361,8 @@ class ActiveExerciseCardState extends State<ActiveExerciseCard> with AutomaticKe
                 if (widget.exerciseIndex == 0) {
                   return GymTourTarget(
                     tourKey: TourKeys.logWorkoutExerciseOptionsBtn,
-                    title: t.tour.log_exercise_options_title,
-                    description: t.tour.log_exercise_options_desc,
+                    title: t.tour.log_ex_options_title,
+                    description: t.tour.log_ex_options_desc,
                     customShapeBorder: const CircleBorder(),
                     targetPadding: EdgeInsets.zero,
                     child: popupMenuWidget,
@@ -2414,8 +2414,8 @@ class ActiveExerciseCardState extends State<ActiveExerciseCard> with AutomaticKe
                               const SizedBox(width: 8),
                               Text(
                                 currentRest == 0 
-                                  ? t.workout.label_rest_off 
-                                  : t.workout.format_routine_create_rest_time(arg1: GymTimerHelper.formatRestTime(currentRest)), 
+                                  ? t.workout.lbl_rest_off 
+                                  : t.workout.fmt_routine_create_rest_time(arg1: GymTimerHelper.formatRestTime(currentRest)), 
                                 style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.primary)
                               ),
                             ],
@@ -2445,7 +2445,7 @@ class ActiveExerciseCardState extends State<ActiveExerciseCard> with AutomaticKe
                               children: [
                                 Icon(Symbols.link, size: 14, color: Theme.of(context).gymColors.accentTeal),
                                 const SizedBox(width: 6),
-                                Text(t.workout.label_superset_badge, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).gymColors.accentTeal)),
+                                Text(t.workout.type_superset, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).gymColors.accentTeal)),
                               ],
                             ),
                           ),
@@ -2466,7 +2466,7 @@ class ActiveExerciseCardState extends State<ActiveExerciseCard> with AutomaticKe
                             final threshold = _proactiveSafetyResult!.dangerWeightThreshold?.toStringAsFixed(1).replaceAll(RegExp(r'\.0$'), '') ?? '-';
                             GymDialog.showInfo(
                               context: context,
-                              title: t.workout.title_safety_warning,
+                              title: t.workout.title_safety_warn,
                               message: t.workout.msg_safety_threshold_desc(arg1: threshold),
                               icon: Symbols.health_and_safety,
                               iconColor: Theme.of(context).gymColors.warning,
@@ -2482,7 +2482,7 @@ class ActiveExerciseCardState extends State<ActiveExerciseCard> with AutomaticKe
                                 Icon(Symbols.warning_amber_rounded, size: 14, color: Theme.of(context).gymColors.warning), 
                                 const SizedBox(width: 8),
                                 Text(
-                                  t.workout.label_danger_limit(
+                                  t.workout.lbl_danger_limit(
                                     weight: _proactiveSafetyResult!.dangerWeightThreshold!.toStringAsFixed(1).replaceAll(RegExp(r'\.0$'), '')
                                   ), 
                                   style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).gymColors.warning) 
@@ -2507,7 +2507,7 @@ class ActiveExerciseCardState extends State<ActiveExerciseCard> with AutomaticKe
               keyboardType: TextInputType.multiline, 
               textInputAction: TextInputAction.newline,
               decoration: InputDecoration(
-                hintText: t.workout.label_note_input,
+                hintText: t.workout.lbl_note_input,
                 hintStyle: TextStyle(color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5), fontSize: 13),
                 prefixIcon: Padding(
                   padding: const EdgeInsets.only(right: 6.0),
@@ -2532,26 +2532,26 @@ class ActiveExerciseCardState extends State<ActiveExerciseCard> with AutomaticKe
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center, 
                 children: [
-                  SizedBox(width: 32, child: FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.center, child: Text(t.workout.col_routine_create_set.toUpperCase(), style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6), letterSpacing: 0.5), textAlign: TextAlign.center))),
+                  SizedBox(width: 32, child: FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.center, child: Text(t.common.set.toUpperCase().toUpperCase(), style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6), letterSpacing: 0.5), textAlign: TextAlign.center))),
                   const SizedBox(width: 16), 
                   
                   Expanded(flex: 3, child: FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.center, child: Text(t.workout.col_routine_history, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6), letterSpacing: 0.5), textAlign: TextAlign.center))),
                   const SizedBox(width: 16),
 
                   if (exType == ExerciseType.TIME_ONLY)
-                    Expanded(flex: 4, child: FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.center, child: Text(t.workout.col_routine_create_time.toUpperCase(), style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6), letterSpacing: 0.5), textAlign: TextAlign.center)))
+                    Expanded(flex: 4, child: FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.center, child: Text(t.common.time.toUpperCase().toUpperCase(), style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6), letterSpacing: 0.5), textAlign: TextAlign.center)))
                   else ...[
                     if (exType != ExerciseType.REPS_ONLY) ...[
                       Expanded(flex: (exType == ExerciseType.CARDIO_DISTANCE || exType == ExerciseType.CARDIO_STEPS) ? 2 : 3, child: FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.center, child: Text(
-                        exType == ExerciseType.CARDIO_DISTANCE ? t.workout.col_routine_create_km : 
-                        exType == ExerciseType.CARDIO_STEPS ? t.workout.col_routine_create_steps : 
-                        t.workout.col_routine_create_kg,
+                        exType == ExerciseType.CARDIO_DISTANCE ? t.common.unit_km.toUpperCase() : 
+                        exType == ExerciseType.CARDIO_STEPS ? t.common.steps.toUpperCase() : 
+                        t.common.unit_kg.toUpperCase(),
                         style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6), letterSpacing: 0.5), textAlign: TextAlign.center
                       ))),
                       const SizedBox(width: 8),
                     ],
                     Expanded(flex: (exType == ExerciseType.CARDIO_DISTANCE || exType == ExerciseType.CARDIO_STEPS) ? 4 : 3, child: FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.center, child: Text(
-                      (exType == ExerciseType.CARDIO_DISTANCE || exType == ExerciseType.CARDIO_STEPS) ? t.workout.col_routine_create_time.toUpperCase() : t.workout.col_routine_create_reps, 
+                      (exType == ExerciseType.CARDIO_DISTANCE || exType == ExerciseType.CARDIO_STEPS) ? t.common.time.toUpperCase().toUpperCase() : t.common.reps.toUpperCase(), 
                       style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6), letterSpacing: 0.5), textAlign: TextAlign.center
                     ))),
                   ],
@@ -2987,7 +2987,7 @@ class ActiveExerciseCardState extends State<ActiveExerciseCard> with AutomaticKe
                       if (totalSessionSets >= 100) {
                         GymSnackbar.show(
                           context, 
-                          message: t.workout.err_max_sets_session,
+                          message: t.workout.err_max_sets_ssn,
                           icon: Symbols.error,
                           accentColor: Theme.of(context).colorScheme.error,
                         );
@@ -2998,7 +2998,7 @@ class ActiveExerciseCardState extends State<ActiveExerciseCard> with AutomaticKe
                     if (widget.workoutExercise.sets.length >= 30) {
                       GymSnackbar.show(
                         context, 
-                        message: t.workout.err_max_sets_exercise,
+                        message: t.workout.err_max_sets_ex,
                         icon: Symbols.error,
                         accentColor: Theme.of(context).colorScheme.error,
                       );

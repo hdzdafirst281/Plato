@@ -136,7 +136,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                   title: Text(
-                    t.profile.label_pick_from_gallery,
+                    t.profile.lbl_pick_from_gallery,
                     style: const TextStyle(
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
@@ -164,7 +164,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                     ),
                     title: Text(
-                      t.profile.label_delete_current_avatar,
+                      t.profile.lbl_delete_current_avatar,
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 16,
@@ -241,7 +241,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         actions: [
           IconButton(
-            tooltip: t.profile.desc_settings_icon,
+            tooltip: t.common.open_settings,
             icon: Icon(Symbols.settings, color: colorScheme.onSurface),
             onPressed: () => context.push('/profile/${AppRoutes.settings}'),
           ),
@@ -566,7 +566,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               Text(
-                                t.rank.format_rp(
+                                t.rank.fmt_rp(
                                   arg1: profile.currentRp.toString(),
                                 ),
                                 style: TextStyle(
@@ -607,7 +607,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                     final daysLeft = (diffMillis / oneDayMillis)
                                         .ceil();
                                     return Text(
-                                      t.nutrition.format_goal_days_left(
+                                      t.nutrition.fmt_goal_days_left(
                                         days: daysLeft.toString(),
                                       ),
                                       style:
@@ -714,7 +714,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Expanded(
                   child: _MenuButton(
                     icon: Symbols.calendar_month,
-                    title: t.profile.btn_menu_calendar,
+                    title: t.profile.btn_menu_cal,
                     onTap: () => context.push('/profile/${AppRoutes.calendar}'),
                   ),
                 ),
@@ -799,7 +799,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 final confirm = await GymDialog.showDestructive(
                   context: context,
                   title: t.common.title_delete_dialog_main,
-                  message: t.common.msg_delete_dialog_warning,
+                  message: t.common.msg_delete_dialog_warn,
                   cancelText: t.common.cancel,
                 );
 
@@ -1554,7 +1554,7 @@ class _HistoryCard extends StatelessWidget {
     ).format(DateTime.fromMillisecondsSinceEpoch(session.startTime));
 
     IconData statIcon = Symbols.exercise;
-    String statValue = t.workout.format_summary_kg(
+    String statValue = t.onboarding.fmt_kg(
       arg1: session.totalVolume.toInt().toString(),
     );
     if (session.totalVolume <= 0 && session.totalSets > 0) {
@@ -1610,7 +1610,7 @@ class _HistoryCard extends StatelessWidget {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            t.profile.format_history_summary(
+                            t.profile.fmt_history_sum(
                               arg1: session.exercises.length.toString(),
                               arg2: dateStr,
                             ),
@@ -1730,7 +1730,7 @@ class _HistoryCard extends StatelessWidget {
                           ),
                           const SizedBox(width: 16),
                           Text(
-                            t.profile.format_history_sets(
+                            t.profile.fmt_history_sets(
                               arg1: completedSets.toString(),
                             ),
                             style: TextStyle(
@@ -1749,7 +1749,7 @@ class _HistoryCard extends StatelessWidget {
                   Padding(
                     padding: const EdgeInsets.only(top: 8),
                     child: Text(
-                      t.profile.format_history_more_exercises(
+                      t.profile.fmt_history_more_exercises(
                         arg1: (session.exercises.length - 3).toString(),
                       ),
                       style: TextStyle(

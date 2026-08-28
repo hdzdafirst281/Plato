@@ -223,7 +223,7 @@ class _UserProfileHeader extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                             decoration: BoxDecoration(color: colorScheme.primary.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(8)),
-                            child: Text(t.gamification.format_user_level(arg1: userStats.level.toString()), style: TextStyle(color: colorScheme.primary, fontSize: 13, fontWeight: FontWeight.w800)),
+                            child: Text(t.gamification.fmt_user_level(arg1: userStats.level.toString()), style: TextStyle(color: colorScheme.primary, fontSize: 13, fontWeight: FontWeight.w800)),
                           ),
                         ],
                       ),
@@ -286,7 +286,7 @@ class _UserProfileHeader extends StatelessWidget {
                       ),
                       Center(
                         child: Text(
-                          t.gamification.format_xp_progress(arg1: userStats.currentXp.toString(), arg2: userStats.nextLevelXp.toString()),
+                          t.gamification.fmt_xp_progress(arg1: userStats.currentXp.toString(), arg2: userStats.nextLevelXp.toString()),
                           style: const TextStyle(
                             color: Colors.white, 
                             fontSize: 10, 
@@ -378,7 +378,7 @@ class _WeeklyChestBanner extends StatelessWidget {
                       child: Text(t.gamification.btn_open_chest, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w900)),
                     )
                   else ...[
-                    Text(t.gamification.format_chest_requirement(arg1: completedQuests.toString(), arg2: targetQuests.toString()), style: const TextStyle(color: Colors.white70, fontSize: 14)),
+                    Text(t.gamification.fmt_chest_requirement(arg1: completedQuests.toString(), arg2: targetQuests.toString()), style: const TextStyle(color: Colors.white70, fontSize: 14)),
                     const SizedBox(height: 10),
                     SizedBox(
                       height: 16,
@@ -654,14 +654,14 @@ class _PodiumColumn extends StatelessWidget {
           SizedBox(
             width: 86 * scale,
             child: Text(
-              user.isUser ? t.gamification.format_user_name_badge(arg1: user.name) : user.name,
+              user.isUser ? t.gamification.fmt_user_name_badge(arg1: user.name) : user.name,
               style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: user.isUser ? colorScheme.primary : colorScheme.onSurface),
               maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center,
             ),
           ).animate(delay: animDelay.ms).fade(),
           
           const SizedBox(height: 2),
-          Text(t.gamification.format_xp_value(arg1: user.xp.toString()), style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).gymColors.goldRank))
+          Text(t.gamification.fmt_xp_value(arg1: user.xp.toString()), style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: Theme.of(context).gymColors.goldRank))
             .animate(delay: animDelay.ms).fade(),
             
           const SizedBox(height: 10),
@@ -761,7 +761,7 @@ class _RankItem extends StatelessWidget {
           const SizedBox(width: 16),
           Expanded(
             child: Text(
-              entry.isUser ? t.gamification.format_user_name_badge(arg1: entry.name) : entry.name,
+              entry.isUser ? t.gamification.fmt_user_name_badge(arg1: entry.name) : entry.name,
               style: TextStyle(fontWeight: entry.isUser ? FontWeight.w900 : FontWeight.w600, fontSize: 15, color: entry.isUser ? colorScheme.primary : colorScheme.onSurface),
               maxLines: 1, overflow: TextOverflow.ellipsis,
             ),
@@ -771,7 +771,7 @@ class _RankItem extends StatelessWidget {
             fit: BoxFit.scaleDown,
             alignment: Alignment.centerRight,
             child: Text(
-              t.gamification.format_xp_value(arg1: entry.xp.toString()),
+              t.gamification.fmt_xp_value(arg1: entry.xp.toString()),
               style: TextStyle(fontWeight: FontWeight.w900, fontSize: 15, color: Theme.of(context).gymColors.goldRank),
             ),
           )

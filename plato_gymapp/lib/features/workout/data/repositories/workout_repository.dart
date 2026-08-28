@@ -768,7 +768,7 @@ class WorkoutRepository {
     final duplicatedRoutineEntity = RoutineEntity(
       id: _generateSequentialId(), // FIX: Duplicate cũng cần tuần tự nối tiếp
       name:
-          "${t.translateDynamic(originalRoutine.name)}${t.workout.label_copy_suffix}",
+          "${t.translateDynamic(originalRoutine.name)}${t.workout.lbl_copy_suffix}",
       programName: originalRoutine.programName,
       payloadJson: jsonEncode(
         oldPayload.copyWith(exercises: duplicatedExercisesList).toJson(),

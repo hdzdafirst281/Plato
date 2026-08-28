@@ -540,7 +540,7 @@ class _RoutineScreenState extends State<RoutineScreen>
           if (currentTotalSets + exercises.length > 100) {
             GymSnackbar.show(
               context,
-              message: t.workout.err_max_sets_session,
+              message: t.workout.err_max_sets_ssn,
               icon: Symbols.error, // Hoáº·c Symbols.error
               accentColor: Theme.of(context).colorScheme.error,
             );
@@ -784,7 +784,7 @@ class _RoutineScreenState extends State<RoutineScreen>
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  t.workout.title_detail_muscle_split,
+                  t.workout.title_dtl_muscle_split,
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
@@ -832,7 +832,7 @@ class _RoutineScreenState extends State<RoutineScreen>
                                           ),
                                           Text(
                                             t.workout
-                                                .format_warning_recovery_percent(
+                                                .fmt_warn_recovery_percent(
                                                   arg1: entry.value
                                                       .toInt()
                                                       .toString(),
@@ -895,8 +895,8 @@ class _RoutineScreenState extends State<RoutineScreen>
                                 children: [
                                   Text(
                                     _isExpandedMuscle
-                                        ? t.workout.btn_detail_muscle_collapse
-                                        : t.workout.btn_detail_muscle_expand,
+                                        ? t.workout.btn_dtl_muscle_collapse
+                                        : t.workout.btn_dtl_muscle_expand,
                                     style: TextStyle(
                                       color: colorScheme.primary,
                                       fontWeight: FontWeight.w600,
@@ -1670,12 +1670,12 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
             previousSet.durationTimeSeconds == 0) {
           return "-";
         }
-        return t.workout.format_detail_set_distance_time(arg1: d, arg2: timeStr);
+        return t.workout.fmt_dtl_set_dist_time(arg1: d, arg2: timeStr);
       case ExerciseType.CARDIO_STEPS:
         if (previousSet.steps == 0 && previousSet.durationTimeSeconds == 0) {
           return "-";
         }
-        return t.workout.format_detail_set_steps_time(arg1: st, arg2: timeStr);
+        return t.workout.fmt_dtl_set_steps_time(arg1: st, arg2: timeStr);
       
     }
   }
@@ -1720,10 +1720,10 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
         errorValidationKey = t.workout.err_invalid_reps_max;
       } else if (fillWeight < 0) {
         isValid = false;
-        errorValidationKey = t.workout.err_invalid_weight;
+        errorValidationKey = t.workout.err_invalid_wt;
       } else if (fillWeight >= 2000.0) {
         isValid = false;
-        errorValidationKey = t.workout.err_invalid_weight_max;
+        errorValidationKey = t.workout.err_invalid_wt_max;
       }
     } else if (exType == ExerciseType.REPS_ONLY) {
       if (fillReps < 0) {
@@ -1744,7 +1744,7 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
     } else if (exType == ExerciseType.CARDIO_DISTANCE) {
       if (fillDistance < 0 || fillTime < 0) {
         isValid = false;
-        errorValidationKey = t.workout.err_invalid_distance_time;
+        errorValidationKey = t.workout.err_invalid_dist_time;
       } else {
         if (fillTime > 0) {
           double speedKmH = fillDistance / (fillTime / 3600.0);
@@ -2111,8 +2111,8 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
                               const SizedBox(width: 8),
                               Text(
                                 currentRest == 0
-                                    ? t.workout.label_rest_off
-                                    : t.workout.format_routine_create_rest_time(
+                                    ? t.workout.lbl_rest_off
+                                    : t.workout.fmt_routine_create_rest_time(
                                         arg1: GymTimerHelper.formatRestTime(
                                           currentRest,
                                         ),
@@ -2164,7 +2164,7 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
                                 ),
                                 const SizedBox(width: 6),
                                 Text(
-                                  t.workout.label_superset_badge,
+                                  t.workout.type_superset,
                                   style: TextStyle(
                                     fontSize: 12,
                                     fontWeight: FontWeight.bold,
@@ -2198,7 +2198,7 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
                   keyboardType: TextInputType.multiline,
                   textInputAction: TextInputAction.newline,
                   decoration: InputDecoration(
-                    hintText: t.workout.label_note_input,
+                    hintText: t.workout.lbl_note_input,
                     hintStyle: TextStyle(
                       color: colorScheme.onSurfaceVariant.withValues(
                         alpha: 0.5,
@@ -2244,7 +2244,7 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
                       fit: BoxFit.scaleDown,
                       alignment: Alignment.center,
                       child: Text(
-                        t.workout.col_routine_create_set.toUpperCase(),
+                        t.common.set.toUpperCase().toUpperCase(),
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,
@@ -2287,7 +2287,7 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
                         fit: BoxFit.scaleDown,
                         alignment: Alignment.center,
                         child: Text(
-                          t.workout.col_routine_create_time.toUpperCase(),
+                          t.common.time.toUpperCase().toUpperCase(),
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
@@ -2307,7 +2307,7 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
                         fit: BoxFit.scaleDown,
                         alignment: Alignment.center,
                         child: Text(
-                          t.workout.col_routine_create_reps.toUpperCase(),
+                          t.common.reps.toUpperCase().toUpperCase(),
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
@@ -2328,10 +2328,10 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
                         alignment: Alignment.center,
                         child: Text(
                           exType == ExerciseType.CARDIO_DISTANCE
-                              ? t.workout.col_routine_create_km.toUpperCase()
+                              ? t.common.unit_km.toUpperCase().toUpperCase()
                               : exType == ExerciseType.CARDIO_STEPS
-                              ? t.workout.col_routine_create_steps.toUpperCase()
-                              : t.workout.col_routine_create_kg.toUpperCase(),
+                              ? t.common.steps.toUpperCase().toUpperCase()
+                              : t.common.unit_kg.toUpperCase().toUpperCase(),
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
@@ -2353,8 +2353,8 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
                         child: Text(
                           (exType == ExerciseType.CARDIO_DISTANCE ||
                                   exType == ExerciseType.CARDIO_STEPS)
-                              ? t.workout.col_routine_create_time.toUpperCase()
-                              : t.workout.col_routine_create_reps.toUpperCase(),
+                              ? t.common.time.toUpperCase().toUpperCase()
+                              : t.common.reps.toUpperCase().toUpperCase(),
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
@@ -2967,7 +2967,7 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
                       if (totalSessionSets >= 100) {
                         GymSnackbar.show(
                           context,
-                          message: t.workout.err_max_sets_session,
+                          message: t.workout.err_max_sets_ssn,
                           icon: Symbols.error,
                           accentColor: Theme.of(context).colorScheme.error,
                         );
@@ -2976,7 +2976,7 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
                       if (widget.workoutExercise.sets.length >= 50) {
                         GymSnackbar.show(
                           context,
-                          message: t.workout.err_max_sets_exercise,
+                          message: t.workout.err_max_sets_ex,
                           icon: Symbols.error,
                           accentColor: Theme.of(context).colorScheme.error,
                         );

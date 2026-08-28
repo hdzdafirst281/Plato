@@ -26,12 +26,12 @@ extension ExerciseMetricBadge on ExerciseMetric {
   String get shortBadgeString {
     switch (this) {
       case ExerciseMetric.ONE_RM: return t.workout.badge_1rm;
-      case ExerciseMetric.BEST_WEIGHT: return t.workout.badge_wt;
-      case ExerciseMetric.BEST_SET_VOL: return t.workout.badge_vol;
-      case ExerciseMetric.LONGEST_DISTANCE: return t.workout.badge_dist;
-      case ExerciseMetric.BEST_STEPS: return t.workout.badge_step;
-      case ExerciseMetric.BEST_TIME: return t.workout.badge_time;
-      case ExerciseMetric.BEST_REPS: return t.workout.badge_reps;
+      case ExerciseMetric.BEST_WEIGHT: return t.common.weight;
+      case ExerciseMetric.BEST_SET_VOL: return t.common.volume;
+      case ExerciseMetric.LONGEST_DISTANCE: return t.common.distance;
+      case ExerciseMetric.BEST_STEPS: return t.common.steps;
+      case ExerciseMetric.BEST_TIME: return t.common.duration;
+      case ExerciseMetric.BEST_REPS: return t.common.reps;
       default: return '';
     }
   }
@@ -91,8 +91,8 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
     if (session == null) {
       return Scaffold(
         backgroundColor: colorScheme.surface,
-        appBar: GymTopBar(title: t.workout.title_detail_main, onBackClick: () => context.pop()),
-        body: Center(child: Text(t.workout.msg_detail_not_found, style: TextStyle(color: colorScheme.onSurfaceVariant))),
+        appBar: GymTopBar(title: t.workout.title_dtl_main, onBackClick: () => context.pop()),
+        body: Center(child: Text(t.workout.msg_dtl_not_found, style: TextStyle(color: colorScheme.onSurfaceVariant))),
       );
     }
     final pureMuscleMap = session.exercises.calculateMuscleDistribution(onlyCompletedSets: true);
@@ -105,7 +105,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: GymTopBar(
-        title: t.workout.title_detail_main,
+        title: t.workout.title_dtl_main,
         onBackClick: () => context.pop(),
         actions: [
           PopupMenuButton<String>(
@@ -121,8 +121,8 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
               if (v == 'delete') {
                 final confirm = await GymDialog.showDestructive(
                   context: context,
-                  title: t.workout.title_detail_delete_dialog,
-                  message: t.workout.msg_detail_delete_dialog,
+                  title: t.workout.title_dtl_delete_dialog,
+                  message: t.workout.msg_dtl_delete_dialog,
                 );
                 if (confirm == true && context.mounted) {
                   context.read<WorkoutCubit>().deleteWorkout(widget.workoutId);
@@ -194,7 +194,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        Text(t.workout.format_detail_xp_earned(arg1: session.xpEarned.toString()), 
+                        Text(t.workout.fmt_dtl_xp_earned(arg1: session.xpEarned.toString()), 
                           style: TextStyle(color: gymColors.goldRank, fontWeight: FontWeight.bold, fontSize: 16)), 
                         const SizedBox(width: 8),
                         Icon(Symbols.bolt, color: Theme.of(context).gymColors.goldRank, size: 18, fill: 1.0), // (Tuỳ chọn) Dùng Material Symbols với fill để icon nổi bật hơn
@@ -207,11 +207,11 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(child: _DetailSummaryItem(icon: Symbols.timer, label: t.workout.label_detail_stat_time, value: _formatDuration(session.totalDurationSeconds))),
+                  Expanded(child: _DetailSummaryItem(icon: Symbols.timer, label: t.common.duration, value: _formatDuration(session.totalDurationSeconds))),
                   const SizedBox(width: 16), 
-                  Expanded(child: _DetailSummaryItem(icon: Symbols.exercise, label: t.stats.label_metric_volume, value: t.workout.format_summary_kg(arg1: totalVolume.toString()))),
+                  Expanded(child: _DetailSummaryItem(icon: Symbols.exercise, label: t.stats.lbl_metric_volume, value: t.onboarding.fmt_kg(arg1: totalVolume.toString()))),
                   const SizedBox(width: 16),
-                  Expanded(child: _DetailSummaryItem(icon: Symbols.repeat, label: t.workout.label_detail_stat_sets, value: "${session.totalSets}")),
+                  Expanded(child: _DetailSummaryItem(icon: Symbols.repeat, label: t.workout.lbl_dtl_stat_sets, value: "${session.totalSets}")),
                 ],
               ),
               const SizedBox(height: 24),
@@ -219,14 +219,14 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   if (kShowCaloriesFeature) ...[
-                    Expanded(child: _DetailSummaryItem(icon: Symbols.local_fire_department, label: t.workout.label_detail_stat_calories, value: "${session.totalCaloriesBurned} kcal")),
+                    Expanded(child: _DetailSummaryItem(icon: Symbols.local_fire_department, label: t.workout.lbl_dtl_stat_calories, value: "${session.totalCaloriesBurned} kcal")),
                     const SizedBox(width: 16),
                   ],
-                  Expanded(child: _DetailSummaryItem(icon: Symbols.speed, label: t.workout.label_detail_stat_rpe, value: session.rpe != null ? t.workout.format_detail_rpe_value(arg1: session.rpe.toString()) : t.workout.label_detail_rpe_unrated)),
+                  Expanded(child: _DetailSummaryItem(icon: Symbols.speed, label: t.workout.lbl_dtl_stat_rpe, value: session.rpe != null ? t.workout.fmt_dtl_rpe_value(arg1: session.rpe.toString()) : t.workout.lbl_dtl_rpe_unrated)),
                   const SizedBox(width: 16),
                   Expanded(
                     child: sessionPRCount > 0 
-                      ? _DetailSummaryItem(icon: Symbols.trophy, label: t.workout.label_detail_stat_pr, value: t.workout.format_detail_pr_count(arg1: sessionPRCount.toString()), highlightColor: gymColors.goldRank)
+                      ? _DetailSummaryItem(icon: Symbols.trophy, label: t.gamification.title_main, value: t.workout.fmt_dtl_pr_count(arg1: sessionPRCount.toString()), highlightColor: gymColors.goldRank)
                       : const SizedBox.shrink()
                   ),
                   if (!kShowCaloriesFeature) const Spacer(), 
@@ -241,7 +241,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
           Widget muscleSection = Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(t.workout.title_detail_muscle_split, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: colorScheme.onSurface)),
+              Text(t.workout.title_dtl_muscle_split, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: colorScheme.onSurface)),
               const SizedBox(height: 24),
               AnimatedSize(
                 duration: const Duration(milliseconds: 350),
@@ -261,7 +261,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Text(entry.key.getLocalizedName(), style: TextStyle(fontWeight: FontWeight.w600, color: colorScheme.onSurface)),
-                                Text(t.workout.format_warning_recovery_percent(arg1: entry.value.toInt().toString()), style: TextStyle(fontWeight: FontWeight.w600, color: colorScheme.onSurfaceVariant)), 
+                                Text(t.workout.fmt_warn_recovery_percent(arg1: entry.value.toInt().toString()), style: TextStyle(fontWeight: FontWeight.w600, color: colorScheme.onSurfaceVariant)), 
                               ],
                             ),
                             const SizedBox(height: 8),
@@ -290,7 +290,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                               mainAxisSize: MainAxisSize.min,
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
-                                Text(_isExpandedMuscle ? t.workout.btn_detail_muscle_collapse : t.workout.btn_detail_muscle_expand, 
+                                Text(_isExpandedMuscle ? t.workout.btn_dtl_muscle_collapse : t.workout.btn_dtl_muscle_expand, 
                                   style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.w600)),
                                 const SizedBox(width: 8),
                                 Icon(_isExpandedMuscle ? Symbols.expand_less : Symbols.expand_more, color: colorScheme.primary, size: 24),
@@ -311,7 +311,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
           Widget exercisesSection = Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(t.workout.format_detail_exercises_count(arg1: session.exercises.length.toString()), 
+              Text(t.workout.fmt_dtl_exercises_count(arg1: session.exercises.length.toString()), 
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: colorScheme.onSurface)),
               const SizedBox(height: 16),
               ...session.exercises.asMap().entries.map((exEntry) {
@@ -393,7 +393,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                                           ),
                                           const SizedBox(width: 4),
                                           Text(
-                                            displayRestTime > 0 ? _formatRestTime(displayRestTime) : t.workout.label_rest_off, 
+                                            displayRestTime > 0 ? _formatRestTime(displayRestTime) : t.workout.lbl_rest_off, 
                                             style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: colorScheme.primary)
                                           ),
                                         ],
@@ -412,7 +412,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                                           children: [
                                             Icon(Symbols.link, size: 12, color: Theme.of(context).gymColors.accentTeal),
                                             const SizedBox(width: 4),
-                                            Text(t.workout.label_superset_badge, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Theme.of(context).gymColors.accentTeal)),
+                                            Text(t.workout.type_superset, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Theme.of(context).gymColors.accentTeal)),
                                           ],
                                         ),
                                       ),
@@ -437,13 +437,13 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                         if (ex.exercise.type == ExerciseType.TIME_ONLY) {
                           detailsString = _formatDuration(s.durationTimeSeconds);
                         } else if (ex.exercise.type == ExerciseType.CARDIO_DISTANCE) {
-                          detailsString = t.workout.format_detail_set_distance_time(arg1: s.distanceInKm.toString(), arg2: _formatDuration(s.durationTimeSeconds));
+                          detailsString = t.workout.fmt_dtl_set_dist_time(arg1: s.distanceInKm.toString(), arg2: _formatDuration(s.durationTimeSeconds));
                         } else if (ex.exercise.type == ExerciseType.CARDIO_STEPS) {
-                          detailsString = t.workout.format_detail_set_steps_time(arg1: s.steps.toString(), arg2: _formatDuration(s.durationTimeSeconds));
+                          detailsString = t.workout.fmt_dtl_set_steps_time(arg1: s.steps.toString(), arg2: _formatDuration(s.durationTimeSeconds));
                         } else if (ex.exercise.type == ExerciseType.REPS_ONLY) {
-                          detailsString = t.explore.format_exercise_detail_reps_only(arg1: s.reps.toString());
+                          detailsString = t.explore.fmt_ex_dtl_reps_only(arg1: s.reps.toString());
                         } else {
-                          detailsString = t.explore.format_exercise_detail_weight_reps(arg1: _formatDouble(s.weight), arg2: s.reps.toString());
+                          detailsString = t.explore.fmt_ex_dtl_wt_reps(arg1: _formatDouble(s.weight), arg2: s.reps.toString());
                         }
 
                         return Card(

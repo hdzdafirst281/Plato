@@ -268,12 +268,12 @@ class _WorkoutScreenState extends State<WorkoutScreen>
                           controller: nameController,
                           autofocus: true,
                           decoration: InputDecoration(
-                            labelText: t.workout.label_folder_name_input,
+                            labelText: t.workout.lbl_folder_name_input,
                             border: OutlineInputBorder(
                               borderRadius: BorderRadius.circular(12),
                             ),
                             errorText: hasError
-                                ? t.workout.msg_error_folder_name_empty
+                                ? t.workout.msg_err_folder_name_empty
                                 : null,
                           ),
                           onChanged: (v) {
@@ -384,7 +384,7 @@ class _WorkoutScreenState extends State<WorkoutScreen>
       final folderKey = r.programName?.trim() ?? "";
       final actualKey = folderKey.isNotEmpty
           ? folderKey
-          : t.workout.label_default_folder.trim();
+          : t.workout.lbl_default_folder.trim();
 
       if (!groupedRoutines.containsKey(actualKey)) {
         groupedRoutines[actualKey] = [];
@@ -625,7 +625,7 @@ class _WorkoutScreenState extends State<WorkoutScreen>
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 32),
                         child: Text(
-                          t.workout.msg_warning_no_data,
+                          t.workout.msg_warn_no_data,
                           style: TextStyle(color: colorScheme.onSurfaceVariant),
                           textAlign: TextAlign.center,
                         ),
@@ -926,7 +926,7 @@ class _GlobalFolderHeader extends StatelessWidget {
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
               Text(
-                t.workout.label_default_folder.trim(),
+                t.workout.lbl_default_folder.trim(),
                 style: Theme.of(context).textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.bold,
                   color: colorScheme.onSurface,

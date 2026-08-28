@@ -92,10 +92,10 @@ Future<void> handleStartWorkoutConflict({
   if (activeSessionCubit.state.activeWorkout != null) {
     final shouldStart = await GymDialog.showConfirm(
       context: context,
-      title: t.workout.title_active_session_conflict,
-      message: t.workout.msg_active_session_conflict,
-      cancelText: t.workout.btn_keep_session,
-      confirmText: t.workout.btn_start_new_session,
+      title: t.workout.title_active_ssn_conflict,
+      message: t.workout.msg_active_ssn_conflict,
+      cancelText: t.workout.btn_keep_ssn,
+      confirmText: t.workout.btn_start_new_ssn,
       icon: Symbols.warning_amber_rounded,
       iconColor: Theme.of(context).colorScheme.error,
     );
@@ -467,7 +467,7 @@ class _GymAdvancedLineChartState extends State<GymAdvancedLineChart> with Single
           children: [
             Icon(Symbols.show_chart, size: 48, color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.3)),
             const SizedBox(height: 16),
-            Text(t.explore.msg_exercise_detail_no_data_range, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold)),
+            Text(t.explore.msg_ex_dtl_no_data_range, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold)),
           ],
         )
       );
@@ -718,13 +718,13 @@ class RecoveryBarChart extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(t.workout.desc_warning_muscle_info_general, style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14)),
+            Text(t.workout.desc_warn_muscle_info_general, style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14)),
             const SizedBox(height: 16),
-            _buildInfoZone(Theme.of(context).gymColors.success, t.workout.title_warning_muscle_zone_green, t.workout.desc_warning_muscle_zone_green, context),
+            _buildInfoZone(Theme.of(context).gymColors.success, t.workout.title_warn_muscle_zone_green, t.workout.desc_warn_muscle_zone_green, context),
             const SizedBox(height: 12),
-            _buildInfoZone(Theme.of(context).gymColors.warning, t.workout.title_warning_muscle_zone_yellow, t.workout.desc_warning_muscle_zone_yellow, context),
+            _buildInfoZone(Theme.of(context).gymColors.warning, t.workout.title_warn_muscle_zone_yellow, t.workout.desc_warn_muscle_zone_yellow, context),
             const SizedBox(height: 12),
-            _buildInfoZone(Theme.of(context).colorScheme.error, t.workout.title_warning_muscle_zone_red, t.workout.desc_warning_muscle_zone_red, context),
+            _buildInfoZone(Theme.of(context).colorScheme.error, t.workout.title_warn_muscle_zone_red, t.workout.desc_warn_muscle_zone_red, context),
           ],
         ),
       ),
@@ -982,7 +982,7 @@ class WorkoutMiniPlayer extends StatelessWidget {
     final confirmed = await GymDialog.showDestructive(
       context: context,
       title: t.workout.title_mini_player_cancel_dialog,
-      message: t.workout.msg_mini_player_cancel_warning,
+      message: t.workout.msg_mini_player_cancel_warn,
       cancelText: t.common.back,
       confirmText: t.workout.btn_mini_player_confirm_delete,
     );
@@ -1031,7 +1031,7 @@ class WorkoutMiniPlayer extends StatelessWidget {
           } else if (targetData != null) {
             String rawName = targetData.exercise.exercise.name;
             String exName = t.translateDynamic(rawName);
-            String setLabel = t.explore.label_set;
+            String setLabel = t.common.set;
             statusText = '$exName • $setLabel ${targetData.setIndex}/${targetData.exercise.sets.length}';
           }
         }

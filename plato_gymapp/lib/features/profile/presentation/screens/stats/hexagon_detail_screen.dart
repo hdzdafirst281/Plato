@@ -204,11 +204,11 @@ class _HexagonDetailScreenState extends State<HexagonDetailScreen> with SingleTi
                         children: [
                           Container(width: 12, height: 12, decoration: BoxDecoration(color: Theme.of(context).gymColors.fireHexagon, borderRadius: BorderRadius.circular(4))),
                           const SizedBox(width: 12),
-                          Text(t.stats.label_hexagon_legend_current, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                          Text(t.stats.lbl_hexagon_legend_current, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                           const SizedBox(width: 32),
                           Container(width: 12, height: 12, decoration: BoxDecoration(color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(4))),
                           const SizedBox(width: 12),
-                          Text(t.stats.label_hexagon_legend_previous, style: TextStyle(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.w600, fontSize: 14)),
+                          Text(t.stats.lbl_hexagon_legend_previous, style: TextStyle(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.w600, fontSize: 14)),
                         ],
                       ),
                     )

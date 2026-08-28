@@ -91,7 +91,7 @@ class _CreateCustomExerciseScreenState extends State<CreateCustomExerciseScreen>
 
   void _validateName(String value) {
     if (value.trim().length > 100) {
-      setState(() => _nameError = t.explore.err_custom_exercise_name_too_long);
+      setState(() => _nameError = t.explore.err_cust_ex_name_too_long);
     } else if (_nameError != null) {
       setState(() => _nameError = null);
     } else {
@@ -341,7 +341,7 @@ class _CreateCustomExerciseScreenState extends State<CreateCustomExerciseScreen>
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: GymTopBar(
-        title: isEditing ? t.explore.title_edit_custom_exercise : t.explore.title_create_custom_exercise,
+        title: isEditing ? t.explore.title_edit_cust_ex : t.explore.title_create_cust_ex,
         onBackClick: () => Navigator.pop(context),
       ),
       body: GestureDetector(
@@ -376,7 +376,7 @@ class _CreateCustomExerciseScreenState extends State<CreateCustomExerciseScreen>
                               children: [
                                 Icon(Symbols.add_photo_alternate, size: 48, color: colorScheme.primary.withValues(alpha: 0.5)),
                                 const SizedBox(height: 8),
-                                Text(t.explore.label_custom_exercise_add_image, style: TextStyle(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold)),
+                                Text(t.explore.lbl_cust_ex_add_image, style: TextStyle(color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold)),
                               ],
                             ),
                     ),
@@ -387,7 +387,7 @@ class _CreateCustomExerciseScreenState extends State<CreateCustomExerciseScreen>
                 // 2. TÊN BÀI TẬP (Bắt buộc)
                 Row(
                   children: [
-                    Text(t.explore.label_custom_exercise_name, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant)),
+                    Text(t.explore.lbl_cust_ex_name, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant)),
                     Text(' *', style: TextStyle(color: colorScheme.error, fontSize: 13, fontWeight: FontWeight.bold)),
                   ],
                 ),
@@ -404,7 +404,7 @@ class _CreateCustomExerciseScreenState extends State<CreateCustomExerciseScreen>
                     onChanged: _validateName,
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                     decoration: InputDecoration(
-                      hintText: t.explore.hint_custom_exercise_name,
+                      hintText: t.explore.hint_cust_ex_name,
                       border: InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                     ),
@@ -426,12 +426,12 @@ class _CreateCustomExerciseScreenState extends State<CreateCustomExerciseScreen>
 
                 // 3. LOẠI BÀI TẬP (Bắt buộc)
                 _buildSelectorField(
-                  label: t.explore.label_custom_exercise_type,
+                  label: t.explore.lbl_cust_ex_type,
                   valueText: t.translateDynamic('exercises.type_${_selectedType.name.toLowerCase()}'),
                   hintText: '',
                   isMandatory: true,
                   onTap: () => _showSingleSelectSheet<ExerciseType>(
-                    title: t.explore.label_custom_exercise_type,
+                    title: t.explore.lbl_cust_ex_type,
                     items: ExerciseType.values,
                     selectedItem: _selectedType,
                     labelBuilder: (item) => t.translateDynamic('exercises.type_${item.name.toLowerCase()}'),
@@ -449,12 +449,12 @@ class _CreateCustomExerciseScreenState extends State<CreateCustomExerciseScreen>
 
                 // 4. THIẾT BỊ (Bắt buộc)
                 _buildSelectorField(
-                  label: t.explore.label_filter_equipment,
+                  label: t.explore.lbl_filter_equipment,
                   valueText: _selectedEquipment != null ? t.translateDynamic('equipment.${_selectedEquipment!.name.toLowerCase()}') : null,
-                  hintText: t.explore.label_custom_exercise_none,
+                  hintText: t.common.none,
                   isMandatory: true,
                   onTap: () => _showSingleSelectSheet<Equipment>(
-                    title: t.explore.label_filter_equipment,
+                    title: t.explore.lbl_filter_equipment,
                     items: _availableEquipments, 
                     selectedItem: _selectedEquipment,
                     labelBuilder: (e) => t.translateDynamic('equipment.${e.name.toLowerCase()}'),
@@ -465,12 +465,12 @@ class _CreateCustomExerciseScreenState extends State<CreateCustomExerciseScreen>
 
                 // 5. NHÓM CƠ CHÍNH (Bắt buộc)
                 _buildSelectorField(
-                  label: t.explore.label_filter_muscle,
+                  label: t.explore.lbl_filter_muscle,
                   valueText: _selectedPrimaryMuscle?.getLocalizedName(),
-                  hintText: t.explore.label_custom_exercise_none,
+                  hintText: t.common.none,
                   isMandatory: true,
                   onTap: () => _showSingleSelectSheet<MuscleGroup>(
-                    title: t.explore.label_filter_muscle,
+                    title: t.explore.lbl_filter_muscle,
                     items: MuscleGroup.values,
                     selectedItem: _selectedPrimaryMuscle,
                     labelBuilder: (m) => m.getLocalizedName(),
@@ -488,14 +488,14 @@ class _CreateCustomExerciseScreenState extends State<CreateCustomExerciseScreen>
 
                 // 6. NHÓM CƠ PHỤ (Tuỳ chọn)
                 _buildSelectorField(
-                  label: t.explore.label_secondary_muscle,
+                  label: t.explore.lbl_sec_muscle,
                   valueText: _selectedSecondaryMuscles.isNotEmpty 
                     ? _selectedSecondaryMuscles.map((m) => m.getLocalizedName()).join(', ') 
                     : null,
-                  hintText: t.explore.label_custom_exercise_none,
+                  hintText: t.common.none,
                   isMandatory: false,
                   onTap: () => _showMultiSelectSheet<MuscleGroup>(
-                    title: t.explore.label_secondary_muscle,
+                    title: t.explore.lbl_sec_muscle,
                     items: MuscleGroup.values.where((m) => m != _selectedPrimaryMuscle).toList(),
                     selectedItems: _selectedSecondaryMuscles,
                     labelBuilder: (m) => m.getLocalizedName(),
@@ -505,13 +505,13 @@ class _CreateCustomExerciseScreenState extends State<CreateCustomExerciseScreen>
                 const SizedBox(height: 24),
 
                 // 7. GHI CHÚ (Tuỳ chọn)
-                Text(t.explore.title_exercise_detail_instructions, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant)),
+                Text(t.explore.title_ex_dtl_inst, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant)),
                 const SizedBox(height: 8),
                 TextField(
                   controller: _instructionCtrl,
                   maxLines: 4,
                   decoration: InputDecoration(
-                    hintText: t.explore.hint_custom_exercise_instructions,
+                    hintText: t.explore.hint_cust_ex_inst,
                     filled: true,
                     fillColor: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
                     border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),

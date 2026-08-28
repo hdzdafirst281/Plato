@@ -196,7 +196,7 @@ class _FoodEncyclopediaScreenState extends State<FoodEncyclopediaScreen> with Si
     final confirm = await GymDialog.showDestructive(
       context: context,
       title: t.common.title_delete_dialog_main,
-      message: t.nutrition.msg_delete_custom_food,
+      message: t.nutrition.msg_delete_cust_food,
       cancelText: t.common.cancel,
       confirmText: t.common.delete,
     );
@@ -221,11 +221,11 @@ class _FoodEncyclopediaScreenState extends State<FoodEncyclopediaScreen> with Si
 
   String _translateFoodUnit(FoodUnit unit) {
     switch (unit) {
-      case FoodUnit.GRAM: return t.nutrition.label_unit_gram;
-      case FoodUnit.ML: return t.nutrition.label_unit_ml;
-      case FoodUnit.QUANTITY: return t.nutrition.label_unit_quantity;
-      case FoodUnit.SERVING: return t.nutrition.label_unit_serving;
-      case FoodUnit.OZ: return t.nutrition.label_unit_oz;
+      case FoodUnit.GRAM: return t.nutrition.lbl_unit_gram;
+      case FoodUnit.ML: return t.nutrition.lbl_unit_ml;
+      case FoodUnit.QUANTITY: return t.nutrition.lbl_unit_quantity;
+      case FoodUnit.SERVING: return t.nutrition.lbl_unit_serving;
+      case FoodUnit.OZ: return t.nutrition.lbl_unit_oz;
       
     }
   }
@@ -284,7 +284,7 @@ class _FoodEncyclopediaScreenState extends State<FoodEncyclopediaScreen> with Si
                         Padding(
                           padding: const EdgeInsets.only(bottom: 16),
                           child: Text(
-                            t.nutrition.label_custom_foods, 
+                            t.nutrition.lbl_cust_foods, 
                             style: TextStyle(
                               fontSize: 13, 
                               fontWeight: FontWeight.bold, 
@@ -299,7 +299,7 @@ class _FoodEncyclopediaScreenState extends State<FoodEncyclopediaScreen> with Si
                       if (sqlFoods.isNotEmpty) ...[
                         Padding(
                           padding: const EdgeInsets.only(bottom: 16),
-                          child: Text(t.nutrition.label_system_foods, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant)),
+                          child: Text(t.nutrition.lbl_system_foods, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant)),
                         ),
                         ...sqlFoods.asMap().entries.map((entry) => _buildFoodCard(entry.value, alreadyConsumed, nutritionCubit, entry.key + customFoods.length, colorScheme)),
                       ]
@@ -333,7 +333,7 @@ class _FoodEncyclopediaScreenState extends State<FoodEncyclopediaScreen> with Si
               // SỬ DỤNG GYM TEXT FIELD CHO TẤT CẢ (HỖ TRỢ INLINE ERROR)
               GymTextField(
                 initialValue: _quickName,
-                labelText: t.nutrition.label_quick_food_name,
+                labelText: t.nutrition.lbl_quick_food_name,
                 errorText: _quickNameError,
                 isNumber: false,
                 onChanged: (v) { _quickName = v; _validateQuickAdd(); },
@@ -343,9 +343,9 @@ class _FoodEncyclopediaScreenState extends State<FoodEncyclopediaScreen> with Si
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(child: GymTextField(initialValue: _quickCal, labelText: t.nutrition.label_dashboard_calories, unitText: 'kcal', isInteger: true, errorText: _quickCalError, onChanged: (v) { _quickCal = v; _validateQuickAdd(); })),
+                  Expanded(child: GymTextField(initialValue: _quickCal, labelText: t.nutrition.lbl_dash_calories, unitText: 'kcal', isInteger: true, errorText: _quickCalError, onChanged: (v) { _quickCal = v; _validateQuickAdd(); })),
                   const SizedBox(width: 16),
-                  Expanded(child: GymTextField(initialValue: _quickPro, labelText: t.onboarding.label_macro_protein, unitText: 'g', isInteger: true, errorText: _quickProError, onChanged: (v) { _quickPro = v; _validateQuickAdd(); })),
+                  Expanded(child: GymTextField(initialValue: _quickPro, labelText: t.onboarding.lbl_macro_protein, unitText: 'g', isInteger: true, errorText: _quickProError, onChanged: (v) { _quickPro = v; _validateQuickAdd(); })),
                 ],
               ),
               const SizedBox(height: 16),
@@ -353,9 +353,9 @@ class _FoodEncyclopediaScreenState extends State<FoodEncyclopediaScreen> with Si
               Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(child: GymTextField(initialValue: _quickCarb, labelText: t.onboarding.label_macro_carbs, unitText: 'g', isInteger: true, errorText: _quickCarbError, onChanged: (v) { _quickCarb = v; _validateQuickAdd(); })),
+                  Expanded(child: GymTextField(initialValue: _quickCarb, labelText: t.onboarding.lbl_macro_carbs, unitText: 'g', isInteger: true, errorText: _quickCarbError, onChanged: (v) { _quickCarb = v; _validateQuickAdd(); })),
                   const SizedBox(width: 16),
-                  Expanded(child: GymTextField(initialValue: _quickFat, labelText: t.onboarding.label_macro_fat, unitText: 'g', isInteger: true, errorText: _quickFatError, onChanged: (v) { _quickFat = v; _validateQuickAdd(); })),
+                  Expanded(child: GymTextField(initialValue: _quickFat, labelText: t.onboarding.lbl_macro_fat, unitText: 'g', isInteger: true, errorText: _quickFatError, onChanged: (v) { _quickFat = v; _validateQuickAdd(); })),
                 ],
               ),
               
@@ -369,7 +369,7 @@ class _FoodEncyclopediaScreenState extends State<FoodEncyclopediaScreen> with Si
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       Flexible(
-                        child: Text(t.nutrition.label_quick_portion, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                        child: Text(t.nutrition.lbl_quick_portion, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                       ),
                       const SizedBox(width: 16),
                       
@@ -554,9 +554,9 @@ class _FoodEncyclopediaScreenState extends State<FoodEncyclopediaScreen> with Si
     final isExisting = existingItem != null;
     final qty = isExisting ? existingItem.consumedAmount : (_selectedFoods[food] ?? 0.0);
 
-    final unitLabel = (food.measurementUnit == FoodUnit.GRAM) ? t.nutrition.label_food_unit_100g :
-                      (food.measurementUnit == FoodUnit.ML) ? t.nutrition.label_food_unit_100ml :
-                      t.nutrition.format_food_unit_pieces(arg1: _translateFoodUnit(food.measurementUnit));
+    final unitLabel = (food.measurementUnit == FoodUnit.GRAM) ? t.nutrition.lbl_food_unit_100g :
+                      (food.measurementUnit == FoodUnit.ML) ? t.nutrition.lbl_food_unit_100ml :
+                      t.nutrition.fmt_food_unit_pieces(arg1: _translateFoodUnit(food.measurementUnit));
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -823,7 +823,7 @@ class _EditFoodBottomSheetState extends State<_EditFoodBottomSheet> {
           
           GymTextField(
             initialValue: _name,
-            labelText: t.nutrition.label_quick_food_name,
+            labelText: t.nutrition.lbl_quick_food_name,
             errorText: _nameError,
             isNumber: false,
             onChanged: (v) { _name = v; _validateEdit(); },
@@ -833,9 +833,9 @@ class _EditFoodBottomSheetState extends State<_EditFoodBottomSheet> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: GymTextField(initialValue: _cal, labelText: t.nutrition.label_dashboard_calories, unitText: 'kcal', isInteger: true, errorText: _calError, onChanged: (v) { _cal = v; _validateEdit(); })),
+              Expanded(child: GymTextField(initialValue: _cal, labelText: t.nutrition.lbl_dash_calories, unitText: 'kcal', isInteger: true, errorText: _calError, onChanged: (v) { _cal = v; _validateEdit(); })),
               const SizedBox(width: 16),
-              Expanded(child: GymTextField(initialValue: _pro, labelText: t.onboarding.label_macro_protein, unitText: 'g', isInteger: true, errorText: _proError, onChanged: (v) { _pro = v; _validateEdit(); })),
+              Expanded(child: GymTextField(initialValue: _pro, labelText: t.onboarding.lbl_macro_protein, unitText: 'g', isInteger: true, errorText: _proError, onChanged: (v) { _pro = v; _validateEdit(); })),
             ],
           ),
           const SizedBox(height: 16),
@@ -843,9 +843,9 @@ class _EditFoodBottomSheetState extends State<_EditFoodBottomSheet> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(child: GymTextField(initialValue: _carb, labelText: t.onboarding.label_macro_carbs, unitText: 'g', isInteger: true, errorText: _carbError, onChanged: (v) { _carb = v; _validateEdit(); })),
+              Expanded(child: GymTextField(initialValue: _carb, labelText: t.onboarding.lbl_macro_carbs, unitText: 'g', isInteger: true, errorText: _carbError, onChanged: (v) { _carb = v; _validateEdit(); })),
               const SizedBox(width: 16),
-              Expanded(child: GymTextField(initialValue: _fat, labelText: t.onboarding.label_macro_fat, unitText: 'g', isInteger: true, errorText: _fatError, onChanged: (v) { _fat = v; _validateEdit(); })),
+              Expanded(child: GymTextField(initialValue: _fat, labelText: t.onboarding.lbl_macro_fat, unitText: 'g', isInteger: true, errorText: _fatError, onChanged: (v) { _fat = v; _validateEdit(); })),
             ],
           ),
           const SizedBox(height: 32),
@@ -1001,11 +1001,11 @@ class UniversalFoodStepper extends StatelessWidget {
 
   String get _suffix {
     switch (unit) {
-      case FoodUnit.GRAM: return t.nutrition.label_unit_gram;
-      case FoodUnit.ML: return t.nutrition.label_unit_ml;
-      case FoodUnit.QUANTITY: return t.nutrition.label_unit_quantity;
-      case FoodUnit.SERVING: return t.nutrition.label_unit_serving;
-      case FoodUnit.OZ: return t.nutrition.label_unit_oz;
+      case FoodUnit.GRAM: return t.nutrition.lbl_unit_gram;
+      case FoodUnit.ML: return t.nutrition.lbl_unit_ml;
+      case FoodUnit.QUANTITY: return t.nutrition.lbl_unit_quantity;
+      case FoodUnit.SERVING: return t.nutrition.lbl_unit_serving;
+      case FoodUnit.OZ: return t.nutrition.lbl_unit_oz;
       
     }
   }
@@ -1080,7 +1080,7 @@ class UniversalFoodStepper extends StatelessWidget {
           void validateRealTime(String v) {
             final val = double.tryParse(v);
             if (val == null) {
-              setLocalState(() => errorMsg = t.nutrition.error_invalid_number);
+              setLocalState(() => errorMsg = t.nutrition.err_invalid_number);
               return;
             }
             

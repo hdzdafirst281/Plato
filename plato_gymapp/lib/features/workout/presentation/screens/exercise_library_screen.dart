@@ -499,8 +499,8 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
           GymTourTarget(
             isActive: !context.read<TourCubit>().state.hasSeenExerciseLibrary || forceShowTour,
             tourKey: TourKeys.libraryAddCustomBtn,
-            title: t.tour.library_add_custom_title,
-            description: t.tour.library_add_custom_desc,
+            title: t.tour.library_add_cust_title,
+            description: t.tour.library_add_cust_desc,
             targetPadding: const EdgeInsets.all(4),
             child: IconButton(
               icon: Icon(Symbols.add, color: colorScheme.primary),
@@ -583,7 +583,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                         _buildFilterButton<MuscleGroup>(
                           context: context,
                           selectedItems: _filterMuscles,
-                          defaultHint: t.explore.label_filter_muscle,
+                          defaultHint: t.explore.lbl_filter_muscle,
                           labelBuilder: _translateMuscle,
                           onClear: () =>
                               setState(() => _filterMuscles.clear()),
@@ -605,7 +605,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                             }
                             _showFilterBottomSheet<MuscleGroup>(
                               context: context,
-                              title: t.explore.label_filter_muscle,
+                              title: t.explore.lbl_filter_muscle,
                               selectedItems: _filterMuscles,
                               groupedItems: groupedMuscles,
                               labelBuilder: _translateMuscle,
@@ -627,14 +627,14 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                         _buildFilterButton<Equipment>(
                           context: context,
                           selectedItems: _filterEquipments,
-                          defaultHint: t.explore.label_filter_equipment,
+                          defaultHint: t.explore.lbl_filter_equipment,
                           labelBuilder: _translateEquipment,
                           onClear: () =>
                               setState(() => _filterEquipments.clear()),
                           onTap: () {
                             _showFilterBottomSheet<Equipment>(
                               context: context,
-                              title: t.explore.label_filter_equipment,
+                              title: t.explore.lbl_filter_equipment,
                               selectedItems: _filterEquipments,
                               groupedItems: {'': Equipment.values},
                               labelBuilder: _translateEquipment,
@@ -659,7 +659,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                               child: _buildFilterButton<MuscleGroup>(
                                 context: context,
                                 selectedItems: _filterMuscles,
-                                defaultHint: t.explore.label_filter_muscle,
+                                defaultHint: t.explore.lbl_filter_muscle,
                                 labelBuilder: _translateMuscle,
                                 onClear: () =>
                                     setState(() => _filterMuscles.clear()),
@@ -682,7 +682,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
 
                                   _showFilterBottomSheet<MuscleGroup>(
                                     context: context,
-                                    title: t.explore.label_filter_muscle,
+                                    title: t.explore.lbl_filter_muscle,
                                     selectedItems: _filterMuscles,
                                     groupedItems: groupedMuscles,
                                     labelBuilder: _translateMuscle,
@@ -706,14 +706,14 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                               child: _buildFilterButton<Equipment>(
                                 context: context,
                                 selectedItems: _filterEquipments,
-                                defaultHint: t.explore.label_filter_equipment,
+                                defaultHint: t.explore.lbl_filter_equipment,
                                 labelBuilder: _translateEquipment,
                                 onClear: () =>
                                     setState(() => _filterEquipments.clear()),
                                 onTap: () {
                                   _showFilterBottomSheet<Equipment>(
                                     context: context,
-                                    title: t.explore.label_filter_equipment,
+                                    title: t.explore.lbl_filter_equipment,
                                     selectedItems: _filterEquipments,
                                     groupedItems: {'': Equipment.values},
                                     labelBuilder: _translateEquipment,
@@ -800,7 +800,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    t.explore.label_suggested_for_you
+                                    t.explore.lbl_suggested_for_you
                                         .toUpperCase(),
                                     style: TextStyle(
                                       color: Theme.of(
@@ -837,7 +837,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                                   ),
                                   const SizedBox(width: 8),
                                   Text(
-                                    t.explore.label_recent.toUpperCase(),
+                                    t.explore.lbl_recent.toUpperCase(),
                                     style: TextStyle(
                                       color: colorScheme.primary,
                                       fontWeight: FontWeight.bold,
@@ -868,9 +868,9 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                               child: Text(
                                 (suggestedList.isNotEmpty ||
                                         recentList.isNotEmpty)
-                                    ? t.explore.label_all_other_exercises
+                                    ? t.explore.lbl_all_other_exercises
                                           .toUpperCase()
-                                    : t.explore.label_exercise_list
+                                    : t.explore.lbl_ex_list
                                           .toUpperCase(),
                                 style: TextStyle(
                                   color: colorScheme.onSurfaceVariant,
@@ -1306,7 +1306,7 @@ class _ExerciseCard extends StatelessWidget {
                                   borderRadius: BorderRadius.circular(4),
                                 ),
                                 child: Text(
-                                  t.explore.label_custom_exercise,
+                                  t.explore.lbl_cust_ex,
                                   style: TextStyle(
                                     fontSize: 10,
                                     fontWeight: FontWeight.bold,

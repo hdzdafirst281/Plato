@@ -340,7 +340,7 @@ class _AuthOtpScreenState extends State<AuthOtpScreen> {
       TextField(
         controller: _emailController, keyboardType: TextInputType.emailAddress,
         onChanged: (_) { if (_emailErrorKey != null) setState(() => _emailErrorKey = null); },
-        decoration: InputDecoration(labelText: t.auth.label_email_input, prefixIcon: const Icon(Symbols.email), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
+        decoration: InputDecoration(labelText: t.auth.lbl_email_input, prefixIcon: const Icon(Symbols.email), border: OutlineInputBorder(borderRadius: BorderRadius.circular(12))),
       ),
       if (_emailErrorKey != null)
         Padding(

@@ -256,7 +256,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           return "- ${formatVal(parsedHeight)} cm\n- ${formatVal(parsedWeight)} kg";
         case 3:
           String wGoalStr = _draft.workoutGoal == WorkoutGoal.BULK ? t.profile.goal_bulk : (_draft.workoutGoal == WorkoutGoal.CUT ? t.profile.goal_cut : t.profile.goal_strength);
-          String nGoalStr = _draft.nutritionGoal == NutritionGoal.GAIN_WEIGHT ? t.profile.goal_gain_weight : (_draft.nutritionGoal == NutritionGoal.LOSE_WEIGHT ? t.profile.goal_lose_weight : t.profile.goal_maintain_weight);
+          String nGoalStr = _draft.nutritionGoal == NutritionGoal.GAIN_WEIGHT ? t.profile.goal_gain_wt : (_draft.nutritionGoal == NutritionGoal.LOSE_WEIGHT ? t.profile.goal_lose_wt : t.profile.goal_maintain_wt);
           return "- $wGoalStr\n- $nGoalStr";
         case 4:
           String actStr = _draft.activityLevel == ActivityLevel.SEDENTARY ? t.profile.activity_sedentary : (_draft.activityLevel == ActivityLevel.LIGHT ? t.profile.activity_light : (_draft.activityLevel == ActivityLevel.MODERATE ? t.profile.activity_moderate : t.profile.activity_active));
@@ -266,7 +266,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           double tw = parsedTargetWeight;
           int d = parsedTargetDays;
           if (d <= 0 || tw == parsedWeight || _draft.nutritionGoal == NutritionGoal.MAINTAIN_WEIGHT) {
-            return "- ${tw.toStringAsFixed(1)} kg\n- ${t.profile.goal_maintain_weight}";
+            return "- ${tw.toStringAsFixed(1)} kg\n- ${t.profile.goal_maintain_wt}";
           } else {
             DateTime now = DateTime.now();
             DateTime targetDate = DateTime(now.year, now.month, now.day).add(Duration(days: d));
@@ -361,7 +361,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         if (msg.stepIndex == 5) { // Đồng bộ Bot Step 5
           bool isMaintain = _draft.nutritionGoal == NutritionGoal.MAINTAIN_WEIGHT;
           _messages[i] = msg.copyWith(
-            textBuilder: () => isMaintain ? t.onboarding.msg_chat_5_skip_maintain(name: '{name}') : t.onboarding.msg_chat_5_target_weight(name: '{name}'),
+            textBuilder: () => isMaintain ? t.onboarding.msg_chat_5_skip_maintain(name: '{name}') : t.onboarding.msg_chat_5_target_wt(name: '{name}'),
             customWidgetBuilder: isMaintain ? null : (context) => ValueListenableBuilder<double>(
               valueListenable: _targetWeightNotifier,
               builder: (context, tw, child) => BMIVisualizer(bmiValue: NutritionCalculator.calculateBMI(tw, parsedHeight), title: t.nutrition.bmi_target)
@@ -377,7 +377,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   String _formatBotText(String text) {
     String n = _draft.name.trim();
-    if (n.isEmpty) n = t.onboarding.label_you_fallback;
+    if (n.isEmpty) n = t.onboarding.lbl_you_fallback;
     return text.replaceAll("{name}", "<b>$n</b>");
   }
 
@@ -538,7 +538,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         _targetWeightNotifier.value = parsedTargetWeight; 
 
         _addAppMessage(
-          () => t.onboarding.msg_chat_5_target_weight(name: '{name}'),
+          () => t.onboarding.msg_chat_5_target_wt(name: '{name}'),
           customWidgetBuilder: (context) => ValueListenableBuilder<double>(
             valueListenable: _targetWeightNotifier,
             builder: (context, tw, child) {
@@ -574,7 +574,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   void _handleStep0Submit() {
     if (_nameCtrl.text.trim().isEmpty) {
-      setState(() => _nameError = t.onboarding.msg_error_name_empty);
+      setState(() => _nameError = t.onboarding.msg_err_name_empty);
       return;
     }
     setState(() => _nameError = null);
@@ -585,13 +585,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   void _handleStep1Submit(Gender g) {
     final ageText = _ageCtrl.text.trim();
     if (ageText.isEmpty) {
-      setState(() => _ageError = t.onboarding.msg_error_age_empty);
+      setState(() => _ageError = t.onboarding.msg_err_age_empty);
       return;
     }
     
     int age = int.tryParse(ageText) ?? 0;
     if (age < 13 || age > 100) {
-      setState(() => _ageError = t.onboarding.msg_error_age_invalid);
+      setState(() => _ageError = t.onboarding.msg_err_age_invalid);
       return;
     }
     
@@ -606,12 +606,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     bool hasError = false;
 
     if (hText.isEmpty) {
-      setState(() => _heightError = t.onboarding.msg_error_height_empty);
+      setState(() => _heightError = t.onboarding.msg_err_height_empty);
       hasError = true;
     } else {
       double h = double.tryParse(hText) ?? 0;
       if (h < 100 || h > 250) { // Đồng bộ height với Profile
-        setState(() => _heightError = t.onboarding.msg_error_height_invalid);
+        setState(() => _heightError = t.onboarding.msg_err_height_invalid);
         hasError = true;
       } else {
         setState(() => _heightError = null);
@@ -620,12 +620,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
     // CẬP NHẬT Ở ĐÂY
     if (wText.isEmpty) {
-      setState(() => _weightError = t.onboarding.msg_error_weight_empty);
+      setState(() => _weightError = t.onboarding.msg_err_wt_empty);
       hasError = true;
     } else {
       double w = double.tryParse(wText) ?? 0;
       if (w < 30 || w > 650) {
-        setState(() => _weightError = t.onboarding.msg_error_weight_invalid);
+        setState(() => _weightError = t.onboarding.msg_err_wt_invalid);
         hasError = true;
       } else {
         setState(() => _weightError = null);
@@ -664,10 +664,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (_draft.injuries.contains("common.other")) {
       String txt = _otherInjuryCtrl.text.trim();
       if (txt.isEmpty) {
-        setState(() => _injuryError = t.onboarding.msg_error_injury_empty);
+        setState(() => _injuryError = t.onboarding.msg_err_injury_empty);
         hasError = true;
       } else if (!RegExp(r'[a-zA-ZÀ-ỹ]').hasMatch(txt)) {
-        setState(() => _injuryError = t.profile.msg_error_text_required);
+        setState(() => _injuryError = t.profile.msg_err_text_required);
         hasError = true;
       } else {
         setState(() => _injuryError = null);
@@ -680,10 +680,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     if (_draft.dietary.contains("common.other")) {
       String txt = _otherDietCtrl.text.trim();
       if (txt.isEmpty) {
-        setState(() => _dietError = t.onboarding.msg_error_diet_empty);
+        setState(() => _dietError = t.onboarding.msg_err_diet_empty);
         hasError = true;
       } else if (!RegExp(r'[a-zA-ZÀ-ỹ]').hasMatch(txt)) {
-        setState(() => _dietError = t.profile.msg_error_text_required);
+        setState(() => _dietError = t.profile.msg_err_text_required);
         hasError = true;
       } else {
         setState(() => _dietError = null);
@@ -1037,12 +1037,12 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(t.onboarding.label_bot_name, style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
+                Text(t.onboarding.lbl_bot_name, style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 16)),
                 Row(
                   children: [
                     Container(width: 8, height: 8, decoration: BoxDecoration(color: Theme.of(context).gymColors.success, shape: BoxShape.circle)),
                     const SizedBox(width: 4),
-                    Text(t.onboarding.label_bot_status, style: TextStyle(color: Theme.of(context).gymColors.success, fontSize: 12, fontWeight: FontWeight.w600)),
+                    Text(t.onboarding.lbl_bot_status, style: TextStyle(color: Theme.of(context).gymColors.success, fontSize: 12, fontWeight: FontWeight.w600)),
                   ],
                 )
               ],
@@ -1266,15 +1266,15 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   text: TextSpan(
                     style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant),
                     children: [
-                      TextSpan(text: t.onboarding.label_agree_terms),
+                      TextSpan(text: t.onboarding.lbl_agree_terms),
                       TextSpan(
-                        text: t.onboarding.label_terms_link,
+                        text: t.onboarding.lbl_terms_link,
                         style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
                         recognizer: TapGestureRecognizer()..onTap = () => _showTermsDialog(context),
                       ),
-                      TextSpan(text: t.onboarding.label_and),
+                      TextSpan(text: t.onboarding.lbl_and),
                       TextSpan(
-                        text: t.onboarding.label_eula_link,
+                        text: t.onboarding.lbl_eula_link,
                         style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
                         recognizer: TapGestureRecognizer()..onTap = () => _showEulaDialog(context),
                       ),
@@ -1449,7 +1449,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(t.profile.metric_weight, style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.primary)),
+                      Text(t.profile.metric_wt, style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.primary)),
                       const SizedBox(height: 8),
                       GymShakeWrapper(
                         hasError: _weightError != null,
@@ -1457,7 +1457,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           controller: _weightCtrl, focusNode: _weightFocus, keyboardType: TextInputType.number,
                           onChanged: (_) => setState(() => _weightError = null),
                           decoration: InputDecoration(
-                            hintText: t.onboarding.hint_weight, 
+                            hintText: t.onboarding.hint_wt, 
                             border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none), 
                             errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: colorScheme.error, width: 1.5)),
                             focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: colorScheme.error, width: 1.5)),
@@ -1510,11 +1510,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  Expanded(child: IconMiniCard(title: t.profile.goal_gain_weight, icon: Symbols.trending_up, isSelected: _draft.nutritionGoal == NutritionGoal.GAIN_WEIGHT, onTap: () => setState(() => _draft = _draft.copyWith(nutritionGoal: NutritionGoal.GAIN_WEIGHT)))),
+                  Expanded(child: IconMiniCard(title: t.profile.goal_gain_wt, icon: Symbols.trending_up, isSelected: _draft.nutritionGoal == NutritionGoal.GAIN_WEIGHT, onTap: () => setState(() => _draft = _draft.copyWith(nutritionGoal: NutritionGoal.GAIN_WEIGHT)))),
                   SizedBox(width: ResponsiveValue<double>(context, defaultValue: 8.0, conditionalValues: [Condition.smallerThan(name: MOBILE, value: 4.0)]).value),
-                  Expanded(child: IconMiniCard(title: t.profile.goal_lose_weight, icon: Symbols.trending_down, isSelected: _draft.nutritionGoal == NutritionGoal.LOSE_WEIGHT, onTap: () => setState(() => _draft = _draft.copyWith(nutritionGoal: NutritionGoal.LOSE_WEIGHT)))),
+                  Expanded(child: IconMiniCard(title: t.profile.goal_lose_wt, icon: Symbols.trending_down, isSelected: _draft.nutritionGoal == NutritionGoal.LOSE_WEIGHT, onTap: () => setState(() => _draft = _draft.copyWith(nutritionGoal: NutritionGoal.LOSE_WEIGHT)))),
                   SizedBox(width: ResponsiveValue<double>(context, defaultValue: 8.0, conditionalValues: [Condition.smallerThan(name: MOBILE, value: 4.0)]).value),
-                  Expanded(child: IconMiniCard(title: t.profile.goal_maintain_weight, icon: Symbols.trending_flat, isSelected: _draft.nutritionGoal == NutritionGoal.MAINTAIN_WEIGHT, onTap: () => setState(() => _draft = _draft.copyWith(nutritionGoal: NutritionGoal.MAINTAIN_WEIGHT)))),
+                  Expanded(child: IconMiniCard(title: t.profile.goal_maintain_wt, icon: Symbols.trending_flat, isSelected: _draft.nutritionGoal == NutritionGoal.MAINTAIN_WEIGHT, onTap: () => setState(() => _draft = _draft.copyWith(nutritionGoal: NutritionGoal.MAINTAIN_WEIGHT)))),
                 ],
               ),
             ),
@@ -1620,7 +1620,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               mainAxisSize: MainAxisSize.min,
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Text(t.profile.target_weight, style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.primary)),
+                Text(t.profile.target_wt, style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.primary)),
                 const SizedBox(height: 24),
                 
                 GestureDetector(
@@ -1686,7 +1686,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                       topIcon: Symbols.calendar_month,
                       subtitle: _draft.paceType == 'custom' 
                           ? DateFormat('dd/MM/yy').format(DateTime.now().add(Duration(days: savedDays)))
-                          : t.onboarding.label_select_date,
+                          : t.onboarding.lbl_select_date,
                       isSelected: _draft.paceType == 'custom',
                       isSubtitlePrimary: _draft.paceType == 'custom', 
                       onTap: () async {
@@ -1941,7 +1941,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 ),
                 Padding(
                   padding: const EdgeInsets.only(bottom: 4, left: 8),
-                  child: Text(t.onboarding.label_kcal_day, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant)),
+                  child: Text(t.onboarding.lbl_kcal_day, style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant)),
                 )
               ],
             ),
@@ -1949,11 +1949,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Expanded(child: MacroItem(label: t.onboarding.label_macro_protein, value: "${finalMacros.protein.toInt()}g", color: Theme.of(context).gymColors.fireHexagon)),
+                Expanded(child: MacroItem(label: t.onboarding.lbl_macro_protein, value: "${finalMacros.protein.toInt()}g", color: Theme.of(context).gymColors.fireHexagon)),
                 SizedBox(width: ResponsiveValue<double>(context, defaultValue: 8.0, conditionalValues: [Condition.smallerThan(name: MOBILE, value: 4.0)]).value),
-                Expanded(child: MacroItem(label: t.onboarding.label_macro_carbs, value: "${finalMacros.carbs.toInt()}g", color: Theme.of(context).gymColors.success)),
+                Expanded(child: MacroItem(label: t.onboarding.lbl_macro_carbs, value: "${finalMacros.carbs.toInt()}g", color: Theme.of(context).gymColors.success)),
                 SizedBox(width: ResponsiveValue<double>(context, defaultValue: 8.0, conditionalValues: [Condition.smallerThan(name: MOBILE, value: 4.0)]).value),
-                Expanded(child: MacroItem(label: t.onboarding.label_macro_fat, value: "${finalMacros.fat.toInt()}g", color: Theme.of(context).gymColors.goldRank)),
+                Expanded(child: MacroItem(label: t.onboarding.lbl_macro_fat, value: "${finalMacros.fat.toInt()}g", color: Theme.of(context).gymColors.goldRank)),
               ],
             ),
             const Padding(padding: EdgeInsets.symmetric(vertical: 16), child: Divider()),
@@ -1969,7 +1969,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 const SizedBox(width: 12),
                 Expanded(
                   child: Text(
-                    finalProgram != null ? t.translateDynamic(finalProgram.name) : t.onboarding.name_custom_program, 
+                    finalProgram != null ? t.translateDynamic(finalProgram.name) : t.onboarding.name_cust_program, 
                     style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onSurface, fontSize: ResponsiveValue<double>(context, defaultValue: 16.0, conditionalValues: [Condition.smallerThan(name: MOBILE, value: 14.0)]).value),
                     maxLines: 2,
                     softWrap: true,
