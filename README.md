@@ -20,10 +20,10 @@ Designed with a strong emphasis on performance, intuitive UI/UX, and complete of
 *A quick glance at the premium UI/UX, advanced analytics, and workout tracking features.*
 
 <p align="left">
-  <img src="plato_docs/product/1.png" width="220" />
-  <img src="plato_docs/product/2.png" width="220" />
-  <img src="plato_docs/product/3.png" width="220" />
-  <img src="plato_docs/product/4.png" width="220" />
+  <img src="plato_docs/product/1.png" width="210" />
+  <img src="plato_docs/product/2.png" width="210" />
+  <img src="plato_docs/product/3.png" width="210" />
+  <img src="plato_docs/product/4.png" width="210" />
 </p>
 
 ---
