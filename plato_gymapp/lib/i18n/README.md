@@ -1,32 +1,50 @@
-# Hệ Thống Đa Ngôn Ngữ (i18n)
+# 🌍 Plato Localization (i18n) System
 
-Hệ thống đa ngôn ngữ của Plato được quản lý tập trung thông qua **Google Sheets** và sử dụng package `slang` để sinh code tự động.
+Plato's localization system is centrally managed via **Google Sheets** to provide a seamless collaborative environment for translators and developers. It leverages the `slang` package to generate strongly-typed, compile-safe localization classes in Flutter.
 
-## 🌟 Quy trình hoạt động (Workflow)
+## 🌟 Workflow Overview
 
-1. **Source of Truth**: File Google Sheets là nguồn dữ liệu duy nhất. Mọi thay đổi về từ ngữ, thêm/bớt key đều phải thực hiện trên Sheet này.
-2. **Fetch Dữ Liệu**: Chạy script `fetch_langs.dart` để tự động tải bản dịch mới nhất từ Google Sheets về máy.
-3. **Parse & Gen Code**: Script sẽ tự động chuyển đổi định dạng CSV từ Sheet thành các file `.i18n.json` (`strings_en.i18n.json` và `strings_vi.i18n.json`), sau đó kích hoạt `slang` để sinh ra file `strings.g.dart`.
+1. **Single Source of Truth**: The Google Sheet is the definitive source for all localization strings. All additions, modifications, or deletions of translation keys must be performed directly on this sheet.
+2. **Automated Data Fetching**: A custom script (`fetch_langs.dart`) downloads the latest translation data from Google Sheets in CSV format.
+3. **Parse & Code Generation**: The script automatically parses the downloaded CSV, generates the corresponding `.i18n.json` files (e.g., `strings_en.i18n.json` and `strings_vi.i18n.json`), and then triggers `slang` to rebuild the `strings.g.dart` file.
 
-## 🛠 Cách Cập Nhật Ngôn Ngữ Mới
-Mỗi khi có thay đổi trên Google Sheets, bạn hãy đợi khoảng **1 đến 2 phút** (vì Google Sheets cần thời gian lưu cache để cập nhật file CSV xuất ra Web). Sau đó, chạy lệnh sau ở thư mục gốc của app (`plato_gymapp`):
+---
+
+## 🛠 How to Update Translations
+
+Whenever a modification is made on the Google Sheet, please wait for **1 to 2 minutes** to allow Google to update its CSV export cache. Afterward, run the synchronization script from the `plato_gymapp` root directory:
 
 ```bash
 dart scripts/fetch_langs.dart
 ```
 
-Lệnh này sẽ tải về file ngôn ngữ mới nhất, so sánh với bản cũ để in ra **Báo cáo đồng bộ (Diff)** (các thay đổi Thêm/Xóa/Sửa), và tự động build lại file `strings.g.dart`.
+**What happens during this process?**
+- The script downloads the latest translations.
+- It compares the new data with the existing JSON files and outputs a **Synchronization Report (Diff)** directly in your terminal, detailing all added, modified, or deleted keys.
+- It automatically invokes the `slang` build runner to update `strings.g.dart`.
 
-## 📝 Quy ước định dạng trên Google Sheets
+> **⚠️ IMPORTANT WARNING**
+> **Do not** manually edit `strings_en.i18n.json`, `strings_vi.i18n.json`, or `strings.g.dart`. These files are auto-generated and any manual changes will be overwritten the next time the sync script runs.
 
-File sheet cần có 3 cột chính theo đúng thứ tự:
-1. `key`: Mã định danh của chuỗi (vd: `auth.btn_login`)
-2. `en`: Nội dung tiếng Anh
-3. `vi`: Nội dung tiếng Việt
+---
 
-*(Lưu ý: Các key trên Sheet đã được quy hoạch tự động theo thuật toán **Advanced Sort** - gom nhóm theo từng Module, sau đó bóc tách tiền tố (prefix) để các thành phần liên quan (như title, desc, lbl, btn, msg...) nằm cạnh nhau một cách gọn gàng và logic nhất, giúp bạn dễ dàng tìm kiếm và chỉnh sửa)*
-## ⚙️ Cấu Hình Slang (`slang.yaml`)
-Hệ thống được cấu hình để đọc các file `.i18n.json` được gen ra từ script:
+## 📝 Google Sheets Formatting Rules
+
+The Google Sheet is strictly structured with three primary columns in the following order:
+
+1. `key`: The unique identifier for the string (e.g., `auth.btn_login`).
+2. `en`: The English translation.
+3. `vi`: The Vietnamese translation.
+
+> **💡 Note on Key Organization:**
+> The keys in the sheet are automatically organized by an **Advanced Sort** algorithm. They are grouped by Module and then further sorted by their prefixes (`title`, `desc`, `lbl`, `btn`, `msg`, etc.). This ensures related UI components remain logically grouped together, making the sheet highly maintainable.
+
+---
+
+## ⚙️ Slang Configuration (`slang.yaml`)
+
+The system is configured to read the script-generated `.i18n.json` files seamlessly:
+
 ```yaml
 base_locale: en
 fallback_strategy: base_locale
@@ -37,4 +55,3 @@ output_file_name: strings.g.dart
 string_interpolation: braces
 key_case: snake
 ```
-*(Không chỉnh sửa trực tiếp vào file `strings_en.i18n.json`, `strings_vi.i18n.json` hay `strings.g.dart` vì chúng sẽ bị ghi đè mỗi khi chạy script).*

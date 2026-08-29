@@ -20,10 +20,10 @@ Designed with a strong emphasis on performance, intuitive UI/UX, and complete of
 *A quick glance at the premium UI/UX, advanced analytics, and workout tracking features.*
 
 <p align="left">
-  <img src="plato_docs/product/1.png" width="210" />
-  <img src="plato_docs/product/2.png" width="210" />
-  <img src="plato_docs/product/3.png" width="210" />
-  <img src="plato_docs/product/4.png" width="210" />
+  <img src="plato_docs/product/1.png" width="200" />
+  <img src="plato_docs/product/2.png" width="200" />
+  <img src="plato_docs/product/3.png" width="200" />
+  <img src="plato_docs/product/4.png" width="200" />
 </p>
 
 ---
@@ -118,18 +118,19 @@ plato_gymapp/assets/
 
 ## 🌍 Localization (i18n) System
 
-Plato features a robust type-safe localization system powered by `slang`. All language strings are managed centrally to ensure high-quality translations across the application.
+Plato features a robust type-safe localization system powered by `slang`, with a centralized translation workflow backed by Google Sheets.
 
-- **Translation Files:** Located in `plato_gymapp/lib/i18n/`.
-- **Default Language:** Vietnamese (`strings_vi.i18n.json`).
-- **Supported Languages:** Vietnamese, English (`strings_en.i18n.json`).
+- **Source of Truth:** All translations are managed remotely on a single Google Sheet.
+- **Auto-Sync:** A custom script fetches data from Google Sheets, parses it into `.i18n.json` files, and automatically generates the type-safe Dart classes.
+- **Supported Languages:** Vietnamese (Default) and English.
 
 **Updating Translations:**
-After adding or modifying translation keys in the JSON files, you must regenerate the dart code to maintain type safety:
+*Do not edit the `.json` files manually.* After making changes on the Google Sheet, pull the latest translations by running:
 ```bash
 cd plato_gymapp
-dart run slang
+dart scripts/fetch_langs.dart
 ```
+*(For detailed instructions, refer to the [i18n README](plato_gymapp/lib/i18n/README.md))*
 
 ---
 
