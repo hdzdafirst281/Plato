@@ -1,103 +1,132 @@
 # Plato 🏋️‍♂️
 
+<p align="center">
+  <img src="plato_gymapp/assets/logo/logo_plato.png" alt="Plato Logo" width="200"/>
+</p>
+
 ![Version](https://img.shields.io/badge/version-1.1.1+9-blue.svg)
 ![Flutter](https://img.shields.io/badge/Flutter-%5E3.11.4-02569B?logo=flutter)
 
-**Plato** is a comprehensive, local-first Flutter fitness application designed to help users plan workouts, track active training sessions, monitor nutrition and body progress, and stay motivated through a robust gamification system (XP and competitive ranks).
+**Plato** is an advanced, local-first Flutter fitness application engineered to optimize your workout planning, session tracking, and nutritional monitoring. Powered by a robust gamification engine, Plato encourages consistency through XP accumulation and competitive ranking tiers.
 
-Built with a focus on performance, rich UI/UX, and offline capability, Plato ensures your fitness journey is uninterrupted, whether you're at the gym or offline.
+Designed with a strong emphasis on performance, intuitive UI/UX, and complete offline capabilities, Plato ensures that your fitness data is always accessible, seamlessly syncing whenever a connection is restored.
 
 ---
 
-## 🌟 Key Features
+## 📸 App Screenshots
 
-### 🏋️ Workout Tracking
-- **Routine Management:** Browse bundled programs, or create, edit, duplicate, and reorder custom routines.
-- **Extensive Exercise Library:** Search built-in exercises or create custom ones with notes and media.
-- **Advanced Session Player:** Run active workouts with a persistent mini-player, rest timers, supersets, sound cues, vibrations, and background service support.
-- **Comprehensive Analytics:** Track workout volume, estimated calories, personal records (PRs), muscle distribution, training load, and recovery metrics.
-- **Flexible Set Types:** Record weight/reps, reps-only, timed, distance, and step-based sets. (Limit: 50 unique exercises per session).
+*(Place your Google Play / App Store screenshots in the `plato_docs/screenshots/` folder and link them below)*
 
-### 🥗 Nutrition & Diet
-- **Daily Log:** Track meals, calories, protein, carbohydrates, fat, and hydration (water intake).
-- **Food Encyclopedia:** Search the bundled food database or save custom foods.
-- **Smart Targets:** Automatically calculate nutrition targets based on user profile, goals, and body metrics (with manual override available).
-- **History & Analytics:** Copy previous meals and review historical nutrition trends.
+<p align="center">
+  <img src="plato_docs/product/1.png" width="220" />
+  <img src="plato_docs/product/2.png" width="220" />
+  <img src="plato_docs/product/3.png" width="220" />
+  <img src="plato_docs/product/4.png" width="220" />
+</p>
 
-### 📈 Profile & Progress
-- **Guided Onboarding:** Tailor the app based on body measurements, experience level, environment, schedule, goals, injuries, and diet.
-- **Progress Tracking:** Monitor weight changes and activity heatmaps.
-- **Advanced Charts:** Visualize training load, muscle recovery, and workout history using interactive charts.
-- **Customization:** Light/Dark themes, dynamic scaling, and in-app tutorials (`ShowCaseView`).
+---
 
-### 🎮 Gamification
-- **XP & Rewards:** Earn XP and unlock rewards for consistency and personal records.
-- **Competitive Ranking System:** Progress through tiers and ranks. Rank calculations and promotions/demotions are handled dynamically via `RankCalculator` (45-day seasons).
-- **Rank History:** View historical performance and rank progression.
+## 🌟 Core Features
 
-### 📱 App Experience
-- **Responsive Design:** Optimized layouts for Narrow Mobile, standard Mobile, Tablet, and Desktop using `responsive_framework`.
-- **Localization:** Multilingual support (Vietnamese and English) powered by `slang`.
-- **Background Sync:** Seamless cloud synchronization when online, ensuring data integrity without blocking the UI.
+### 🏋️ Advanced Workout Tracking
+- **Routine Management:** Leverage bundled fitness programs or meticulously design, duplicate, and reorder custom routines tailored to your goals.
+- **Comprehensive Exercise Library:** Access a vast repository of built-in exercises or create personalized entries complete with custom notes and media instructions.
+- **Dynamic Session Player:** Execute active workouts with a persistent mini-player, intelligent rest timers, superset configurations, haptic feedback, and background service execution to prevent interruptions.
+- **In-depth Analytics:** Monitor workout volume, estimated caloric expenditure, personal records (PRs), muscle group distribution, training load, and recovery metrics.
+- **Versatile Set Types:** Seamlessly record various set types including weight/reps, reps-only, timed, distance, and step-based sets.
+
+### 🥗 Nutrition & Diet Management
+- **Daily Nutritional Log:** Meticulously track meals, caloric intake, macronutrients (protein, carbohydrates, fat), and hydration levels.
+- **Smart Dietary Targets:** Automatically generate personalized nutrition targets based on biometric profile, objectives, and physical metrics, with manual overrides for granular control.
+- **Historical Trends & Analytics:** Easily replicate previous meals and analyze historical nutritional trends to maintain dietary consistency.
+
+### 📈 Profile & Biometric Progress
+- **Intelligent Onboarding:** Personalize the application experience by configuring body measurements, experience level, workout environment, schedule, goals, and dietary preferences.
+- **Visual Progress Tracking:** Monitor weight fluctuations and activity frequency via interactive heatmaps.
+- **Advanced Data Visualization:** Utilize sophisticated charts to visualize training loads, muscle recovery states, and comprehensive workout histories.
+
+### 🎮 Gamification Engine
+- **XP & Achievement System:** Earn XP and unlock exclusive rewards by maintaining consistency and surpassing personal records.
+- **Dynamic Ranking System:** Advance through competitive tiers and ranks. Rank calculations and seasonal promotions/demotions are dynamically managed by the `RankCalculator` over 45-day cycles.
+
+### 📱 Premium App Experience
+- **Responsive Architecture:** Meticulously optimized layouts for Narrow Mobile, standard Mobile, Tablet, and Desktop environments utilizing `responsive_framework`.
+- **Localization (i18n):** Full multilingual support (Vietnamese and English) powered by the robust `slang` package.
+- **Non-blocking Background Sync:** Seamless cloud data synchronization ensures data integrity without hindering user interaction.
 
 ---
 
 ## 🛠 Technology Stack
 
-Plato leverages modern Flutter ecosystem tools and architectural patterns to deliver a maintainable and scalable codebase:
+Plato utilizes a modern and robust Flutter ecosystem, adhering to best practices to ensure a maintainable, scalable, and highly performant codebase:
 
-| Area | Implementation / Package |
-| --- | --- |
+| Category | Implementation / Package |
+| :--- | :--- |
 | **Framework** | Flutter & Material Design 3 |
 | **State Management** | `flutter_bloc` (Cubits) |
 | **Routing** | `go_router` (Stateful Multi-tab Shell) |
-| **Dependency Injection** | `get_it` & `injectable` |
+| **Dependency Injection**| `get_it` & `injectable` |
 | **Local Database** | `floor` (SQLite) |
-| **Lightweight Storage** | `shared_preferences` |
 | **Backend & Auth** | Supabase (`supabase_flutter`) |
-| **Data Models** | `freezed` & `json_annotation` |
+| **Data Serialization** | `freezed` & `json_annotation` |
 | **Localization (i18n)** | `slang_flutter` (Type-safe i18n) |
 | **Background Tasks** | `workmanager` & `flutter_background_service` |
-| **Media & Feedback** | `just_audio`, `video_player`, `vibration`, `lottie` |
-| **Charts & Visuals** | `fl_chart`, `flutter_svg`, `shimmer` |
+| **Media & Animations** | `just_audio`, `video_player`, `vibration`, `lottie` |
 
 ---
 
 ## 📂 Project Architecture
 
-The project strictly follows a **Feature-First (Modular)** architecture combined with **Clean Architecture** principles within each feature.
+The project strictly adheres to a **Feature-First (Modular)** architecture combined with **Clean Architecture** principles within each feature module. The application code is centralized within the `plato_gymapp/` directory.
 
 ```text
-lib/
+plato_gymapp/lib/
 ├── main.dart
 ├── core/
-│   ├── bloc/             # Global App State (e.g., Guided Tours)
+│   ├── bloc/             # Global App State (e.g., Guided Tours, Theme)
 │   ├── database/         # Floor DB, DAOs, Entities, and Migrations
 │   ├── designsystem/     # Theming, Colors, Shapes, and Reusable UI Components
 │   ├── di/               # GetIt and Injectable configurations
-│   ├── navigation/       # AppRouter, GoRouter configuration, Global Wrappers
+│   ├── navigation/       # AppRouter, GoRouter configuration
 │   ├── network/          # Supabase Client Initialization
-│   ├── utils/            # Utilities (Time, Focus, Formatters)
 │   └── worker/           # Background Sync and Foreground Workout Services
-└── features/
-    ├── auth/             # Onboarding, OTP Auth, User Session
-    ├── gamification/     # XP, Ranks, Rewards, RankCalculator Domain
-    ├── nutrition/        # Food Tracking, Macro Calculation
-    ├── profile/          # Settings, Body Metrics, Stats, Calendar
-    └── workout/          # Exercise Library, Routine Editor, Active Session Player
+├── features/
+│   ├── auth/             # Onboarding, OTP Authentication, User Sessions
+│   ├── gamification/     # XP, Ranks, Rewards, RankCalculator Domain
+│   ├── nutrition/        # Food Tracking, Macro Calculation
+│   ├── profile/          # Settings, Body Metrics, Stats, Calendar
+│   └── workout/          # Exercise Library, Routine Editor, Active Session Player
+└── i18n/                 # Localization & Translations
+    ├── strings_en.i18n.json # English Strings
+    └── strings_vi.i18n.json # Vietnamese Strings (Default)
 ```
 
-**Other Important Directories:**
+**Key Resource Directories (`plato_gymapp/assets/`):**
 ```text
-assets/
+plato_gymapp/assets/
 ├── init_data.sql         # Bundled master data (Exercises & Foods)
-├── logo/                 # App logos for Splash & Icons
-├── lottie/               # Animations
+├── logo/                 # Application logos and splash screen assets
+├── lottie/               # High-quality Lottie animations
 ├── svg/                  # Vector graphics (Muscle maps, UI icons)
-└── sounds/               # Audio cues for timers
+├── gifs/                 # Exercise demonstration GIFs
+└── sounds/               # Audio cues for timers and interactions
+```
 
-android/ ios/ web/        # Platform-specific native code
-test/                     # Automated unit and widget tests
+---
+
+## 🌍 Localization (i18n) System
+
+Plato features a robust type-safe localization system powered by `slang`. All language strings are managed centrally to ensure high-quality translations across the application.
+
+- **Translation Files:** Located in `plato_gymapp/lib/i18n/`.
+- **Default Language:** Vietnamese (`strings_vi.i18n.json`).
+- **Supported Languages:** Vietnamese, English (`strings_en.i18n.json`).
+
+**Updating Translations:**
+After adding or modifying translation keys in the JSON files, you must regenerate the dart code to maintain type safety:
+```bash
+cd plato_gymapp
+dart run slang
 ```
 
 ---
@@ -107,71 +136,48 @@ test/                     # Automated unit and widget tests
 ### Prerequisites
 - **Flutter SDK:** `^3.11.4`
 - **IDE:** Android Studio, IntelliJ, or VS Code
-- **Platform Tooling:** Xcode (for iOS), Android SDK (for Android)
-- **Supabase Project:** Configured with required tables and RPCs.
+- **Supabase Project:** Configured with the required tables and RPC functions.
 
-### 1. Supabase Environment Setup
-Create a `.env` file in the root of the project:
+### 1. Environment Configuration
+Navigate to the `plato_gymapp` directory and create a `.env` file:
+```bash
+cd plato_gymapp
+touch .env
+```
+Populate it with your Supabase credentials:
 ```dotenv
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_ANON_KEY=your-public-anon-key
 ```
 > **Warning:** Only put the public `ANON_KEY` in the `.env` file. Never expose your `SERVICE_ROLE` key in the frontend repository.
 
-**Required Supabase Tables:**
-`users`, `workout_history`, `routines`, `reward_claims_ledger`, `user_rank_history`
-
-**Required Supabase RPCs (PostgreSQL functions):**
-`check_email_exists`, `delete_user_account`, `get_server_time_ms`
-
 ### 2. Install Dependencies
 ```bash
+cd plato_gymapp
 flutter pub get
 ```
 
 ### 3. Code Generation
-Plato relies heavily on generated code (`injectable`, `floor`, `freezed`, `json_serializable`, and `slang`). 
-
-Run the build runner to generate the necessary files:
+Plato relies on generated code for DI, database schemas, serialization, and localization. Run the build runner to generate the necessary files:
 ```bash
+cd plato_gymapp
 dart run build_runner build --delete-conflicting-outputs
 ```
 *(For active development, use `watch` instead of `build`)*
 
 ### 4. Run the Application
 ```bash
+cd plato_gymapp
 flutter run
-```
-
----
-
-## 🌍 Localization (i18n)
-
-Translations are managed using `slang`. The JSON files are located in:
-- `lib/i18n/strings_vi.i18n.json` (Vietnamese - Default)
-- `lib/i18n/strings_en.i18n.json` (English)
-
-After modifying translation files, always regenerate the dart code:
-```bash
-dart run slang
-```
-
----
-
-## 🎨 App Icons & Splash Screen
-
-If you change the logo assets in `pubspec.yaml`, regenerate the native splash screens and icons:
-```bash
-dart run flutter_launcher_icons
-dart run flutter_native_splash:create
 ```
 
 ---
 
 ## ✅ Code Quality & Testing
 
-Format the code, run static analysis, and execute tests:
+Maintain code quality by formatting, analyzing, and running unit tests:
 ```bash
+cd plato_gymapp
 dart format --output=none --set-exit-if-changed lib test
 flutter analyze
 flutter test
@@ -180,10 +186,18 @@ flutter test
 
 ---
 
+## 🔒 Security & Release Setup
+
+### Environment Variables (`.env`)
+The `.env` file is strictly ignored by Git (`.gitignore`) to prevent credential leaks. **Never commit the `.env` file.** It should only contain your `SUPABASE_URL` and `SUPABASE_ANON_KEY`. Your `SERVICE_ROLE_KEY` must remain securely on your backend and should never be exposed in this Flutter client.
+
+### App Signing & Keystore (Chữ ký số)
+To build the app for Google Play (Release mode), you need the production keystore (Chữ ký số).
+- **Android:** The `keystore.jks` and `key.properties` files are excluded from source control. You must manually place `key.properties` inside the `android/` directory on your build machine. **NEVER commit your keystore file or passwords to the repository.**
+- **iOS:** Managed via Xcode. Production certificates should be securely handled via your team's Apple Developer Account or Fastlane Match.
+
+---
+
 ## 🧠 Business Logic & Guidelines
 
-Feature-specific rules and logic are documented in their respective domains:
-- `lib/features/workout/rules.md`
-- `lib/features/gamification/rules.md`
-
-Always keep complex calculation rules in the **Domain Layer** (e.g., `RankCalculator`, `RecoveryCalculator`) rather than polluting Presentation/UI widgets.
+Feature-specific rules and logic are strictly encapsulated within their respective domain layers. Refer to domain-specific documentation for complex logic (e.g., `RankCalculator`, `RecoveryCalculator`) to avoid polluting Presentation/UI widgets.
