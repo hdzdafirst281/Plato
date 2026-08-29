@@ -31,7 +31,7 @@ Map<String, String> _flatten(Map<String, dynamic> json, [String prefix = '']) {
 void main() async {
   const url = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTC6KX4whrXqy8p0W5IAaVJeZ72Ugcnasau_araWD6OsYwAgN6qz4WgqrvBzd6PJ5IlluOFYVLfYAB5/pub?output=csv';
   
-  print('Đang tải bản dịch mới từ Google Sheets...');
+  stdout.writeln('Đang tải bản dịch mới từ Google Sheets...');
   
   try {
     final request = await HttpClient().getUrl(Uri.parse(url));
@@ -42,7 +42,7 @@ void main() async {
       final List<List<dynamic>> rows = const CsvToListConverter().convert(csvString);
       
       if (rows.isEmpty || rows.first.length < 3) {
-        print('Định dạng CSV không đúng. Cần ít nhất 3 cột (key, en, vi)');
+        stderr.writeln('Định dạng CSV không đúng. Cần ít nhất 3 cột (key, en, vi)');
         return;
       }
       
@@ -92,33 +92,33 @@ void main() async {
         }
       }
 
-      print('-----------------------------------------');
-      print('Báo cáo đồng bộ Đa ngôn ngữ:');
-      print('\x1B[32m🟢 Thêm mới: ${addedKeys.length} keys\x1B[0m');
-      if (addedKeys.isNotEmpty) print('   ${addedKeys.join(", ")}');
+      stdout.writeln('-----------------------------------------');
+      stdout.writeln('Báo cáo đồng bộ Đa ngôn ngữ:');
+      stdout.writeln('\x1B[32m🟢 Thêm mới: ${addedKeys.length} keys\x1B[0m');
+      if (addedKeys.isNotEmpty) stdout.writeln('   ${addedKeys.join(", ")}');
       
-      print('\x1B[33m🟡 Cập nhật: ${updatedKeys.length} keys\x1B[0m');
-      if (updatedKeys.isNotEmpty) print('   ${updatedKeys.join(", ")}');
+      stdout.writeln('\x1B[33m🟡 Cập nhật: ${updatedKeys.length} keys\x1B[0m');
+      if (updatedKeys.isNotEmpty) stdout.writeln('   ${updatedKeys.join(", ")}');
       
-      print('\x1B[31m🔴 Xóa bỏ: ${removedKeys.length} keys\x1B[0m');
-      if (removedKeys.isNotEmpty) print('   ${removedKeys.join(", ")}');
-      print('-----------------------------------------');
+      stdout.writeln('\x1B[31m🔴 Xóa bỏ: ${removedKeys.length} keys\x1B[0m');
+      if (removedKeys.isNotEmpty) stdout.writeln('   ${removedKeys.join(", ")}');
+      stdout.writeln('-----------------------------------------');
       
       enFile.writeAsStringSync(const JsonEncoder.withIndent('  ').convert(enJson));
       File('lib/i18n/strings_vi.i18n.json').writeAsStringSync(const JsonEncoder.withIndent('  ').convert(viJson));
       
-      print('Phân tích CSV thành công! Đang tự động gen code...');
+      stdout.writeln('Phân tích CSV thành công! Đang tự động gen code...');
       
       final process = Process.runSync('dart', ['run', 'slang']);
       if (process.exitCode == 0) {
-        print('Hoàn tất! Các file ngôn ngữ đã được cập nhật chính xác.');
+        stdout.writeln('Hoàn tất! Các file ngôn ngữ đã được cập nhật chính xác.');
       } else {
-        print('Lỗi khi chạy slang:\\n\${process.stderr}');
+        stderr.writeln('Lỗi khi chạy slang:\n${process.stderr}');
       }
     } else {
-      print('Lỗi khi tải file. Status code: \${response.statusCode}');
+      stderr.writeln('Lỗi khi tải file. Status code: ${response.statusCode}');
     }
   } catch (e) {
-    print('Đã có lỗi xảy ra: \$e');
+    stderr.writeln('Đã có lỗi xảy ra: $e');
   }
 }
