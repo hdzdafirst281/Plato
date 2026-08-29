@@ -1,9 +1,9 @@
 # Plato - Gym Log Workout & Nutrition
 
 <p align="left">
-  <img src="plato_gymapp/assets/logo/logo_plato.png" alt="Plato Logo" width="200"/>
+  <img src="plato_gymapp/assets/logo/logo_plato.png" alt="Plato Logo" height="100"/>
   &nbsp;&nbsp;&nbsp;&nbsp;
-  <img src="plato_gymapp/assets/logo/logo_themedark.png" alt="Plato Dark Logo" width="200"/>
+  <img src="plato_gymapp/assets/logo/logo_themedark.png" alt="Plato Dark Logo" height="100"/>
 </p>
 
 ![Version](https://img.shields.io/badge/version-1.1.1+9-blue.svg)
@@ -20,13 +20,10 @@ Designed with a strong emphasis on performance, intuitive UI/UX, and complete of
 *A quick glance at the premium UI/UX, advanced analytics, and workout tracking features.*
 
 <p align="center">
-  <img src="plato_docs/product/1.png" width="220" />
-  &nbsp;&nbsp;
-  <img src="plato_docs/product/2.png" width="220" />
-  <br/><br/>
-  <img src="plato_docs/product/3.png" width="220" />
-  &nbsp;&nbsp;
-  <img src="plato_docs/product/4.png" width="220" />
+  <img src="plato_docs/product/1.png" width="200" />
+  <img src="plato_docs/product/2.png" width="200" />
+  <img src="plato_docs/product/3.png" width="200" />
+  <img src="plato_docs/product/4.png" width="200" />
 </p>
 
 ---
