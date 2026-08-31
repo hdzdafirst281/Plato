@@ -1,0 +1,64 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-plato-bg text-gray-200 antialiased font-sans;
+  }
+  
+  .light-mode body {
+    @apply bg-gray-50 text-gray-900;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-plato-primary text-white font-semibold shadow-md hover:-translate-y-1 hover:shadow-lg transition-all duration-300 cursor-pointer;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 px-6 py-3 rounded-lg bg-plato-surface text-white font-semibold shadow-md hover:-translate-y-1 hover:shadow-lg border border-white/10 transition-all duration-300 cursor-pointer;
+  }
+  
+  .light-mode .btn-secondary {
+    @apply bg-white text-gray-900 border-gray-300;
+  }
+  
+  .glass-nav {
+    @apply sticky top-4 z-50 mx-4 lg:mx-auto max-w-6xl rounded-2xl bg-plato-surface/80 backdrop-blur-md border border-white/10 shadow-lg px-6 py-4 transition-all duration-300;
+  }
+  
+  .light-mode .glass-nav {
+    @apply bg-white/80 border-gray-200 text-gray-900 shadow-sm;
+  }
+
+  .social-btn {
+    @apply w-14 h-14 rounded-full bg-plato-surface/80 text-white flex items-center justify-center border border-white/5 hover:bg-plato-surface hover:-translate-y-1 transition-all shadow-lg;
+  }
+  
+  .light-mode .social-btn {
+    @apply bg-white border-gray-200 text-gray-900 shadow-lg hover:text-plato-primary hover:shadow-xl;
+  }
+}
+
+@layer utilities {
+  .light-mode .text-gray-400 {
+    @apply text-gray-600;
+  }
+  .light-mode .text-gray-300 {
+    @apply text-gray-700;
+  }
+  .light-mode .text-gray-500 {
+    @apply text-gray-600;
+  }
+  .light-mode .text-white {
+    @apply text-gray-900;
+  }
+  .light-mode .bg-plato-surface\/30 {
+    @apply bg-gray-100;
+  }
+  .light-mode .bg-plato-surface {
+    @apply bg-white border-gray-200 text-gray-900;
+  }
+}

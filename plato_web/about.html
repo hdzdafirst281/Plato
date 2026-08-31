@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/logo_plato.png" />
+    <link rel="stylesheet" href="/style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Plato - Về chúng tôi</title>
+    <script>
+      if (localStorage.getItem('theme') === 'light') {
+        document.documentElement.classList.add('light-mode');
+      }
+    </script>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="glass-nav mt-4 transition-all duration-300">
+      <div class="flex items-center justify-between w-full">
+        <!-- Logo -->
+        <a href="/" class="flex items-center gap-2">
+          <img src="/logo_themedark.png" alt="Plato Logo" class="h-10 w-auto block dark-logo plato-logo" />
+        </a>
+        
+        <!-- Desktop Links -->
+        <div class="hidden md:flex items-center gap-6 text-base font-medium absolute left-1/2 -translate-x-1/2">
+          <a href="/" class="hover:text-plato-primary transition-colors text-gray-400">Trang chủ</a>
+          <a href="/features.html" class="hover:text-plato-primary transition-colors text-gray-400">Tính năng</a>
+          <a href="/about.html" class="hover:text-plato-primary transition-colors text-plato-primary font-bold">Về chúng tôi</a>
+        </div>
+
+        <!-- Right Side Actions -->
+        <div class="flex items-center gap-4">
+          <button id="theme-toggle" class="p-2 rounded-full hover:bg-white/10 transition-colors">
+            <i data-lucide="sun" id="icon-sun" class="w-5 h-5 hidden"></i>
+            <i data-lucide="moon" id="icon-moon" class="w-5 h-5"></i>
+          </button>
+          <!-- Mobile Menu Toggle -->
+          <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg hover:bg-white/10 transition-colors">
+            <i data-lucide="menu" class="w-6 h-6"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Menu Dropdown -->
+      <div id="mobile-menu" class="hidden flex-col gap-4 mt-4 pt-4 border-t border-white/10 w-full md:hidden">
+        <a href="/" class="text-center font-medium hover:text-plato-primary transition-colors text-gray-400 py-2">Trang chủ</a>
+        <a href="/features.html" class="text-center font-medium hover:text-plato-primary transition-colors text-gray-400 py-2">Tính năng</a>
+        <a href="/about.html" class="text-center font-medium hover:text-plato-primary transition-colors text-gray-400 py-2">Về chúng tôi</a>
+      </div>
+    </nav>
+
+    <main class="max-w-3xl mx-auto px-4 py-24 min-h-[70vh]">
+      <h1 class="text-4xl font-bold mb-8" data-aos="fade-up">Về chúng tôi</h1>
+      <div class="prose prose-invert prose-plato max-w-none text-gray-300 space-y-6" data-aos="fade-up" data-aos-delay="100">
+        <p class="text-lg">
+          <strong>Plato</strong> không chỉ là một ứng dụng ghi chép tập luyện thông thường, mà là một hệ sinh thái toàn diện được phát triển bởi đội ngũ Zenithas. Chúng tôi kết hợp giữa <strong>Tập luyện nâng cao (Advanced Tracking)</strong>, <strong>Dinh dưỡng (Nutrition Management)</strong>, và <strong>Cơ chế Trò chơi hóa (Gamification Engine)</strong> để mang lại cho bạn trải nghiệm tốt nhất.
+        </p>
+        <p>
+          Chúng tôi tin rằng sự kiên trì là chìa khóa của sức khỏe và một thân hình hoàn hảo. Vì vậy, Plato được thiết kế tỉ mỉ với tính năng xếp hạng (Ranks) và điểm kinh nghiệm (XP) nhằm tạo ra nguồn động lực to lớn giúp bạn bước đến phòng tập mỗi ngày. 
+        </p>
+        <p class="mb-4">
+          Thay vì phụ thuộc hoàn toàn vào internet, ứng dụng hoạt động cực kỳ mượt mà ngay cả khi không có mạng. Điều này giúp bạn an tâm tập luyện ở bất cứ đâu, đồng thời bảo vệ dữ liệu một cách riêng tư nhất. Dữ liệu sẽ tự động đồng bộ một cách an toàn khi có mạng trở lại.
+        </p>
+        <p class="font-bold text-plato-primary mt-8 text-xl">
+          Plato - Kỷ luật tạo nên sự vĩ đại!
+        </p>
+        
+        <div class="mt-12 pt-8 border-t border-white/10" data-aos="fade-up" data-aos-delay="200">
+          <h3 class="text-xl font-bold mb-4 text-white">Kết nối với chúng tôi</h3>
+          <p class="text-gray-400 mb-6">Bạn cần hỗ trợ hoặc có góp ý? Hãy liên hệ qua email: <a href="mailto:support.plato@zenithas.vn?subject=G%C3%B3p%20%C3%BD%20v%E1%BB%81%20%E1%BB%A9ng%20d%E1%BB%A5ng%20Plato" class="text-plato-primary hover:underline font-medium">support.plato@zenithas.vn</a></p>
+          <div class="flex flex-wrap items-center gap-4">
+            <a href="https://www.instagram.com/plato.zenithas/" target="_blank" aria-label="Instagram" class="social-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-7 h-7"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+            </a>
+            <a href="https://www.facebook.com/profile.php?id=61592005979928" target="_blank" aria-label="Facebook" class="social-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-7 h-7"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+            </a>
+            <a href="https://www.threads.com/@plato.zenithas" target="_blank" aria-label="Threads" class="social-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7"><path d="M18.263 11.097c-.03-3.486-1.92-5.586-5.111-5.586-2.13 0-3.922.963-4.863 2.499l2.062 1.438c.535-.843 1.272-1.543 2.628-1.543 1.528 0 2.318.85 2.544 2.431a15 15 0 0 0-2.236-.173c-4.125 0-6.068 1.867-6.068 4.336s1.943 3.99 4.804 3.99c3.139 0 5.013-2.115 5.781-4.735.798.361 1.348 1.204 1.348 2.47 0 3.387-3.907 5.232-7.22 5.232-4.885 0-8.077-3.207-8.077-8.424 0-6.392 4.223-10.487 9.9-10.487 3.808 0 5.69 1.671 6.97 3.914l2.108-1.475C21.44 2.078 18.331 0 13.663 0 6.227 0 1.168 5.277 1.168 12.934c0 7 4.953 11.066 10.856 11.066 4.878 0 9.809-2.846 9.809-7.716 0-2.545-1.46-4.231-3.569-5.187m-6.33 4.855c-1.077 0-2.026-.512-2.026-1.453 0-1.483 1.822-1.934 3.606-1.934.678 0 1.34.045 1.927.173-.422 1.927-1.671 3.215-3.508 3.214Z"/></svg>
+            </a>
+            <a href="https://www.tiktok.com/@plato.zenithas?_r=1&_t=ZS-990YzsfNfXO" target="_blank" aria-label="TikTok" class="social-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+            </a>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- CTA Section -->
+    <section id="download" class="py-24 px-4 text-center">
+      <div class="max-w-2xl mx-auto" data-aos="zoom-in">
+        <h2 class="text-4xl font-bold mb-6">Sẵn sàng để bắt đầu?</h2>
+        <p class="text-gray-400 mb-10">Tải Plato ngay hôm nay và đưa hành trình thể hình của bạn lên một tầm cao mới.</p>
+        <a href="https://play.google.com/store/apps/details?id=vn.zenithas.plato&pli=1" target="_blank" rel="noopener noreferrer" class="hover:-translate-y-1 hover:shadow-lg transition-transform duration-300 inline-block">
+          <img src="https://play.google.com/intl/en_us/badges/static/images/badges/vi_badge_web_generic.png" alt="Tải ứng dụng trên Google Play" class="h-16 w-auto" />
+        </a>
+      </div>
+    </section>
+
+    <footer class="bg-plato-surface border-t border-white/5 py-12 px-4">
+      <div class="max-w-6xl mx-auto flex flex-col items-center gap-6">
+        <div class="flex flex-wrap items-center justify-center gap-8 text-base">
+          <img src="/logo_themedark.png" alt="Plato Logo" class="h-10 w-auto plato-logo" />
+          <a href="/terms.html" class="text-gray-400 hover:text-plato-primary transition-colors font-medium">Điều khoản dịch vụ</a>
+          <a href="/eula.html" class="text-gray-400 hover:text-plato-primary transition-colors font-medium">Thỏa thuận EULA</a>
+        </div>
+        <div class="text-sm text-gray-500 mt-2">&copy; 2026 Zenithas. Mọi quyền được bảo lưu.</div>
+      </div>
+    </footer>
+
+    <script type="module" src="/main.js"></script>
+        <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const updateLogos = () => {
+          const isLight = document.documentElement.classList.contains('light-mode');
+          const logos = document.querySelectorAll('.plato-logo');
+          logos.forEach(logo => {
+            logo.src = isLight ? '/logo_themelight.png' : '/logo_themedark.png';
+          });
+        };
+        const observer = new MutationObserver((mutations) => {
+          mutations.forEach((mutation) => {
+            if (mutation.attributeName === 'class') {
+              updateLogos();
+            }
+          });
+        });
+        observer.observe(document.documentElement, { attributes: true });
+        updateLogos();
+      });
+    </script>
+  </body>
+</html>

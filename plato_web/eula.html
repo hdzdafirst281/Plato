@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/png" href="/logo_plato.png" />
+    <link rel="stylesheet" href="/style.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Plato - Thỏa thuận EULA</title>
+    <script>
+      if (localStorage.getItem('theme') === 'light') {
+        document.documentElement.classList.add('light-mode');
+      }
+    </script>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <nav class="glass-nav mt-4 transition-all duration-300">
+      <div class="flex items-center justify-between w-full">
+        <!-- Logo -->
+        <a href="/" class="flex items-center gap-2">
+          <img src="/logo_themedark.png" alt="Plato Logo" class="h-10 w-auto block dark-logo plato-logo" />
+        </a>
+        
+        <!-- Desktop Links -->
+        <div class="hidden md:flex items-center gap-6 text-base font-medium absolute left-1/2 -translate-x-1/2">
+          <a href="/" class="hover:text-plato-primary transition-colors text-gray-400">Trang chủ</a>
+          <a href="/features.html" class="hover:text-plato-primary transition-colors text-gray-400">Tính năng</a>
+          <a href="/about.html" class="hover:text-plato-primary transition-colors text-gray-400">Về chúng tôi</a>
+        </div>
+
+        <!-- Right Side Actions -->
+        <div class="flex items-center gap-4">
+          <button id="theme-toggle" class="p-2 rounded-full hover:bg-white/10 transition-colors">
+            <i data-lucide="sun" id="icon-sun" class="w-5 h-5 hidden"></i>
+            <i data-lucide="moon" id="icon-moon" class="w-5 h-5"></i>
+          </button>
+          <!-- Mobile Menu Toggle -->
+          <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg hover:bg-white/10 transition-colors">
+            <i data-lucide="menu" class="w-6 h-6"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Mobile Menu Dropdown -->
+      <div id="mobile-menu" class="hidden flex-col gap-4 mt-4 pt-4 border-t border-white/10 w-full md:hidden">
+        <a href="/" class="text-center font-medium hover:text-plato-primary transition-colors text-gray-400 py-2">Trang chủ</a>
+        <a href="/features.html" class="text-center font-medium hover:text-plato-primary transition-colors text-gray-400 py-2">Tính năng</a>
+        <a href="/about.html" class="text-center font-medium hover:text-plato-primary transition-colors text-gray-400 py-2">Về chúng tôi</a>
+      </div>
+    </nav>
+
+    <main class="max-w-3xl mx-auto px-4 py-24 min-h-[70vh]">
+      <h1 class="text-3xl font-bold mb-2" data-aos="fade-up">THỎA THUẬN CẤP PHÉP NGƯỜI DÙNG CUỐI (Plato)</h1>
+      <p class="text-sm italic text-gray-400 mb-8" data-aos="fade-up">Cập nhật lần cuối: Tháng 4/2026</p>
+      
+      <div class="prose prose-invert prose-plato max-w-none text-gray-300 space-y-8" data-aos="fade-up" data-aos-delay="100">
+        <p>Thỏa thuận này là hợp đồng pháp lý giữa bạn (Người dùng) và Zenithas (Chúng tôi) về việc sử dụng ứng dụng di động Plato. Bằng việc cài đặt hoặc sử dụng ứng dụng, bạn đồng ý tuân thủ các điều khoản sau:</p>
+        
+        <section>
+          <h2 class="text-xl font-bold text-plato-primary mb-4">1. Cấp phép sử dụng</h2>
+          <p class="mb-2">Chúng tôi cấp cho bạn một giấy phép giới hạn, không độc quyền, không thể chuyển nhượng và có thể thu hồi để tải xuống, cài đặt và sử dụng Plato trên các thiết bị di động thuộc quyền sở hữu của bạn, phục vụ cho mục đích cá nhân và không thương mại.</p>
+        </section>
+
+        <section>
+          <h2 class="text-xl font-bold text-plato-primary mb-4">2. Quyền sở hữu trí tuệ</h2>
+          <p class="mb-2">Toàn bộ quyền, danh nghĩa và lợi ích đối với ứng dụng Plato, bao gồm nhưng không giới hạn ở:</p>
+          <p class="mb-2">• Công nghệ: Các thuật toán tính toán mức độ nỗ lực (RPE), logic đánh giá độ sẵn sàng của cơ bắp (Muscle Readiness).</p>
+          <p class="mb-2">• Thiết kế: Giao diện người dùng (UI), trải nghiệm người dùng (UX), logo Zenithas và biểu tượng Plato.</p>
+          <p class="mb-2">• Nội dung: Các gói tập mẫu, dữ liệu hướng dẫn và cấu trúc biểu đồ.</p>
+          <p class="mb-2">Tất cả đều là tài sản trí tuệ độc quyền của Zenithas. Mọi hành vi sao chép hoặc sử dụng trái phép đều vi phạm pháp luật.</p>
+        </section>
+
+        <section>
+          <h2 class="text-xl font-bold text-plato-primary mb-4">3. Các hành vi bị nghiêm cấm</h2>
+          <p class="mb-2">Bạn cam kết không thực hiện và không cho phép bên thứ ba thực hiện các hành vi sau:</p>
+          <p class="mb-2">• Dịch ngược (reverse engineer), tháo rời hoặc tìm cách trích xuất mã nguồn của ứng dụng.</p>
+          <p class="mb-2">• Sao chép các công thức tính toán và logic phục hồi của Plato để xây dựng sản phẩm cạnh tranh.</p>
+          <p class="mb-2">• Sử dụng ứng dụng cho bất kỳ mục đích bất hợp pháp hoặc vi phạm các tuyên bố về an toàn y tế.</p>
+        </section>
+
+        <section>
+          <h2 class="text-xl font-bold text-plato-primary mb-4">4. Dữ liệu và Quyền riêng tư</h2>
+          <p class="mb-2">Việc sử dụng ứng dụng của bạn cũng tuân theo Chính sách bảo mật của chúng tôi. Bạn hiểu rằng dữ liệu sẽ được lưu trữ cục bộ (SQLite) và đồng bộ hóa qua dịch vụ đám mây để đảm bảo trải nghiệm tốt nhất. Bạn có quyền yêu cầu xóa tài khoản và toàn bộ dữ liệu liên quan bất cứ lúc nào.</p>
+        </section>
+
+        <section>
+          <h2 class="text-xl font-bold text-plato-primary mb-4">5. Giới hạn trách nhiệm và Miễn trừ y tế</h2>
+          <p class="mb-2">• Tính chất tham khảo: Plato cung cấp các chỉ số dựa trên dữ liệu đầu vào của bạn và không thay thế cho lời khuyên y tế chuyên nghiệp.</p>
+          <p class="mb-2">• Rủi ro: Bạn tự chịu trách nhiệm về mọi rủi ro chấn thương phát sinh trong quá trình tập luyện theo gợi ý của ứng dụng.</p>
+          <p class="mb-2">• Dịch vụ: Vì đây là phiên bản miễn phí, chúng tôi không chịu trách nhiệm về các sự cố mất mát dữ liệu do lỗi kỹ thuật hoặc sự cố bất khả kháng.</p>
+        </section>
+
+        <section>
+          <h2 class="text-xl font-bold text-plato-primary mb-4">6. Chấm dứt thỏa thuận</h2>
+          <p class="mb-2">Thỏa thuận này có hiệu lực cho đến khi bạn hoặc chúng tôi chấm dứt. Chúng tôi có quyền tạm ngừng hoặc khóa quyền truy cập ứng dụng của bạn nếu phát hiện vi phạm các điều khoản này mà không cần thông báo trước.</p>
+        </section>
+
+      </div>
+    </main>
+
+    <!-- CTA Section -->
+    <section id="download" class="py-24 px-4 text-center">
+      <div class="max-w-2xl mx-auto" data-aos="zoom-in">
+        <h2 class="text-4xl font-bold mb-6">Sẵn sàng để bắt đầu?</h2>
+        <p class="text-gray-400 mb-10">Tải Plato ngay hôm nay và đưa hành trình thể hình của bạn lên một tầm cao mới.</p>
+        <a href="https://play.google.com/store/apps/details?id=vn.zenithas.plato&pli=1" target="_blank" rel="noopener noreferrer" class="hover:-translate-y-1 hover:shadow-lg transition-transform duration-300 inline-block">
+          <img src="https://play.google.com/intl/en_us/badges/static/images/badges/vi_badge_web_generic.png" alt="Tải ứng dụng trên Google Play" class="h-16 w-auto" />
+        </a>
+      </div>
+    </section>
+
+    <footer class="bg-plato-surface border-t border-white/5 py-12 px-4">
+      <div class="max-w-6xl mx-auto flex flex-col items-center gap-6">
+        <div class="flex flex-wrap items-center justify-center gap-8 text-base">
+          <img src="/logo_themedark.png" alt="Plato Logo" class="h-10 w-auto plato-logo" />
+          <a href="/terms.html" class="text-gray-400 hover:text-plato-primary transition-colors font-medium">Điều khoản dịch vụ</a>
+          <a href="/eula.html" class="text-gray-400 hover:text-plato-primary transition-colors font-medium">Thỏa thuận EULA</a>
+        </div>
+        <div class="text-sm text-gray-500 mt-2">&copy; 2026 Zenithas. Mọi quyền được bảo lưu.</div>
+      </div>
+    </footer>
+
+    <script type="module" src="/main.js"></script>
+        <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const updateLogos = () => {
+          const isLight = document.documentElement.classList.contains('light-mode');
+          const logos = document.querySelectorAll('.plato-logo');
+          logos.forEach(logo => {
+            logo.src = isLight ? '/logo_themelight.png' : '/logo_themedark.png';
+          });
+        };
+        const observer = new MutationObserver((mutations) => {
+          mutations.forEach((mutation) => {
+            if (mutation.attributeName === 'class') {
+              updateLogos();
+            }
+          });
+        });
+        observer.observe(document.documentElement, { attributes: true });
+        updateLogos();
+      });
+    </script>
+  </body>
+</html>
