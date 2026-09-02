@@ -10,6 +10,15 @@
   .light-mode body {
     @apply bg-gray-50 text-gray-900;
   }
+
+  /* Accessibility: Focus Indicators */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-plato-primary ring-offset-2 ring-offset-plato-bg transition-shadow;
+  }
+  
+  .light-mode *:focus-visible {
+    @apply ring-offset-gray-50;
+  }
 }
 
 @layer components {
@@ -26,11 +35,11 @@
   }
   
   .glass-nav {
-    @apply sticky top-4 z-50 mx-4 lg:mx-auto max-w-6xl rounded-2xl bg-plato-surface/80 backdrop-blur-md border border-white/10 shadow-lg px-6 py-4 transition-all duration-300;
+    @apply sticky top-4 z-50 mx-4 lg:mx-auto max-w-6xl rounded-2xl bg-plato-surface/40 backdrop-blur-lg saturate-150 border border-white/10 shadow-[0_8px_32px_rgba(0,0,0,0.3)] px-6 py-4 transition-all duration-300;
   }
   
   .light-mode .glass-nav {
-    @apply bg-white/80 border-gray-200 text-gray-900 shadow-sm;
+    @apply bg-white/50 border-white/60 shadow-[0_8px_32px_rgba(0,0,0,0.05)] backdrop-blur-lg saturate-150 text-gray-900;
   }
 
   .social-btn {
@@ -40,9 +49,84 @@
   .light-mode .social-btn {
     @apply bg-white border-gray-200 text-gray-900 shadow-lg hover:text-plato-primary hover:shadow-xl;
   }
+  
+  .bento-card {
+    @apply relative overflow-hidden rounded-[2rem] bg-white/5 border border-white/10 backdrop-blur-md p-8 transition-all duration-500 hover:bg-white/10 hover:-translate-y-2 hover:shadow-[0_0_40px_-15px_rgba(168,85,247,0.3)];
+  }
+  
+  .light-mode .bento-card {
+    @apply bg-white border-gray-200 shadow-md hover:bg-gray-50 hover:shadow-lg;
+  }
+
+  .hero-bg {
+    @apply bg-gradient-to-b from-plato-purple/10 via-plato-bg to-gray-900;
+  }
+  
+  .light-mode .hero-bg {
+    @apply bg-gradient-to-b from-blue-300 via-blue-100 to-white;
+  }
+
+  .loader-bg {
+    @apply bg-plato-bg;
+  }
+  
+  .light-mode .loader-bg {
+    @apply bg-gray-50;
+  }
+
+  .skeleton-box {
+    @apply bg-white/10;
+  }
+  
+  .light-mode .skeleton-box {
+    @apply bg-gray-200;
+  }
 }
 
 @layer utilities {
+  @keyframes float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-20px); }
+  }
+  .animate-float {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float-delayed {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-15px); }
+  }
+  .animate-float-delayed {
+    animation: float-delayed 7s ease-in-out infinite 2s;
+  }
+
+  @keyframes glow-pulse {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.1); }
+  }
+  .animate-glow {
+    animation: glow-pulse 8s ease-in-out infinite;
+  }
+  
+  .text-glow {
+    text-shadow: 0 0 20px rgba(168, 85, 247, 0.5);
+  }
+  
+  .light-mode .text-glow {
+    text-shadow: 0 0 20px rgba(168, 85, 247, 0.2);
+  }
+  
+  .bento-stat-text {
+    @apply from-white to-gray-500;
+  }
+  
+  .light-mode .bento-stat-text {
+    @apply from-gray-900 to-gray-500;
+  }
+  
+  .light-mode .text-gray-200 {
+    @apply text-gray-800;
+  }
   .light-mode .text-gray-400 {
     @apply text-gray-600;
   }
@@ -60,5 +144,15 @@
   }
   .light-mode .bg-plato-surface {
     @apply bg-white border-gray-200 text-gray-900;
+  }
+  
+  .play-btn-glow {
+    @apply transition-all duration-300;
+  }
+  .play-btn-glow:hover {
+    filter: drop-shadow(0 0 15px rgba(168, 85, 247, 0.6));
+  }
+  .light-mode .play-btn-glow:hover {
+    filter: drop-shadow(0 0 15px rgba(124, 58, 237, 0.8));
   }
 }

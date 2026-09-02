@@ -13,43 +13,76 @@
     </script>
   </head>
   <body>
+    <!-- Global Loader -->
+    <div id="global-loader" class="fixed inset-0 z-[9999] flex flex-col transition-opacity duration-300 loader-bg pointer-events-none">
+      <!-- Navbar Skeleton -->
+      <div class="w-full top-4 px-4 mt-4">
+        <div class="max-w-6xl mx-auto px-6 py-4 rounded-2xl skeleton-box border border-white/10 flex items-center justify-between animate-pulse">
+          <div class="h-10 w-32 skeleton-box rounded-lg"></div>
+          <div class="hidden md:flex gap-8">
+            <div class="h-6 w-24 skeleton-box rounded-lg"></div>
+            <div class="h-6 w-24 skeleton-box rounded-lg"></div>
+            <div class="h-6 w-32 skeleton-box rounded-lg"></div>
+          </div>
+          <div class="flex gap-4">
+            <div class="h-10 w-10 skeleton-box rounded-full"></div>
+            <div class="h-10 w-10 skeleton-box rounded-lg md:hidden"></div>
+          </div>
+        </div>
+      </div>
+      <!-- Document Skeleton -->
+      <div class="flex-1 max-w-3xl mx-auto w-full px-4 pt-32 pb-24 flex flex-col gap-6 animate-pulse">
+        <div class="h-10 w-2/3 skeleton-box rounded-xl"></div>
+        <div class="h-4 w-1/3 skeleton-box rounded-lg mb-8"></div>
+        
+        <div class="h-4 w-full skeleton-box rounded"></div>
+        <div class="h-4 w-[95%] skeleton-box rounded"></div>
+        <div class="h-4 w-[90%] skeleton-box rounded"></div>
+        
+        <div class="h-6 w-1/2 skeleton-box rounded-lg mt-8"></div>
+        <div class="h-4 w-full skeleton-box rounded"></div>
+        <div class="h-4 w-[85%] skeleton-box rounded"></div>
+        <div class="h-4 w-[92%] skeleton-box rounded"></div>
+      </div>
+    </div>
+
     <!-- Navbar -->
-    <nav class="glass-nav mt-4 transition-all duration-300">
-      <div class="flex items-center justify-between w-full">
+    <nav class="fixed w-full z-50 top-4 px-4 transition-all duration-300" id="navbar">
+      <div class="glass-nav rounded-2xl max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
         <!-- Logo -->
-        <a href="/" class="flex items-center gap-2">
-          <img src="/logo_themedark.png" alt="Plato Logo" class="h-10 w-auto block dark-logo plato-logo" />
+        <a href="/" class="flex items-center gap-2 group">
+          <img src="/logo_themedark.png" alt="Plato" width="120" height="40" class="h-10 w-auto group-hover:opacity-80 transition-opacity plato-logo" />
         </a>
         
         <!-- Desktop Links -->
-        <div class="hidden md:flex items-center gap-6 text-base font-medium absolute left-1/2 -translate-x-1/2">
-          <a href="/" class="hover:text-plato-primary transition-colors text-gray-400">Trang chủ</a>
-          <a href="/features.html" class="hover:text-plato-primary transition-colors text-gray-400">Tính năng</a>
-          <a href="/about.html" class="hover:text-plato-primary transition-colors text-gray-400">Về chúng tôi</a>
+        <div class="hidden md:flex items-center gap-8 text-lg font-bold">
+          <a href="/" class="text-gray-200 hover:text-white transition-colors">Trang chủ</a>
+          <a href="/features.html" class="text-gray-200 hover:text-white transition-colors">Tính năng</a>
+          <a href="/about.html" class="text-gray-200 hover:text-white transition-colors">Về chúng tôi</a>
         </div>
 
         <!-- Right Side Actions -->
         <div class="flex items-center gap-4">
-          <button id="theme-toggle" class="p-2 rounded-full hover:bg-white/10 transition-colors">
-            <i data-lucide="sun" id="icon-sun" class="w-5 h-5 hidden"></i>
-            <i data-lucide="moon" id="icon-moon" class="w-5 h-5"></i>
+          <button id="theme-toggle" aria-label="Chuyển đổi giao diện Sáng/Tối" class="p-2 rounded-full hover:bg-white/10 transition-colors">
+            <i data-lucide="sun" id="icon-sun" class="w-6 h-6 hidden"></i>
+            <i data-lucide="moon" id="icon-moon" class="w-6 h-6"></i>
           </button>
           <!-- Mobile Menu Toggle -->
-          <button id="mobile-menu-btn" class="md:hidden p-2 rounded-lg hover:bg-white/10 transition-colors">
+          <button id="mobile-menu-btn" aria-label="Mở menu điều hướng" class="md:hidden p-2 rounded-lg hover:bg-white/10 transition-colors">
             <i data-lucide="menu" class="w-6 h-6"></i>
           </button>
         </div>
       </div>
 
       <!-- Mobile Menu Dropdown -->
-      <div id="mobile-menu" class="hidden flex-col gap-4 mt-4 pt-4 border-t border-white/10 w-full md:hidden">
-        <a href="/" class="text-center font-medium hover:text-plato-primary transition-colors text-gray-400 py-2">Trang chủ</a>
-        <a href="/features.html" class="text-center font-medium hover:text-plato-primary transition-colors text-gray-400 py-2">Tính năng</a>
-        <a href="/about.html" class="text-center font-medium hover:text-plato-primary transition-colors text-gray-400 py-2">Về chúng tôi</a>
+      <div id="mobile-menu" class="hidden flex-col gap-4 mt-4 p-4 rounded-2xl glass-nav border border-white/10 w-full md:hidden">
+        <a href="/" class="text-center font-bold hover:text-plato-primary transition-colors text-gray-200 py-2">Trang chủ</a>
+        <a href="/features.html" class="text-center font-bold hover:text-plato-primary transition-colors text-gray-200 py-2">Tính năng</a>
+        <a href="/about.html" class="text-center font-bold hover:text-plato-primary transition-colors text-gray-200 py-2">Về chúng tôi</a>
       </div>
     </nav>
 
-    <main class="max-w-3xl mx-auto px-4 py-24 min-h-[70vh]">
+    <main class="max-w-3xl mx-auto px-4 pt-32 pb-24 min-h-[70vh]">
       <h1 class="text-4xl font-bold mb-8" data-aos="fade-up">CHÍNH SÁCH BẢO MẬT VÀ ĐIỀU KHOẢN SỬ DỤNG (Plato)</h1>
       <div class="prose prose-invert prose-plato max-w-none text-gray-300 space-y-8" data-aos="fade-up" data-aos-delay="100">
         
@@ -93,8 +126,8 @@
       <div class="max-w-2xl mx-auto" data-aos="zoom-in">
         <h2 class="text-4xl font-bold mb-6">Sẵn sàng để bắt đầu?</h2>
         <p class="text-gray-400 mb-10">Tải Plato ngay hôm nay và đưa hành trình thể hình của bạn lên một tầm cao mới.</p>
-        <a href="https://play.google.com/store/apps/details?id=vn.zenithas.plato&pli=1" target="_blank" rel="noopener noreferrer" class="hover:-translate-y-1 hover:shadow-lg transition-transform duration-300 inline-block">
-          <img src="https://play.google.com/intl/en_us/badges/static/images/badges/vi_badge_web_generic.png" alt="Tải ứng dụng trên Google Play" class="h-16 w-auto" />
+        <a href="https://play.google.com/store/apps/details?id=vn.zenithas.plato&pli=1" target="_blank" rel="noopener noreferrer" class="inline-block hover:-translate-y-1 transition-transform duration-300">
+          <img src="https://play.google.com/intl/en_us/badges/static/images/badges/vi_badge_web_generic.png" alt="Tải ứng dụng trên Google Play" class="h-16 w-auto play-btn-glow" />
         </a>
       </div>
     </section>

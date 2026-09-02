@@ -1,12 +1,49 @@
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-import { createIcons, Download, ChevronRight, ChevronLeft, CheckCircle, Smartphone, Moon, Sun, Menu, X, Activity, Target, Shield, ArrowRight, MessageCircle, Music, Globe } from 'lucide';
+import { createIcons, Download, ChevronRight, ChevronLeft, CheckCircle, Smartphone, Moon, Sun, Menu, X, Activity, Target, Shield, ArrowRight, MessageCircle, Music, Globe, Star, Calendar, BarChart2, Zap } from 'lucide';
 
-// Initialize AOS animation
-AOS.init({
-  duration: 800,
-  once: true,
-  offset: 100,
+// Khởi tạo AOS với một chút delay để trình duyệt kịp render trạng thái ẩn ban đầu
+// Điều này ngăn chặn lỗi mất animation (trình duyệt bỏ qua transition) khi load trang quá nhanh
+const initAOS = () => {
+  AOS.init({
+    duration: 800,
+    once: true,
+    offset: 20,
+  });
+  setTimeout(() => AOS.refresh(), 100);
+};
+
+// Đợi DOM load xong, chờ 300ms để trang ổn định rồi mới bắt đầu animation
+document.addEventListener('DOMContentLoaded', () => {
+  const loader = document.getElementById('global-loader');
+  setTimeout(() => {
+    if (loader) {
+      loader.classList.add('opacity-0');
+      // Chờ transition opacity kết thúc rồi ẩn hẳn loader
+      setTimeout(() => {
+        loader.classList.add('hidden');
+      }, 300);
+    }
+    initAOS();
+  }, 300);
+});
+
+window.addEventListener('load', () => {
+  setTimeout(() => AOS.refresh(), 1000);
+});
+
+window.addEventListener('pageshow', (event) => {
+  if (event.persisted) {
+    // Nếu load từ bộ nhớ đệm bfcache (do bấm Back/Forward hoặc chuyển trang quá nhanh)
+    // Cần reset lại class aos-animate để ép animation chạy lại từ đầu
+    setTimeout(() => {
+      document.querySelectorAll('.aos-animate').forEach(el => {
+        el.classList.remove('aos-animate');
+      });
+      AOS.refreshHard();
+      initAOS();
+    }, 300);
+  }
 });
 
 // Initialize Lucide Icons
@@ -27,7 +64,11 @@ createIcons({
     ArrowRight,
     MessageCircle,
     Music,
-    Globe
+    Globe,
+    Star,
+    Calendar,
+    BarChart2,
+    Zap
   }
 });
 
