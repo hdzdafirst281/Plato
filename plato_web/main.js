@@ -1,6 +1,6 @@
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-import { createIcons, Download, ChevronRight, ChevronLeft, CheckCircle, Smartphone, Moon, Sun, Menu, X, Activity, Target, Shield, ArrowRight, MessageCircle, Music, Globe, Star, Calendar, BarChart2, Zap } from 'lucide';
+import { createIcons, Download, ChevronRight, ChevronLeft, CheckCircle, Smartphone, Moon, Sun, Menu, X, Activity, Target, Shield, ArrowRight, MessageCircle, Music, Globe, Star, Calendar, BarChart2, Zap, Dumbbell, Play, Search, Info } from 'lucide';
 
 // Khởi tạo AOS với một chút delay để trình duyệt kịp render trạng thái ẩn ban đầu
 // Điều này ngăn chặn lỗi mất animation (trình duyệt bỏ qua transition) khi load trang quá nhanh
@@ -68,7 +68,11 @@ createIcons({
     Star,
     Calendar,
     BarChart2,
-    Zap
+    Zap,
+    Dumbbell,
+    Play,
+    Search,
+    Info
   }
 });
 
@@ -107,11 +111,23 @@ if (themeToggleBtn) {
 // Mobile Menu Toggle
 const mobileMenuBtn = document.getElementById('mobile-menu-btn');
 const mobileMenu = document.getElementById('mobile-menu');
+const navbar = document.getElementById('navbar');
 
 if (mobileMenuBtn && mobileMenu) {
-  mobileMenuBtn.addEventListener('click', () => {
+  mobileMenuBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
     mobileMenu.classList.toggle('hidden');
     mobileMenu.classList.toggle('flex');
+  });
+
+  // Click outside to close mobile menu
+  document.addEventListener('click', (e) => {
+    if (!mobileMenu.classList.contains('hidden')) {
+      if (!navbar.contains(e.target)) {
+        mobileMenu.classList.add('hidden');
+        mobileMenu.classList.remove('flex');
+      }
+    }
   });
 }
 

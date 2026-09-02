@@ -8,7 +8,7 @@
   }
   
   .light-mode body {
-    @apply bg-gray-50 text-gray-900;
+    @apply bg-slate-50 text-gray-900;
   }
 
   /* Accessibility: Focus Indicators */
@@ -56,6 +56,27 @@
   
   .light-mode .bento-card {
     @apply bg-white border-gray-200 shadow-md hover:bg-gray-50 hover:shadow-lg;
+  }
+
+  .exercise-card {
+    @apply bg-white/5 border border-white/10 rounded-3xl overflow-hidden cursor-pointer hover:-translate-y-2 hover:shadow-[0_8px_30px_rgb(0,0,0,0.5)] hover:border-plato-primary/50 transition-all duration-300 flex flex-col h-full;
+  }
+  .light-mode .exercise-card {
+    @apply bg-white border-slate-200 shadow-[0_4px_20px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] hover:border-plato-primary;
+  }
+  
+  .modal-card {
+    @apply bg-plato-surface/95 backdrop-blur-2xl border border-white/10 shadow-[0_0_50px_rgb(0,0,0,0.5)];
+  }
+  .light-mode .modal-card {
+    @apply bg-white border-slate-200 shadow-[0_0_50px_rgba(0,0,0,0.15)];
+  }
+
+  .modal-right {
+    @apply bg-gradient-to-br from-plato-surface to-[#0F172A];
+  }
+  .light-mode .modal-right {
+    @apply bg-slate-50;
   }
 
   .hero-bg {
@@ -125,25 +146,56 @@
   }
   
   .light-mode .text-gray-200 {
-    @apply text-gray-800;
+    color: theme('colors.gray.800');
   }
   .light-mode .text-gray-400 {
-    @apply text-gray-600;
+    color: theme('colors.gray.600');
   }
   .light-mode .text-gray-300 {
-    @apply text-gray-700;
+    color: theme('colors.gray.700');
   }
   .light-mode .text-gray-500 {
-    @apply text-gray-600;
+    color: theme('colors.gray.600');
   }
   .light-mode .text-white {
-    @apply text-gray-900;
+    color: theme('colors.gray.900');
   }
   .light-mode .bg-plato-surface\/30 {
     @apply bg-gray-100;
   }
   .light-mode .bg-plato-surface {
     @apply bg-white border-gray-200 text-gray-900;
+  }
+  
+  .light-mode .custom-input {
+    @apply bg-white border-slate-300 text-gray-900 shadow-sm hover:border-plato-primary transition-colors;
+  }
+  
+  .light-mode .custom-input::placeholder {
+    color: theme('colors.slate.500');
+  }
+  
+  .light-mode .exercise-title {
+    color: theme('colors.gray.900');
+  }
+
+  .light-mode .equipment-tag {
+    @apply bg-slate-100 border-slate-200 text-slate-700 shadow-sm font-semibold;
+  }
+  
+  .filter-option {
+    @apply bg-gray-900 text-gray-200;
+  }
+  
+  .light-mode .filter-option {
+    @apply bg-white text-gray-900;
+  }
+  
+  .light-mode .filter-menu label span {
+    color: theme('colors.gray.900');
+  }
+  .light-mode .filter-menu label:hover {
+    background-color: theme('colors.slate.100');
   }
   
   .play-btn-glow {

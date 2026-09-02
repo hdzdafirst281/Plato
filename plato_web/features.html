@@ -28,6 +28,7 @@
           <div class="h-10 w-32 skeleton-box rounded-lg"></div>
           <div class="hidden md:flex gap-8">
             <div class="h-6 w-24 skeleton-box rounded-lg"></div>
+            <div class="h-6 w-32 skeleton-box rounded-lg"></div>
             <div class="h-6 w-24 skeleton-box rounded-lg"></div>
             <div class="h-6 w-32 skeleton-box rounded-lg"></div>
           </div>
@@ -57,6 +58,7 @@
         <!-- Desktop Links -->
         <div class="hidden md:flex items-center gap-8 text-lg font-bold">
           <a href="/" class="text-gray-200 hover:text-white transition-colors">Trang chủ</a>
+          <a href="/library.html" class="text-gray-200 hover:text-white transition-colors">Thư viện bài tập</a>
           <a href="/features.html" class="text-plato-primary transition-colors">Tính năng</a>
           <a href="/about.html" class="text-gray-200 hover:text-white transition-colors">Về chúng tôi</a>
         </div>
@@ -77,20 +79,21 @@
       <!-- Mobile Menu Dropdown -->
       <div id="mobile-menu" class="hidden flex-col gap-4 mt-4 p-4 rounded-2xl glass-nav border border-white/10 w-full md:hidden">
         <a href="/" class="text-center font-bold hover:text-plato-primary transition-colors text-gray-200 py-2">Trang chủ</a>
+        <a href="/library.html" class="text-center font-bold hover:text-plato-primary transition-colors text-gray-200 py-2">Thư viện bài tập</a>
         <a href="/features.html" class="text-center font-bold text-plato-primary transition-colors py-2">Tính năng</a>
         <a href="/about.html" class="text-center font-bold hover:text-plato-primary transition-colors text-gray-200 py-2">Về chúng tôi</a>
       </div>
     </nav>
 
-    <main class="max-w-6xl mx-auto px-4 py-32 min-h-[70vh] flex flex-col items-center justify-center text-center">
-      <div class="w-24 h-24 bg-plato-primary/10 rounded-full flex items-center justify-center text-plato-primary mb-8 animate-pulse" data-aos="zoom-in">
-        <i data-lucide="activity" class="w-12 h-12"></i>
+    <main class="max-w-6xl mx-auto px-4 pt-32 pb-20 min-h-screen flex flex-col items-center justify-center text-center">
+      <div class="w-32 h-32 md:w-40 md:h-40 bg-plato-primary/10 rounded-full flex items-center justify-center text-plato-primary mb-10 animate-pulse" data-aos="zoom-in">
+        <i data-lucide="activity" class="w-16 h-16 md:w-20 md:h-20"></i>
       </div>
-      <h1 class="text-4xl md:text-5xl font-black mb-6" data-aos="fade-up" data-aos-delay="100">Đang cập nhật...</h1>
-      <p class="text-gray-400 max-w-2xl mx-auto text-lg mb-10" data-aos="fade-up" data-aos-delay="200">
+      <h1 class="text-5xl md:text-6xl font-black mb-8" data-aos="fade-up" data-aos-delay="100">Đang cập nhật...</h1>
+      <p class="text-gray-400 max-w-3xl mx-auto text-xl md:text-2xl mb-12 leading-relaxed" data-aos="fade-up" data-aos-delay="200">
         Trang thông tin tính năng chuyên sâu đang trong quá trình được thiết kế lại để mang đến cho bạn trải nghiệm tuyệt vời nhất. Toàn bộ tính năng cốt lõi đã được chuyển ra trang chủ!
       </p>
-      <a href="/" class="btn-primary" data-aos="fade-up" data-aos-delay="300">
+      <a href="/" class="btn-primary px-8 py-4 text-lg hover:-translate-y-1 transition-transform" data-aos="fade-up" data-aos-delay="300">
         Khám phá trang chủ
       </a>
     </main>
