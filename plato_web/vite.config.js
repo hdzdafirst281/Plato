@@ -9,7 +9,8 @@ export default defineConfig({
         about: resolve(__dirname, 'about.html'),
         terms: resolve(__dirname, 'terms.html'),
         eula: resolve(__dirname, 'eula.html'),
-        features: resolve(__dirname, 'features.html')
+        features: resolve(__dirname, 'features.html'),
+        library: resolve(__dirname, 'library.html')
       }
     }
   }
