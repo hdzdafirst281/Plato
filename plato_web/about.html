@@ -39,18 +39,30 @@
         </div>
       </div>
       <!-- Document Skeleton -->
-      <div class="flex-1 max-w-3xl mx-auto w-full px-4 pt-32 pb-24 flex flex-col gap-6 animate-pulse">
-        <div class="h-10 w-2/3 skeleton-box rounded-xl"></div>
-        <div class="h-4 w-1/3 skeleton-box rounded-lg mb-8"></div>
+      <div class="flex-1 max-w-6xl mx-auto w-full px-4 pt-32 pb-24 flex flex-col items-center gap-6 animate-pulse">
+        <!-- Hero Skeleton -->
+        <div class="h-12 w-2/3 md:w-1/2 skeleton-box rounded-xl"></div>
+        <div class="h-6 w-3/4 md:w-1/3 skeleton-box rounded-lg mb-16"></div>
         
-        <div class="h-4 w-full skeleton-box rounded"></div>
-        <div class="h-4 w-[95%] skeleton-box rounded"></div>
-        <div class="h-4 w-[90%] skeleton-box rounded"></div>
+        <!-- Divider Skeleton -->
+        <div class="w-full max-w-4xl h-px skeleton-box mb-24"></div>
+
+        <!-- Story Cards Skeleton -->
+        <div class="w-full grid grid-cols-1 md:grid-cols-3 gap-8 mb-24">
+           <div class="h-[300px] skeleton-box rounded-3xl"></div>
+           <div class="h-[300px] skeleton-box rounded-3xl"></div>
+           <div class="h-[300px] skeleton-box rounded-3xl"></div>
+        </div>
         
-        <div class="h-6 w-1/2 skeleton-box rounded-lg mt-8"></div>
-        <div class="h-4 w-full skeleton-box rounded"></div>
-        <div class="h-4 w-[85%] skeleton-box rounded"></div>
-        <div class="h-4 w-[92%] skeleton-box rounded"></div>
+        <!-- Founders Title Skeleton -->
+        <div class="h-10 w-64 skeleton-box rounded-xl mb-4"></div>
+        <div class="h-4 w-1/2 skeleton-box rounded-lg mb-12"></div>
+
+        <!-- Founders Cards Skeleton -->
+        <div class="w-full max-w-3xl grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24">
+           <div class="h-[500px] skeleton-box rounded-3xl"></div>
+           <div class="h-[500px] skeleton-box rounded-3xl"></div>
+        </div>
       </div>
     </div>
 
@@ -92,41 +104,153 @@
       </div>
     </nav>
 
-    <main class="max-w-3xl mx-auto px-4 pt-32 pb-24 min-h-[70vh]">
-      <h1 class="text-4xl font-bold mb-8" data-aos="fade-up">Về chúng tôi</h1>
-      <div class="prose prose-invert prose-plato max-w-none text-gray-300 space-y-6" data-aos="fade-up" data-aos-delay="100">
-        <p class="text-lg">
-          <strong>Plato</strong> không chỉ là một ứng dụng ghi chép tập luyện thông thường, mà là một hệ sinh thái toàn diện được phát triển bởi đội ngũ Zenithas. Chúng tôi kết hợp giữa <strong>Tập luyện nâng cao (Advanced Tracking)</strong>, <strong>Dinh dưỡng (Nutrition Management)</strong>, và <strong>Cơ chế Trò chơi hóa (Gamification Engine)</strong> để mang lại cho bạn trải nghiệm tốt nhất.
+    <main class="pt-32 pb-24 min-h-[70vh]">
+      <!-- Hero Section -->
+      <section class="py-20 md:py-32 flex flex-col items-center justify-center max-w-5xl mx-auto px-4 text-center mb-16" data-aos="fade-up">
+        <h1 class="text-5xl md:text-5xl lg:text-6xl font-extrabold mb-10 text-white leading-snug md:leading-normal max-w-4xl">
+          Hơn cả một ứng dụng,<br class="hidden md:block"/>đây là <span class="text-plato-primary">hành trình của sự kỷ luật.</span>
+        </h1>
+        <p class="text-xl md:text-2xl text-gray-400 max-w-3xl mx-auto leading-loose md:leading-relaxed">
+          Plato được sinh ra với sứ mệnh biến những giọt mồ hôi tại phòng tập thành niềm vui, và biến sự kiên trì thành những phần thưởng xứng đáng.
         </p>
-        <p>
-          Chúng tôi tin rằng sự kiên trì là chìa khóa của sức khỏe và một thân hình hoàn hảo. Vì vậy, Plato được thiết kế tỉ mỉ với tính năng xếp hạng (Ranks) và điểm kinh nghiệm (XP) nhằm tạo ra nguồn động lực to lớn giúp bạn bước đến phòng tập mỗi ngày. 
-        </p>
-        <p class="mb-4">
-          Thay vì phụ thuộc hoàn toàn vào internet, ứng dụng hoạt động cực kỳ mượt mà ngay cả khi không có mạng. Điều này giúp bạn an tâm tập luyện ở bất cứ đâu, đồng thời bảo vệ dữ liệu một cách riêng tư nhất. Dữ liệu sẽ tự động đồng bộ một cách an toàn khi có mạng trở lại.
-        </p>
-        <p class="font-bold text-plato-primary mt-8 text-xl">
-          Plato - Kỷ luật tạo nên sự vĩ đại!
-        </p>
-        
-        <div class="mt-12 pt-8 border-t border-white/10 text-center" data-aos="fade-up" data-aos-delay="200">
-          <h3 class="text-xl font-bold mb-4 text-white">Kết nối với chúng tôi</h3>
-          <p class="text-gray-400 mb-6">Bạn cần hỗ trợ hoặc có góp ý? Hãy liên hệ qua email: <a href="mailto:support.plato@zenithas.vn?subject=G%C3%B3p%20%C3%BD%20v%E1%BB%81%20%E1%BB%A9ng%20d%E1%BB%A5ng%20Plato" class="text-plato-primary hover:underline font-medium">support.plato@zenithas.vn</a></p>
-          <div class="flex flex-wrap items-center justify-center gap-4">
-            <a href="https://www.instagram.com/plato.zenithas/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="social-btn">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-7 h-7"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
-            </a>
-            <a href="https://www.facebook.com/profile.php?id=61592005979928" target="_blank" rel="noopener noreferrer" aria-label="Facebook" class="social-btn">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-7 h-7"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
-            </a>
-            <a href="https://www.threads.com/@plato.zenithas" target="_blank" rel="noopener noreferrer" aria-label="Threads" class="social-btn">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7"><path d="M18.263 11.097c-.03-3.486-1.92-5.586-5.111-5.586-2.13 0-3.922.963-4.863 2.499l2.062 1.438c.535-.843 1.272-1.543 2.628-1.543 1.528 0 2.318.85 2.544 2.431a15 15 0 0 0-2.236-.173c-4.125 0-6.068 1.867-6.068 4.336s1.943 3.99 4.804 3.99c3.139 0 5.013-2.115 5.781-4.735.798.361 1.348 1.204 1.348 2.47 0 3.387-3.907 5.232-7.22 5.232-4.885 0-8.077-3.207-8.077-8.424 0-6.392 4.223-10.487 9.9-10.487 3.808 0 5.69 1.671 6.97 3.914l2.108-1.475C21.44 2.078 18.331 0 13.663 0 6.227 0 1.168 5.277 1.168 12.934c0 7 4.953 11.066 10.856 11.066 4.878 0 9.809-2.846 9.809-7.716 0-2.545-1.46-4.231-3.569-5.187m-6.33 4.855c-1.077 0-2.026-.512-2.026-1.453 0-1.483 1.822-1.934 3.606-1.934.678 0 1.34.045 1.927.173-.422 1.927-1.671 3.215-3.508 3.214Z"/></svg>
-            </a>
-            <a href="https://www.tiktok.com/@plato.zenithas?_r=1&_t=ZS-990YzsfNfXO" target="_blank" rel="noopener noreferrer" aria-label="TikTok" class="social-btn">
-              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
-            </a>
+      </section>
+      
+      <!-- Divider -->
+      <hr class="border-t border-white/10 w-full max-w-4xl mx-auto mb-32" data-aos="fade-up" data-aos-delay="100" />
+
+      <!-- The Story Section -->
+      <!-- The Story Section -->
+      <section class="max-w-5xl mx-auto px-4 mb-32" data-aos="fade-up" data-aos-delay="100">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl md:text-5xl font-bold mb-6 text-white">Tại sao lại là Plato?</h2>
+          <p class="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">Chúng tôi nhận ra rằng duy trì thói quen tập luyện không chỉ cần kỷ luật, mà còn cần sự hứng thú. Plato ra đời từ khát vọng tạo ra một ứng dụng không chỉ giúp người dùng theo dõi tiến trình, mà còn "game hóa" quá trình đó.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+          <!-- Block 1 -->
+          <div class="bento-card">
+            <div class="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center mb-6 text-plato-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            </div>
+            <h3 class="text-2xl font-bold text-white mb-4">Nỗi Đau Hiện Tại</h3>
+            <p class="text-gray-400 leading-relaxed">Chúng tôi từng trải qua cảm giác chán nản khi nhìn vào những bảng ghi chép tập luyện khô khan. Đa số các ứng dụng hiện nay chỉ đóng vai trò như một cuốn sổ tay điện tử vô hồn, thiếu đi nguồn cảm hứng và động lực để người dùng kiên trì mỗi ngày.</p>
+          </div>
+
+          <!-- Block 2 -->
+          <div class="bento-card">
+            <div class="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center mb-6 text-plato-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg>
+            </div>
+            <h3 class="text-2xl font-bold text-white mb-4">Giải Pháp Plato</h3>
+            <p class="text-gray-400 leading-relaxed">Chúng tôi mang cơ chế <strong>Trò chơi hóa (Gamification)</strong> vào thế giới Fitness. Với Plato, mỗi buổi tập là một nhiệm vụ, mỗi mức tạ mới là một thành tựu, và chính bạn là nhân vật chính đang không ngừng <em>"thăng cấp"</em> như trong một trò chơi nhập vai.</p>
+          </div>
+
+          <!-- Block 3 -->
+          <div class="bento-card">
+            <div class="w-14 h-14 rounded-2xl bg-white/10 flex items-center justify-center mb-6 text-plato-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <h3 class="text-2xl font-bold text-white mb-4">Tầm Nhìn Vĩ Đại</h3>
+            <p class="text-gray-400 leading-relaxed">Bằng việc kết hợp <strong>Tập luyện nâng cao</strong>, <strong>Quản lý Dinh dưỡng</strong> và <strong>Hệ thống Xếp hạng (Ranks/XP)</strong>, Plato hướng tới việc tạo ra một hệ sinh thái toàn diện. Nơi sức khỏe được theo dõi chặt chẽ, và một ý chí sắt đá được rèn giũa.</p>
           </div>
         </div>
-      </div>
+
+        <div class="mt-16 text-center">
+          <p class="font-extrabold text-plato-primary text-3xl md:text-4xl italic tracking-wide drop-shadow-lg">Kỷ luật tạo nên sự vĩ đại!</p>
+        </div>
+      </section>
+
+      <!-- The Founders Section -->
+      <section class="max-w-6xl mx-auto px-4 mb-20">
+        <div class="text-center mb-16" data-aos="fade-up">
+          <h2 class="text-3xl md:text-4xl font-bold mb-4 text-white">Đội ngũ Zenithas</h2>
+          <p class="text-gray-400 max-w-2xl mx-auto">Đằng sau Plato không phải là một tập đoàn khổng lồ, mà là tâm huyết của hai người trẻ với khao khát thay đổi cách mọi người tập luyện.</p>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-24 max-w-3xl mx-auto">
+          <!-- Founder 1: CEO -->
+          <div class="group glass-panel overflow-hidden pb-8 md:pb-10 shadow-2xl z-0 hover:border-plato-primary/50 hover:-translate-y-2 flex flex-col items-center text-center" data-aos="fade-up" data-aos-delay="100">
+             <div class="absolute inset-0 bg-gradient-to-b from-plato-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0"></div>
+             
+             <!-- Image (Bleed Edge, 2:3 ratio) -->
+             <div class="w-full aspect-[2/3] overflow-hidden mb-8 relative z-10">
+               <img src="/CEO.png" alt="Vòng Thế Phong" onerror="this.src='https://ui-avatars.com/api/?name=Vong+The+Phong&background=random&size=500'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+             </div>
+             
+             <div class="px-8 md:px-10 flex flex-col items-center relative z-10 w-full flex-1">
+               <h3 class="text-3xl font-bold text-white mb-2">Vòng Thế Phong</h3>
+               <p class="text-plato-primary font-semibold text-lg mb-6">Co-Founder & CEO</p>
+               
+               <p class="text-gray-400 text-lg leading-relaxed mb-8 flex-1">
+                 Người định hướng tầm nhìn sản phẩm, thiết kế trải nghiệm người dùng và đưa linh hồn của "Gamification" vào từng tính năng. Trăn trở lớn nhất của anh là làm sao để ngọn lửa động lực của người dùng không bao giờ tắt.
+               </p>
+               
+               <div class="flex items-center gap-4">
+                  <a href="https://github.com/TePoYe" target="_blank" rel="noopener noreferrer" class="social-btn !w-12 !h-12" aria-label="GitHub">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+                  </a>
+                  <a href="mailto:phongvong.16@gmail.com" class="social-btn !w-12 !h-12" aria-label="Email">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                  </a>
+                  <a href="https://www.linkedin.com/in/phong-v%C3%B2ng-7a4a64311" target="_blank" rel="noopener noreferrer" class="social-btn !w-12 !h-12" aria-label="LinkedIn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+                  </a>
+               </div>
+             </div>
+          </div>
+
+          <!-- Founder 2: CTO -->
+          <div class="group glass-panel overflow-hidden pb-8 md:pb-10 shadow-2xl z-0 hover:border-plato-primary/50 hover:-translate-y-2 flex flex-col items-center text-center" data-aos="fade-up" data-aos-delay="200">
+             <div class="absolute inset-0 bg-gradient-to-b from-plato-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none z-0"></div>
+             
+             <!-- Image (Bleed Edge, 2:3 ratio) -->
+             <div class="w-full aspect-[2/3] overflow-hidden mb-8 relative z-10">
+               <img src="/CTO.png" alt="Đỗ Hoàng Duy" onerror="this.src='https://ui-avatars.com/api/?name=Do+Hoang+Duy&background=random&size=500'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700" />
+             </div>
+             
+             <div class="px-8 md:px-10 flex flex-col items-center relative z-10 w-full flex-1">
+               <h3 class="text-3xl font-bold text-white mb-2">Đỗ Hoàng Duy</h3>
+               <p class="text-plato-primary font-semibold text-lg mb-6">Co-Founder & CTO</p>
+               
+               <p class="text-gray-400 text-lg leading-relaxed mb-8 flex-1">
+                 Trái tim kỹ thuật của Zenithas. Người kiến trúc hệ thống, đảm bảo Plato luôn mượt mà với cơ chế Offline-first, tối ưu hóa từng dòng code và biến những ý tưởng táo bạo nhất thành hiện thực.
+               </p>
+               
+               <div class="flex items-center gap-4">
+                  <a href="https://github.com/hdzdafirst281" target="_blank" rel="noopener noreferrer" class="social-btn !w-12 !h-12" aria-label="GitHub">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4"/><path d="M9 18c-4.51 2-5-2-7-2"/></svg>
+                  </a>
+                  <a href="mailto:hdzdafirst281@gmail.com" class="social-btn !w-12 !h-12" aria-label="Email">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><rect width="20" height="16" x="2" y="4" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>
+                  </a>
+                  <a href="https://www.linkedin.com/in/duy-ho%C3%A0ng-580784382" target="_blank" rel="noopener noreferrer" class="social-btn !w-12 !h-12" aria-label="LinkedIn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/><rect width="4" height="12" x="2" y="9"/><circle cx="4" cy="4" r="2"/></svg>
+                  </a>
+               </div>
+             </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Connect Section -->
+      <section class="max-w-4xl mx-auto px-4 text-center mt-12 pt-16 border-t border-white/10" data-aos="fade-up">
+        <h3 class="text-2xl font-bold mb-4 text-white">Kết nối với dự án</h3>
+        <p class="text-gray-400 mb-8">Bạn cần hỗ trợ hoặc có góp ý cho ứng dụng? Hãy liên hệ qua email: <a href="mailto:support.plato@zenithas.vn?subject=G%C3%B3p%20%C3%BD%20v%E1%BB%81%20%E1%BB%A9ng%20d%E1%BB%A5ng%20Plato" class="text-plato-primary hover:underline font-medium">support.plato@zenithas.vn</a></p>
+        <div class="flex flex-wrap items-center justify-center gap-4">
+          <a href="https://www.instagram.com/plato.zenithas/" target="_blank" rel="noopener noreferrer" aria-label="Instagram" class="social-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-7 h-7"><rect width="20" height="20" x="2" y="2" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" x2="17.51" y1="6.5" y2="6.5"/></svg>
+          </a>
+          <a href="https://www.facebook.com/profile.php?id=61592005979928" target="_blank" rel="noopener noreferrer" aria-label="Facebook" class="social-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-7 h-7"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+          </a>
+          <a href="https://www.threads.com/@plato.zenithas" target="_blank" rel="noopener noreferrer" aria-label="Threads" class="social-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7"><path d="M18.263 11.097c-.03-3.486-1.92-5.586-5.111-5.586-2.13 0-3.922.963-4.863 2.499l2.062 1.438c.535-.843 1.272-1.543 2.628-1.543 1.528 0 2.318.85 2.544 2.431a15 15 0 0 0-2.236-.173c-4.125 0-6.068 1.867-6.068 4.336s1.943 3.99 4.804 3.99c3.139 0 5.013-2.115 5.781-4.735.798.361 1.348 1.204 1.348 2.47 0 3.387-3.907 5.232-7.22 5.232-4.885 0-8.077-3.207-8.077-8.424 0-6.392 4.223-10.487 9.9-10.487 3.808 0 5.69 1.671 6.97 3.914l2.108-1.475C21.44 2.078 18.331 0 13.663 0 6.227 0 1.168 5.277 1.168 12.934c0 7 4.953 11.066 10.856 11.066 4.878 0 9.809-2.846 9.809-7.716 0-2.545-1.46-4.231-3.569-5.187m-6.33 4.855c-1.077 0-2.026-.512-2.026-1.453 0-1.483 1.822-1.934 3.606-1.934.678 0 1.34.045 1.927.173-.422 1.927-1.671 3.215-3.508 3.214Z"/></svg>
+          </a>
+          <a href="https://www.tiktok.com/@plato.zenithas?_r=1&_t=ZS-990YzsfNfXO" target="_blank" rel="noopener noreferrer" aria-label="TikTok" class="social-btn">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor" class="w-7 h-7"><path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z"/></svg>
+          </a>
+        </div>
+      </section>
     </main>
 
     <!-- CTA Section -->
