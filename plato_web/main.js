@@ -1,6 +1,6 @@
 import AOS from 'aos';
 import 'aos/dist/aos.css';
-import { createIcons, Download, ChevronRight, ChevronLeft, CheckCircle, Smartphone, Moon, Sun, Menu, X, Activity, Target, Shield, ArrowRight, MessageCircle, Music, Globe, Star, Calendar, BarChart2, Zap, Dumbbell, Play, Search, Info } from 'lucide';
+import { createIcons, Download, ChevronRight, ChevronLeft, CheckCircle, Smartphone, Moon, Sun, Menu, X, Activity, Target, Shield, ArrowRight, MessageCircle, Music, Globe, Star, Calendar, BarChart2, Zap, Dumbbell, Play, Search, Info, ArrowUp } from 'lucide';
 
 // Khởi tạo AOS với một chút delay để trình duyệt kịp render trạng thái ẩn ban đầu
 // Điều này ngăn chặn lỗi mất animation (trình duyệt bỏ qua transition) khi load trang quá nhanh
@@ -72,7 +72,8 @@ createIcons({
     Dumbbell,
     Play,
     Search,
-    Info
+    Info,
+    ArrowUp
   }
 });
 
@@ -183,4 +184,25 @@ if (slides.length > 0 && prevBtn && nextBtn) {
 
   // Start the slideshow automatically
   startAutoSlide();
+}
+
+// Scroll to Top Logic
+const scrollToTopBtn = document.getElementById('scrollToTopBtn');
+if (scrollToTopBtn) {
+  window.addEventListener('scroll', () => {
+    if (window.scrollY > 300) {
+      scrollToTopBtn.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-10');
+      scrollToTopBtn.classList.add('opacity-100', 'translate-y-0');
+    } else {
+      scrollToTopBtn.classList.add('opacity-0', 'pointer-events-none', 'translate-y-10');
+      scrollToTopBtn.classList.remove('opacity-100', 'translate-y-0');
+    }
+  });
+
+  scrollToTopBtn.addEventListener('click', () => {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth'
+    });
+  });
 }
