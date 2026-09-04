@@ -11,7 +11,7 @@
 
 <p align="left">
   <a href="https://play.google.com/store/apps/details?id=vn.zenithas.plato&pli=1">
-    <img src="https://play.google.com/intl/en_us/badges/static/images/badges/vi_badge_web_generic.png" height="48" alt="Tải ứng dụng trên Google Play" />
+    <img src="https://play.google.com/intl/en_us/badges/static/images/badges/vi_badge_web_generic.png" height="68" alt="Tải ứng dụng trên Google Play" />
   </a>
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   <a href="https://plato.zenithas.vn"><img src="plato_gymapp/assets/logo/logo_plato.png" width="48" alt="Plato Website" /></a>
