@@ -11,18 +11,18 @@
 
 <p align="left">
   <a href="https://play.google.com/store/apps/details?id=vn.zenithas.plato&pli=1">
-    <img src="https://play.google.com/intl/en_us/badges/static/images/badges/vi_badge_web_generic.png" height="56" alt="Tải ứng dụng trên Google Play" />
+    <img src="https://play.google.com/intl/en_us/badges/static/images/badges/vi_badge_web_generic.png" height="48" alt="Tải ứng dụng trên Google Play" />
   </a>
   &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   <a href="https://plato.zenithas.vn"><img src="plato_gymapp/assets/logo/logo_plato.png" width="48" alt="Plato Website" /></a>
   &nbsp;&nbsp;&nbsp;
-  <a href="https://www.facebook.com/profile.php?id=61592005979928"><img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/facebook.svg" width="48" alt="Facebook" /></a>
+  <a href="https://www.facebook.com/profile.php?id=61592005979928"><img src="https://wsrv.nl/?url=raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/facebook.svg&w=128&h=128&output=png&mask=squircle" width="48" alt="Facebook" /></a>
   &nbsp;&nbsp;&nbsp;
-  <a href="https://www.instagram.com/plato.zenithas/"><img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/instagram.svg" width="48" alt="Instagram" /></a>
+  <a href="https://www.instagram.com/plato.zenithas/"><img src="https://wsrv.nl/?url=raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/instagram.svg&w=128&h=128&output=png&mask=squircle" width="48" alt="Instagram" /></a>
   &nbsp;&nbsp;&nbsp;
-  <a href="https://www.tiktok.com/@plato.zenithas?_r=1&_t=ZS-990YzsfNfXO"><img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/tiktok.svg" width="48" alt="TikTok" /></a>
+  <a href="https://www.tiktok.com/@plato.zenithas?_r=1&_t=ZS-990YzsfNfXO"><img src="https://wsrv.nl/?url=raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/tiktok.svg&w=128&h=128&output=png&mask=squircle" width="48" alt="TikTok" /></a>
   &nbsp;&nbsp;&nbsp;
-  <a href="https://www.threads.com/@plato.zenithas"><img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/threads.svg" width="48" alt="Threads" /></a>
+  <a href="https://www.threads.com/@plato.zenithas"><img src="https://wsrv.nl/?url=raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/threads.svg&w=128&h=128&output=png&mask=squircle" width="48" alt="Threads" /></a>
 </p>
 
 **Plato** is an advanced, local-first Flutter fitness application engineered to optimize your workout planning, session tracking, and nutritional monitoring. Powered by a robust gamification engine, Plato encourages consistency through XP accumulation and competitive ranking tiers.
