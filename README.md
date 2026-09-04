@@ -9,14 +9,21 @@
 ![Version](https://img.shields.io/badge/version-1.1.1+9-blue.svg)
 ![Flutter](https://img.shields.io/badge/Flutter-%5E3.11.4-02569B?logo=flutter)
 
-<a href="https://play.google.com/store/apps/details?id=vn.zenithas.plato&pli=1">
-  <img src="https://play.google.com/intl/en_us/badges/static/images/badges/vi_badge_web_generic.png" width="180" alt="Tải ứng dụng trên Google Play" />
-</a>
-<br/>
-<a href="https://www.facebook.com/profile.php?id=61592005979928"><img src="https://img.shields.io/badge/Facebook-1877F2?style=for-the-badge&logo=facebook&logoColor=white" alt="Facebook" /></a>
-<a href="https://www.instagram.com/plato.zenithas/"><img src="https://img.shields.io/badge/Instagram-E4405F?style=for-the-badge&logo=instagram&logoColor=white" alt="Instagram" /></a>
-<a href="https://www.tiktok.com/@plato.zenithas?_r=1&_t=ZS-990YzsfNfXO"><img src="https://img.shields.io/badge/TikTok-000000?style=for-the-badge&logo=tiktok&logoColor=white" alt="TikTok" /></a>
-<a href="https://www.threads.com/@plato.zenithas"><img src="https://img.shields.io/badge/Threads-000000?style=for-the-badge&logo=threads&logoColor=white" alt="Threads" /></a>
+<p align="left">
+  <a href="https://play.google.com/store/apps/details?id=vn.zenithas.plato&pli=1">
+    <img src="https://play.google.com/intl/en_us/badges/static/images/badges/vi_badge_web_generic.png" width="180" alt="Tải ứng dụng trên Google Play" />
+  </a>
+</p>
+
+<p align="left">
+  <a href="https://www.facebook.com/profile.php?id=61592005979928"><img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/facebook.svg" width="38" alt="Facebook" /></a>
+  &nbsp;&nbsp;&nbsp;
+  <a href="https://www.instagram.com/plato.zenithas/"><img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/instagram.svg" width="38" alt="Instagram" /></a>
+  &nbsp;&nbsp;&nbsp;
+  <a href="https://www.tiktok.com/@plato.zenithas?_r=1&_t=ZS-990YzsfNfXO"><img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/tiktok.svg" width="38" alt="TikTok" /></a>
+  &nbsp;&nbsp;&nbsp;
+  <a href="https://www.threads.com/@plato.zenithas"><img src="https://raw.githubusercontent.com/edent/SuperTinyIcons/master/images/svg/threads.svg" width="38" alt="Threads" /></a>
+</p>
 
 **Plato** is an advanced, local-first Flutter fitness application engineered to optimize your workout planning, session tracking, and nutritional monitoring. Powered by a robust gamification engine, Plato encourages consistency through XP accumulation and competitive ranking tiers.
 
