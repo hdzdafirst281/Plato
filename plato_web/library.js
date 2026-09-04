@@ -61,6 +61,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
+      // Đóng tất cả các menu khác đang mở
+      document.querySelectorAll('.filter-menu').forEach(m => {
+        if (m !== menu) m.classList.add('hidden');
+      });
       menu.classList.toggle('hidden');
     });
 
