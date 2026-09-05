@@ -1,6 +1,10 @@
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { createIcons, Download, ChevronRight, ChevronLeft, CheckCircle, Smartphone, Moon, Sun, Menu, X, Activity, Target, Shield, ArrowRight, MessageCircle, Music, Globe, Star, Calendar, BarChart2, Zap, Dumbbell, Play, Search, Info, ArrowUp } from 'lucide';
+import { inject } from '@vercel/analytics';
+
+// Initialize Vercel Analytics
+inject();
 
 // Khởi tạo AOS với một chút delay để trình duyệt kịp render trạng thái ẩn ban đầu
 // Điều này ngăn chặn lỗi mất animation (trình duyệt bỏ qua transition) khi load trang quá nhanh
