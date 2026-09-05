@@ -41,4 +41,5 @@ Locally preview the production build after running `npm run build`.
 
 ## Deployment
 This project is configured to be deployed on **Vercel**. 
-To enable clean URLs (removing `.html` from paths), a `vercel.json` configuration file is required.
+
+- **Clean URLs** are enabled via the `vercel.json` configuration file. All internal HTML links (`href`) have been optimized to point directly to paths without `.html` (e.g., `/library` instead of `library.html`). Vercel will automatically serve the corresponding HTML file while keeping the URL clean.
