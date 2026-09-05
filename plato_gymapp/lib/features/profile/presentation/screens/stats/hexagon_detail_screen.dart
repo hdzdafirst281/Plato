@@ -66,7 +66,7 @@ class _HexagonDetailScreenState extends State<HexagonDetailScreen> with SingleTi
                 children: [
                   TextSpan(text: t.stats.desc_hexagon_info_rank_prefix),
                   TextSpan(
-                    text: 'E',
+                    text: ' E',
                     style: TextStyle(color: colorScheme.onSurfaceVariant.withValues(alpha: 0.8), fontWeight: FontWeight.w900),
                   ),
                   WidgetSpan(
@@ -77,7 +77,7 @@ class _HexagonDetailScreenState extends State<HexagonDetailScreen> with SingleTi
                     ),
                   ),
                   TextSpan(
-                    text: 'S',
+                    text: 'S ',
                     style: TextStyle(
                       color: Theme.of(context).gymColors.goldRank, 
                       fontSize: 18, 
