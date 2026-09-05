@@ -1,5 +1,9 @@
 import { exercisesData } from './exercises_data.js';
 import { createIcons, Dumbbell, Play, Search, Info, Activity, X } from 'lucide';
+import { inject } from '@vercel/analytics';
+
+// Initialize Vercel Analytics
+inject();
 
 const removeAccents = (str) => {
   let result = str;
