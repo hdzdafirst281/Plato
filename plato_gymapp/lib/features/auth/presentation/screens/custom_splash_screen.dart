@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:material_symbols_icons/symbols.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
+import 'package:plato_gymapp/i18n/strings.g.dart';
 import '../../../../core/di/injection.dart';
 import '../../../../core/navigation/app_routes.dart';
 
@@ -33,7 +36,6 @@ class _CustomSplashScreenState extends State<CustomSplashScreen> with SingleTick
       CurvedAnimation(parent: _animationController, curve: Curves.easeOutBack),
     );
 
-    // CẢI THIỆN: Lắng nghe trạng thái animation thay vì dùng Timer delay cứng
     _animationController.addStatusListener((status) {
       if (status == AnimationStatus.completed) {
         _checkAndNavigate();
@@ -57,10 +59,64 @@ class _CustomSplashScreenState extends State<CustomSplashScreen> with SingleTick
     final isFirstRun = prefs.getBool('isFirstRun') ?? true;
 
     if (isFirstRun) {
-      context.go(AppRoutes.onboarding);
+      _showLanguageSelectionDialog();
     } else {
       context.go(AppRoutes.workout);
     }
+  }
+
+  void _showLanguageSelectionDialog() {
+    GymDialog.showCustom(
+      context: context,
+      barrierDismissible: false,
+      useRootNavigator: false,
+      titleWidget: const Text(
+        "Choose Language / Chọn Ngôn Ngữ", 
+        textAlign: TextAlign.center, 
+        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)
+      ),
+      content: ConstrainedBox(
+        constraints: const BoxConstraints(maxWidth: 400),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            ListTile(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              tileColor: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+              leading: const Icon(Symbols.language),
+              title: const Text("Tiếng Việt", style: TextStyle(fontWeight: FontWeight.bold)),
+              trailing: const Icon(Symbols.chevron_right),
+              onTap: () async {
+                LocaleSettings.setLocaleRaw("vi");
+                final prefs = getIt<SharedPreferences>();
+                await prefs.setString('app_lang', 'vi');
+                if (mounted) {
+                  Navigator.of(context, rootNavigator: false).pop();
+                  context.go(AppRoutes.onboarding);
+                }
+              },
+            ),
+            const SizedBox(height: 12),
+            ListTile(
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+              tileColor: Theme.of(context).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+              leading: const Icon(Symbols.language),
+              title: const Text("English", style: TextStyle(fontWeight: FontWeight.bold)),
+              trailing: const Icon(Symbols.chevron_right),
+              onTap: () async {
+                LocaleSettings.setLocaleRaw("en");
+                final prefs = getIt<SharedPreferences>();
+                await prefs.setString('app_lang', 'en');
+                if (mounted) {
+                  Navigator.of(context, rootNavigator: false).pop();
+                  context.go(AppRoutes.onboarding);
+                }
+              },
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   @override
