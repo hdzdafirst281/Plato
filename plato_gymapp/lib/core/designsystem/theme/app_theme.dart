@@ -57,6 +57,12 @@ class GymColors extends ThemeExtension<GymColors> {
   final Color restGradientStart;
   final Color restGradientEnd;
 
+  final Color fire2Start;
+  final Color fire2End;
+  final Color fire3Start;
+  final Color fire3End;
+  final Color fireBreakColor;
+
   final Color xpGradientStart;
   final Color xpGradientEnd;
 
@@ -101,6 +107,11 @@ class GymColors extends ThemeExtension<GymColors> {
     required this.streakGradientEnd,
     required this.restGradientStart,
     required this.restGradientEnd,
+    required this.fire2Start,
+    required this.fire2End,
+    required this.fire3Start,
+    required this.fire3End,
+    required this.fireBreakColor,
     required this.xpGradientStart,
     required this.xpGradientEnd,
     required this.nutritionBgStart,
@@ -121,6 +132,7 @@ class GymColors extends ThemeExtension<GymColors> {
     Color? podiumGoldStart, Color? podiumGoldEnd, Color? podiumSilverStart, Color? podiumSilverEnd, Color? podiumBronzeStart, Color? podiumBronzeEnd,
     Color? chestBannerStart, Color? chestBannerEnd,
     Color? streakGradientStart, Color? streakGradientEnd, Color? restGradientStart, Color? restGradientEnd,
+    Color? fire2Start, Color? fire2End, Color? fire3Start, Color? fire3End, Color? fireBreakColor,
     Color? xpGradientStart, Color? xpGradientEnd,
     Color? nutritionBgStart, Color? nutritionBgEnd, Color? nutritionEmpty,
   }) {
@@ -161,6 +173,11 @@ class GymColors extends ThemeExtension<GymColors> {
       streakGradientEnd: streakGradientEnd ?? this.streakGradientEnd,
       restGradientStart: restGradientStart ?? this.restGradientStart,
       restGradientEnd: restGradientEnd ?? this.restGradientEnd,
+      fire2Start: fire2Start ?? this.fire2Start,
+      fire2End: fire2End ?? this.fire2End,
+      fire3Start: fire3Start ?? this.fire3Start,
+      fire3End: fire3End ?? this.fire3End,
+      fireBreakColor: fireBreakColor ?? this.fireBreakColor,
       xpGradientStart: xpGradientStart ?? this.xpGradientStart,
       xpGradientEnd: xpGradientEnd ?? this.xpGradientEnd,
       nutritionBgStart: nutritionBgStart ?? this.nutritionBgStart,
@@ -209,6 +226,11 @@ class GymColors extends ThemeExtension<GymColors> {
       streakGradientEnd: Color.lerp(streakGradientEnd, other.streakGradientEnd, t)!,
       restGradientStart: Color.lerp(restGradientStart, other.restGradientStart, t)!,
       restGradientEnd: Color.lerp(restGradientEnd, other.restGradientEnd, t)!,
+      fire2Start: Color.lerp(fire2Start, other.fire2Start, t)!,
+      fire2End: Color.lerp(fire2End, other.fire2End, t)!,
+      fire3Start: Color.lerp(fire3Start, other.fire3Start, t)!,
+      fire3End: Color.lerp(fire3End, other.fire3End, t)!,
+      fireBreakColor: Color.lerp(fireBreakColor, other.fireBreakColor, t)!,
       xpGradientStart: Color.lerp(xpGradientStart, other.xpGradientStart, t)!,
       xpGradientEnd: Color.lerp(xpGradientEnd, other.xpGradientEnd, t)!,
       nutritionBgStart: Color.lerp(nutritionBgStart, other.nutritionBgStart, t)!,
@@ -256,6 +278,11 @@ const gymColorsDark = GymColors(
   streakGradientEnd: streakGradientEndDark,
   restGradientStart: restGradientStartDark,
   restGradientEnd: restGradientEndDark,
+  fire2Start: fire2StartDark,
+  fire2End: fire2EndDark,
+  fire3Start: fire3StartDark,
+  fire3End: fire3EndDark,
+  fireBreakColor: fireBreakDark,
   xpGradientStart: xpGradientStartDark,
   xpGradientEnd: xpGradientEndDark,
   nutritionBgStart: nutritionBgStartDark,
@@ -301,6 +328,11 @@ const gymColorsLight = GymColors(
   streakGradientEnd: streakGradientEndLight,
   restGradientStart: restGradientStartLight,
   restGradientEnd: restGradientEndLight,
+  fire2Start: fire2StartLight,
+  fire2End: fire2EndLight,
+  fire3Start: fire3StartLight,
+  fire3End: fire3EndLight,
+  fireBreakColor: fireBreakLight,
   xpGradientStart: xpGradientStartLight,
   xpGradientEnd: xpGradientEndLight,
   nutritionBgStart: nutritionBgStartLight,

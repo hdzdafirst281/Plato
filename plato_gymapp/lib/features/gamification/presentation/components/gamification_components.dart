@@ -128,7 +128,25 @@ class _UserProfileHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final gymColors = Theme.of(context).gymColors;
     final isDark = Theme.of(context).brightness == Brightness.dark;
+
+    double badgeScale;
+    List<Color> badgeGradient;
+    
+    if (streak == 0) {
+      badgeScale = 0.8;
+      badgeGradient = [gymColors.fireBreakColor, gymColors.fireBreakColor];
+    } else if (streak < 50) {
+      badgeScale = 0.75;
+      badgeGradient = [gymColors.streakGradientStart, gymColors.streakGradientEnd];
+    } else if (streak < 100) {
+      badgeScale = 1.0;
+      badgeGradient = [gymColors.fire2Start, gymColors.fire2End];
+    } else {
+      badgeScale = 1.3;
+      badgeGradient = [gymColors.fire3Start, gymColors.fire3End];
+    }
 
     final progressRatio = userStats.nextLevelXp > 0 ? (userStats.currentXp / userStats.nextLevelXp).clamp(0.0, 1.0) : 0.0;
     
@@ -230,13 +248,21 @@ class _UserProfileHeader extends StatelessWidget {
                     ),
                     const SizedBox(width: 8),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-                      decoration: BoxDecoration(color: Theme.of(context).gymColors.fireHexagon.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)),
+                      padding: EdgeInsets.symmetric(horizontal: 10 * badgeScale, vertical: 6 * badgeScale),
+                      decoration: BoxDecoration(color: badgeGradient.last.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12 * badgeScale)),
                       child: Row(
                         children: [
-                          Icon(Symbols.local_fire_department, color: Theme.of(context).gymColors.fireHexagon, size: 16, fill: 1.0),
-                          const SizedBox(width: 4),
-                          Text("$streak", style: TextStyle(color: Theme.of(context).gymColors.fireHexagon, fontSize: 13, fontWeight: FontWeight.w900)),
+                          StreakIcon(streak: streak, size: 16),
+                          SizedBox(width: 6 * badgeScale), 
+                          ShaderMask(
+                            blendMode: BlendMode.srcIn,
+                            shaderCallback: (bounds) => LinearGradient(
+                              colors: badgeGradient,
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                            ).createShader(bounds),
+                            child: Text("$streak", style: TextStyle(color: Colors.white, fontSize: 13 * badgeScale, fontWeight: FontWeight.w900)),
+                          ),
                         ],
                       ),
                     ),
@@ -355,7 +381,14 @@ class _WeeklyChestBanner extends StatelessWidget {
                     ? [BoxShadow(color: gymColors.goldRank.withValues(alpha: 0.3), blurRadius: 12, spreadRadius: 2)] 
                     : []
               ),
-              child: Icon(isClaimable ? Symbols.redeem : Symbols.featured_seasonal_and_gifts, color: isClaimed ? Colors.white54 : gymColors.goldRank, size: 36),
+              child: Center(
+                child: SvgPicture.asset(
+                  'assets/svg/icons/weekly_chest.svg',
+                  width: 32,
+                  height: 32,
+                  colorFilter: ColorFilter.mode(isClaimed ? Colors.white54 : gymColors.goldRank, BlendMode.srcIn),
+                ),
+              ),
             ),
             const SizedBox(width: 20),
             Expanded(

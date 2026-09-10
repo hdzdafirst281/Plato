@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
 import 'package:plato_gymapp/i18n/translation_helper.dart';
@@ -107,7 +108,7 @@ class _ExerciseDetailsScreenState extends State<ExerciseDetailsScreen> with Sing
                 },
                 itemBuilder: (_) => [
                   PopupMenuItem(value: 'edit', child: Row(children: [Icon(Symbols.edit, color: colorScheme.onSurface), const SizedBox(width: 8), Text(t.common.edit)])),
-                  PopupMenuItem(value: 'delete', child: Row(children: [Icon(Symbols.delete, color: colorScheme.error), const SizedBox(width: 8), Text(t.common.delete, style: TextStyle(color: colorScheme.error))])),
+                  PopupMenuItem(value: 'delete', child: Row(children: [SvgPicture.asset('assets/svg/icons/delete_trashcan.svg', width: 24, height: 24, colorFilter: ColorFilter.mode(colorScheme.error, BlendMode.srcIn)), const SizedBox(width: 8), Text(t.common.delete, style: TextStyle(color: colorScheme.error))])),
                 ],
               )
             ]

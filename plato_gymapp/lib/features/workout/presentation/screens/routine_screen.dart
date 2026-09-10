@@ -4,6 +4,7 @@ import 'dart:math';
 import 'dart:ui' as dart_ui;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
 import 'package:plato_gymapp/i18n/translation_helper.dart';
@@ -696,7 +697,12 @@ class _RoutineScreenState extends State<RoutineScreen>
               value: 'delete',
               child: Row(
                 children: [
-                  Icon(Symbols.delete, color: colorScheme.error),
+                  SvgPicture.asset(
+                    'assets/svg/icons/delete_trashcan.svg',
+                    width: 24,
+                    height: 24,
+                    colorFilter: ColorFilter.mode(colorScheme.error, BlendMode.srcIn),
+                  ),
                   const SizedBox(width: 8),
                   Text(
                     t.common.delete,
@@ -1461,7 +1467,7 @@ class _RoutineScreenState extends State<RoutineScreen>
                                   fabBottomOffset: fabBottomOffset,
                                   isKeyboardOpen: isKeyboardOpen,
                                   cancelLabel: t.workout.btn_routine_delete,
-                                  cancelIcon: Symbols.delete_outline,
+                                  cancelSvg: 'assets/svg/icons/delete_trashcan.svg',
                                   onAdd: _navigateToAddExercise,
                                   onReorder: () {
                                     HapticFeedback.heavyImpact();
@@ -1842,10 +1848,11 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
           ),
           Padding(
             padding: const EdgeInsets.all(14.0),
-            child: Icon(
-              Symbols.drag_handle,
-              color: colorScheme.primary,
-              size: 22,
+            child: SvgPicture.asset(
+              'assets/svg/icons/reorder.svg',
+              width: 22,
+              height: 22,
+              colorFilter: ColorFilter.mode(colorScheme.primary, BlendMode.srcIn),
             ),
           ),
         ],
@@ -1956,9 +1963,11 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
                       value: 'reorder',
                       child: Row(
                         children: [
-                          Icon(
-                            Symbols.drag_handle,
-                            color: colorScheme.onSurface,
+                          SvgPicture.asset(
+                            'assets/svg/icons/reorder.svg',
+                            width: 24,
+                            height: 24,
+                            colorFilter: ColorFilter.mode(colorScheme.onSurface, BlendMode.srcIn),
                           ),
                           const SizedBox(width: 8),
                           Text(
@@ -2039,7 +2048,12 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
                       value: 'delete',
                       child: Row(
                         children: [
-                          Icon(Symbols.delete, color: colorScheme.error),
+                          SvgPicture.asset(
+                            'assets/svg/icons/delete_trashcan.svg',
+                            width: 24,
+                            height: 24,
+                            colorFilter: ColorFilter.mode(colorScheme.error, BlendMode.srcIn),
+                          ),
                           const SizedBox(width: 8),
                           Text(
                             t.common.delete,

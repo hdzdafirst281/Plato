@@ -25,6 +25,7 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
 import 'package:plato_gymapp/i18n/translation_helper.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -219,10 +220,11 @@ class _GymSwipeToRevealActionState extends State<GymSwipeToRevealAction>
                           bottom: 0,
                           width: _actionWidth,
                           child: Center(
-                            child: Icon(
-                              Symbols.delete,
-                              color: colorScheme.onError,
-                              size: 28,
+                            child: SvgPicture.asset(
+                              'assets/svg/icons/delete_trashcan.svg',
+                              width: 28,
+                              height: 28,
+                              colorFilter: ColorFilter.mode(colorScheme.onError, BlendMode.srcIn),
                             ),
                           ),
                         ),
@@ -272,6 +274,7 @@ class WorkoutExpandableActionFab extends StatefulWidget {
 
   final String? cancelLabel;
   final IconData? cancelIcon;
+  final String? cancelSvg;
 
   final GlobalKey? fabTourKey;
   final String? fabTourTitle;
@@ -287,6 +290,7 @@ class WorkoutExpandableActionFab extends StatefulWidget {
     required this.onCancel,
     this.cancelLabel,
     this.cancelIcon,
+    this.cancelSvg,
     this.fabTourKey,
     this.fabTourTitle,
     this.fabTourDesc,
@@ -336,7 +340,8 @@ class _WorkoutExpandableActionFabState extends State<WorkoutExpandableActionFab>
   Widget _buildOption({
     required BuildContext context,
     required String label,
-    required IconData icon,
+    IconData? icon,
+    String? svgAsset,
     required VoidCallback onTap,
     required Color color,
   }) {
@@ -380,7 +385,14 @@ class _WorkoutExpandableActionFabState extends State<WorkoutExpandableActionFab>
                 _close();
                 onTap();
               },
-              child: Icon(icon),
+              child: svgAsset != null
+                  ? SvgPicture.asset(
+                      svgAsset,
+                      width: 24,
+                      height: 24,
+                      colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+                    )
+                  : Icon(icon, color: color),
             ),
           ),
         ],
@@ -475,7 +487,8 @@ class _WorkoutExpandableActionFabState extends State<WorkoutExpandableActionFab>
                       context: context,
                       label:
                           widget.cancelLabel ?? t.workout.btn_log_cancel,
-                      icon: widget.cancelIcon ?? Icons.close,
+                      icon: widget.cancelIcon ?? (widget.cancelSvg == null ? Icons.close : null),
+                      svgAsset: widget.cancelSvg,
                       color: colorScheme.error,
                       onTap: widget.onCancel,
                     ),
@@ -2223,7 +2236,7 @@ class ActiveExerciseCardState extends State<ActiveExerciseCard> with AutomaticKe
           ),
           Padding(
             padding: const EdgeInsets.all(14.0),
-            child: Icon(Symbols.drag_handle, color: colorScheme.primary, size: 22),
+            child: SvgPicture.asset('assets/svg/icons/reorder.svg', width: 22, height: 22, colorFilter: ColorFilter.mode(colorScheme.primary, BlendMode.srcIn)),
           ),
         ],
       ),
@@ -2345,7 +2358,7 @@ class ActiveExerciseCardState extends State<ActiveExerciseCard> with AutomaticKe
                     final bool canCreateSuperset = allExercises.length > 1;
 
                     return [
-                      PopupMenuItem(value: 'reorder', child: Row(children: [Icon(Symbols.drag_handle, color: colorScheme.onSurface), const SizedBox(width: 8), Text(t.workout.title_routine_create_reorder, style: TextStyle(color: colorScheme.onSurface))])),
+                      PopupMenuItem(value: 'reorder', child: Row(children: [SvgPicture.asset('assets/svg/icons/reorder.svg', width: 24, height: 24, colorFilter: ColorFilter.mode(colorScheme.onSurface, BlendMode.srcIn)), const SizedBox(width: 8), Text(t.workout.title_routine_create_reorder, style: TextStyle(color: colorScheme.onSurface))])),
                       PopupMenuItem(value: 'replace', child: Row(children: [Icon(Symbols.swap_horiz, color: colorScheme.onSurface), const SizedBox(width: 8), Text(t.workout.menu_routine_create_replace, style: TextStyle(color: colorScheme.onSurface))])),
 
                       if (canCreateSuperset && (widget.workoutExercise.supersetId == null || allExercises.where((e) => e.supersetId == widget.workoutExercise.supersetId).length < 3))
@@ -2353,7 +2366,7 @@ class ActiveExerciseCardState extends State<ActiveExerciseCard> with AutomaticKe
                       if (widget.workoutExercise.supersetId != null)
                         PopupMenuItem(value: 'superset_remove', child: Row(children: [Icon(Symbols.link_off, color: Theme.of(context).gymColors.warning), const SizedBox(width: 8), Text(t.workout.btn_superset_remove, style: TextStyle(color: Theme.of(context).gymColors.warning, fontWeight: FontWeight.bold))])),
 
-                      PopupMenuItem(value: 'delete', child: Row(children: [Icon(Symbols.delete, color: colorScheme.error), const SizedBox(width: 8), Text(t.common.delete, style: TextStyle(color: colorScheme.error))])),
+                      PopupMenuItem(value: 'delete', child: Row(children: [SvgPicture.asset('assets/svg/icons/delete_trashcan.svg', width: 24, height: 24, colorFilter: ColorFilter.mode(colorScheme.error, BlendMode.srcIn)), const SizedBox(width: 8), Text(t.common.delete, style: TextStyle(color: colorScheme.error))])),
                     ];
                   },
                 );

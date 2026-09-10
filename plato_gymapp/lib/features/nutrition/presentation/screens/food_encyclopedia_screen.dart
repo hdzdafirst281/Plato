@@ -1,5 +1,6 @@
 import 'package:plato_gymapp/core/designsystem/components/gym_snackbar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
@@ -584,7 +585,12 @@ class _FoodEncyclopediaScreenState extends State<FoodEncyclopediaScreen> with Si
                   children: [
                     if (_isCustomFood(food))
                       IconButton(
-                        icon: Icon(Symbols.delete_outline, size: 20, color: colorScheme.error),
+                        icon: SvgPicture.asset(
+                          'assets/svg/icons/delete_trashcan.svg',
+                          width: 20,
+                          height: 20,
+                          colorFilter: ColorFilter.mode(colorScheme.error, BlendMode.srcIn),
+                        ),
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
                         onPressed: () => _showDeleteCustomFoodDialog(context, food, nutritionCubit),

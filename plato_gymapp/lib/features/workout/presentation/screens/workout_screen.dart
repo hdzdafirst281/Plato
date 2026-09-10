@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
 import 'package:plato_gymapp/i18n/translation_helper.dart';
@@ -1068,7 +1069,12 @@ class _FolderHeader extends StatelessWidget {
                 value: 'reorder_dialog',
                 child: Row(
                   children: [
-                    Icon(Symbols.drag_handle, color: colorScheme.onSurface),
+                    SvgPicture.asset(
+                      'assets/svg/icons/reorder.svg',
+                      width: 24,
+                      height: 24,
+                      colorFilter: ColorFilter.mode(colorScheme.onSurface, BlendMode.srcIn),
+                    ),
                     const SizedBox(width: 8),
                     Flexible(
                       child: Text(
@@ -1101,7 +1107,12 @@ class _FolderHeader extends StatelessWidget {
                 value: 'delete',
                 child: Row(
                   children: [
-                    Icon(Symbols.delete, color: colorScheme.error),
+                    SvgPicture.asset(
+                      'assets/svg/icons/delete_trashcan.svg',
+                      width: 24,
+                      height: 24,
+                      colorFilter: ColorFilter.mode(colorScheme.error, BlendMode.srcIn),
+                    ),
                     const SizedBox(width: 8),
                     Flexible(
                       child: Text(
@@ -1648,7 +1659,12 @@ class _RoutineCardState extends State<_RoutineCard> {
           value: 'reorder_dialog',
           child: Row(
             children: [
-              Icon(Symbols.drag_handle, color: colorScheme.onSurface),
+              SvgPicture.asset(
+                'assets/svg/icons/reorder.svg',
+                width: 24,
+                height: 24,
+                colorFilter: ColorFilter.mode(colorScheme.onSurface, BlendMode.srcIn),
+              ),
               const SizedBox(width: 8),
               Flexible(
                 child: Text(
@@ -1682,7 +1698,12 @@ class _RoutineCardState extends State<_RoutineCard> {
           value: 'duplicate',
           child: Row(
             children: [
-              Icon(Symbols.content_copy, color: colorScheme.onSurface),
+              SvgPicture.asset(
+                'assets/svg/icons/copy.svg',
+                width: 24,
+                height: 24,
+                colorFilter: ColorFilter.mode(colorScheme.onSurface, BlendMode.srcIn),
+              ),
               const SizedBox(width: 8),
               Flexible(
                 child: Text(
@@ -1699,7 +1720,12 @@ class _RoutineCardState extends State<_RoutineCard> {
           value: 'delete',
           child: Row(
             children: [
-              Icon(Symbols.delete, color: colorScheme.error),
+              SvgPicture.asset(
+                'assets/svg/icons/delete_trashcan.svg',
+                width: 24,
+                height: 24,
+                colorFilter: ColorFilter.mode(colorScheme.error, BlendMode.srcIn),
+              ),
               const SizedBox(width: 8),
               Flexible(
                 child: Text(

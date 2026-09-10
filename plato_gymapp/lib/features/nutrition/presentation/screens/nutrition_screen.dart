@@ -2,6 +2,7 @@ import 'package:plato_gymapp/core/designsystem/components/gym_snackbar.dart';
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
 import 'package:plato_gymapp/i18n/translation_helper.dart';
@@ -521,7 +522,12 @@ class _MealSectionCard extends StatelessWidget {
                             ),
                     ),
                     IconButton(
-                      icon: Icon(Symbols.content_copy, size: 18, color: colorScheme.primary),
+                      icon: SvgPicture.asset(
+                        'assets/svg/icons/copy.svg',
+                        width: 18,
+                        height: 18,
+                        colorFilter: ColorFilter.mode(colorScheme.primary, BlendMode.srcIn),
+                      ),
                       tooltip: t.nutrition.btn_main_copy_yesterday,
                       onPressed: () async {
                         final success = await nutritionCubit.copyMealFromYesterday(mealType);
@@ -751,7 +757,12 @@ class _FoodItemRow extends StatelessWidget {
                 value: 'delete',
                 child: Row(
                   children: [
-                    Icon(Symbols.delete, size: 20, color: colorScheme.error),
+                    SvgPicture.asset(
+                      'assets/svg/icons/delete_trashcan.svg',
+                      width: 20,
+                      height: 20,
+                      colorFilter: ColorFilter.mode(colorScheme.error, BlendMode.srcIn),
+                    ),
                     const SizedBox(width: 12),
                     Text(t.common.delete, style: TextStyle(color: colorScheme.error)),
                   ],

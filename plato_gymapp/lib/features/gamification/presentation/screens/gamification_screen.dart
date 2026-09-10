@@ -1,6 +1,7 @@
 import 'dart:math' as math; 
 import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart'; 
 import 'package:plato_gymapp/i18n/strings.g.dart';
 import 'package:plato_gymapp/i18n/translation_helper.dart';
@@ -15,6 +16,7 @@ import 'package:responsive_framework/responsive_framework.dart';
 import '../../../../core/navigation/app_routes.dart'; 
 import '../../../../core/designsystem/components/gym_animated_progress_bar.dart';
 import '../../../../core/designsystem/components/gym_shimmer.dart';
+import '../../../../core/designsystem/components/streak_icon.dart';
 
 import '../../../../core/worker/sync_manager.dart'; 
 

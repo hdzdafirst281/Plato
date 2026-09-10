@@ -1,3 +1,4 @@
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_snackbar.dart';
 import 'dart:convert';
 import 'package:flutter/material.dart';
@@ -203,13 +204,15 @@ class AccountManagementScreen extends StatelessWidget {
   // --- WIDGET BUILDER CHO CÁC KHỐI BUTTON ---
   Widget _buildActionCard(
     BuildContext context, {
-    required IconData icon,
+    IconData? icon,
+    String? svgAsset,
     required Color iconColor,
     required String title,
     required String subtitle,
     required VoidCallback onTap,
     bool isDestructive = false,
   }) {
+    assert(icon != null || svgAsset != null);
     final colorScheme = Theme.of(context).colorScheme;
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
@@ -246,7 +249,14 @@ class AccountManagementScreen extends StatelessWidget {
                         : colorScheme.primary.withValues(alpha: 0.1),
                     shape: BoxShape.circle,
                   ),
-                  child: Icon(icon, color: iconColor, size: 24),
+                  child: svgAsset != null
+                      ? SvgPicture.asset(
+                          svgAsset,
+                          colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn),
+                          width: 24,
+                          height: 24,
+                        )
+                      : Icon(icon, color: iconColor, size: 24),
                 ),
                 const SizedBox(width: 16),
                 Expanded(
@@ -474,7 +484,7 @@ class AccountManagementScreen extends StatelessWidget {
 
                   _buildActionCard(
                     context,
-                    icon: Symbols.delete_forever,
+                    svgAsset: 'assets/svg/icons/permanent_delete.svg',
                     iconColor: colorScheme.error,
                     title: t.profile.btn_delete_account,
                     subtitle: t.profile.desc_delete_account_short,

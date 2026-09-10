@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:responsive_framework/responsive_framework.dart';
@@ -30,11 +31,22 @@ extension ChartTimeRangeExt on ChartTimeRange {
 class DashboardCard extends StatelessWidget {
   final String title;
   final String subtitle;
-  final IconData icon;
+  final IconData? icon;
+  final String? svgAsset;
+  final double? customIconSize;
   final Color color;
   final VoidCallback onClick;
 
-  const DashboardCard({super.key, required this.title, required this.subtitle, required this.icon, required this.color, required this.onClick});
+  const DashboardCard({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    this.icon,
+    this.svgAsset,
+    this.customIconSize,
+    required this.color,
+    required this.onClick,
+  }) : assert(icon != null || svgAsset != null);
 
   @override
   Widget build(BuildContext context) {
@@ -71,7 +83,14 @@ class DashboardCard extends StatelessWidget {
                 decoration: BoxDecoration(color: color.withValues(alpha: 0.1), shape: BoxShape.circle),
                 alignment: Alignment.center,
                 // Kích thước icon bằng 1/2 box
-                child: Icon(icon, color: color, size: iconBoxSize / 2),
+                child: svgAsset != null
+                    ? SvgPicture.asset(
+                        svgAsset!,
+                        colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+                        width: customIconSize ?? (iconBoxSize / 2),
+                        height: customIconSize ?? (iconBoxSize / 2),
+                      )
+                    : Icon(icon, color: color, size: customIconSize ?? (iconBoxSize / 2)),
               ),
               const SizedBox(width: 16),
               // [REFACTOR] CẤP ĐỘ 1: Expanded ép Text lấp đầy không gian còn lại

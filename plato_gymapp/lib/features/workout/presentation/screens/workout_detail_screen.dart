@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
 import 'package:plato_gymapp/i18n/translation_helper.dart';
@@ -153,7 +154,12 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                 value: 'delete', 
                 child: Row(
                   children: [
-                    Icon(Symbols.delete, color: colorScheme.error, size: 20),
+                    SvgPicture.asset(
+                      'assets/svg/icons/delete_trashcan.svg',
+                      width: 20,
+                      height: 20,
+                      colorFilter: ColorFilter.mode(colorScheme.error, BlendMode.srcIn),
+                    ),
                     const SizedBox(width: 12),
                     Text(t.common.delete, style: TextStyle(color: colorScheme.error, fontWeight: FontWeight.w600)),
                   ]

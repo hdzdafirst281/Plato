@@ -149,7 +149,7 @@ class _StatsDashboard extends StatelessWidget {
                 DashboardCard(
                   title: t.stats.title_card_muscle_balance, 
                   subtitle: t.stats.desc_card_muscle_balance,
-                  icon: Symbols.hexagon, 
+                  svgAsset: 'assets/svg/icons/hexagon.svg', 
                   color: colorScheme.error,
                   onClick: () => onNavigate(StatsScreenType.HEXAGON_DETAIL),
                 ),
@@ -158,7 +158,8 @@ class _StatsDashboard extends StatelessWidget {
                 DashboardCard(
                   title: t.stats.title_card_body_heatmap, 
                   subtitle: t.stats.desc_card_body_heatmap,
-                  icon: Symbols.conditions, 
+                  svgAsset: 'assets/svg/muscles/muscle_groups.svg', 
+                  customIconSize: 40,
                   color: Theme.of(context).gymColors.success,
                   onClick: () => onNavigate(StatsScreenType.HEATMAP_DETAIL),
                 ),
@@ -167,7 +168,7 @@ class _StatsDashboard extends StatelessWidget {
                 DashboardCard(
                   title: t.stats.title_card_activity_history, 
                   subtitle: t.stats.desc_card_activity_history,
-                  icon: Symbols.bar_chart, 
+                  svgAsset: 'assets/svg/icons/bar_chart.svg', 
                   color: colorScheme.primary,
                   onClick: () => onNavigate(StatsScreenType.HISTORY_DETAIL),
                 ),

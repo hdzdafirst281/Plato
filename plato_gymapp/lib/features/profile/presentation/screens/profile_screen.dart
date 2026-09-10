@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
 import 'package:plato_gymapp/i18n/translation_helper.dart';
@@ -158,9 +159,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ).colorScheme.error.withValues(alpha: 0.1),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(
-                        Symbols.delete,
-                        color: Theme.of(context).colorScheme.error,
+                      child: SvgPicture.asset(
+                        'assets/svg/icons/delete_trashcan.svg',
+                        colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.error, BlendMode.srcIn),
+                        width: 24,
+                        height: 24,
                       ),
                     ),
                     title: Text(
@@ -684,7 +687,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               children: [
                 Expanded(
                   child: _MenuButton(
-                    icon: Symbols.bar_chart_4_bars,
+                    svgAsset: 'assets/svg/icons/chart.svg',
                     title: t.profile.btn_menu_stats,
                     onTap: () => context.push('/profile/${AppRoutes.stats}'),
                   ),
@@ -1469,15 +1472,17 @@ class RankBadge extends StatelessWidget {
 }
 
 class _MenuButton extends StatelessWidget {
-  final IconData icon;
+  final IconData? icon;
+  final String? svgAsset;
   final String title;
   final VoidCallback onTap;
 
   const _MenuButton({
-    required this.icon,
+    this.icon,
+    this.svgAsset,
     required this.title,
     required this.onTap,
-  });
+  }) : assert(icon != null || svgAsset != null);
 
   @override
   Widget build(BuildContext context) {
@@ -1506,7 +1511,14 @@ class _MenuButton extends StatelessWidget {
             padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
             child: Column(
               children: [
-                Icon(icon, color: colorScheme.primary, size: 28),
+                svgAsset != null
+                    ? SvgPicture.asset(
+                        svgAsset!,
+                        colorFilter: ColorFilter.mode(colorScheme.primary, BlendMode.srcIn),
+                        width: 28,
+                        height: 28,
+                      )
+                    : Icon(icon, color: colorScheme.primary, size: 28),
                 const SizedBox(height: 8),
                 Text(
                   title,

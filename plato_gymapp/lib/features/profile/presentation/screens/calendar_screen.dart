@@ -3,6 +3,7 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
 import 'package:plato_gymapp/i18n/translation_helper.dart';
@@ -14,6 +15,7 @@ import 'package:responsive_framework/responsive_framework.dart';
 import 'package:plato_gymapp/core/bloc/tour/tour_cubit.dart';
 import 'package:plato_gymapp/core/database/enums.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_tour_target.dart';
+import '../../../../core/designsystem/components/streak_icon.dart';
 import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
 import 'package:plato_gymapp/core/designsystem/theme/colors.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
@@ -388,15 +390,29 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     child: Builder(
                       builder: (context) {
                         final isDark = Theme.of(context).brightness == Brightness.dark;
-                        // [CRITIC DEBUG FIX]: Giữ nguyên UI chung một hàng (Row) cho 2 _CompactStatCard 
+                        final gymColors = Theme.of(context).gymColors;
+                        
+                        int currentStreak = statsState.weeklyStreak;
+                        List<Color> streakColors;
+                        if (currentStreak == 0) {
+                          streakColors = [gymColors.fireBreakColor, gymColors.fireBreakColor];
+                        } else if (currentStreak < 50) {
+                          streakColors = [gymColors.streakGradientStart, gymColors.streakGradientEnd];
+                        } else if (currentStreak < 100) {
+                          streakColors = [gymColors.fire2Start, gymColors.fire2End];
+                        } else {
+                          streakColors = [gymColors.fire3Start, gymColors.fire3End];
+                        }
+
                         return Row(
                           children: [
                             Expanded(
                               child: _CompactStatCard(
-                                icon: Symbols.local_fire_department,
-                                gradientColors: isDark ? const [streakGradientStartDark, streakGradientEndDark] : const [streakGradientStartLight, streakGradientEndLight],
+                                customIcon: StreakIcon(streak: currentStreak, size: 24),
+                                gradientColors: streakColors,
                                 title: t.stats.lbl_cal_streak_title,
-                                value: "${statsState.weeklyStreak}",
+                                value: "$currentStreak",
+                                iconBackgroundColor: Colors.white.withValues(alpha: 0.4),
                               ),
                             ),
                             const SizedBox(width: 16),
@@ -406,6 +422,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                 gradientColors: isDark ? const [restGradientStartDark, restGradientEndDark] : const [restGradientStartLight, restGradientEndLight],
                                 title: t.stats.lbl_cal_rest_title,
                                 value: "${statsState.restDays}",
+                                iconBackgroundColor: Colors.white.withValues(alpha: 0.4),
                               ),
                             ),
                           ],
@@ -750,7 +767,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
                             },
                           ),
                           IconButton(
-                            icon: Icon(Symbols.delete_outline, color: colorScheme.error),
+                            icon: SvgPicture.asset(
+                              'assets/svg/icons/delete_trashcan.svg',
+                              width: 24,
+                              height: 24,
+                              colorFilter: ColorFilter.mode(colorScheme.error, BlendMode.srcIn),
+                            ),
                             tooltip: t.common.delete,
                             onPressed: () => _handleDeleteScheduledWorkout(parentContext, s, isModal, modalContext: modalContext),
                           )
@@ -1393,16 +1415,20 @@ Color _getRpeColor(BuildContext context, int? rpe) {
 }
 
 class _CompactStatCard extends StatelessWidget {
-  final IconData icon;
+  final IconData? icon;
+  final Widget? customIcon;
   final List<Color> gradientColors; 
   final String title;
   final String value;
+  final Color? iconBackgroundColor;
   
   const _CompactStatCard({
-    required this.icon, 
+    this.icon, 
+    this.customIcon,
     required this.gradientColors, 
     required this.title, 
-    required this.value
+    required this.value,
+    this.iconBackgroundColor,
   });
 
   @override
@@ -1430,10 +1456,18 @@ class _CompactStatCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.white.withValues(alpha: 0.25), 
+                color: iconBackgroundColor ?? Colors.white.withValues(alpha: 0.25), 
                 shape: BoxShape.circle,
               ),
-              child: Icon(icon, color: Colors.white, size: 24, fill: 1.0),
+              child: customIcon ?? ShaderMask(
+                blendMode: BlendMode.srcIn,
+                shaderCallback: (bounds) => LinearGradient(
+                  colors: gradientColors,
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ).createShader(bounds),
+                child: Icon(icon, color: Colors.white, size: 24, fill: 1.0),
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -1861,7 +1895,7 @@ class _MultiYearHeatmapView extends StatelessWidget {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Symbols.local_fire_department, size: 18, color: gymColors.fireHexagon),
+                    StreakIcon(streak: stats.maxDaysStreak, size: 18),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(globalMaxDaysLabel, style: TextStyle(fontSize: 13, color: colorScheme.onSurface, fontWeight: FontWeight.bold), maxLines: 2, overflow: TextOverflow.ellipsis),
@@ -1967,7 +2001,7 @@ class _HevyYearHeatmap extends StatelessWidget {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Symbols.local_fire_department, size: 14, color: gymColors.fireHexagon),
+                        StreakIcon(streak: stats.maxDaysStreak, size: 14),
                         const SizedBox(width: 4),
                         Text(daysStreakLabel, style: TextStyle(fontSize: 11, color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold)),
                       ],

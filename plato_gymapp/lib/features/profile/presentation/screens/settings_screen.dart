@@ -1,5 +1,6 @@
 import 'package:plato_gymapp/core/designsystem/components/gym_snackbar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
 import 'package:go_router/go_router.dart';
@@ -361,7 +362,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     // 3. Tutorial
                     ListTile(
                       contentPadding: itemPadding,
-                      leading: const Icon(Symbols.developer_guide),
+                      leading: SvgPicture.asset(
+                        'assets/svg/icons/tutorial.svg',
+                        width: 28,
+                        height: 28,
+                        colorFilter: ColorFilter.mode(colorScheme.onSurfaceVariant, BlendMode.srcIn),
+                      ),
                       title: Text(t.common.tutorial_title, style: titleStyle),
                       subtitle: Text(t.settings.desc_item_tutorial, style: subtitleStyle),
                       trailing: const Icon(Symbols.chevron_right),

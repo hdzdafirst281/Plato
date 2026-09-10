@@ -103,6 +103,8 @@ flutter:
     - assets/gifs/
     - assets/svg/
     - assets/svg/muscles/
+    - assets/svg/icons/
+    - assets/svg/equipments/
     - assets/exercises/
     - assets/badges/
     - assets/videos/
