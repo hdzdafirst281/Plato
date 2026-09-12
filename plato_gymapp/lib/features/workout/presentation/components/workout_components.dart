@@ -11,7 +11,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
-import 'package:plato_gymapp/features/profile/presentation/components/body_path_data.dart';
+import 'package:plato_gymapp/features/profile/presentation/components/muscle_group_presentation.dart';
 import 'package:plato_gymapp/features/workout/domain/muscle_recovery_calculator.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
@@ -73,12 +73,12 @@ class GymMuscleIcon extends StatelessWidget {
 
   String _getPathForGroup(MajorMuscleGroup group) {
     switch (group) {
-      case MajorMuscleGroup.CHEST: return BodyPathData.chestIcon;
-      case MajorMuscleGroup.BACK: return BodyPathData.backIcon;
-      case MajorMuscleGroup.LEGS: return BodyPathData.legsIcon;
-      case MajorMuscleGroup.SHOULDERS: return BodyPathData.shouldersIcon;
-      case MajorMuscleGroup.CORE: return BodyPathData.coreIcon;
-      case MajorMuscleGroup.ARMS: return BodyPathData.armsIcon;
+      case MajorMuscleGroup.CHEST: return MuscleGroupPresentation.chestIcon;
+      case MajorMuscleGroup.BACK: return MuscleGroupPresentation.backIcon;
+      case MajorMuscleGroup.LEGS: return MuscleGroupPresentation.legsIcon;
+      case MajorMuscleGroup.SHOULDERS: return MuscleGroupPresentation.shouldersIcon;
+      case MajorMuscleGroup.CORE: return MuscleGroupPresentation.coreIcon;
+      case MajorMuscleGroup.ARMS: return MuscleGroupPresentation.armsIcon;
       default: return '';
     }
   }

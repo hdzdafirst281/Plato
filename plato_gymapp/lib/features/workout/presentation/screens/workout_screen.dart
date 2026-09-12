@@ -18,7 +18,7 @@ import 'package:plato_gymapp/core/designsystem/components/gym_shake_wrapper.dart
 import 'package:plato_gymapp/core/designsystem/components/gym_shimmer.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_tour_target.dart';
 import 'package:plato_gymapp/core/navigation/app_router.dart';
-import 'package:plato_gymapp/features/profile/presentation/components/body_path_data.dart';
+import 'package:plato_gymapp/features/profile/presentation/components/muscle_group_presentation.dart';
 import 'package:plato_gymapp/features/workout/domain/workout_extensions.dart';
 import 'package:plato_gymapp/features/workout/presentation/bloc/exercise_library_cubit.dart';
 import 'package:responsive_framework/responsive_framework.dart';
@@ -1284,13 +1284,13 @@ class _BentoBox extends StatelessWidget {
     final bool isMinor = percent < 5.0;
     final double opacityModifier = isMinor ? 0.6 : 1.0;
 
-    final baseColor = BodyPathData.getColor(group, context);
+    final baseColor = MuscleGroupPresentation.getColor(group, context);
     // Thẻ nhỏ có màu chữ mờ hơn một chút, thẻ to giữ nguyên
     final color = baseColor.withValues(alpha: opacityModifier);
     // Thẻ to nền sáng (0.15), thẻ nhỏ nền chìm đi (0.08)
     final bgColor = baseColor.withValues(alpha: isMinor ? 0.08 : 0.15);
 
-    final key = BodyPathData.getName(group);
+    final key = MuscleGroupPresentation.getName(group);
     final name = t.translateDynamic(key);
     final pct = '${percent.toInt()}%';
 

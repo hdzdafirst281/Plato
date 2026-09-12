@@ -11,6 +11,7 @@ import 'package:responsive_framework/responsive_framework.dart';
 import '../../../../core/designsystem/components/gym_top_bar.dart';
 
 import '../bloc/stats_cubit.dart';
+import '../bloc/profile_cubit.dart';
 import 'stats/heatmap_detail_screen.dart';
 import 'stats/hexagon_detail_screen.dart';
 import 'stats/load_analysis_detail_screen.dart';
@@ -91,7 +92,15 @@ class _StatsScreenState extends State<StatsScreen> {
       case StatsScreenType.HEXAGON_DETAIL:
         return HexagonDetailScreen(key: const ValueKey('HEX'), workouts: workouts.cast(), onBack: _handleBack);
       case StatsScreenType.HEATMAP_DETAIL:
-        return HeatmapDetailScreen(key: const ValueKey('HEAT'), workouts: workouts.cast(), onBack: _handleBack);
+        return BlocSelector<ProfileCubit, ProfileState, Gender>(
+          key: const ValueKey('HEAT'),
+          selector: (state) => state.userProfile.gender,
+          builder: (context, gender) => HeatmapDetailScreen(
+            gender: gender,
+            workouts: workouts.cast(),
+            onBack: _handleBack,
+          ),
+        );
       case StatsScreenType.HISTORY_DETAIL:
         return HistoryDetailScreen(key: const ValueKey('HIST'), workouts: workouts.cast(), onBack: _handleBack);
     }
