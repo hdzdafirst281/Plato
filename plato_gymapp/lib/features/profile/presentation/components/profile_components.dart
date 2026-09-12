@@ -33,7 +33,7 @@ class DashboardCard extends StatelessWidget {
   final String subtitle;
   final IconData? icon;
   final String? svgAsset;
-  final double? customIconSize;
+  final double svgScale;
   final Color color;
   final VoidCallback onClick;
 
@@ -43,7 +43,7 @@ class DashboardCard extends StatelessWidget {
     required this.subtitle,
     this.icon,
     this.svgAsset,
-    this.customIconSize,
+    this.svgScale = 0.5,
     required this.color,
     required this.onClick,
   }) : assert(icon != null || svgAsset != null);
@@ -87,10 +87,10 @@ class DashboardCard extends StatelessWidget {
                     ? SvgPicture.asset(
                         svgAsset!,
                         colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
-                        width: customIconSize ?? (iconBoxSize / 2),
-                        height: customIconSize ?? (iconBoxSize / 2),
+                        width: iconBoxSize * svgScale,
+                        height: iconBoxSize * svgScale,
                       )
-                    : Icon(icon, color: color, size: customIconSize ?? (iconBoxSize / 2)),
+                    : Icon(icon, color: color, size: iconBoxSize * svgScale),
               ),
               const SizedBox(width: 16),
               // [REFACTOR] CẤP ĐỘ 1: Expanded ép Text lấp đầy không gian còn lại

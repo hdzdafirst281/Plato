@@ -168,7 +168,7 @@ class _StatsDashboard extends StatelessWidget {
                   title: t.stats.title_card_body_heatmap, 
                   subtitle: t.stats.desc_card_body_heatmap,
                   svgAsset: 'assets/svg/muscles/muscle_groups.svg', 
-                  customIconSize: 40,
+                  svgScale: 0.7,
                   color: Theme.of(context).gymColors.success,
                   onClick: () => onNavigate(StatsScreenType.HEATMAP_DETAIL),
                 ),

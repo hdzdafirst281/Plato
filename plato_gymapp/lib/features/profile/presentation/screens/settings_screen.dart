@@ -362,11 +362,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     // 3. Tutorial
                     ListTile(
                       contentPadding: itemPadding,
-                      leading: SvgPicture.asset(
-                        'assets/svg/icons/tutorial.svg',
-                        width: 28,
-                        height: 28,
-                        colorFilter: ColorFilter.mode(colorScheme.onSurfaceVariant, BlendMode.srcIn),
+                      leading: SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: OverflowBox(
+                          maxWidth: 28,
+                          maxHeight: 28,
+                          child: SvgPicture.asset(
+                            'assets/svg/icons/tutorial.svg',
+                            width: 28,
+                            height: 28,
+                            colorFilter: ColorFilter.mode(colorScheme.onSurfaceVariant, BlendMode.srcIn),
+                          ),
+                        ),
                       ),
                       title: Text(t.common.tutorial_title, style: titleStyle),
                       subtitle: Text(t.settings.desc_item_tutorial, style: subtitleStyle),
