@@ -88,6 +88,7 @@ class WorkoutRepository {
         [];
 
     return {
+      'scheduled_workout_id': fullPayload['scheduled_workout_id'],
       'schema_version': fullPayload['schema_version'] ?? '1.0',
       'muscle_distribution': fullPayload['muscle_distribution'] ?? {},
       'notes': fullPayload['notes'],
@@ -131,6 +132,11 @@ class WorkoutRepository {
             .map(
               (e) => ScheduledWorkout(
                 id: e.id,
+                timeOfDayMinutes: e.timeOfDayMinutes,
+                timeZoneId: e.timeZoneId,
+                reminderEnabled: e.reminderEnabled,
+                reminderMinutesBefore: e.reminderMinutesBefore,
+                completedWorkoutId: e.completedWorkoutId,
                 routineId: e.routineId,
                 routineName: e.routineName,
                 targetDateMillis: e.targetDateMillis,
@@ -155,6 +161,10 @@ class WorkoutRepository {
     int intervalDays = 1,
     String? colorHex,
     String? recurrenceGroupId,
+    int? timeOfDayMinutes,
+    String? timeZoneId,
+    bool reminderEnabled = false,
+    int reminderMinutesBefore = 30,
   }) async {
     List<DateTime> datesToSchedule = [];
 
@@ -165,7 +175,7 @@ class WorkoutRepository {
       datesToSchedule.add(baseDate);
     } else if (repeatType == 1) {
       for (int i = 0; i < occurrences; i++) {
-        datesToSchedule.add(baseDate.add(Duration(days: i)));
+        datesToSchedule.add(DateTime(baseDate.year, baseDate.month, baseDate.day + i));
       }
     } else if (repeatType == 2 &&
         selectedWeekdays != null &&
@@ -176,7 +186,7 @@ class WorkoutRepository {
       while (weeksAdded < occurrences) {
         bool addedAnyThisWeek = false;
         for (int i = 0; i < 7; i++) {
-          final testDate = current.add(Duration(days: i));
+          final testDate = DateTime(current.year, current.month, current.day + i);
           if (selectedWeekdays.contains(testDate.weekday)) {
             if (!testDate.isBefore(baseDate)) {
               datesToSchedule.add(testDate);
@@ -185,19 +195,20 @@ class WorkoutRepository {
           }
         }
         if (addedAnyThisWeek) weeksAdded++;
-        current = current.add(const Duration(days: 7));
+        current = DateTime(current.year, current.month, current.day + 7);
 
         if (current.difference(baseDate).inDays > 730) break;
       }
     } else if (repeatType == 3) {
       int safeInterval = intervalDays > 0 ? intervalDays : 1;
       for (int i = 0; i < occurrences; i++) {
-        datesToSchedule.add(baseDate.add(Duration(days: i * safeInterval)));
+        datesToSchedule.add(DateTime(baseDate.year, baseDate.month, baseDate.day + i * safeInterval));
       }
     }
 
     final currentTime = DateTime.now().millisecondsSinceEpoch;
     int batchCount = 0;
+    final scheduledEntities = <ScheduledWorkoutEntity>[];
 
     for (var date in datesToSchedule) {
       if (recurrenceGroupId != null &&
@@ -210,6 +221,10 @@ class WorkoutRepository {
         routineId: routineId,
         routineName: routineName,
         targetDateMillis: date.millisecondsSinceEpoch,
+        timeOfDayMinutes: timeOfDayMinutes,
+        timeZoneId: timeZoneId,
+        reminderEnabled: reminderEnabled,
+        reminderMinutesBefore: reminderMinutesBefore,
         isCompleted: false,
         colorHex: colorHex,
         recurrenceGroupId: recurrenceGroupId,
@@ -217,7 +232,7 @@ class WorkoutRepository {
         updatedAt: currentTime,
         isDeleted: false,
       );
-      await _workoutDao.insertScheduledWorkout(entity);
+      scheduledEntities.add(entity);
 
       batchCount++;
       if (batchCount % 10 == 0) {
@@ -225,7 +240,26 @@ class WorkoutRepository {
       }
     }
 
+    if (recurrenceGroupId == null || !_cancelledGroups.contains(recurrenceGroupId)) {
+      await _workoutDao.insertScheduledWorkouts(scheduledEntities);
+    }
     if (recurrenceGroupId != null) _cancelledGroups.remove(recurrenceGroupId);
+  }
+
+  Future<void> updateScheduledWorkout(ScheduledWorkout schedule, {
+    required DateTime date, int? timeOfDayMinutes, String? timeZoneId,
+    required bool reminderEnabled, required int reminderMinutesBefore, String? colorHex,
+  }) async {
+    final existing = await _workoutDao.getScheduledWorkout(schedule.id);
+    if (existing == null) throw StateError('Schedule no longer exists');
+    await _workoutDao.insertScheduledWorkout(ScheduledWorkoutEntity(
+      id: existing.id, routineId: existing.routineId, routineName: existing.routineName,
+      targetDateMillis: DateTime(date.year,date.month,date.day).millisecondsSinceEpoch,
+      timeOfDayMinutes: timeOfDayMinutes, timeZoneId: timeZoneId,
+      reminderEnabled: reminderEnabled, reminderMinutesBefore: reminderMinutesBefore,
+      isCompleted: existing.isCompleted, completedWorkoutId: existing.completedWorkoutId,
+      colorHex: colorHex ?? existing.colorHex, recurrenceGroupId: existing.recurrenceGroupId,
+      syncStatus: SyncStatus.PENDING.name, updatedAt: DateTime.now().millisecondsSinceEpoch, isDeleted: false));
   }
 
   Future<void> deleteScheduledWorkout(String id) async {
@@ -903,10 +937,12 @@ class WorkoutRepository {
   }
 
   Future<WorkoutSession> saveFinishedWorkout(
-    WorkoutSession completedSessionData,
-  ) async {
+    WorkoutSession completedSessionData, {
+    int Function(WorkoutSession)? calculateXp,
+  }) async {
     final exercisesEvaluatedWithPRsList = await _checkPersonalRecords(
       completedSessionData.exercises,
+      excludeSessionId: completedSessionData.id,
     );
 
     int cumulativePrCountCalculated = 0;
@@ -951,7 +987,7 @@ class WorkoutRepository {
                 (cumulativelyCalculatedVolume * 0.02))
             .toInt();
 
-    final finalizedSessionDataToStore = completedSessionData.copyWith(
+    var finalizedSessionDataToStore = completedSessionData.copyWith(
       sessionPayload: completedSessionData.sessionPayload.copyWith(
         exercises: exercisesEvaluatedWithPRsList,
         muscleDistribution: computedMuscleDistributionMap,
@@ -963,6 +999,12 @@ class WorkoutRepository {
       syncStatus: SyncStatus.PENDING,
       updatedAt: DateTime.now().millisecondsSinceEpoch,
     );
+
+    if (calculateXp != null) {
+      finalizedSessionDataToStore = finalizedSessionDataToStore.copyWith(
+        xpEarned: calculateXp(finalizedSessionDataToStore),
+      );
+    }
 
     await _workoutDao.insertOrUpdate(
       _domainToEntity(finalizedSessionDataToStore),
@@ -983,10 +1025,12 @@ class WorkoutRepository {
   }
 
   Future<List<WorkoutExercise>> _checkPersonalRecords(
-    List<WorkoutExercise> currentlyEvaluatedExercisesList,
-  ) async {
+    List<WorkoutExercise> currentlyEvaluatedExercisesList, {
+    String? excludeSessionId,
+  }) async {
     final historyEntities = await _workoutDao.getAllHistory();
     final entireWorkoutHistoryData = historyEntities
+        .where((e) => !e.isDeleted && e.id != excludeSessionId)
         .map((e) => _entityToDomainModel(e))
         .toList();
 

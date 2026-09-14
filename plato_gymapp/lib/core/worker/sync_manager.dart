@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../../features/notifications/application/notification_coordinator.dart';
 import 'dart:convert';
 import 'dart:isolate';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
@@ -55,7 +56,8 @@ Map<String, dynamic> _stripWorkoutPayload(Map<String, dynamic> fullPayload) {
   }).toList() ?? [];
 
   return {
-    'schema_version': fullPayload['schema_version'] ?? '1.0',
+    'scheduled_workout_id': fullPayload['scheduled_workout_id'],
+      'schema_version': fullPayload['schema_version'] ?? '1.0',
     'muscle_distribution': fullPayload['muscle_distribution'] ?? {},
     'notes': fullPayload['notes'],
     'exercises': exercises,
@@ -145,7 +147,7 @@ Future<bool> _executeCoreSyncLogic({
     if (isBackground) {
       backgroundDb = await $FloorAppDatabase
           .databaseBuilder('plato_app_database.db')
-          .addMigrations([migration2to3, migration3to4, migration4to5, migration5to6]) 
+          .addMigrations([migration2to3, migration3to4, migration4to5, migration5to6, migration6to7])
           .build();
       database = backgroundDb;
     } else {
@@ -399,6 +401,7 @@ class SyncManager {
   static Future<void> clearAllLocalUserData() async {
     debugPrint("🧹 [WIPE] Bắt đầu dọn dẹp dữ liệu cá nhân cục bộ...");
     final prefs = await SharedPreferences.getInstance();
+    await NotificationCoordinator.instance?.reset();
     await prefs.remove('USER_PROFILE');
     await prefs.remove('BODY_MEASUREMENTS');
     await prefs.remove('WORKOUT_FOLDER_ORDER');
@@ -418,11 +421,13 @@ class SyncManager {
       // BƯỚC 2: Xóa các dữ liệu cá nhân khác
       await database.rewardClaimDao.deleteAllClaims();
       await database.nutritionDao.deleteAllNutrition();
+      await database.notificationDao.clear();
       
       // BƯỚC 3: Xóa bài tập do user tự tạo
       await database.exerciseDao.deleteAllCustomExercises();
       await database.exerciseDao.clearAllUserNotes(); // Reset note bài hệ thống
       
+      NotificationCoordinator.instance?.resumeAfterReset();
       debugPrint("✅ [WIPE] Hoàn tất xóa dữ liệu cá nhân. Master Data an toàn.");
     } catch (e) {
       debugPrint("🚨 [WIPE ERROR] Lỗi khi dọn dẹp SQLite: $e");

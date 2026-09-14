@@ -1,3 +1,4 @@
+import '../../../notifications/application/notification_coordinator.dart';
 import 'package:flutter/foundation.dart';
 import 'dart:convert';
 import 'package:injectable/injectable.dart';
@@ -34,6 +35,7 @@ class NutritionRepository {
   }
 
   Future<void> saveDailyNutrition(String dateId, DailyNutrition daily) async {
+    final previous = await _nutritionDao.getDailyNutritionByDate(dateId);
     final entity = NutritionDailyEntity(
       dateId: dateId,
       waterConsumedLiters: daily.waterConsumedLiters,
@@ -47,6 +49,7 @@ class NutritionRepository {
     );
     
     await _nutritionDao.insertOrUpdateDailyNutrition(entity);
+    await NotificationCoordinator.instance?.waterChanged(dateId, previous?.waterConsumedLiters ?? 0, daily.waterConsumedLiters).catchError((Object error) { debugPrint('Notification event failed: $error'); });
   }
 
   // ĐÃ THÊM: Kéo toàn bộ lịch sử ăn uống & convert qua model sử dụng cho UI

@@ -453,10 +453,10 @@ class _QuestItem extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    IconData iconData = Symbols.star;
+    dynamic iconData = Symbols.star;
     if (quest.iconKey == "workout_count") iconData = Symbols.date_range;
     if (quest.iconKey == "total_volume") iconData = Symbols.exercise;
-    if (quest.iconKey == "pr_count") iconData = Symbols.trophy;
+    if (quest.iconKey == "pr_count") iconData = 'assets/svg/icons/trophy.svg';
     if (quest.iconKey == "duration") iconData = Symbols.timer;
     if (quest.iconKey == "sets") iconData = Symbols.repeat;
     if (quest.iconKey == "exercises") iconData = Symbols.format_list_bulleted;
@@ -483,11 +483,14 @@ class _QuestItem extends StatelessWidget {
           children: [
             Container(
               width: 54, height: 54,
+              alignment: Alignment.center,
               decoration: BoxDecoration(
                 color: quest.isCompleted ? Theme.of(context).gymColors.success.withValues(alpha: 0.2) : colorScheme.primary.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(16),
               ),
-              child: Icon(iconData, color: quest.isCompleted ? Theme.of(context).gymColors.success : colorScheme.primary, size: 28),
+              child: iconData is IconData
+                  ? Icon(iconData, color: quest.isCompleted ? Theme.of(context).gymColors.success : colorScheme.primary, size: 28)
+                  : SvgPicture.asset(iconData as String, width: 28, height: 28, colorFilter: ColorFilter.mode(quest.isCompleted ? Theme.of(context).gymColors.success : colorScheme.primary, BlendMode.srcIn)),
             ),
             const SizedBox(width: 16),
             Expanded(
@@ -677,7 +680,7 @@ class _PodiumColumn extends StatelessWidget {
                   top: -12, right: -10,
                   child: Transform.rotate(
                     angle: 15 * math.pi / 180, 
-                    child: Icon(Symbols.trophy, color: Theme.of(context).gymColors.goldRank, size: 30, fill: 1.0),
+                    child: SvgPicture.asset('assets/svg/icons/trophy.svg', width: 30, height: 30, colorFilter: ColorFilter.mode(Theme.of(context).gymColors.goldRank, BlendMode.srcIn)),
                   ),
                 )
             ],

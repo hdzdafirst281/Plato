@@ -5,6 +5,7 @@ import 'dart:math';
 import 'dart:ui'; 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; 
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
 import 'package:plato_gymapp/i18n/translation_helper.dart';
@@ -34,6 +35,8 @@ import '../bloc/workout_cubit.dart';
 import '../components/workout_components.dart';
 import '../components/workout_shared_ui.dart';
 import 'exercise_library_screen.dart';
+import '../../../gamification/presentation/screens/workout_rewards_screen.dart';
+import '../../../gamification/presentation/bloc/gamification_cubit.dart';
 
 class LogWorkoutScreen extends StatefulWidget {
   final VoidCallback onMinimize;
@@ -398,17 +401,25 @@ class _LogWorkoutScreenState extends State<LogWorkoutScreen> with SingleTickerPr
     );
   }
 
+  bool _finishTransitionStarted = false;
+
   Future<void> _executeFinishTransition(ActiveSessionCubit cubit, {required bool saveStructure}) async {
+    if (_finishTransitionStarted) return;
     final router = GoRouter.of(context);
-    final workoutId = cubit.state.activeWorkout?.id; 
+    final workoutId = cubit.state.activeWorkout?.id;
+    if (workoutId == null) return;
+    _finishTransitionStarted = true;
+    final beforeQuests = context.read<GamificationCubit>().state.stats.weeklyQuests;
+    final completion = cubit.finishWorkout(saveStructure: saveStructure);
 
     widget.onMinimize(); 
     
-    // Navigate immediately to trigger Skeleton Loading in session_summary_screen
-    router.pushNamed('session_summary', extra: workoutId);
-    
-    // Process finish asynchronously
-    await cubit.finishWorkout(saveStructure: saveStructure);
+    await router.pushNamed('workout_rewards', extra: WorkoutRewardsRequest(
+      workoutId: workoutId,
+      completion: completion,
+      beforeQuests: beforeQuests,
+    ));
+    _finishTransitionStarted = false;
   }
 
   Future<void> _processFinishWorkout(ActiveSessionCubit cubit) async {
@@ -585,7 +596,7 @@ class _LogWorkoutScreenState extends State<LogWorkoutScreen> with SingleTickerPr
                         ),
                         if (_cachedTotalPRs > 0) ...[
                           const SizedBox(width: 12),
-                          Icon(Symbols.trophy, size: 18, color: Theme.of(context).gymColors.goldRank, fill: 1.0),
+                          SvgPicture.asset('assets/svg/icons/trophy.svg', width: 18, height: 18, colorFilter: ColorFilter.mode(Theme.of(context).gymColors.goldRank, BlendMode.srcIn)),
                           const SizedBox(width: 4),
                           FittedBox(
                             fit: BoxFit.scaleDown,
@@ -821,7 +832,7 @@ class _LogWorkoutScreenState extends State<LogWorkoutScreen> with SingleTickerPr
                       for (int j = 0; j < crossAxisCount; j++) {
                         if (i + j < fullStats.length) {
                           final stat = fullStats[i + j];
-                          final isPR = stat['icon'] == Symbols.trophy;
+                          final isPR = stat['icon'] == 'assets/svg/icons/trophy.svg';
                           final iconBgColor = isPR ? Theme.of(context).gymColors.goldRank.withValues(alpha: 0.15) : colorScheme.primary.withValues(alpha: 0.1);
                           final iconColor = isPR ? Theme.of(context).gymColors.goldRank : colorScheme.primary;
                           final textColor = isPR ? Theme.of(context).gymColors.goldRank : colorScheme.onSurface;
@@ -836,7 +847,7 @@ class _LogWorkoutScreenState extends State<LogWorkoutScreen> with SingleTickerPr
                                   Container(
                                     padding: const EdgeInsets.all(16),
                                     decoration: BoxDecoration(color: iconBgColor, shape: BoxShape.circle),
-                                    child: Icon(stat['icon'] as IconData, color: iconColor, size: 26),
+                                    child: stat['icon'] is IconData ? Icon(stat['icon'] as IconData, color: iconColor, size: 26) : SvgPicture.asset(stat['icon'] as String, width: 26, height: 26, colorFilter: ColorFilter.mode(iconColor, BlendMode.srcIn)),
                                   ),
                                   const SizedBox(height: 12),
                                   FittedBox(
@@ -922,7 +933,7 @@ _calculateStatsOnce(currentSession);
     if (_cachedTotalDist > 0) extraStats.add({'label': t.common.distance, 'value': '${_fmtDouble(_cachedTotalDist)} km', 'icon': Symbols.directions_run});
     if (_cachedTotalSteps > 0) extraStats.add({'label': t.common.steps, 'value': '$_cachedTotalSteps', 'icon': Symbols.directions_walk});
     if (_cachedTotalExercises > 0) extraStats.add({'label': t.profile.btn_menu_exercises, 'value': '$_cachedTotalExercises', 'icon': Symbols.format_list_bulleted});
-    if (_cachedTotalPRs > 0) extraStats.add({'label': t.gamification.title_main, 'value': '$_cachedTotalPRs', 'icon': Symbols.trophy});
+    if (_cachedTotalPRs > 0) extraStats.add({'label': t.gamification.title_main, 'value': '$_cachedTotalPRs', 'icon': 'assets/svg/icons/trophy.svg'});
 
 
 
@@ -942,7 +953,7 @@ _calculateStatsOnce(currentSession);
           if (_cachedTotalDist > 0) extraStats.add({'label': t.common.distance, 'value': '${_fmtDouble(_cachedTotalDist)} km', 'icon': Symbols.directions_run});
           if (_cachedTotalSteps > 0) extraStats.add({'label': t.common.steps, 'value': '$_cachedTotalSteps', 'icon': Symbols.directions_walk});
           if (_cachedTotalExercises > 0) extraStats.add({'label': t.profile.btn_menu_exercises, 'value': '$_cachedTotalExercises', 'icon': Symbols.format_list_bulleted});
-          if (_cachedTotalPRs > 0) extraStats.add({'label': t.gamification.title_main, 'value': '$_cachedTotalPRs', 'icon': Symbols.trophy});
+          if (_cachedTotalPRs > 0) extraStats.add({'label': t.gamification.title_main, 'value': '$_cachedTotalPRs', 'icon': 'assets/svg/icons/trophy.svg'});
 
       final showMoreBtn = extraStats.length > 2;
       Map<String, dynamic>? midStat;
@@ -989,7 +1000,7 @@ _calculateStatsOnce(currentSession);
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    Icon(Symbols.trophy, size: 16, color: Theme.of(context).gymColors.goldRank, fill: 1.0),
+                    SvgPicture.asset('assets/svg/icons/trophy.svg', width: 16, height: 16, colorFilter: ColorFilter.mode(Theme.of(context).gymColors.goldRank, BlendMode.srcIn)),
                     const SizedBox(width: 6),
                     Text(t.gamification.title_main, style: TextStyle(fontSize: 12, color: Theme.of(context).gymColors.goldRank.withValues(alpha: 0.8), fontWeight: FontWeight.bold)),
                   ],

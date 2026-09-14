@@ -25,6 +25,7 @@ import '../../../../core/utils/workout_permission_helper.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:flutter_background_service/flutter_background_service.dart';
 import 'dart:io';
+import '../../../notifications/presentation/notification_controls.dart';
 import 'package:device_info_plus/device_info_plus.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -343,6 +344,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       activeTrackColor: Theme.of(context).colorScheme.primary,
                       activeThumbColor: Colors.white,
                     ),
+
+                    const NotificationSettingsControls(),
 
                     // 2. Account Management Hub
                     ListTile(

@@ -4,9 +4,9 @@
 /// To regenerate, run: `dart run slang`
 ///
 /// Locales: 2
-/// Strings: 2928 (1464 per locale)
+/// Strings: 3116 (1558 per locale)
 ///
-/// Built on 2026-09-12 at 12:24 UTC
+/// Built on 2026-09-14 at 07:09 UTC
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -148,6 +148,7 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final Translations _root = this; // ignore: unused_field
 
 	// Translations
+	late final _StringsWorkoutRewardsEn workout_rewards = _StringsWorkoutRewardsEn._(_root);
 	String get app_name => 'Plato';
 	String get company_name => 'Zenithas';
 	late final _StringsAuthEn auth = _StringsAuthEn._(_root);
@@ -169,6 +170,53 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final _StringsStatsEn stats = _StringsStatsEn._(_root);
 	late final _StringsTourEn tour = _StringsTourEn._(_root);
 	late final _StringsWorkoutEn workout = _StringsWorkoutEn._(_root);
+	late final _StringsNotificationsEn notifications = _StringsNotificationsEn._(_root);
+}
+
+// Path: workout_rewards
+class _StringsWorkoutRewardsEn {
+	_StringsWorkoutRewardsEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get tap_skip => 'Tap to finish animations';
+	String get tap_claim => 'Tap a completed quest to claim XP';
+	String streak({required Object weeks}) => '${weeks}-week streak';
+	String get quest_workouts => 'Workouts';
+	String get quest_volume => 'Volume';
+	String get quest_prs => 'Records';
+	String get quest_time => 'Time';
+	String get quest_sets => 'Sets';
+	String get quest_exercises => 'Exercises';
+	String get zone_demote => 'Drop';
+	String get zone_maintain => 'Hold';
+	String get zone_promote => 'Rise';
+	String get rank_review => 'Rank reviewed at the end of the 45-day season';
+	String xp_breakdown({required Object base, required Object bonus}) => 'Completion +${base} XP · Personal records +${bonus} XP';
+	String get chest_title => 'Weekly chest';
+	String chest_progress({required Object current, required Object target}) => '${current} / ${target} quests completed';
+	String chest_locked({required Object xp}) => 'Complete more quests to unlock +${xp} XP.';
+	String get eyebrow => 'SESSION COMPLETE';
+	String get subtitle => 'Every session moves you forward.';
+	String get earned => 'Workout XP';
+	String level({required Object level}) => 'Level ${level}';
+	String get summary => 'View workout summary';
+	String get loading => 'Saving your workout and updating rewards…';
+	String get load_error => 'Rewards could not be loaded. Your workout may already be saved. Return to your workout history to check.';
+	String get back => 'Back to workouts';
+	String claim({required Object xp}) => 'Claim +${xp} XP';
+	String get claimed => 'Reward claimed';
+	String get claim_error => 'Could not claim this reward. Please try again.';
+	String get quests_hint => 'Claim completed quests for extra XP.';
+	String get rank_hint => 'Rank is reviewed at the end of your 45-day season.';
+	String rank_progress({required Object current, required Object target}) => '${current} / ${target} RP to promotion';
+	String rank_max({required Object points}) => 'Highest rank · ${points} RP to maintain';
+	String session_rp({required Object points}) => '+${points} RP this session';
+	String get skip => 'Skip animation';
+	String get level_up => 'Level up!';
+	String quest_progress({required Object current, required Object target}) => '${current} / ${target}';
+	String get empty_quests => 'Your weekly quests will appear here when available.';
 }
 
 // Path: auth
@@ -1804,6 +1852,72 @@ class _StringsWorkoutEn {
 	String get col_workout_name => 'Workout Name';
 }
 
+// Path: notifications
+class _StringsNotificationsEn {
+	_StringsNotificationsEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get title_settings => 'Notifications';
+	String get lbl_workout_reminders => 'Workout reminders';
+	String get lbl_streak_reminders => 'Streak reminders';
+	String get lbl_hydration_reminders => 'Water reminders';
+	String get lbl_rank_reminders => 'Rank cycle reminders';
+	String get lbl_recovery_reminders => 'Recovery reminders';
+	String get lbl_inactivity_reminders => 'Return-to-training reminders';
+	String get lbl_experimental => 'Experimental';
+	String get lbl_quiet_hours => 'Quiet hours';
+	String get lbl_daily_limit => 'Daily notification limit';
+	String fmt_daily_limit({required Object count}) => 'Up to ${count} notifications per day';
+	String get desc_daily_limit => 'This is a maximum. Plato only sends relevant reminders.';
+	String get msg_permission_required => 'Allow notifications to receive reminders outside the app.';
+	String get msg_permission_disabled => 'Notifications are turned off in your device settings.';
+	String get btn_enable => 'Enable notifications';
+	String get btn_open_settings => 'Open device settings';
+	String get msg_category_disabled => 'Enable this reminder group in Notification Settings first.';
+	String get lbl_remind_this_workout => 'Remind me before this workout';
+	String fmt_minutes_before({required Object minutes}) => '${minutes} minutes before';
+	String get title_workout_reminder => 'Your workout is coming up';
+	String body_workout_reminder({required Object routineName, required Object time}) => '${routineName} starts at ${time}.';
+	String get title_workout_today => 'You have a workout planned today';
+	String body_workout_today({required Object routineName}) => 'Make time for ${routineName} when it suits you.';
+	String body_workout_streak({required Object routineName, required Object time}) => '${routineName} starts at ${time}. This workout can help keep your streak going.';
+	String get lbl_hydration_at_16 => 'Remind me to drink water at 4 PM';
+	String get desc_hydration_reminder => 'One reminder at 4 PM, only if your logged intake is below your daily goal.';
+	String get title_hydration_reminder => 'A moment for water';
+	String get body_hydration_no_log => 'You haven\'t logged any water today. If you\'ve had some, update your log.';
+	String body_hydration_low({required Object consumed, required Object target}) => 'You\'ve logged ${consumed} / ${target} L today. Remember to drink water regularly.';
+	String body_hydration_progress({required Object consumed, required Object target, required Object remaining}) => 'You\'ve logged ${consumed} / ${target} L. That\'s ${remaining} L from today\'s goal.';
+	String get title_streak_at_risk => 'Keep your weekly streak going';
+	String body_streak_at_risk({required Object weeks}) => 'One qualifying workout before the week ends can keep your ${weeks}-week streak going.';
+	String get title_rank_ending => 'Your rank cycle ends soon';
+	String body_rank_ending({required Object date}) => 'Your current cycle ends on ${date}. Check your progress and next goal.';
+	String get title_recovery_ready => 'Ready for your next workout?';
+	String body_recovery_ready({required Object muscles}) => 'Based on your workout history, ${muscles} may be ready to train again. Explore suitable routines.';
+	String get title_inactivity => 'Ready to get back into training?';
+	String get body_inactivity => 'Start again at your own pace. Pick a routine and a time that works for you.';
+	String get title_streak_started => 'Your streak starts here';
+	String get body_streak_started => 'You\'ve completed a qualifying workout this week.';
+	String get title_streak_extended => 'Weekly streak extended';
+	String body_streak_extended({required Object weeks}) => 'You\'ve kept your streak going for ${weeks} weeks.';
+	String get title_streak_milestone => 'A milestone worth celebrating';
+	String body_streak_milestone({required Object weeks}) => '${weeks} weeks of consistency. Celebrate your progress!';
+	String get title_hydration_completed => 'Water goal reached';
+	String body_hydration_completed({required Object target}) => 'You\'ve reached your ${target} L goal today.';
+	String get title_rank_maintained => 'Rank maintained';
+	String body_rank_maintained({required Object rankName}) => 'You finished this cycle at ${rankName}. Explore your next goal.';
+	String get title_rank_demoted => 'Your rank cycle result';
+	String body_rank_demoted({required Object rankName}) => 'Your rank for the new cycle is ${rankName}. Set your next training goal.';
+	String get title_workout_milestone => 'A new workout milestone';
+	String body_workout_milestone({required Object count}) => 'You\'ve completed ${count} workouts.';
+	String get title_session_achievements => 'Your achievements this workout';
+	String get title_recovery_recommendation => 'Routines for your recovery';
+	String body_recovery_recommendation({required Object muscles}) => 'Explore routines based on the estimated recovery of ${muscles}.';
+	String get title_recovery_low => 'Consider a lighter session';
+	String body_recovery_low({required Object muscles}) => '${muscles} are still recovering based on your workout history. Consider lowering the intensity or training other muscles.';
+}
+
 // Path: <root>
 class _StringsVi extends Translations {
 	/// You can call this constructor and build your own translation instance of this locale.
@@ -1830,6 +1944,7 @@ class _StringsVi extends Translations {
 	@override late final _StringsVi _root = this; // ignore: unused_field
 
 	// Translations
+	@override late final _StringsWorkoutRewardsVi workout_rewards = _StringsWorkoutRewardsVi._(_root);
 	@override String get app_name => 'Plato';
 	@override String get company_name => 'Zenithas';
 	@override late final _StringsAuthVi auth = _StringsAuthVi._(_root);
@@ -1851,6 +1966,53 @@ class _StringsVi extends Translations {
 	@override late final _StringsStatsVi stats = _StringsStatsVi._(_root);
 	@override late final _StringsTourVi tour = _StringsTourVi._(_root);
 	@override late final _StringsWorkoutVi workout = _StringsWorkoutVi._(_root);
+	@override late final _StringsNotificationsVi notifications = _StringsNotificationsVi._(_root);
+}
+
+// Path: workout_rewards
+class _StringsWorkoutRewardsVi extends _StringsWorkoutRewardsEn {
+	_StringsWorkoutRewardsVi._(_StringsVi root) : this._root = root, super._(root);
+
+	@override final _StringsVi _root; // ignore: unused_field
+
+	// Translations
+	@override String get tap_skip => 'Chạm để hoàn tất hiệu ứng';
+	@override String get tap_claim => 'Chạm nhiệm vụ hoàn thành để nhận XP';
+	@override String streak({required Object weeks}) => 'Chuỗi ${weeks} tuần';
+	@override String get quest_workouts => 'Buổi tập';
+	@override String get quest_volume => 'Khối lượng';
+	@override String get quest_prs => 'Kỷ lục';
+	@override String get quest_time => 'Thời gian';
+	@override String get quest_sets => 'Hiệp tập';
+	@override String get quest_exercises => 'Bài tập';
+	@override String get zone_demote => 'Rớt';
+	@override String get zone_maintain => 'Giữ';
+	@override String get zone_promote => 'Thăng';
+	@override String get rank_review => 'Xét hạng cuối mùa 45 ngày';
+	@override String xp_breakdown({required Object base, required Object bonus}) => 'Hoàn thành +${base} XP · Kỷ lục cá nhân +${bonus} XP';
+	@override String get chest_title => 'Rương tuần';
+	@override String chest_progress({required Object current, required Object target}) => 'Hoàn thành ${current} / ${target} nhiệm vụ';
+	@override String chest_locked({required Object xp}) => 'Hoàn thành thêm nhiệm vụ để mở khóa +${xp} XP.';
+	@override String get eyebrow => 'HOÀN THÀNH BUỔI TẬP';
+	@override String get subtitle => 'Mỗi buổi tập là một bước tiến.';
+	@override String get earned => 'XP từ buổi tập';
+	@override String level({required Object level}) => 'Cấp ${level}';
+	@override String get summary => 'Xem tổng kết buổi tập';
+	@override String get loading => 'Đang lưu buổi tập và cập nhật phần thưởng…';
+	@override String get load_error => 'Chưa tải được phần thưởng. Buổi tập có thể đã được lưu. Hãy quay lại lịch sử tập luyện để kiểm tra.';
+	@override String get back => 'Về trang tập luyện';
+	@override String claim({required Object xp}) => 'Nhận +${xp} XP';
+	@override String get claimed => 'Đã nhận thưởng';
+	@override String get claim_error => 'Chưa nhận được thưởng. Vui lòng thử lại.';
+	@override String get quests_hint => 'Nhận thưởng nhiệm vụ hoàn thành để có thêm XP.';
+	@override String get rank_hint => 'Hạng được xét khi kết thúc mùa 45 ngày.';
+	@override String rank_progress({required Object current, required Object target}) => '${current} / ${target} RP để thăng hạng';
+	@override String rank_max({required Object points}) => 'Hạng cao nhất · ${points} RP để giữ hạng';
+	@override String session_rp({required Object points}) => '+${points} RP từ buổi tập';
+	@override String get skip => 'Bỏ qua hiệu ứng';
+	@override String get level_up => 'Lên cấp!';
+	@override String quest_progress({required Object current, required Object target}) => '${current} / ${target}';
+	@override String get empty_quests => 'Nhiệm vụ tuần sẽ xuất hiện tại đây khi có dữ liệu.';
 }
 
 // Path: auth
@@ -3486,12 +3648,115 @@ class _StringsWorkoutVi extends _StringsWorkoutEn {
 	@override String get col_workout_name => 'Tên buổi tập';
 }
 
+// Path: notifications
+class _StringsNotificationsVi extends _StringsNotificationsEn {
+	_StringsNotificationsVi._(_StringsVi root) : this._root = root, super._(root);
+
+	@override final _StringsVi _root; // ignore: unused_field
+
+	// Translations
+	@override String get title_settings => 'Thông báo';
+	@override String get lbl_workout_reminders => 'Nhắc lịch tập';
+	@override String get lbl_streak_reminders => 'Nhắc duy trì streak';
+	@override String get lbl_hydration_reminders => 'Nhắc uống nước';
+	@override String get lbl_rank_reminders => 'Nhắc chu kỳ xếp hạng';
+	@override String get lbl_recovery_reminders => 'Nhắc phục hồi';
+	@override String get lbl_inactivity_reminders => 'Nhắc quay lại tập';
+	@override String get lbl_experimental => 'Thử nghiệm';
+	@override String get lbl_quiet_hours => 'Giờ yên lặng';
+	@override String get lbl_daily_limit => 'Giới hạn thông báo mỗi ngày';
+	@override String fmt_daily_limit({required Object count}) => 'Tối đa ${count} thông báo mỗi ngày';
+	@override String get desc_daily_limit => 'Đây là giới hạn tối đa. Plato chỉ gửi lời nhắc phù hợp.';
+	@override String get msg_permission_required => 'Cho phép thông báo để nhận lời nhắc ngoài ứng dụng.';
+	@override String get msg_permission_disabled => 'Thông báo đang bị tắt trong cài đặt thiết bị.';
+	@override String get btn_enable => 'Bật thông báo';
+	@override String get btn_open_settings => 'Mở cài đặt thiết bị';
+	@override String get msg_category_disabled => 'Hãy bật nhóm lời nhắc này trong Cài đặt thông báo trước.';
+	@override String get lbl_remind_this_workout => 'Nhắc trước buổi tập này';
+	@override String fmt_minutes_before({required Object minutes}) => 'Trước ${minutes} phút';
+	@override String get title_workout_reminder => 'Sắp đến giờ tập';
+	@override String body_workout_reminder({required Object routineName, required Object time}) => 'Buổi ${routineName} bắt đầu lúc ${time}.';
+	@override String get title_workout_today => 'Hôm nay bạn có lịch tập';
+	@override String body_workout_today({required Object routineName}) => 'Dành thời gian cho buổi ${routineName} khi thuận tiện nhé.';
+	@override String body_workout_streak({required Object routineName, required Object time}) => 'Buổi ${routineName} bắt đầu lúc ${time}. Buổi tập này có thể giúp bạn duy trì streak.';
+	@override String get lbl_hydration_at_16 => 'Nhắc uống nước lúc 16:00';
+	@override String get desc_hydration_reminder => 'Nhắc một lần lúc 16:00 nếu lượng nước đã ghi chưa đạt mục tiêu ngày.';
+	@override String get title_hydration_reminder => 'Nhớ uống nước nhé';
+	@override String get body_hydration_no_log => 'Hôm nay bạn chưa ghi lượng nước. Nếu đã uống, hãy cập nhật nhé.';
+	@override String body_hydration_low({required Object consumed, required Object target}) => 'Bạn đã ghi ${consumed} / ${target} L hôm nay. Nhớ uống nước đều đặn nhé.';
+	@override String body_hydration_progress({required Object consumed, required Object target, required Object remaining}) => 'Bạn đã ghi ${consumed} / ${target} L. Còn ${remaining} L để đạt mục tiêu hôm nay.';
+	@override String get title_streak_at_risk => 'Duy trì streak tuần này';
+	@override String body_streak_at_risk({required Object weeks}) => 'Hoàn thành một buổi tập đủ điều kiện trước khi hết tuần để duy trì streak ${weeks} tuần.';
+	@override String get title_rank_ending => 'Chu kỳ xếp hạng sắp kết thúc';
+	@override String body_rank_ending({required Object date}) => 'Chu kỳ hiện tại kết thúc vào ${date}. Xem tiến độ và mục tiêu tiếp theo của bạn nhé.';
+	@override String get title_recovery_ready => 'Sẵn sàng cho buổi tập tiếp theo?';
+	@override String body_recovery_ready({required Object muscles}) => 'Theo lịch sử tập, ${muscles} có thể đã sẵn sàng tập lại. Xem các routine phù hợp nhé.';
+	@override String get title_inactivity => 'Bạn muốn quay lại tập không?';
+	@override String get body_inactivity => 'Quay lại theo nhịp của bạn. Chọn một routine và thời gian phù hợp nhé.';
+	@override String get title_streak_started => 'Streak của bạn bắt đầu rồi';
+	@override String get body_streak_started => 'Bạn đã hoàn thành một buổi tập đủ điều kiện trong tuần này.';
+	@override String get title_streak_extended => 'Streak tuần được nối dài';
+	@override String body_streak_extended({required Object weeks}) => 'Bạn đã duy trì streak ${weeks} tuần.';
+	@override String get title_streak_milestone => 'Một cột mốc đáng nhớ';
+	@override String body_streak_milestone({required Object weeks}) => '${weeks} tuần duy trì tập luyện. Cùng ghi nhận hành trình của bạn!';
+	@override String get title_hydration_completed => 'Đã đạt mục tiêu nước';
+	@override String body_hydration_completed({required Object target}) => 'Bạn đã đạt mục tiêu ${target} L hôm nay.';
+	@override String get title_rank_maintained => 'Bạn đã giữ hạng';
+	@override String body_rank_maintained({required Object rankName}) => 'Bạn kết thúc chu kỳ ở hạng ${rankName}. Xem mục tiêu tiếp theo nhé.';
+	@override String get title_rank_demoted => 'Kết quả chu kỳ xếp hạng';
+	@override String body_rank_demoted({required Object rankName}) => 'Hạng của bạn trong chu kỳ mới là ${rankName}. Cùng đặt mục tiêu tập luyện tiếp theo.';
+	@override String get title_workout_milestone => 'Cột mốc tập luyện mới';
+	@override String body_workout_milestone({required Object count}) => 'Bạn đã hoàn thành ${count} buổi tập.';
+	@override String get title_session_achievements => 'Thành tích trong buổi tập này';
+	@override String get title_recovery_recommendation => 'Routine phù hợp với mức phục hồi';
+	@override String body_recovery_recommendation({required Object muscles}) => 'Xem routine dựa trên mức phục hồi ước tính của ${muscles}.';
+	@override String get title_recovery_low => 'Cân nhắc một buổi tập nhẹ hơn';
+	@override String body_recovery_low({required Object muscles}) => 'Theo lịch sử tập, ${muscles} vẫn đang hồi phục. Bạn có thể giảm cường độ hoặc chọn nhóm cơ khác.';
+}
+
 /// Flat map(s) containing all translations.
 /// Only for edge cases! For simple maps, use the map function of this library.
 
 extension on Translations {
 	dynamic _flatMapFunction(String path) {
 		switch (path) {
+			case 'workout_rewards.tap_skip': return 'Tap to finish animations';
+			case 'workout_rewards.tap_claim': return 'Tap a completed quest to claim XP';
+			case 'workout_rewards.streak': return ({required Object weeks}) => '${weeks}-week streak';
+			case 'workout_rewards.quest_workouts': return 'Workouts';
+			case 'workout_rewards.quest_volume': return 'Volume';
+			case 'workout_rewards.quest_prs': return 'Records';
+			case 'workout_rewards.quest_time': return 'Time';
+			case 'workout_rewards.quest_sets': return 'Sets';
+			case 'workout_rewards.quest_exercises': return 'Exercises';
+			case 'workout_rewards.zone_demote': return 'Drop';
+			case 'workout_rewards.zone_maintain': return 'Hold';
+			case 'workout_rewards.zone_promote': return 'Rise';
+			case 'workout_rewards.rank_review': return 'Rank reviewed at the end of the 45-day season';
+			case 'workout_rewards.xp_breakdown': return ({required Object base, required Object bonus}) => 'Completion +${base} XP · Personal records +${bonus} XP';
+			case 'workout_rewards.chest_title': return 'Weekly chest';
+			case 'workout_rewards.chest_progress': return ({required Object current, required Object target}) => '${current} / ${target} quests completed';
+			case 'workout_rewards.chest_locked': return ({required Object xp}) => 'Complete more quests to unlock +${xp} XP.';
+			case 'workout_rewards.eyebrow': return 'SESSION COMPLETE';
+			case 'workout_rewards.subtitle': return 'Every session moves you forward.';
+			case 'workout_rewards.earned': return 'Workout XP';
+			case 'workout_rewards.level': return ({required Object level}) => 'Level ${level}';
+			case 'workout_rewards.summary': return 'View workout summary';
+			case 'workout_rewards.loading': return 'Saving your workout and updating rewards…';
+			case 'workout_rewards.load_error': return 'Rewards could not be loaded. Your workout may already be saved. Return to your workout history to check.';
+			case 'workout_rewards.back': return 'Back to workouts';
+			case 'workout_rewards.claim': return ({required Object xp}) => 'Claim +${xp} XP';
+			case 'workout_rewards.claimed': return 'Reward claimed';
+			case 'workout_rewards.claim_error': return 'Could not claim this reward. Please try again.';
+			case 'workout_rewards.quests_hint': return 'Claim completed quests for extra XP.';
+			case 'workout_rewards.rank_hint': return 'Rank is reviewed at the end of your 45-day season.';
+			case 'workout_rewards.rank_progress': return ({required Object current, required Object target}) => '${current} / ${target} RP to promotion';
+			case 'workout_rewards.rank_max': return ({required Object points}) => 'Highest rank · ${points} RP to maintain';
+			case 'workout_rewards.session_rp': return ({required Object points}) => '+${points} RP this session';
+			case 'workout_rewards.skip': return 'Skip animation';
+			case 'workout_rewards.level_up': return 'Level up!';
+			case 'workout_rewards.quest_progress': return ({required Object current, required Object target}) => '${current} / ${target}';
+			case 'workout_rewards.empty_quests': return 'Your weekly quests will appear here when available.';
 			case 'app_name': return 'Plato';
 			case 'company_name': return 'Zenithas';
 			case 'auth.err_account_not_found': return 'Account does not exist. Please check again.';
@@ -4956,6 +5221,63 @@ extension on Translations {
 			case 'workout.status_workout_done': return 'Workout finished';
 			case 'workout.lbl_workout_in_progress': return 'Working out...';
 			case 'workout.col_workout_name': return 'Workout Name';
+			case 'notifications.title_settings': return 'Notifications';
+			case 'notifications.lbl_workout_reminders': return 'Workout reminders';
+			case 'notifications.lbl_streak_reminders': return 'Streak reminders';
+			case 'notifications.lbl_hydration_reminders': return 'Water reminders';
+			case 'notifications.lbl_rank_reminders': return 'Rank cycle reminders';
+			case 'notifications.lbl_recovery_reminders': return 'Recovery reminders';
+			case 'notifications.lbl_inactivity_reminders': return 'Return-to-training reminders';
+			case 'notifications.lbl_experimental': return 'Experimental';
+			case 'notifications.lbl_quiet_hours': return 'Quiet hours';
+			case 'notifications.lbl_daily_limit': return 'Daily notification limit';
+			case 'notifications.fmt_daily_limit': return ({required Object count}) => 'Up to ${count} notifications per day';
+			case 'notifications.desc_daily_limit': return 'This is a maximum. Plato only sends relevant reminders.';
+			case 'notifications.msg_permission_required': return 'Allow notifications to receive reminders outside the app.';
+			case 'notifications.msg_permission_disabled': return 'Notifications are turned off in your device settings.';
+			case 'notifications.btn_enable': return 'Enable notifications';
+			case 'notifications.btn_open_settings': return 'Open device settings';
+			case 'notifications.msg_category_disabled': return 'Enable this reminder group in Notification Settings first.';
+			case 'notifications.lbl_remind_this_workout': return 'Remind me before this workout';
+			case 'notifications.fmt_minutes_before': return ({required Object minutes}) => '${minutes} minutes before';
+			case 'notifications.title_workout_reminder': return 'Your workout is coming up';
+			case 'notifications.body_workout_reminder': return ({required Object routineName, required Object time}) => '${routineName} starts at ${time}.';
+			case 'notifications.title_workout_today': return 'You have a workout planned today';
+			case 'notifications.body_workout_today': return ({required Object routineName}) => 'Make time for ${routineName} when it suits you.';
+			case 'notifications.body_workout_streak': return ({required Object routineName, required Object time}) => '${routineName} starts at ${time}. This workout can help keep your streak going.';
+			case 'notifications.lbl_hydration_at_16': return 'Remind me to drink water at 4 PM';
+			case 'notifications.desc_hydration_reminder': return 'One reminder at 4 PM, only if your logged intake is below your daily goal.';
+			case 'notifications.title_hydration_reminder': return 'A moment for water';
+			case 'notifications.body_hydration_no_log': return 'You haven\'t logged any water today. If you\'ve had some, update your log.';
+			case 'notifications.body_hydration_low': return ({required Object consumed, required Object target}) => 'You\'ve logged ${consumed} / ${target} L today. Remember to drink water regularly.';
+			case 'notifications.body_hydration_progress': return ({required Object consumed, required Object target, required Object remaining}) => 'You\'ve logged ${consumed} / ${target} L. That\'s ${remaining} L from today\'s goal.';
+			case 'notifications.title_streak_at_risk': return 'Keep your weekly streak going';
+			case 'notifications.body_streak_at_risk': return ({required Object weeks}) => 'One qualifying workout before the week ends can keep your ${weeks}-week streak going.';
+			case 'notifications.title_rank_ending': return 'Your rank cycle ends soon';
+			case 'notifications.body_rank_ending': return ({required Object date}) => 'Your current cycle ends on ${date}. Check your progress and next goal.';
+			case 'notifications.title_recovery_ready': return 'Ready for your next workout?';
+			case 'notifications.body_recovery_ready': return ({required Object muscles}) => 'Based on your workout history, ${muscles} may be ready to train again. Explore suitable routines.';
+			case 'notifications.title_inactivity': return 'Ready to get back into training?';
+			case 'notifications.body_inactivity': return 'Start again at your own pace. Pick a routine and a time that works for you.';
+			case 'notifications.title_streak_started': return 'Your streak starts here';
+			case 'notifications.body_streak_started': return 'You\'ve completed a qualifying workout this week.';
+			case 'notifications.title_streak_extended': return 'Weekly streak extended';
+			case 'notifications.body_streak_extended': return ({required Object weeks}) => 'You\'ve kept your streak going for ${weeks} weeks.';
+			case 'notifications.title_streak_milestone': return 'A milestone worth celebrating';
+			case 'notifications.body_streak_milestone': return ({required Object weeks}) => '${weeks} weeks of consistency. Celebrate your progress!';
+			case 'notifications.title_hydration_completed': return 'Water goal reached';
+			case 'notifications.body_hydration_completed': return ({required Object target}) => 'You\'ve reached your ${target} L goal today.';
+			case 'notifications.title_rank_maintained': return 'Rank maintained';
+			case 'notifications.body_rank_maintained': return ({required Object rankName}) => 'You finished this cycle at ${rankName}. Explore your next goal.';
+			case 'notifications.title_rank_demoted': return 'Your rank cycle result';
+			case 'notifications.body_rank_demoted': return ({required Object rankName}) => 'Your rank for the new cycle is ${rankName}. Set your next training goal.';
+			case 'notifications.title_workout_milestone': return 'A new workout milestone';
+			case 'notifications.body_workout_milestone': return ({required Object count}) => 'You\'ve completed ${count} workouts.';
+			case 'notifications.title_session_achievements': return 'Your achievements this workout';
+			case 'notifications.title_recovery_recommendation': return 'Routines for your recovery';
+			case 'notifications.body_recovery_recommendation': return ({required Object muscles}) => 'Explore routines based on the estimated recovery of ${muscles}.';
+			case 'notifications.title_recovery_low': return 'Consider a lighter session';
+			case 'notifications.body_recovery_low': return ({required Object muscles}) => '${muscles} are still recovering based on your workout history. Consider lowering the intensity or training other muscles.';
 			default: return null;
 		}
 	}
@@ -4964,6 +5286,43 @@ extension on Translations {
 extension on _StringsVi {
 	dynamic _flatMapFunction(String path) {
 		switch (path) {
+			case 'workout_rewards.tap_skip': return 'Chạm để hoàn tất hiệu ứng';
+			case 'workout_rewards.tap_claim': return 'Chạm nhiệm vụ hoàn thành để nhận XP';
+			case 'workout_rewards.streak': return ({required Object weeks}) => 'Chuỗi ${weeks} tuần';
+			case 'workout_rewards.quest_workouts': return 'Buổi tập';
+			case 'workout_rewards.quest_volume': return 'Khối lượng';
+			case 'workout_rewards.quest_prs': return 'Kỷ lục';
+			case 'workout_rewards.quest_time': return 'Thời gian';
+			case 'workout_rewards.quest_sets': return 'Hiệp tập';
+			case 'workout_rewards.quest_exercises': return 'Bài tập';
+			case 'workout_rewards.zone_demote': return 'Rớt';
+			case 'workout_rewards.zone_maintain': return 'Giữ';
+			case 'workout_rewards.zone_promote': return 'Thăng';
+			case 'workout_rewards.rank_review': return 'Xét hạng cuối mùa 45 ngày';
+			case 'workout_rewards.xp_breakdown': return ({required Object base, required Object bonus}) => 'Hoàn thành +${base} XP · Kỷ lục cá nhân +${bonus} XP';
+			case 'workout_rewards.chest_title': return 'Rương tuần';
+			case 'workout_rewards.chest_progress': return ({required Object current, required Object target}) => 'Hoàn thành ${current} / ${target} nhiệm vụ';
+			case 'workout_rewards.chest_locked': return ({required Object xp}) => 'Hoàn thành thêm nhiệm vụ để mở khóa +${xp} XP.';
+			case 'workout_rewards.eyebrow': return 'HOÀN THÀNH BUỔI TẬP';
+			case 'workout_rewards.subtitle': return 'Mỗi buổi tập là một bước tiến.';
+			case 'workout_rewards.earned': return 'XP từ buổi tập';
+			case 'workout_rewards.level': return ({required Object level}) => 'Cấp ${level}';
+			case 'workout_rewards.summary': return 'Xem tổng kết buổi tập';
+			case 'workout_rewards.loading': return 'Đang lưu buổi tập và cập nhật phần thưởng…';
+			case 'workout_rewards.load_error': return 'Chưa tải được phần thưởng. Buổi tập có thể đã được lưu. Hãy quay lại lịch sử tập luyện để kiểm tra.';
+			case 'workout_rewards.back': return 'Về trang tập luyện';
+			case 'workout_rewards.claim': return ({required Object xp}) => 'Nhận +${xp} XP';
+			case 'workout_rewards.claimed': return 'Đã nhận thưởng';
+			case 'workout_rewards.claim_error': return 'Chưa nhận được thưởng. Vui lòng thử lại.';
+			case 'workout_rewards.quests_hint': return 'Nhận thưởng nhiệm vụ hoàn thành để có thêm XP.';
+			case 'workout_rewards.rank_hint': return 'Hạng được xét khi kết thúc mùa 45 ngày.';
+			case 'workout_rewards.rank_progress': return ({required Object current, required Object target}) => '${current} / ${target} RP để thăng hạng';
+			case 'workout_rewards.rank_max': return ({required Object points}) => 'Hạng cao nhất · ${points} RP để giữ hạng';
+			case 'workout_rewards.session_rp': return ({required Object points}) => '+${points} RP từ buổi tập';
+			case 'workout_rewards.skip': return 'Bỏ qua hiệu ứng';
+			case 'workout_rewards.level_up': return 'Lên cấp!';
+			case 'workout_rewards.quest_progress': return ({required Object current, required Object target}) => '${current} / ${target}';
+			case 'workout_rewards.empty_quests': return 'Nhiệm vụ tuần sẽ xuất hiện tại đây khi có dữ liệu.';
 			case 'app_name': return 'Plato';
 			case 'company_name': return 'Zenithas';
 			case 'auth.err_account_not_found': return 'Tài khoản chưa tồn tại. Vui lòng kiểm tra lại.';
@@ -6428,6 +6787,63 @@ extension on _StringsVi {
 			case 'workout.status_workout_done': return 'Đã hoàn thành buổi tập';
 			case 'workout.lbl_workout_in_progress': return 'Đang tập luyện...';
 			case 'workout.col_workout_name': return 'Tên buổi tập';
+			case 'notifications.title_settings': return 'Thông báo';
+			case 'notifications.lbl_workout_reminders': return 'Nhắc lịch tập';
+			case 'notifications.lbl_streak_reminders': return 'Nhắc duy trì streak';
+			case 'notifications.lbl_hydration_reminders': return 'Nhắc uống nước';
+			case 'notifications.lbl_rank_reminders': return 'Nhắc chu kỳ xếp hạng';
+			case 'notifications.lbl_recovery_reminders': return 'Nhắc phục hồi';
+			case 'notifications.lbl_inactivity_reminders': return 'Nhắc quay lại tập';
+			case 'notifications.lbl_experimental': return 'Thử nghiệm';
+			case 'notifications.lbl_quiet_hours': return 'Giờ yên lặng';
+			case 'notifications.lbl_daily_limit': return 'Giới hạn thông báo mỗi ngày';
+			case 'notifications.fmt_daily_limit': return ({required Object count}) => 'Tối đa ${count} thông báo mỗi ngày';
+			case 'notifications.desc_daily_limit': return 'Đây là giới hạn tối đa. Plato chỉ gửi lời nhắc phù hợp.';
+			case 'notifications.msg_permission_required': return 'Cho phép thông báo để nhận lời nhắc ngoài ứng dụng.';
+			case 'notifications.msg_permission_disabled': return 'Thông báo đang bị tắt trong cài đặt thiết bị.';
+			case 'notifications.btn_enable': return 'Bật thông báo';
+			case 'notifications.btn_open_settings': return 'Mở cài đặt thiết bị';
+			case 'notifications.msg_category_disabled': return 'Hãy bật nhóm lời nhắc này trong Cài đặt thông báo trước.';
+			case 'notifications.lbl_remind_this_workout': return 'Nhắc trước buổi tập này';
+			case 'notifications.fmt_minutes_before': return ({required Object minutes}) => 'Trước ${minutes} phút';
+			case 'notifications.title_workout_reminder': return 'Sắp đến giờ tập';
+			case 'notifications.body_workout_reminder': return ({required Object routineName, required Object time}) => 'Buổi ${routineName} bắt đầu lúc ${time}.';
+			case 'notifications.title_workout_today': return 'Hôm nay bạn có lịch tập';
+			case 'notifications.body_workout_today': return ({required Object routineName}) => 'Dành thời gian cho buổi ${routineName} khi thuận tiện nhé.';
+			case 'notifications.body_workout_streak': return ({required Object routineName, required Object time}) => 'Buổi ${routineName} bắt đầu lúc ${time}. Buổi tập này có thể giúp bạn duy trì streak.';
+			case 'notifications.lbl_hydration_at_16': return 'Nhắc uống nước lúc 16:00';
+			case 'notifications.desc_hydration_reminder': return 'Nhắc một lần lúc 16:00 nếu lượng nước đã ghi chưa đạt mục tiêu ngày.';
+			case 'notifications.title_hydration_reminder': return 'Nhớ uống nước nhé';
+			case 'notifications.body_hydration_no_log': return 'Hôm nay bạn chưa ghi lượng nước. Nếu đã uống, hãy cập nhật nhé.';
+			case 'notifications.body_hydration_low': return ({required Object consumed, required Object target}) => 'Bạn đã ghi ${consumed} / ${target} L hôm nay. Nhớ uống nước đều đặn nhé.';
+			case 'notifications.body_hydration_progress': return ({required Object consumed, required Object target, required Object remaining}) => 'Bạn đã ghi ${consumed} / ${target} L. Còn ${remaining} L để đạt mục tiêu hôm nay.';
+			case 'notifications.title_streak_at_risk': return 'Duy trì streak tuần này';
+			case 'notifications.body_streak_at_risk': return ({required Object weeks}) => 'Hoàn thành một buổi tập đủ điều kiện trước khi hết tuần để duy trì streak ${weeks} tuần.';
+			case 'notifications.title_rank_ending': return 'Chu kỳ xếp hạng sắp kết thúc';
+			case 'notifications.body_rank_ending': return ({required Object date}) => 'Chu kỳ hiện tại kết thúc vào ${date}. Xem tiến độ và mục tiêu tiếp theo của bạn nhé.';
+			case 'notifications.title_recovery_ready': return 'Sẵn sàng cho buổi tập tiếp theo?';
+			case 'notifications.body_recovery_ready': return ({required Object muscles}) => 'Theo lịch sử tập, ${muscles} có thể đã sẵn sàng tập lại. Xem các routine phù hợp nhé.';
+			case 'notifications.title_inactivity': return 'Bạn muốn quay lại tập không?';
+			case 'notifications.body_inactivity': return 'Quay lại theo nhịp của bạn. Chọn một routine và thời gian phù hợp nhé.';
+			case 'notifications.title_streak_started': return 'Streak của bạn bắt đầu rồi';
+			case 'notifications.body_streak_started': return 'Bạn đã hoàn thành một buổi tập đủ điều kiện trong tuần này.';
+			case 'notifications.title_streak_extended': return 'Streak tuần được nối dài';
+			case 'notifications.body_streak_extended': return ({required Object weeks}) => 'Bạn đã duy trì streak ${weeks} tuần.';
+			case 'notifications.title_streak_milestone': return 'Một cột mốc đáng nhớ';
+			case 'notifications.body_streak_milestone': return ({required Object weeks}) => '${weeks} tuần duy trì tập luyện. Cùng ghi nhận hành trình của bạn!';
+			case 'notifications.title_hydration_completed': return 'Đã đạt mục tiêu nước';
+			case 'notifications.body_hydration_completed': return ({required Object target}) => 'Bạn đã đạt mục tiêu ${target} L hôm nay.';
+			case 'notifications.title_rank_maintained': return 'Bạn đã giữ hạng';
+			case 'notifications.body_rank_maintained': return ({required Object rankName}) => 'Bạn kết thúc chu kỳ ở hạng ${rankName}. Xem mục tiêu tiếp theo nhé.';
+			case 'notifications.title_rank_demoted': return 'Kết quả chu kỳ xếp hạng';
+			case 'notifications.body_rank_demoted': return ({required Object rankName}) => 'Hạng của bạn trong chu kỳ mới là ${rankName}. Cùng đặt mục tiêu tập luyện tiếp theo.';
+			case 'notifications.title_workout_milestone': return 'Cột mốc tập luyện mới';
+			case 'notifications.body_workout_milestone': return ({required Object count}) => 'Bạn đã hoàn thành ${count} buổi tập.';
+			case 'notifications.title_session_achievements': return 'Thành tích trong buổi tập này';
+			case 'notifications.title_recovery_recommendation': return 'Routine phù hợp với mức phục hồi';
+			case 'notifications.body_recovery_recommendation': return ({required Object muscles}) => 'Xem routine dựa trên mức phục hồi ước tính của ${muscles}.';
+			case 'notifications.title_recovery_low': return 'Cân nhắc một buổi tập nhẹ hơn';
+			case 'notifications.body_recovery_low': return ({required Object muscles}) => 'Theo lịch sử tập, ${muscles} vẫn đang hồi phục. Bạn có thể giảm cường độ hoặc chọn nhóm cơ khác.';
 			default: return null;
 		}
 	}

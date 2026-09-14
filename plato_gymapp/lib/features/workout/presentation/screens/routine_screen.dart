@@ -1,3 +1,4 @@
+import '../../../notifications/presentation/recovery_recommendations.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_snackbar.dart';
 import 'dart:io';
 import 'dart:math';
@@ -1218,7 +1219,7 @@ class _RoutineScreenState extends State<RoutineScreen>
                                             padding: const EdgeInsets.only(
                                               bottom: 24,
                                             ),
-                                            child: muscleSection,
+                                            child: Column(mainAxisSize: MainAxisSize.min, children: [RecoveryRecommendations(routine: draft), muscleSection]),
                                           ),
                                       ],
                                     ),
@@ -1249,7 +1250,7 @@ class _RoutineScreenState extends State<RoutineScreen>
                                           padding: const EdgeInsets.only(
                                             bottom: 24,
                                           ),
-                                          child: muscleSection,
+                                          child: Column(mainAxisSize: MainAxisSize.min, children: [RecoveryRecommendations(routine: draft), muscleSection]),
                                         )
                                       : null,
                                   cacheExtent: 9999,

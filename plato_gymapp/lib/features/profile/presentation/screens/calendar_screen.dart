@@ -1,4 +1,8 @@
 import 'dart:async';
+import '../../../notifications/application/notification_coordinator.dart';
+import '../../../notifications/data/notification_copy.dart';
+import '../../../workout/presentation/bloc/active_session_cubit.dart';
+import '../../../workout/presentation/components/workout_components.dart';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -32,13 +36,15 @@ import '../bloc/stats_cubit.dart';
 import 'package:intl/intl.dart';
 
 class CalendarScreen extends StatefulWidget {
-  const CalendarScreen({super.key});
+  final String? initialScheduleId;
+  const CalendarScreen({super.key, this.initialScheduleId});
 
   @override
   State<CalendarScreen> createState() => _CalendarScreenState();
 }
 
 class _CalendarScreenState extends State<CalendarScreen> {
+  bool _openedInitialSchedule = false;
   CalendarViewMode _viewMode = CalendarViewMode.MONTH;
   
   late PageController _monthPageController;
@@ -71,6 +77,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkAndTriggerTour();
     });
+  }
+
+  @override
+  void didUpdateWidget(covariant CalendarScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.initialScheduleId != widget.initialScheduleId) _openedInitialSchedule = false;
   }
 
   @override
@@ -143,6 +155,18 @@ class _CalendarScreenState extends State<CalendarScreen> {
     
     // Gọi update để cache sẵn _activeYears
     _updateMappedItemsIfChanged(statsState.workouts, workoutState.scheduledWorkoutsList);
+    if (!_openedInitialSchedule && widget.initialScheduleId != null) {
+      final schedule = workoutState.scheduledWorkoutsList.where((s) => s.id == widget.initialScheduleId).firstOrNull;
+      if (schedule != null) {
+        _openedInitialSchedule = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          final date = DateTime.fromMillisecondsSinceEpoch(schedule.targetDateMillis);
+          _showDayWorkoutsSheet(context, date, [schedule]);
+        });
+      }
+    }
+
 
     final pastWorkouts = statsState.workouts;
     final now = DateTime.now();
@@ -263,6 +287,18 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final workoutState = context.watch<WorkoutCubit>().state;
     
     _updateMappedItemsIfChanged(statsState.workouts, workoutState.scheduledWorkoutsList);
+    if (!_openedInitialSchedule && widget.initialScheduleId != null) {
+      final schedule = workoutState.scheduledWorkoutsList.where((s) => s.id == widget.initialScheduleId).firstOrNull;
+      if (schedule != null) {
+        _openedInitialSchedule = true;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted) return;
+          final date = DateTime.fromMillisecondsSinceEpoch(schedule.targetDateMillis);
+          _showDayWorkoutsSheet(context, date, [schedule]);
+        });
+      }
+    }
+
 
     if (isDesktopMode(context) && _selectedTabletDate != null) {
       final key = DateTime(_selectedTabletDate!.year, _selectedTabletDate!.month, _selectedTabletDate!.day);
@@ -571,7 +607,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
             child: BlocBuilder<WorkoutCubit, WorkoutState>(
               builder: (builderCtx, workoutState) {
                 // Tận dụng dữ liệu Cache đã có sẵn
-                final liveSessions = (_mappedItemsCache[DateTime(date.year, date.month, date.day)] ?? []).toList();
+                bool sameDay(int millis) {
+                  final d = DateTime.fromMillisecondsSinceEpoch(millis);
+                  return d.year == date.year && d.month == date.month && d.day == date.day;
+                }
+                final liveSessions = <dynamic>[
+                  ...workoutState.scheduledWorkoutsList.where((s) => sameDay(s.targetDateMillis)),
+                  ...parentContext.read<StatsCubit>().state.workouts.where((w) => sameDay(w.startTime)),
+                ];
                 return _buildDayDetailsInline(parentContext, date, liveSessions, isModal: true, modalContext: ctx);
               },
             ),
@@ -585,7 +628,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final cubit = parentContext.read<WorkoutCubit>();
     final allScheduled = cubit.state.scheduledWorkoutsList;
     
-    final sameRoutineInstances = allScheduled.where((w) => w.routineId == s.routineId).toList();
+    final sameRoutineInstances = allScheduled.where((w) => s.recurrenceGroupId == null ? w.id == s.id : w.recurrenceGroupId == s.recurrenceGroupId).toList();
 
     if (sameRoutineInstances.length > 1) {
       GymDialog.showCustom(
@@ -635,6 +678,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
     
     final routinesList = parentContext.read<WorkoutCubit>().state.userCustomRoutinesList;
     futureSessions.sort((a, b) {
+      final byTime = (a.timeOfDayMinutes ?? 1440).compareTo(b.timeOfDayMinutes ?? 1440);
+      if (byTime != 0) return byTime;
       final nameA = routinesList.where((r) => r.id == a.routineId).firstOrNull?.name ?? a.routineName;
       final nameB = routinesList.where((r) => r.id == b.routineId).firstOrNull?.name ?? b.routineName;
       return nameA.compareTo(nameB);
@@ -753,9 +798,20 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                 Text("${t.calendar.title_planned} ${t.translateDynamic(displayRoutineName)}", 
                                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: colorScheme.onSurface), maxLines: 1, overflow: TextOverflow.ellipsis),
                                 const SizedBox(height: 4),
-                                Text(t.calendar.lbl_upcoming, style: TextStyle(fontSize: 12, color: cardColor, fontWeight: FontWeight.bold)),
+                                Text(s.isCompleted ? t.common.done : s.timeOfDayMinutes == null ? t.calendar.lbl_upcoming : TimeOfDay(hour: s.timeOfDayMinutes! ~/ 60, minute: s.timeOfDayMinutes! % 60).format(context), style: TextStyle(fontSize: 12, color: cardColor, fontWeight: FontWeight.bold)),
                               ],
                             ),
+                          ),
+                          if (routine != null && !s.isCompleted) IconButton(
+                            tooltip: t.workout.btn_start_routine,
+                            icon: const Icon(Symbols.play_arrow),
+                            onPressed: () => handleStartWorkoutConflict(
+                              context: parentContext, activeSessionCubit: parentContext.read<ActiveSessionCubit>(),
+                              onConfirmStart: () async {
+                                await parentContext.read<ActiveSessionCubit>().startRoutine(routine, scheduledWorkoutId: s.id);
+                                if (modalContext != null && modalContext.mounted) Navigator.pop(modalContext);
+                                AppRouter.expandWorkoutScreenNotifier.value = true;
+                              }),
                           ),
                           IconButton(
                             icon: Icon(Symbols.edit_calendar, color: colorScheme.primary),
@@ -934,32 +990,30 @@ class _ScheduleDialogContentState extends State<_ScheduleDialogContent> {
     }
   }
 
-  void _handleConfirm(int repeatType, int occurrences, List<int> weekdays, int intervalDays, String colorHex) {
+  Future<void> _handleConfirm(int repeatType, int occurrences, List<int> weekdays, int intervalDays,
+      String colorHex, DateTime date, int? minutes, bool reminder, int lead) async {
     final cubit = context.read<WorkoutCubit>();
-    if (widget.existingSchedule != null) {
-      if (widget.existingSchedule!.recurrenceGroupId != null && widget.existingSchedule!.recurrenceGroupId!.isNotEmpty) {
-        cubit.removeScheduledWorkoutGroup(widget.existingSchedule!.recurrenceGroupId!);
+    final service = NotificationCoordinator.instance;
+    try {
+      if (minutes != null && service != null) await service.gateway.updateTimezone();
+      if (widget.existingSchedule != null) {
+        await cubit.updateScheduledWorkout(widget.existingSchedule!, date: date,
+          timeOfDayMinutes: minutes, reminderEnabled: reminder, reminderMinutesBefore: lead,
+          timeZoneId: service?.timezone, colorHex: colorHex);
       } else {
-        cubit.removeScheduledWorkout(widget.existingSchedule!.id);
+        await cubit.scheduleRoutine(_selectedRoutine!.id, _selectedRoutine!.name, date,
+          repeatType: repeatType, selectedWeekdays: weekdays, occurrences: occurrences,
+          intervalDays: intervalDays, colorHex: colorHex, timeOfDayMinutes: minutes,
+          timeZoneId: service?.timezone, reminderEnabled: reminder, reminderMinutesBefore: lead);
       }
+      if (!mounted) return;
+      final rootContext = Navigator.of(context, rootNavigator: true).context;
+      Navigator.pop(context);
+      if (rootContext.mounted) _showSuccessDialog(rootContext);
+    } catch (error) {
+      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(NotificationCopy.text('notifications.msg_schedule_save_failed') ?? t.workout.title_unsaved_changes)));
+      rethrow;
     }
-
-    cubit.scheduleRoutine(
-      _selectedRoutine!.id, 
-      _selectedRoutine!.name, 
-      widget.targetDate,
-      repeatType: repeatType,
-      selectedWeekdays: weekdays,
-      occurrences: occurrences,
-      intervalDays: intervalDays,
-      colorHex: colorHex,
-    );
-    
-    final rootContext = Navigator.of(context, rootNavigator: true).context;
-    
-    Navigator.pop(context);
-    
-    _showSuccessDialog(rootContext);
   }
 
   void _showSuccessDialog(BuildContext validContext) {
@@ -1007,6 +1061,7 @@ class _ScheduleDialogContentState extends State<_ScheduleDialogContent> {
                     routine: _selectedRoutine!,
                     targetDate: widget.targetDate,
                     initialColorHex: widget.existingSchedule?.colorHex,
+                    existingSchedule: widget.existingSchedule,
                     onBack: _goBack,
                     onConfirm: _handleConfirm,
                   ),
@@ -1120,12 +1175,15 @@ class _RecurrenceConfigPage extends StatefulWidget {
   final DateTime targetDate;
   final String? initialColorHex;
   final VoidCallback onBack;
-  final Function(int repeatType, int occurrences, List<int> weekdays, int intervalDays, String colorHex) onConfirm;
+  final ScheduledWorkout? existingSchedule;
+  final Future<void> Function(int repeatType, int occurrences, List<int> weekdays, int intervalDays,
+    String colorHex, DateTime date, int? minutes, bool reminder, int lead) onConfirm;
 
   const _RecurrenceConfigPage({
     required this.routine, 
     required this.targetDate, 
-    this.initialColorHex, 
+    this.initialColorHex,
+    this.existingSchedule,
     required this.onBack,
     required this.onConfirm
   });
@@ -1135,6 +1193,11 @@ class _RecurrenceConfigPage extends StatefulWidget {
 }
 
 class _RecurrenceConfigPageState extends State<_RecurrenceConfigPage> {
+  late DateTime _date;
+  TimeOfDay? _time;
+  bool _reminder = false;
+  int _lead = 30;
+  bool _saving = false;
   int _repeatType = 0; 
   final List<int> _selectedWeekdays = [];
   bool _isInfinite = true;
@@ -1152,6 +1215,15 @@ class _RecurrenceConfigPageState extends State<_RecurrenceConfigPage> {
     super.initState();
     _selectedWeekdays.add(widget.targetDate.weekday);
     _selectedColorHex = widget.initialColorHex ?? "#1976D2";
+    _date = widget.targetDate;
+    final existing = widget.existingSchedule;
+    if (existing != null) {
+      final minutes = existing.timeOfDayMinutes;
+      _time = minutes == null ? null : TimeOfDay(hour: minutes ~/ 60, minute: minutes % 60);
+      _reminder = existing.reminderEnabled;
+      _lead = existing.reminderMinutesBefore;
+    }
+
   }
 
   @override
@@ -1194,7 +1266,40 @@ class _RecurrenceConfigPageState extends State<_RecurrenceConfigPage> {
           ),
           const SizedBox(height: 16),
           
-          Padding(
+          ListTile(
+            contentPadding: EdgeInsets.zero, leading: const Icon(Symbols.calendar_month),
+            title: Text(DateFormat.yMMMd(TranslationProvider.of(context).flutterLocale.languageCode).format(_date)),
+            trailing: const Icon(Symbols.edit),
+            onTap: _saving ? null : () async {
+              final date = await showDatePicker(context: context, initialDate: _date,
+                firstDate: DateTime(2020), lastDate: DateTime(DateTime.now().year + 5));
+              if (date != null && mounted) setState(() => _date = date);
+            }),
+          ListTile(
+            contentPadding: EdgeInsets.zero, leading: const Icon(Symbols.schedule),
+            title: Text(_time?.format(context) ?? MaterialLocalizations.of(context).timePickerInputHelpText),
+            trailing: _time == null ? const Icon(Symbols.add) : IconButton(
+              tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
+              onPressed: _saving ? null : () => setState(() { _time = null; _reminder = false; }),
+              icon: const Icon(Symbols.close)),
+            onTap: _saving ? null : () async {
+              final time = await showTimePicker(context: context, initialTime: _time ?? const TimeOfDay(hour: 18, minute: 0));
+              if (time != null && mounted) setState(() => _time = time);
+            }),
+          if (NotificationCopy.available) ...[
+            SwitchListTile.adaptive(contentPadding: EdgeInsets.zero,
+              title: Text(NotificationCopy.text('notifications.lbl_remind_this_workout')!),
+              value: _reminder,
+              onChanged: _time == null || _saving ? null : (value) async {
+                if (value && !(await NotificationCoordinator.instance?.setEnabled(true) ?? false)) return;
+                if (mounted) setState(() => _reminder = value);
+              }),
+            if (_reminder) DropdownButtonFormField<int>(initialValue: _lead,
+              items: [15,30,60].map((n) => DropdownMenuItem(value:n,
+                child: Text(NotificationCopy.text('notifications.fmt_minutes_before', {'minutes':'$n'})!))).toList(),
+              onChanged: _saving ? null : (n) { if(n != null) setState(() => _lead = n); }),
+          ],
+          if (widget.existingSchedule == null) Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1384,7 +1489,13 @@ class _RecurrenceConfigPageState extends State<_RecurrenceConfigPage> {
                   }
                   
                   int inter = int.tryParse(_intervalDaysController.text) ?? 1;
-                  widget.onConfirm(_repeatType, occ, _selectedWeekdays, inter, _selectedColorHex);
+                  if (_saving) return;
+                  setState(() => _saving = true);
+                  widget.onConfirm(_repeatType, occ.clamp(1,999), _selectedWeekdays, inter.clamp(1,730),
+                    _selectedColorHex, _date, _time == null ? null : _time!.hour * 60 + _time!.minute,
+                    _reminder, _lead).catchError((Object error) {
+                      if (mounted) setState(() => _saving = false);
+                    });
                 },
                 child: Text(t.calendar.btn_confirm, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
               ),

@@ -224,13 +224,26 @@ class WorkoutCubit extends Cubit<WorkoutState> {
     int occurrences = 999,
     int intervalDays = 1,
     String? colorHex,
+    int? timeOfDayMinutes,
+    String? timeZoneId,
+    bool reminderEnabled = false,
+    int reminderMinutesBefore = 30,
   }) async {
     final recurrenceGroupId = const Uuid().v4();
     await _workoutRepo.scheduleWorkout(
       routineId, routineName, startDate,
       repeatType: repeatType, selectedWeekdays: selectedWeekdays, occurrences: occurrences, intervalDays: intervalDays, colorHex: colorHex, recurrenceGroupId: recurrenceGroupId,
+      timeOfDayMinutes: timeOfDayMinutes, timeZoneId: timeZoneId,
+      reminderEnabled: reminderEnabled, reminderMinutesBefore: reminderMinutesBefore,
     );
   }
+
+  Future<void> updateScheduledWorkout(ScheduledWorkout schedule, {
+    required DateTime date, int? timeOfDayMinutes, String? timeZoneId,
+    required bool reminderEnabled, required int reminderMinutesBefore, String? colorHex,
+  }) => _workoutRepo.updateScheduledWorkout(schedule, date: date,
+    timeOfDayMinutes: timeOfDayMinutes, timeZoneId: timeZoneId,
+    reminderEnabled: reminderEnabled, reminderMinutesBefore: reminderMinutesBefore, colorHex: colorHex);
 
   Future<void> removeScheduledWorkout(String scheduleId) async {
     await _workoutRepo.deleteScheduledWorkout(scheduleId);

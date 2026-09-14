@@ -55,6 +55,7 @@ class WorkoutExercise with _$WorkoutExercise {
 @freezed
 class WorkoutSessionPayload with _$WorkoutSessionPayload {
   const factory WorkoutSessionPayload({
+    @JsonKey(name: 'scheduled_workout_id') String? scheduledWorkoutId,
     @JsonKey(name: 'schema_version') @Default('1.0') String schemaVersion,
     @JsonKey(name: 'exercises') @Default([]) List<WorkoutExercise> exercises,
     @JsonKey(name: 'muscle_distribution') @Default({}) Map<MajorMuscleGroup, double> muscleDistribution,
@@ -109,6 +110,11 @@ class WorkoutProgram with _$WorkoutProgram {
 @freezed
 class ScheduledWorkout with _$ScheduledWorkout {
   const factory ScheduledWorkout({
+    int? timeOfDayMinutes,
+    String? timeZoneId,
+    @Default(false) bool reminderEnabled,
+    @Default(30) int reminderMinutesBefore,
+    String? completedWorkoutId,
     required String id,
     required String routineId,
     required String routineName,

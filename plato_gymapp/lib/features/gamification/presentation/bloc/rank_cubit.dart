@@ -15,6 +15,7 @@ class RankCubit extends Cubit<RankScreenState?> {
 
   StreamSubscription? _workoutHistorySubscription;
   StreamSubscription? _profileUpdateSubscription;
+  int _loadVersion = 0;
 
   RankCubit(this._authRepo, this._workoutRepo) : super(null) {
     _loadUIState(); // Chạy lần đầu khi khởi tạo
@@ -39,11 +40,13 @@ class RankCubit extends Cubit<RankScreenState?> {
 
   // HÀM MỚI: CHỈ RENDER UI, TUYỆT ĐỐI KHÔNG GỌI HÀM SAVE_PROFILE() HAY UPDATE DB
   Future<void> _loadUIState() async {
-    final profile = _authRepo.getProfile();
+    final version = ++_loadVersion;
     final workouts = await _workoutRepo.workoutHistoryStream.first;
     
     // 🚀 Lấy True Time
     final trueTimeMillis = await TimeManager.getTrueTimeMillis();
+    if (isClosed || version != _loadVersion) return;
+    final profile = _authRepo.getProfile();
     
     // 🚀 Truyền vào RankCalculator
     final seasonResult = RankCalculator.calculateTrueRankAndSeasons(workouts.cast(), profile, trueTimeMillis);
@@ -57,6 +60,6 @@ class RankCubit extends Cubit<RankScreenState?> {
   }
 
   Future<void> refreshRankData() async {
-    // Không làm gì cả, SyncManager kéo data thì AuthRepository Stream sẽ tự báo về đây
+    await _loadUIState();
   }
 }

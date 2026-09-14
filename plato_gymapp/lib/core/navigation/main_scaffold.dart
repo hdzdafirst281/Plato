@@ -1,5 +1,6 @@
-import 'dart:async';
 import 'dart:convert';
+import '../../features/notifications/application/notification_coordinator.dart';
+import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -175,6 +176,22 @@ class _MainScaffoldState extends State<MainScaffold> with TickerProviderStateMix
   }
 
   void _handleNotificationPayload(String? payload) {
+    if (payload != null && payload.startsWith('{')) {
+      try {
+        final data = jsonDecode(payload) as Map<String,dynamic>;
+        final service = NotificationCoordinator.instance;
+        if (service == null || data['scope'] != service.scope || data['v'] != 1) return;
+        final route = data['route'] as String?;
+        if (route == null || !['/profile/calendar', '/nutrition?water=1', '/workout', '/workout?recovery=1', '/social/rank_screen'].contains(route)) return;
+        BackgroundWorkoutService.pendingPayload = null;
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (!mounted || data['scope'] != service.scope) return;
+          final id = data['sourceId'] as String?;
+          context.go(route == '/profile/calendar' && id != null ? '$route?schedule=${Uri.encodeComponent(id)}' : route);
+        });
+      } catch (_) { /* Ignore malformed or obsolete payloads. */ }
+      return;
+    }
     if (payload == 'route_log_workout') {
       BackgroundWorkoutService.pendingPayload = null; 
       
@@ -188,9 +205,7 @@ class _MainScaffoldState extends State<MainScaffold> with TickerProviderStateMix
     final flnp = FlutterLocalNotificationsPlugin();
     final details = await flnp.getNotificationAppLaunchDetails();
     if (details != null && details.didNotificationLaunchApp) {
-      if (details.notificationResponse?.payload == 'route_log_workout') {
-        _handleNotificationPayload('route_log_workout');
-      }
+      _handleNotificationPayload(details.notificationResponse?.payload);
     }
   }
 

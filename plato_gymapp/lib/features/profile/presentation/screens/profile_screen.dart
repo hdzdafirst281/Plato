@@ -5,6 +5,7 @@ import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
@@ -1685,11 +1686,11 @@ class _HistoryCard extends StatelessWidget {
 
                       if (realPrCount > 0) ...[
                         const SizedBox(width: 16),
-                        Icon(
-                          Symbols.trophy,
-                          size: 18,
-                          color: Theme.of(context).gymColors.goldRank,
-                          fill: 1.0,
+                        SvgPicture.asset(
+                          'assets/svg/icons/trophy.svg',
+                          width: 18,
+                          height: 18,
+                          colorFilter: ColorFilter.mode(Theme.of(context).gymColors.goldRank, BlendMode.srcIn),
                         ),
                         const SizedBox(width: 8),
                         Text(

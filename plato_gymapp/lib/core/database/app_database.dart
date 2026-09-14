@@ -20,7 +20,7 @@ part 'app_database.g.dart';
   EquipmentConverter,
 ])
 @Database(
-  version: 6, // 🚀 CẬP NHẬT LÊN VERSION 6
+  version: 7, // 🚀 CẬP NHẬT LÊN VERSION 6
   entities: [
     Exercise, 
     FoodResult, 
@@ -30,9 +30,11 @@ part 'app_database.g.dart';
     NutritionDailyEntity,
     ScheduledWorkoutEntity,
     RewardClaimEntity, 
+    NotificationRecordEntity,
   ]
 )
 abstract class AppDatabase extends FloorDatabase {
+  NotificationDao get notificationDao;
   ExerciseDao get exerciseDao;
   FoodDao get foodDao;
   WorkoutProgramDao get workoutProgramDao;
@@ -72,4 +74,14 @@ final migration4to5 = Migration(4, 5, (sqflite.Database database) async {
 // 🚀 THÊM MIGRATION MỚI (v5 lên v6) ĐỂ THÊM CỘT IMAGE
 final migration5to6 = Migration(5, 6, (sqflite.Database database) async {
   await database.execute('ALTER TABLE exercises ADD COLUMN image TEXT');
+});
+
+// Date-only schedules remain date-only; no midnight reminders are introduced.
+final migration6to7 = Migration(6, 7, (sqflite.Database database) async {
+  await database.execute('CREATE TABLE IF NOT EXISTS notification_records_local (id TEXT NOT NULL, valueJson TEXT NOT NULL, PRIMARY KEY (id))');
+  await database.execute('ALTER TABLE scheduled_workouts_local ADD COLUMN timeOfDayMinutes INTEGER');
+  await database.execute('ALTER TABLE scheduled_workouts_local ADD COLUMN timeZoneId TEXT');
+  await database.execute('ALTER TABLE scheduled_workouts_local ADD COLUMN reminderEnabled INTEGER NOT NULL DEFAULT 0');
+  await database.execute('ALTER TABLE scheduled_workouts_local ADD COLUMN reminderMinutesBefore INTEGER NOT NULL DEFAULT 30');
+  await database.execute('ALTER TABLE scheduled_workouts_local ADD COLUMN completedWorkoutId TEXT');
 });

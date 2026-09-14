@@ -925,6 +925,8 @@ WorkoutSessionPayload _$WorkoutSessionPayloadFromJson(
 
 /// @nodoc
 mixin _$WorkoutSessionPayload {
+  @JsonKey(name: 'scheduled_workout_id')
+  String? get scheduledWorkoutId => throw _privateConstructorUsedError;
   @JsonKey(name: 'schema_version')
   String get schemaVersion => throw _privateConstructorUsedError;
   @JsonKey(name: 'exercises')
@@ -948,7 +950,8 @@ abstract class $WorkoutSessionPayloadCopyWith<$Res> {
       _$WorkoutSessionPayloadCopyWithImpl<$Res, WorkoutSessionPayload>;
   @useResult
   $Res call(
-      {@JsonKey(name: 'schema_version') String schemaVersion,
+      {@JsonKey(name: 'scheduled_workout_id') String? scheduledWorkoutId,
+      @JsonKey(name: 'schema_version') String schemaVersion,
       @JsonKey(name: 'exercises') List<WorkoutExercise> exercises,
       @JsonKey(name: 'muscle_distribution')
       Map<MajorMuscleGroup, double> muscleDistribution,
@@ -969,12 +972,17 @@ class _$WorkoutSessionPayloadCopyWithImpl<$Res,
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? scheduledWorkoutId = freezed,
     Object? schemaVersion = null,
     Object? exercises = null,
     Object? muscleDistribution = null,
     Object? notes = freezed,
   }) {
     return _then(_value.copyWith(
+      scheduledWorkoutId: freezed == scheduledWorkoutId
+          ? _value.scheduledWorkoutId
+          : scheduledWorkoutId // ignore: cast_nullable_to_non_nullable
+              as String?,
       schemaVersion: null == schemaVersion
           ? _value.schemaVersion
           : schemaVersion // ignore: cast_nullable_to_non_nullable
@@ -1005,7 +1013,8 @@ abstract class _$$WorkoutSessionPayloadImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {@JsonKey(name: 'schema_version') String schemaVersion,
+      {@JsonKey(name: 'scheduled_workout_id') String? scheduledWorkoutId,
+      @JsonKey(name: 'schema_version') String schemaVersion,
       @JsonKey(name: 'exercises') List<WorkoutExercise> exercises,
       @JsonKey(name: 'muscle_distribution')
       Map<MajorMuscleGroup, double> muscleDistribution,
@@ -1024,12 +1033,17 @@ class __$$WorkoutSessionPayloadImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? scheduledWorkoutId = freezed,
     Object? schemaVersion = null,
     Object? exercises = null,
     Object? muscleDistribution = null,
     Object? notes = freezed,
   }) {
     return _then(_$WorkoutSessionPayloadImpl(
+      scheduledWorkoutId: freezed == scheduledWorkoutId
+          ? _value.scheduledWorkoutId
+          : scheduledWorkoutId // ignore: cast_nullable_to_non_nullable
+              as String?,
       schemaVersion: null == schemaVersion
           ? _value.schemaVersion
           : schemaVersion // ignore: cast_nullable_to_non_nullable
@@ -1054,7 +1068,8 @@ class __$$WorkoutSessionPayloadImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$WorkoutSessionPayloadImpl implements _WorkoutSessionPayload {
   const _$WorkoutSessionPayloadImpl(
-      {@JsonKey(name: 'schema_version') this.schemaVersion = '1.0',
+      {@JsonKey(name: 'scheduled_workout_id') this.scheduledWorkoutId,
+      @JsonKey(name: 'schema_version') this.schemaVersion = '1.0',
       @JsonKey(name: 'exercises')
       final List<WorkoutExercise> exercises = const [],
       @JsonKey(name: 'muscle_distribution')
@@ -1066,6 +1081,9 @@ class _$WorkoutSessionPayloadImpl implements _WorkoutSessionPayload {
   factory _$WorkoutSessionPayloadImpl.fromJson(Map<String, dynamic> json) =>
       _$$WorkoutSessionPayloadImplFromJson(json);
 
+  @override
+  @JsonKey(name: 'scheduled_workout_id')
+  final String? scheduledWorkoutId;
   @override
   @JsonKey(name: 'schema_version')
   final String schemaVersion;
@@ -1094,7 +1112,7 @@ class _$WorkoutSessionPayloadImpl implements _WorkoutSessionPayload {
 
   @override
   String toString() {
-    return 'WorkoutSessionPayload(schemaVersion: $schemaVersion, exercises: $exercises, muscleDistribution: $muscleDistribution, notes: $notes)';
+    return 'WorkoutSessionPayload(scheduledWorkoutId: $scheduledWorkoutId, schemaVersion: $schemaVersion, exercises: $exercises, muscleDistribution: $muscleDistribution, notes: $notes)';
   }
 
   @override
@@ -1102,6 +1120,8 @@ class _$WorkoutSessionPayloadImpl implements _WorkoutSessionPayload {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$WorkoutSessionPayloadImpl &&
+            (identical(other.scheduledWorkoutId, scheduledWorkoutId) ||
+                other.scheduledWorkoutId == scheduledWorkoutId) &&
             (identical(other.schemaVersion, schemaVersion) ||
                 other.schemaVersion == schemaVersion) &&
             const DeepCollectionEquality()
@@ -1115,6 +1135,7 @@ class _$WorkoutSessionPayloadImpl implements _WorkoutSessionPayload {
   @override
   int get hashCode => Object.hash(
       runtimeType,
+      scheduledWorkoutId,
       schemaVersion,
       const DeepCollectionEquality().hash(_exercises),
       const DeepCollectionEquality().hash(_muscleDistribution),
@@ -1137,16 +1158,20 @@ class _$WorkoutSessionPayloadImpl implements _WorkoutSessionPayload {
 
 abstract class _WorkoutSessionPayload implements WorkoutSessionPayload {
   const factory _WorkoutSessionPayload(
-          {@JsonKey(name: 'schema_version') final String schemaVersion,
-          @JsonKey(name: 'exercises') final List<WorkoutExercise> exercises,
-          @JsonKey(name: 'muscle_distribution')
-          final Map<MajorMuscleGroup, double> muscleDistribution,
-          @JsonKey(name: 'notes') final String? notes}) =
-      _$WorkoutSessionPayloadImpl;
+      {@JsonKey(name: 'scheduled_workout_id') final String? scheduledWorkoutId,
+      @JsonKey(name: 'schema_version') final String schemaVersion,
+      @JsonKey(name: 'exercises') final List<WorkoutExercise> exercises,
+      @JsonKey(name: 'muscle_distribution')
+      final Map<MajorMuscleGroup, double> muscleDistribution,
+      @JsonKey(name: 'notes')
+      final String? notes}) = _$WorkoutSessionPayloadImpl;
 
   factory _WorkoutSessionPayload.fromJson(Map<String, dynamic> json) =
       _$WorkoutSessionPayloadImpl.fromJson;
 
+  @override
+  @JsonKey(name: 'scheduled_workout_id')
+  String? get scheduledWorkoutId;
   @override
   @JsonKey(name: 'schema_version')
   String get schemaVersion;
@@ -2032,6 +2057,11 @@ ScheduledWorkout _$ScheduledWorkoutFromJson(Map<String, dynamic> json) {
 
 /// @nodoc
 mixin _$ScheduledWorkout {
+  int? get timeOfDayMinutes => throw _privateConstructorUsedError;
+  String? get timeZoneId => throw _privateConstructorUsedError;
+  bool get reminderEnabled => throw _privateConstructorUsedError;
+  int get reminderMinutesBefore => throw _privateConstructorUsedError;
+  String? get completedWorkoutId => throw _privateConstructorUsedError;
   String get id => throw _privateConstructorUsedError;
   String get routineId => throw _privateConstructorUsedError;
   String get routineName => throw _privateConstructorUsedError;
@@ -2055,7 +2085,12 @@ abstract class $ScheduledWorkoutCopyWith<$Res> {
       _$ScheduledWorkoutCopyWithImpl<$Res, ScheduledWorkout>;
   @useResult
   $Res call(
-      {String id,
+      {int? timeOfDayMinutes,
+      String? timeZoneId,
+      bool reminderEnabled,
+      int reminderMinutesBefore,
+      String? completedWorkoutId,
+      String id,
       String routineId,
       String routineName,
       int targetDateMillis,
@@ -2077,6 +2112,11 @@ class _$ScheduledWorkoutCopyWithImpl<$Res, $Val extends ScheduledWorkout>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? timeOfDayMinutes = freezed,
+    Object? timeZoneId = freezed,
+    Object? reminderEnabled = null,
+    Object? reminderMinutesBefore = null,
+    Object? completedWorkoutId = freezed,
     Object? id = null,
     Object? routineId = null,
     Object? routineName = null,
@@ -2086,6 +2126,26 @@ class _$ScheduledWorkoutCopyWithImpl<$Res, $Val extends ScheduledWorkout>
     Object? recurrenceGroupId = freezed,
   }) {
     return _then(_value.copyWith(
+      timeOfDayMinutes: freezed == timeOfDayMinutes
+          ? _value.timeOfDayMinutes
+          : timeOfDayMinutes // ignore: cast_nullable_to_non_nullable
+              as int?,
+      timeZoneId: freezed == timeZoneId
+          ? _value.timeZoneId
+          : timeZoneId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      reminderEnabled: null == reminderEnabled
+          ? _value.reminderEnabled
+          : reminderEnabled // ignore: cast_nullable_to_non_nullable
+              as bool,
+      reminderMinutesBefore: null == reminderMinutesBefore
+          ? _value.reminderMinutesBefore
+          : reminderMinutesBefore // ignore: cast_nullable_to_non_nullable
+              as int,
+      completedWorkoutId: freezed == completedWorkoutId
+          ? _value.completedWorkoutId
+          : completedWorkoutId // ignore: cast_nullable_to_non_nullable
+              as String?,
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
@@ -2127,7 +2187,12 @@ abstract class _$$ScheduledWorkoutImplCopyWith<$Res>
   @override
   @useResult
   $Res call(
-      {String id,
+      {int? timeOfDayMinutes,
+      String? timeZoneId,
+      bool reminderEnabled,
+      int reminderMinutesBefore,
+      String? completedWorkoutId,
+      String id,
       String routineId,
       String routineName,
       int targetDateMillis,
@@ -2147,6 +2212,11 @@ class __$$ScheduledWorkoutImplCopyWithImpl<$Res>
   @pragma('vm:prefer-inline')
   @override
   $Res call({
+    Object? timeOfDayMinutes = freezed,
+    Object? timeZoneId = freezed,
+    Object? reminderEnabled = null,
+    Object? reminderMinutesBefore = null,
+    Object? completedWorkoutId = freezed,
     Object? id = null,
     Object? routineId = null,
     Object? routineName = null,
@@ -2156,6 +2226,26 @@ class __$$ScheduledWorkoutImplCopyWithImpl<$Res>
     Object? recurrenceGroupId = freezed,
   }) {
     return _then(_$ScheduledWorkoutImpl(
+      timeOfDayMinutes: freezed == timeOfDayMinutes
+          ? _value.timeOfDayMinutes
+          : timeOfDayMinutes // ignore: cast_nullable_to_non_nullable
+              as int?,
+      timeZoneId: freezed == timeZoneId
+          ? _value.timeZoneId
+          : timeZoneId // ignore: cast_nullable_to_non_nullable
+              as String?,
+      reminderEnabled: null == reminderEnabled
+          ? _value.reminderEnabled
+          : reminderEnabled // ignore: cast_nullable_to_non_nullable
+              as bool,
+      reminderMinutesBefore: null == reminderMinutesBefore
+          ? _value.reminderMinutesBefore
+          : reminderMinutesBefore // ignore: cast_nullable_to_non_nullable
+              as int,
+      completedWorkoutId: freezed == completedWorkoutId
+          ? _value.completedWorkoutId
+          : completedWorkoutId // ignore: cast_nullable_to_non_nullable
+              as String?,
       id: null == id
           ? _value.id
           : id // ignore: cast_nullable_to_non_nullable
@@ -2192,7 +2282,12 @@ class __$$ScheduledWorkoutImplCopyWithImpl<$Res>
 @JsonSerializable()
 class _$ScheduledWorkoutImpl implements _ScheduledWorkout {
   const _$ScheduledWorkoutImpl(
-      {required this.id,
+      {this.timeOfDayMinutes,
+      this.timeZoneId,
+      this.reminderEnabled = false,
+      this.reminderMinutesBefore = 30,
+      this.completedWorkoutId,
+      required this.id,
       required this.routineId,
       required this.routineName,
       required this.targetDateMillis,
@@ -2203,6 +2298,18 @@ class _$ScheduledWorkoutImpl implements _ScheduledWorkout {
   factory _$ScheduledWorkoutImpl.fromJson(Map<String, dynamic> json) =>
       _$$ScheduledWorkoutImplFromJson(json);
 
+  @override
+  final int? timeOfDayMinutes;
+  @override
+  final String? timeZoneId;
+  @override
+  @JsonKey()
+  final bool reminderEnabled;
+  @override
+  @JsonKey()
+  final int reminderMinutesBefore;
+  @override
+  final String? completedWorkoutId;
   @override
   final String id;
   @override
@@ -2223,7 +2330,7 @@ class _$ScheduledWorkoutImpl implements _ScheduledWorkout {
 
   @override
   String toString() {
-    return 'ScheduledWorkout(id: $id, routineId: $routineId, routineName: $routineName, targetDateMillis: $targetDateMillis, isCompleted: $isCompleted, colorHex: $colorHex, recurrenceGroupId: $recurrenceGroupId)';
+    return 'ScheduledWorkout(timeOfDayMinutes: $timeOfDayMinutes, timeZoneId: $timeZoneId, reminderEnabled: $reminderEnabled, reminderMinutesBefore: $reminderMinutesBefore, completedWorkoutId: $completedWorkoutId, id: $id, routineId: $routineId, routineName: $routineName, targetDateMillis: $targetDateMillis, isCompleted: $isCompleted, colorHex: $colorHex, recurrenceGroupId: $recurrenceGroupId)';
   }
 
   @override
@@ -2231,6 +2338,16 @@ class _$ScheduledWorkoutImpl implements _ScheduledWorkout {
     return identical(this, other) ||
         (other.runtimeType == runtimeType &&
             other is _$ScheduledWorkoutImpl &&
+            (identical(other.timeOfDayMinutes, timeOfDayMinutes) ||
+                other.timeOfDayMinutes == timeOfDayMinutes) &&
+            (identical(other.timeZoneId, timeZoneId) ||
+                other.timeZoneId == timeZoneId) &&
+            (identical(other.reminderEnabled, reminderEnabled) ||
+                other.reminderEnabled == reminderEnabled) &&
+            (identical(other.reminderMinutesBefore, reminderMinutesBefore) ||
+                other.reminderMinutesBefore == reminderMinutesBefore) &&
+            (identical(other.completedWorkoutId, completedWorkoutId) ||
+                other.completedWorkoutId == completedWorkoutId) &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.routineId, routineId) ||
                 other.routineId == routineId) &&
@@ -2248,8 +2365,20 @@ class _$ScheduledWorkoutImpl implements _ScheduledWorkout {
 
   @JsonKey(ignore: true)
   @override
-  int get hashCode => Object.hash(runtimeType, id, routineId, routineName,
-      targetDateMillis, isCompleted, colorHex, recurrenceGroupId);
+  int get hashCode => Object.hash(
+      runtimeType,
+      timeOfDayMinutes,
+      timeZoneId,
+      reminderEnabled,
+      reminderMinutesBefore,
+      completedWorkoutId,
+      id,
+      routineId,
+      routineName,
+      targetDateMillis,
+      isCompleted,
+      colorHex,
+      recurrenceGroupId);
 
   @JsonKey(ignore: true)
   @override
@@ -2268,7 +2397,12 @@ class _$ScheduledWorkoutImpl implements _ScheduledWorkout {
 
 abstract class _ScheduledWorkout implements ScheduledWorkout {
   const factory _ScheduledWorkout(
-      {required final String id,
+      {final int? timeOfDayMinutes,
+      final String? timeZoneId,
+      final bool reminderEnabled,
+      final int reminderMinutesBefore,
+      final String? completedWorkoutId,
+      required final String id,
       required final String routineId,
       required final String routineName,
       required final int targetDateMillis,
@@ -2280,6 +2414,16 @@ abstract class _ScheduledWorkout implements ScheduledWorkout {
   factory _ScheduledWorkout.fromJson(Map<String, dynamic> json) =
       _$ScheduledWorkoutImpl.fromJson;
 
+  @override
+  int? get timeOfDayMinutes;
+  @override
+  String? get timeZoneId;
+  @override
+  bool get reminderEnabled;
+  @override
+  int get reminderMinutesBefore;
+  @override
+  String? get completedWorkoutId;
   @override
   String get id;
   @override

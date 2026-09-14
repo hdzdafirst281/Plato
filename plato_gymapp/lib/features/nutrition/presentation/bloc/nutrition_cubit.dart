@@ -31,6 +31,8 @@ class NutritionCubit extends Cubit<NutritionState> {
   static const _uuid = Uuid();
 
   String _activeDateId = '';
+  Future<void> _saveQueue = Future.value();
+  Future<void> _waterQueue = Future.value();
 
   NutritionCubit(this._nutritionRepo, this._foodDao)
     : super(const NutritionState()) {
@@ -88,8 +90,11 @@ class NutritionCubit extends Cubit<NutritionState> {
     }
   }
 
-  Future<void> _saveTodayNutrition(DailyNutrition dailyData) async {
-    await _nutritionRepo.saveDailyNutrition(_activeDateId, dailyData);
+  Future<void> _saveTodayNutrition(DailyNutrition dailyData) {
+    final date = _activeDateId;
+    final task = _saveQueue.then((_) => _nutritionRepo.saveDailyNutrition(date, dailyData));
+    _saveQueue = task.catchError((Object error) { debugPrint('Nutrition save failed: $error'); });
+    return task;
   }
 
   void addFoodToLog(FoodResult foodItem, MealType targetMeal) {
@@ -192,7 +197,16 @@ class NutritionCubit extends Cubit<NutritionState> {
     );
   }
 
-  void addWater(double liters) {
+  Future<void> addWater(double liters) {
+    final task = _waterQueue.then((_) async {
+      if (_activeDateId != _todayDateId) await resetNutritionState();
+      await _addWater(liters);
+    });
+    _waterQueue = task.catchError((Object error) { debugPrint('Water save failed: $error'); });
+    return task;
+  }
+
+  Future<void> _addWater(double liters) async {
     final currentWater = state.nutritionToday.waterConsumedLiters;
     final newWater = (currentWater + liters) >= 0
         ? (currentWater + liters)
@@ -201,7 +215,7 @@ class NutritionCubit extends Cubit<NutritionState> {
       waterConsumedLiters: newWater,
     );
     emit(state.copyWith(nutritionToday: updatedDaily));
-    _saveTodayNutrition(updatedDaily);
+    await _saveTodayNutrition(updatedDaily);
   }
 
   DailyNutrition _updateMealsList(

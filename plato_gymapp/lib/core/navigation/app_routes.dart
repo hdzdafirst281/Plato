@@ -14,6 +14,7 @@ class AppRoutes {
   // ==========================================
   static const logWorkout = '/log_workout';
   static const sessionSummary = '/session_summary';
+  static const workoutRewards = '/workout_rewards';
   
   static const createRoutine = 'create_routine';
   static const workoutDetail = 'workout_detail/:workoutId';

@@ -38,6 +38,21 @@ class GamificationCubit extends Cubit<GamificationState> {
   final GetLeaderboardUseCase _getLeaderboardUseCase;
 
   StreamSubscription? _historySubscription;
+  Future<void> _pendingStatsUpdate = Future.value();
+
+  // Claims and history refreshes both mutate the reward ledger and XP state.
+  // Serialize them so a refresh cannot restore a stale, unclaimed quest.
+  Future<void> _updateStats(Future<void> Function() action) {
+    final operation = _pendingStatsUpdate.then((_) async {
+      if (isClosed) return;
+      await action();
+      if (!isClosed) emit(state.copyWith(stats: _gamificationRepo.userStats));
+    });
+    _pendingStatsUpdate = operation.catchError((Object error) {
+      debugPrint('Gamification update failed: $error');
+    });
+    return operation;
+  }
 
   GamificationCubit(
     this._gamificationRepo, 
@@ -51,7 +66,7 @@ class GamificationCubit extends Cubit<GamificationState> {
   ) : super(GamificationState(stats: _gamificationRepo.userStats)) {
     
     _historySubscription = _workoutRepo.workoutHistoryStream.listen((historicalSessions) {
-      refreshWeeklyQuests(historicalSessions);
+      refreshWeeklyQuests(historicalSessions).ignore();
     });
   }
 
@@ -61,29 +76,20 @@ class GamificationCubit extends Cubit<GamificationState> {
     return super.close();
   }
 
-  Future<void> refreshWeeklyQuests(List<WorkoutSession> completedWorkouts) async {
-    await _refreshWeeklyQuestsUseCase.execute(completedWorkouts);
-    emit(state.copyWith(stats: _gamificationRepo.userStats));
-  }
+  Future<void> refreshWeeklyQuests(List<WorkoutSession> completedWorkouts) =>
+      _updateStats(() => _refreshWeeklyQuestsUseCase.execute(completedWorkouts));
 
-  Future<void> claimQuestReward(String questId) async {
-    await _claimQuestRewardUseCase.execute(questId);
-    emit(state.copyWith(stats: _gamificationRepo.userStats));
-  }
+  Future<void> claimQuestReward(String questId) =>
+      _updateStats(() => _claimQuestRewardUseCase.execute(questId));
 
-  Future<void> claimChestReward() async {
-    await _claimChestRewardUseCase.execute();
-    emit(state.copyWith(stats: _gamificationRepo.userStats));
-  }
+  Future<void> claimChestReward() =>
+      _updateStats(() => _claimChestRewardUseCase.execute());
 
-  Future<void> refreshStateFromPrefs() async {
-    await _refreshGamificationStateUseCase.execute();
-    emit(state.copyWith(stats: _gamificationRepo.userStats));
-  }
+  Future<void> refreshStateFromPrefs() =>
+      _updateStats(() => _refreshGamificationStateUseCase.execute());
 
   Future<void> refreshGamificationState() async {
-    await _refreshGamificationStateUseCase.execute();
-    emit(state.copyWith(stats: _gamificationRepo.userStats));
+    await refreshStateFromPrefs();
     await loadLeaderboard(forceRefresh: true); // Automatically load leaderboard on state refresh
   }
 
@@ -101,8 +107,6 @@ class GamificationCubit extends Cubit<GamificationState> {
     }
   }
 
-  Future<void> resetGamification() async {
-    await _resetGamificationUseCase.execute();
-    emit(state.copyWith(stats: _gamificationRepo.userStats));
-  }
+  Future<void> resetGamification() =>
+      _updateStats(() => _resetGamificationUseCase.execute());
 }

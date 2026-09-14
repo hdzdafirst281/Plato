@@ -1,3 +1,4 @@
+import '../../../notifications/application/notification_coordinator.dart';
 import 'dart:async';
 import 'dart:math';
 import 'package:flutter/widgets.dart'; 
@@ -152,7 +153,7 @@ class ActiveSessionCubit extends Cubit<ActiveSessionState> with WidgetsBindingOb
     return ghostSets;
   }
 
-  Future<void> startRoutine(WorkoutSession routine) async {
+  Future<void> startRoutine(WorkoutSession routine, {String? scheduledWorkoutId}) async {
     autoFinishDeadlineMillis = null;
     triggerAutoFinishDialog.value = false;
     final hydratedRoutine = await _workoutRepo.hydrateRoutine(routine);
@@ -186,7 +187,7 @@ class ActiveSessionCubit extends Cubit<ActiveSessionState> with WidgetsBindingOb
 
     final activeSession = hydratedRoutine.copyWith(
       id: _uuid.v4(), routineId: hydratedRoutine.id, startTime: DateTime.now().millisecondsSinceEpoch,
-      sessionPayload: hydratedRoutine.sessionPayload.copyWith(exercises: preparedExercises),
+      sessionPayload: hydratedRoutine.sessionPayload.copyWith(exercises: preparedExercises, scheduledWorkoutId: scheduledWorkoutId),
     );
 
     workoutStartTimeOffset = DateTime.now(); 
@@ -344,7 +345,27 @@ class ActiveSessionCubit extends Cubit<ActiveSessionState> with WidgetsBindingOb
     syncBackgroundNotification(); 
   }
 
-  Future<void> finishWorkout({
+  final Map<String, Future<WorkoutSession?>> _finishingWorkouts = {};
+
+  Future<WorkoutSession?> finishWorkout({
+    bool saveStructure = false,
+    bool saveAsNewRoutine = false,
+    bool isAutoFinish = false,
+    WorkoutSession? targetSession,
+    int? targetDuration,
+  }) {
+    final id = (targetSession ?? state.activeWorkout)?.id;
+    if (id == null) return Future.value(null);
+    return _finishingWorkouts.putIfAbsent(id, () => _finishWorkout(
+      saveStructure: saveStructure,
+      saveAsNewRoutine: saveAsNewRoutine,
+      isAutoFinish: isAutoFinish,
+      targetSession: targetSession,
+      targetDuration: targetDuration,
+    ).whenComplete(() { _finishingWorkouts.remove(id); }));
+  }
+
+  Future<WorkoutSession?> _finishWorkout({
     bool saveStructure = false, 
     bool saveAsNewRoutine = false, 
     bool isAutoFinish = false,
@@ -352,7 +373,7 @@ class ActiveSessionCubit extends Cubit<ActiveSessionState> with WidgetsBindingOb
     int? targetDuration,
   }) async {
     final session = targetSession ?? state.activeWorkout;
-    if (session == null) return;
+    if (session == null) return null;
 
     if (targetSession == null) {
       autoFinishDeadlineMillis = null;
@@ -394,11 +415,13 @@ class ActiveSessionCubit extends Cubit<ActiveSessionState> with WidgetsBindingOb
       rpe: isAutoFinish ? (session.rpe ?? 5) : session.rpe,
     );
 
-    final savedSessionWithRealPR = await _workoutRepo.saveFinishedWorkout(temporarySession);
-    final int calculatedXp = _gamificationRepo.calculateXpForSession(savedSessionWithRealPR);
+    final finalSession = await _workoutRepo.saveFinishedWorkout(
+      temporarySession,
+      calculateXp: _gamificationRepo.calculateXpForSession,
+    );
+    final calculatedXp = finalSession.xpEarned;
+    final profileBeforeNotification = _authRepo.getProfile();
 
-    final finalSession = savedSessionWithRealPR.copyWith(xpEarned: calculatedXp);
-    await _workoutRepo.saveFinishedWorkout(finalSession);
 
     final currentUserProfile = _authRepo.getProfile();
     final updatedHistory = await _workoutRepo.workoutHistoryStream.first;
@@ -415,6 +438,11 @@ class ActiveSessionCubit extends Cubit<ActiveSessionState> with WidgetsBindingOb
         ));
       },
     );
+
+    await NotificationCoordinator.instance?.recordWorkout(finalSession,
+      previousLevel: _gamificationRepo.calculateLevelInfo(profileBeforeNotification.experiencePoints).$1,
+      newLevel: _gamificationRepo.calculateLevelInfo(profileBeforeNotification.experiencePoints + calculatedXp).$1,
+    ).catchError((Object error) { debugPrint('Notification event failed: $error'); });
 
     if (finalSession.routineId != null && originalRoutine != null) {
       if (saveStructure) {
@@ -449,6 +477,7 @@ class ActiveSessionCubit extends Cubit<ActiveSessionState> with WidgetsBindingOb
       return false;
     });
     SyncManager.scheduleBackgroundSync();
+    return finalSession;
   }
   
   void updateSet(String exerciseId, String setId, bool isCompletedFlag, {

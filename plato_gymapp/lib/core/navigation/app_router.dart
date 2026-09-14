@@ -42,6 +42,7 @@ import '../../features/nutrition/presentation/bloc/nutrition_cubit.dart';
 
 import '../../features/gamification/presentation/screens/gamification_screen.dart';
 import '../../features/gamification/presentation/screens/rank_screen.dart';
+import '../../features/gamification/presentation/screens/workout_rewards_screen.dart';
 
 import '../../features/profile/presentation/screens/profile_screen.dart';
 import '../../features/profile/presentation/screens/profile_settings_screen.dart';
@@ -144,6 +145,20 @@ class AppRouter {
         builder: (context, state) {
           final workoutId = state.extra as String?;
           return SessionSummaryScreen(workoutId: workoutId); 
+        },
+      ),
+      GoRoute(
+        path: AppRoutes.workoutRewards,
+        name: 'workout_rewards',
+        parentNavigatorKey: _appNavigatorKey,
+        builder: (context, state) {
+          final request = state.extra;
+          return WorkoutRewardsScreen(
+            workoutId: request is WorkoutRewardsRequest
+                ? request.workoutId : request as String?,
+            completion: request is WorkoutRewardsRequest ? request.completion : null,
+            beforeQuests: request is WorkoutRewardsRequest ? request.beforeQuests : const [],
+          );
         },
       ),
       GoRoute(
@@ -368,7 +383,7 @@ class AppRouter {
                 routes: [
                   GoRoute(
                     path: AppRoutes.nutrition,
-                    builder: (context, state) => const NutritionScreen(),
+                    builder: (context, state) => NutritionScreen(focusWater: state.uri.queryParameters['water'] == '1'),
                     routes: [
                       GoRoute(
                         path: 'history',
@@ -451,7 +466,7 @@ class AppRouter {
                       GoRoute(
                         path: AppRoutes.calendar,
                         parentNavigatorKey: _rootNavigatorKey, 
-                        builder: (context, state) => const CalendarScreen(),
+                        builder: (context, state) => CalendarScreen(initialScheduleId: state.uri.queryParameters['schedule']),
                       ),
                       GoRoute(
                         path: AppRoutes.profileSettings,

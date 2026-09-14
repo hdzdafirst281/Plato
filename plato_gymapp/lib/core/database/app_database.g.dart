@@ -72,6 +72,8 @@ class _$AppDatabase extends AppDatabase {
     changeListener = listener ?? StreamController<String>.broadcast();
   }
 
+  NotificationDao? _notificationDaoInstance;
+
   ExerciseDao? _exerciseDaoInstance;
 
   FoodDao? _foodDaoInstance;
@@ -90,7 +92,7 @@ class _$AppDatabase extends AppDatabase {
     Callback? callback,
   ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 6,
+      version: 7,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -118,14 +120,22 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `nutrition_daily_local` (`dateId` TEXT NOT NULL, `waterConsumedLiters` REAL NOT NULL, `breakfastJson` TEXT NOT NULL, `lunchJson` TEXT NOT NULL, `dinnerJson` TEXT NOT NULL, `snackJson` TEXT NOT NULL, `syncStatus` TEXT NOT NULL, `updatedAt` INTEGER NOT NULL, `isDeleted` INTEGER NOT NULL, PRIMARY KEY (`dateId`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `scheduled_workouts_local` (`id` TEXT NOT NULL, `routineId` TEXT NOT NULL, `routineName` TEXT NOT NULL, `targetDateMillis` INTEGER NOT NULL, `isCompleted` INTEGER NOT NULL, `colorHex` TEXT, `recurrenceGroupId` TEXT, `syncStatus` TEXT NOT NULL, `updatedAt` INTEGER NOT NULL, `isDeleted` INTEGER NOT NULL, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `scheduled_workouts_local` (`timeOfDayMinutes` INTEGER, `timeZoneId` TEXT, `reminderEnabled` INTEGER NOT NULL, `reminderMinutesBefore` INTEGER NOT NULL, `completedWorkoutId` TEXT, `id` TEXT NOT NULL, `routineId` TEXT NOT NULL, `routineName` TEXT NOT NULL, `targetDateMillis` INTEGER NOT NULL, `isCompleted` INTEGER NOT NULL, `colorHex` TEXT, `recurrenceGroupId` TEXT, `syncStatus` TEXT NOT NULL, `updatedAt` INTEGER NOT NULL, `isDeleted` INTEGER NOT NULL, PRIMARY KEY (`id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `reward_claims_local` (`id` TEXT NOT NULL, `sourceType` TEXT NOT NULL, `sourceRef` TEXT NOT NULL, `periodKey` TEXT NOT NULL, `actionType` TEXT NOT NULL, `xpAmount` INTEGER NOT NULL, `createdAt` INTEGER NOT NULL, `syncStatus` TEXT NOT NULL, PRIMARY KEY (`id`))');
+        await database.execute(
+            'CREATE TABLE IF NOT EXISTS `notification_records_local` (`id` TEXT NOT NULL, `valueJson` TEXT NOT NULL, PRIMARY KEY (`id`))');
 
         await callback?.onCreate?.call(database, version);
       },
     );
     return sqfliteDatabaseFactory.openDatabase(path, options: databaseOptions);
+  }
+
+  @override
+  NotificationDao get notificationDao {
+    return _notificationDaoInstance ??=
+        _$NotificationDao(database, changeListener);
   }
 
   @override
@@ -158,6 +168,61 @@ class _$AppDatabase extends AppDatabase {
   RewardClaimDao get rewardClaimDao {
     return _rewardClaimDaoInstance ??=
         _$RewardClaimDao(database, changeListener);
+  }
+}
+
+class _$NotificationDao extends NotificationDao {
+  _$NotificationDao(
+    this.database,
+    this.changeListener,
+  )   : _queryAdapter = QueryAdapter(database),
+        _notificationRecordEntityInsertionAdapter = InsertionAdapter(
+            database,
+            'notification_records_local',
+            (NotificationRecordEntity item) =>
+                <String, Object?>{'id': item.id, 'valueJson': item.valueJson});
+
+  final sqflite.DatabaseExecutor database;
+
+  final StreamController<String> changeListener;
+
+  final QueryAdapter _queryAdapter;
+
+  final InsertionAdapter<NotificationRecordEntity>
+      _notificationRecordEntityInsertionAdapter;
+
+  @override
+  Future<List<NotificationRecordEntity>> getAll() async {
+    return _queryAdapter.queryList('SELECT * FROM notification_records_local',
+        mapper: (Map<String, Object?> row) => NotificationRecordEntity(
+            id: row['id'] as String, valueJson: row['valueJson'] as String));
+  }
+
+  @override
+  Future<NotificationRecordEntity?> getById(String id) async {
+    return _queryAdapter.query(
+        'SELECT * FROM notification_records_local WHERE id = ?1',
+        mapper: (Map<String, Object?> row) => NotificationRecordEntity(
+            id: row['id'] as String, valueJson: row['valueJson'] as String),
+        arguments: [id]);
+  }
+
+  @override
+  Future<void> remove(String id) async {
+    await _queryAdapter.queryNoReturn(
+        'DELETE FROM notification_records_local WHERE id = ?1',
+        arguments: [id]);
+  }
+
+  @override
+  Future<void> clear() async {
+    await _queryAdapter.queryNoReturn('DELETE FROM notification_records_local');
+  }
+
+  @override
+  Future<void> put(NotificationRecordEntity record) async {
+    await _notificationRecordEntityInsertionAdapter.insert(
+        record, OnConflictStrategy.replace);
   }
 }
 
@@ -480,6 +545,11 @@ class _$WorkoutDao extends WorkoutDao {
             database,
             'scheduled_workouts_local',
             (ScheduledWorkoutEntity item) => <String, Object?>{
+                  'timeOfDayMinutes': item.timeOfDayMinutes,
+                  'timeZoneId': item.timeZoneId,
+                  'reminderEnabled': item.reminderEnabled ? 1 : 0,
+                  'reminderMinutesBefore': item.reminderMinutesBefore,
+                  'completedWorkoutId': item.completedWorkoutId,
                   'id': item.id,
                   'routineId': item.routineId,
                   'routineName': item.routineName,
@@ -548,6 +618,11 @@ class _$WorkoutDao extends WorkoutDao {
     return _queryAdapter.queryListStream(
         'SELECT * FROM scheduled_workouts_local WHERE isDeleted = 0',
         mapper: (Map<String, Object?> row) => ScheduledWorkoutEntity(
+            timeOfDayMinutes: row['timeOfDayMinutes'] as int?,
+            timeZoneId: row['timeZoneId'] as String?,
+            reminderEnabled: (row['reminderEnabled'] as int) != 0,
+            reminderMinutesBefore: row['reminderMinutesBefore'] as int,
+            completedWorkoutId: row['completedWorkoutId'] as String?,
             id: row['id'] as String,
             routineId: row['routineId'] as String,
             routineName: row['routineName'] as String,
@@ -574,6 +649,47 @@ class _$WorkoutDao extends WorkoutDao {
     await _queryAdapter.queryNoReturn(
         'DELETE FROM scheduled_workouts_local WHERE recurrenceGroupId = ?1',
         arguments: [groupId]);
+  }
+
+  @override
+  Future<List<ScheduledWorkoutEntity>> getAllScheduledWorkouts() async {
+    return _queryAdapter.queryList(
+        'SELECT * FROM scheduled_workouts_local WHERE isDeleted = 0',
+        mapper: (Map<String, Object?> row) => ScheduledWorkoutEntity(
+            timeOfDayMinutes: row['timeOfDayMinutes'] as int?,
+            timeZoneId: row['timeZoneId'] as String?,
+            reminderEnabled: (row['reminderEnabled'] as int) != 0,
+            reminderMinutesBefore: row['reminderMinutesBefore'] as int,
+            completedWorkoutId: row['completedWorkoutId'] as String?,
+            id: row['id'] as String,
+            routineId: row['routineId'] as String,
+            routineName: row['routineName'] as String,
+            targetDateMillis: row['targetDateMillis'] as int,
+            isCompleted: (row['isCompleted'] as int) != 0,
+            colorHex: row['colorHex'] as String?,
+            recurrenceGroupId: row['recurrenceGroupId'] as String?,
+            syncStatus: row['syncStatus'] as String,
+            updatedAt: row['updatedAt'] as int,
+            isDeleted: (row['isDeleted'] as int) != 0));
+  }
+
+  @override
+  Future<ScheduledWorkoutEntity?> getScheduledWorkout(String id) async {
+    return _queryAdapter.query(
+        'SELECT * FROM scheduled_workouts_local WHERE id = ?1 AND isDeleted = 0',
+        mapper: (Map<String, Object?> row) => ScheduledWorkoutEntity(timeOfDayMinutes: row['timeOfDayMinutes'] as int?, timeZoneId: row['timeZoneId'] as String?, reminderEnabled: (row['reminderEnabled'] as int) != 0, reminderMinutesBefore: row['reminderMinutesBefore'] as int, completedWorkoutId: row['completedWorkoutId'] as String?, id: row['id'] as String, routineId: row['routineId'] as String, routineName: row['routineName'] as String, targetDateMillis: row['targetDateMillis'] as int, isCompleted: (row['isCompleted'] as int) != 0, colorHex: row['colorHex'] as String?, recurrenceGroupId: row['recurrenceGroupId'] as String?, syncStatus: row['syncStatus'] as String, updatedAt: row['updatedAt'] as int, isDeleted: (row['isDeleted'] as int) != 0),
+        arguments: [id]);
+  }
+
+  @override
+  Future<void> completeSchedule(
+    String id,
+    String workoutId,
+    int now,
+  ) async {
+    await _queryAdapter.queryNoReturn(
+        'UPDATE scheduled_workouts_local SET isCompleted = 1, completedWorkoutId = ?2, updatedAt = ?3 WHERE id = ?1',
+        arguments: [id, workoutId, now]);
   }
 
   @override
@@ -778,6 +894,13 @@ class _$WorkoutDao extends WorkoutDao {
   Future<void> insertScheduledWorkout(ScheduledWorkoutEntity entity) async {
     await _scheduledWorkoutEntityInsertionAdapter.insert(
         entity, OnConflictStrategy.replace);
+  }
+
+  @override
+  Future<void> insertScheduledWorkouts(
+      List<ScheduledWorkoutEntity> entities) async {
+    await _scheduledWorkoutEntityInsertionAdapter.insertList(
+        entities, OnConflictStrategy.replace);
   }
 
   @override

@@ -90,7 +90,7 @@ abstract class AppModule {
     debugPrint("🛠️ [DEBUG DB] Đang build Floor Database...");
     return await $FloorAppDatabase
         .databaseBuilder('plato_app_database.db')
-        .addMigrations([migration2to3, migration3to4, migration4to5, migration5to6])
+        .addMigrations([migration2to3, migration3to4, migration4to5, migration5to6, migration6to7])
         .addCallback(callback)
         .build();
   }

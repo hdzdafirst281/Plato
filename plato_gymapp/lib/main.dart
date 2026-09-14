@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'features/notifications/application/notification_coordinator.dart';
+import 'features/notifications/presentation/notification_feedback_host.dart';
+import 'features/auth/domain/repositories/auth_repository.dart';
+import 'features/workout/data/repositories/workout_repository.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
-import 'package:plato_gymapp/i18n/translation_helper.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:material_symbols_icons/symbols.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_top_notification.dart';
-import 'package:plato_gymapp/features/gamification/domain/rank_calculator.dart';
 import 'package:plato_gymapp/features/workout/presentation/bloc/exercise_library_cubit.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -68,6 +69,8 @@ void main() async {
       final seedData = ProgramSeeder.getInitialPrograms();
       await programDao.insertPrograms(seedData);
     }
+
+    await NotificationCoordinator(db, prefs, getIt<WorkoutRepository>(), getIt<AuthRepository>()).initialize();
 
     runApp(
       TranslationProvider(
@@ -157,7 +160,7 @@ class GymApp extends StatelessWidget {
                 child: Builder(
                   builder: (innerContext) {
                     Widget wrapper = GlobalNotificationWrapper(
-                      child: GlobalFocusUtils(child: clampedChild)
+                      child: NotificationFeedbackHost(child: GlobalFocusUtils(child: clampedChild))
                     );
 
                     // 6. Sử dụng innerContext để gọi hàm .of() an toàn
@@ -192,8 +195,7 @@ class _GlobalNotificationWrapperState extends State<GlobalNotificationWrapper> {
   bool _isFirstLevelEmitted = false;
   int _lastKnownLevel = 1;
 
-  bool _isFirstRankEmitted = false;
-  int _lastKnownRankId = 1;
+
 
   @override
   void initState() {
@@ -246,80 +248,6 @@ class _GlobalNotificationWrapperState extends State<GlobalNotificationWrapper> {
     );
   }
 
-  // 2. Hàm hiển thị ĐẶC BIỆT cho RANK UP
-  void _showRankUpNotification(int oldRankId, int newRankId) {
-    final rootContext = AppRouter.router.routerDelegate.navigatorKey.currentContext;
-    if (rootContext == null) return;
-
-    final colorScheme = Theme.of(rootContext).colorScheme;
-    
-    // Lấy thông tin chi tiết từ Domain Layer
-    final oldRankInfo = RankConfig.getRankById(oldRankId);
-    final newRankInfo = RankConfig.getRankById(newRankId);
-    final rankColor = Color(newRankInfo.colorHex);
-
-    GymTopNotification.show(
-      rootContext,
-      icon: null,
-      accentColor: rankColor,
-      duration: const Duration(seconds: 5), // Kéo dài thời gian hiển thị
-      customBody: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Text(
-            t.gamification.msg_rank_up,
-            style: TextStyle(
-              color: colorScheme.onSurface,
-              fontWeight: FontWeight.w900, 
-              letterSpacing: 0.5,
-            ),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 4),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              // Rank cũ (nhỏ hơn, mờ hơn)
-              // 🚀 FIX: Dùng nameKey thay vì name
-              Text(
-                t.translateDynamic(oldRankInfo.nameKey), 
-                style: TextStyle(
-                  color: colorScheme.onSurfaceVariant,
-                  fontSize: 14,
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(width: 8),
-              Icon(Symbols.arrow_forward, color: colorScheme.onSurfaceVariant, size: 16),
-              const SizedBox(width: 8),
-              // Rank mới (To, nổi bật, có hiệu ứng Glow)
-              // 🚀 FIX: Dùng nameKey thay vì name
-              Text(
-                t.translateDynamic(newRankInfo.nameKey), 
-                style: TextStyle(
-                  color: rankColor,
-                  fontSize: 20,
-                  fontWeight: FontWeight.w900,
-                  letterSpacing: 0.5,
-                  shadows: [
-                    Shadow(
-                      color: rankColor.withValues(alpha: 0.4),
-                      blurRadius: 12,
-                      offset: const Offset(0, 2),
-                    )
-                  ]
-                ),
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     return MultiBlocListener(
@@ -334,7 +262,7 @@ class _GlobalNotificationWrapperState extends State<GlobalNotificationWrapper> {
               return;
             }
             
-            if (currentLevel > _lastKnownLevel) {
+            if (currentLevel > _lastKnownLevel && currentLevel > (NotificationCoordinator.instance?.levelHandledThrough ?? 0)) {
               _showLevelUpNotification(
                 t.gamification.msg_level_up_base,
                 '$_lastKnownLevel ➔ $currentLevel',
@@ -344,24 +272,7 @@ class _GlobalNotificationWrapperState extends State<GlobalNotificationWrapper> {
             _lastKnownLevel = currentLevel;
           },
         ),
-        BlocListener<ProfileCubit, ProfileState>(
-          listener: (context, state) {
-            final currentRankId = state.userProfile.activeRankId;
-            
-            if (!_isFirstRankEmitted) {
-              _isFirstRankEmitted = true;
-              _lastKnownRankId = currentRankId > 0 ? currentRankId : 1;
-              return;
-            }
-            
-            // Xử lý logic thăng hạng
-            if (currentRankId > _lastKnownRankId && _lastKnownRankId > 0) {
-              _showRankUpNotification(_lastKnownRankId, currentRankId);
-            }
-            
-            _lastKnownRankId = currentRankId;
-          },
-        ),
+
       ],
       child: widget.child,
     );

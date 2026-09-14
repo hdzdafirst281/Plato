@@ -1,9 +1,27 @@
 import 'dart:async';
+import 'dart:collection';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
 class GymTopNotification {
+  static bool _showing = false;
+  static OverlayEntry? _currentEntry;
+  static bool get isShowing => _showing;
+  static void clear() {
+    _queue.clear();
+    final entry = _currentEntry;
+    _currentEntry = null;
+    entry?.remove();
+    entry?.dispose();
+    _showing = false;
+  }
+  static final Queue<VoidCallback> _queue = Queue<VoidCallback>();
+  static void _next() {
+    _showing = false;
+    if (_queue.isNotEmpty) _queue.removeFirst()();
+  }
+
   static void show(
     BuildContext context, {
     String message = '', 
@@ -13,6 +31,16 @@ class GymTopNotification {
     Color? accentColor,
     Duration duration = const Duration(seconds: 3),
   }) {
+    if (!context.mounted) {
+      if (!_showing) _next();
+      return;
+    }
+    if (_showing) {
+      _queue.add(() => show(context, message: message, richMessage: richMessage,
+        customBody: customBody, icon: icon, accentColor: accentColor, duration: duration));
+      return;
+    }
+    _showing = true;
     // 1. Dùng maybeOf để tìm Overlay ở các Widget cha một cách an toàn (không crash)
     OverlayState? overlay = Overlay.maybeOf(context, rootOverlay: true);
     
@@ -25,6 +53,7 @@ class GymTopNotification {
     // 3. Chốt chặn an toàn cuối cùng
     if (overlay == null) {
       debugPrint("🚨 GymTopNotification: No Overlay found. Cannot show notification.");
+      _next();
       return;
     }
 
@@ -41,11 +70,14 @@ class GymTopNotification {
         onDismissed: () {
           if (entry.mounted) {
             entry.remove();
+            entry.dispose();
           }
+          if (_currentEntry == entry) { _currentEntry = null; _next(); }
         },
       ),
     );
 
+    _currentEntry = entry;
     overlay.insert(entry);
   }
 }
@@ -177,7 +209,7 @@ class _TopNotificationOverlayState extends State<_TopNotificationOverlay> with S
                           borderRadius: BorderRadius.circular(40),
                           // Viền màu nhấn siêu mỏng, giúp tách biệt với background
                           border: Border.all(
-                            color: widget.accentColor!.withValues(alpha: 0.4), 
+                            color: (widget.accentColor ?? colorScheme.primary).withValues(alpha: 0.4),
                             width: 1.2,
                           ),
                         ),

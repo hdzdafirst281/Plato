@@ -14,9 +14,15 @@ import '../../../../core/database/enums.dart';
 import '../../../../core/database/app_database.dart';
 import '../../../../core/database/entities.dart';    
 import '../../domain/rank_calculator.dart';
+import '../../domain/reward_progress.dart';
 
 @lazySingleton
 class GamificationRepository {
+  static const workoutBaseXp = 50;
+  static const workoutPrBonusXp = 20;
+  static const chestRequiredQuests = 5;
+  static const chestXp = 1500;
+
   final AppDatabase _db; // 🚀 Chuyển sang dùng SQLite làm Source of Truth
 
   UserGamificationStats _currentStats = const UserGamificationStats();
@@ -160,7 +166,7 @@ class GamificationRepository {
 
     // 🚀 LOGIC THU HỒI CHEST (REVOKE)
     final completedCount = compiledWeeklyQuests.where((q) => q.isCompleted).length;
-    if (_isChestClaimed && completedCount < 5) {
+    if (_isChestClaimed && completedCount < chestRequiredQuests) {
       final trueTimeMillis = await TimeManager.getTrueTimeMillis();
       final revokeChestRecord = RewardClaimEntity(
         id: const Uuid().v4(),
@@ -168,14 +174,14 @@ class GamificationRepository {
         sourceRef: 'weekly_chest',
         periodKey: _currentWeekKey,
         actionType: 'REVOKED',
-        xpAmount: -1500,
+        xpAmount: -chestXp,
         createdAt: trueTimeMillis,
         syncStatus: 'PENDING',
       );
       await _db.rewardClaimDao.insertClaim(revokeChestRecord);
 
       _isChestClaimed = false;
-      xpToRollback += 1500;
+      xpToRollback += chestXp;
     }
 
     int finalXp = userProfileData.experiencePoints - xpToRollback;
@@ -251,10 +257,10 @@ class GamificationRepository {
 
     // 5. Xử lý Rương Tuần (Chest)
     final isChestClaimed = claimStatusMap['weekly_chest'] == true;
-    if (isChestClaimed && validQuestsCount < 5) {
+    if (isChestClaimed && validQuestsCount < chestRequiredQuests) {
       await _db.rewardClaimDao.insertClaim(RewardClaimEntity(
         id: const Uuid().v4(), sourceType: 'CHEST', sourceRef: 'weekly_chest',
-        periodKey: targetWeekKey, actionType: 'REVOKED', xpAmount: -1500,
+        periodKey: targetWeekKey, actionType: 'REVOKED', xpAmount: -chestXp,
         createdAt: trueTimeMillis, syncStatus: 'PENDING',
       ));
     }
@@ -299,7 +305,7 @@ class GamificationRepository {
   // 🚀 NHẬN THƯỞNG CHEST (CLAIM)
   Future<int> claimChestReward() async {
     final completedCount = _currentStats.weeklyQuests.where((q) => q.isCompleted).length;
-    if (completedCount >= 5 && !_isChestClaimed) {
+    if (completedCount >= chestRequiredQuests && !_isChestClaimed) {
       
       final trueTimeMillis = await TimeManager.getTrueTimeMillis();
       final claimRecord = RewardClaimEntity(
@@ -308,7 +314,7 @@ class GamificationRepository {
         sourceRef: 'weekly_chest',
         periodKey: _currentWeekKey,
         actionType: 'CLAIMED',
-        xpAmount: 1500,
+        xpAmount: chestXp,
         createdAt: trueTimeMillis,
         syncStatus: 'PENDING',
       );
@@ -320,7 +326,7 @@ class GamificationRepository {
       // 🚀 FIX: Xóa/Comment dòng này để chống kẹt Database
       // SyncManager.scheduleBackgroundSync();
 
-      return 1500; 
+      return chestXp; 
     }
     return 0;
   }
@@ -335,27 +341,12 @@ class GamificationRepository {
   }
 
   int calculateXpForSession(WorkoutSession session) {
-    const int baseXP = 50; 
-    const int prBonusXP = 20; 
-    return baseXP + (session.prCount * prBonusXP);
+    return workoutBaseXp + (session.prCount * workoutPrBonusXp);
   }
 
-  (int, int) calculateLevelInfo(int totalLifetimeXp) {
-    int level = 1;
-    int remainingXp = totalLifetimeXp;
-    while (true) {
-      int requiredXp = calculateNextLevelRequirement(level);
-      if (remainingXp >= requiredXp) {
-        remainingXp -= requiredXp;
-        level++;
-      } else {
-        break;
-      }
-    }
-    return (level, remainingXp);
-  }
+  (int, int) calculateLevelInfo(int totalLifetimeXp) => RewardXpProgress.at(totalLifetimeXp);
 
-  int calculateNextLevelRequirement(int level) => 1000 + ((level - 1) * 50);
+  int calculateNextLevelRequirement(int level) => RewardXpProgress.requirement(level);
 
   Future<void> evaluateAndLogRankChange({
     required List<WorkoutSession> workoutsHistoryList,

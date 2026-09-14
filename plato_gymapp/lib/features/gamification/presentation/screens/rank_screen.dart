@@ -1,3 +1,4 @@
+import '../../../notifications/presentation/notification_feedback_host.dart';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:intl/intl.dart';
@@ -239,6 +240,7 @@ class _RankScreenState extends State<RankScreen> with SingleTickerProviderStateM
                                 ],
                               ),
                             ),
+                            const RankResultCard(),
                             bottomTabBar,
                           ],
                         ),
@@ -247,6 +249,7 @@ class _RankScreenState extends State<RankScreen> with SingleTickerProviderStateM
                   )
                 : Column(
                     children: [
+                      const RankResultCard(),
                       Expanded(
                         flex: 5, 
                         // [FIX] Removed SingleChildScrollView for mobile to make it fit exactly

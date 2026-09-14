@@ -100,12 +100,24 @@ abstract class WorkoutDao {
   @Insert(onConflict: OnConflictStrategy.replace)
   Future<void> insertScheduledWorkout(ScheduledWorkoutEntity entity);
 
+  @Insert(onConflict: OnConflictStrategy.replace)
+  Future<void> insertScheduledWorkouts(List<ScheduledWorkoutEntity> entities);
+
   @Query('DELETE FROM scheduled_workouts_local WHERE id = :id')
   Future<void> deleteScheduledWorkout(String id);
 
   // FIX: Lệnh xoá toàn bộ chuỗi Group ID
   @Query('DELETE FROM scheduled_workouts_local WHERE recurrenceGroupId = :groupId')
   Future<void> deleteScheduledWorkoutGroup(String groupId);
+
+  @Query('SELECT * FROM scheduled_workouts_local WHERE isDeleted = 0')
+  Future<List<ScheduledWorkoutEntity>> getAllScheduledWorkouts();
+
+  @Query('SELECT * FROM scheduled_workouts_local WHERE id = :id AND isDeleted = 0')
+  Future<ScheduledWorkoutEntity?> getScheduledWorkout(String id);
+
+  @Query('UPDATE scheduled_workouts_local SET isCompleted = 1, completedWorkoutId = :workoutId, updatedAt = :now WHERE id = :id')
+  Future<void> completeSchedule(String id, String workoutId, int now);
 
   // --- ROUTINES (Buổi tập tự tạo) ---
   @Query('SELECT * FROM routines_local WHERE isDeleted = 0 ORDER BY id ASC')
@@ -207,4 +219,17 @@ abstract class RewardClaimDao {
   // Xóa toàn bộ Ledger (Dùng khi user đổi tài khoản hoặc Logout)
   @Query('DELETE FROM reward_claims_local')
   Future<void> deleteAllClaims();
+}
+@dao
+abstract class NotificationDao {
+  @Query('SELECT * FROM notification_records_local')
+  Future<List<NotificationRecordEntity>> getAll();
+  @Query('SELECT * FROM notification_records_local WHERE id = :id')
+  Future<NotificationRecordEntity?> getById(String id);
+  @Insert(onConflict: OnConflictStrategy.replace)
+  Future<void> put(NotificationRecordEntity record);
+  @Query('DELETE FROM notification_records_local WHERE id = :id')
+  Future<void> remove(String id);
+  @Query('DELETE FROM notification_records_local')
+  Future<void> clear();
 }

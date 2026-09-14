@@ -1,3 +1,4 @@
+import '../../../notifications/presentation/recovery_recommendations.dart';
 import 'dart:async';
 import 'dart:math' as math;
 
@@ -597,6 +598,7 @@ class _WorkoutScreenState extends State<WorkoutScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
+        const RecoveryRecommendations(),
         buttonsLayout
             .animate()
             .fade(duration: 400.ms)

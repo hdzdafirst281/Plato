@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
 import 'package:plato_gymapp/i18n/translation_helper.dart';
 import 'package:go_router/go_router.dart';
@@ -333,7 +334,9 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
       child: Container(
         width: 100, height: 100,
         decoration: BoxDecoration(color: Theme.of(context).gymColors.success.withValues(alpha: 0.15), shape: BoxShape.circle, border: Border.all(color: Theme.of(context).gymColors.success.withValues(alpha: 0.5), width: 4)),
-        child: Icon(Symbols.trophy, color: Theme.of(context).gymColors.success, size: 56, fill: 1.0),
+        child: Center(
+          child: SvgPicture.asset('assets/svg/icons/trophy.svg', width: 56, height: 56, colorFilter: ColorFilter.mode(Theme.of(context).gymColors.success, BlendMode.srcIn)),
+        ),
       ),
     );
   }

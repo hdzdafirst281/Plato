@@ -232,7 +232,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                   const SizedBox(width: 16),
                   Expanded(
                     child: sessionPRCount > 0 
-                      ? _DetailSummaryItem(icon: Symbols.trophy, label: t.gamification.title_main, value: t.workout.fmt_dtl_pr_count(arg1: sessionPRCount.toString()), highlightColor: gymColors.goldRank)
+                      ? _DetailSummaryItem(icon: 'assets/svg/icons/trophy.svg', label: t.gamification.title_main, value: t.workout.fmt_dtl_pr_count(arg1: sessionPRCount.toString()), highlightColor: gymColors.goldRank)
                       : const SizedBox.shrink()
                   ),
                   if (!kShowCaloriesFeature) const Spacer(), 
@@ -624,7 +624,12 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Icon(Symbols.trophy, color: color, size: 12, fill: 1.0),
+          SvgPicture.asset(
+            'assets/svg/icons/trophy.svg',
+            width: 12,
+            height: 12,
+            colorFilter: ColorFilter.mode(color, BlendMode.srcIn),
+          ),
           const SizedBox(width: 4),
           Text(
             metric.shortBadgeString, 
@@ -637,7 +642,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
 }
 
 class _DetailSummaryItem extends StatelessWidget {
-  final IconData icon;
+  final dynamic icon; // Can be IconData or String (SVG path)
   final String label;
   final String value;
   final Color? highlightColor;
@@ -664,12 +669,20 @@ class _DetailSummaryItem extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.center, 
           children: [
             // Áp dụng màu cho Icon
-            Icon(
-              icon, 
-              size: 16, 
-              color: labelAndIconColor,
-              fill: highlightColor != null ? 1.0 : 0.0, // (Tuỳ chọn) Fill icon nếu đang dùng Material Symbols
-            ),
+            if (icon is IconData)
+              Icon(
+                icon as IconData, 
+                size: 16, 
+                color: labelAndIconColor,
+                fill: highlightColor != null ? 1.0 : 0.0, // (Tuỳ chọn) Fill icon nếu đang dùng Material Symbols
+              )
+            else if (icon is String)
+              SvgPicture.asset(
+                icon as String,
+                width: 16,
+                height: 16,
+                colorFilter: ColorFilter.mode(labelAndIconColor, BlendMode.srcIn),
+              ),
             const SizedBox(width: 8),
             Expanded(
               // Áp dụng màu cho Label

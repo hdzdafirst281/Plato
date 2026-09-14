@@ -95,6 +95,7 @@ Map<String, dynamic> _$$WorkoutExerciseImplToJson(
 _$WorkoutSessionPayloadImpl _$$WorkoutSessionPayloadImplFromJson(
         Map<String, dynamic> json) =>
     _$WorkoutSessionPayloadImpl(
+      scheduledWorkoutId: json['scheduled_workout_id'] as String?,
       schemaVersion: json['schema_version'] as String? ?? '1.0',
       exercises: (json['exercises'] as List<dynamic>?)
               ?.map((e) => WorkoutExercise.fromJson(e as Map<String, dynamic>))
@@ -112,6 +113,7 @@ _$WorkoutSessionPayloadImpl _$$WorkoutSessionPayloadImplFromJson(
 Map<String, dynamic> _$$WorkoutSessionPayloadImplToJson(
         _$WorkoutSessionPayloadImpl instance) =>
     <String, dynamic>{
+      'scheduled_workout_id': instance.scheduledWorkoutId,
       'schema_version': instance.schemaVersion,
       'exercises': instance.exercises,
       'muscle_distribution': instance.muscleDistribution
@@ -223,6 +225,12 @@ const _$WorkoutGoalEnumMap = {
 _$ScheduledWorkoutImpl _$$ScheduledWorkoutImplFromJson(
         Map<String, dynamic> json) =>
     _$ScheduledWorkoutImpl(
+      timeOfDayMinutes: (json['timeOfDayMinutes'] as num?)?.toInt(),
+      timeZoneId: json['timeZoneId'] as String?,
+      reminderEnabled: json['reminderEnabled'] as bool? ?? false,
+      reminderMinutesBefore:
+          (json['reminderMinutesBefore'] as num?)?.toInt() ?? 30,
+      completedWorkoutId: json['completedWorkoutId'] as String?,
       id: json['id'] as String,
       routineId: json['routineId'] as String,
       routineName: json['routineName'] as String,
@@ -235,6 +243,11 @@ _$ScheduledWorkoutImpl _$$ScheduledWorkoutImplFromJson(
 Map<String, dynamic> _$$ScheduledWorkoutImplToJson(
         _$ScheduledWorkoutImpl instance) =>
     <String, dynamic>{
+      'timeOfDayMinutes': instance.timeOfDayMinutes,
+      'timeZoneId': instance.timeZoneId,
+      'reminderEnabled': instance.reminderEnabled,
+      'reminderMinutesBefore': instance.reminderMinutesBefore,
+      'completedWorkoutId': instance.completedWorkoutId,
       'id': instance.id,
       'routineId': instance.routineId,
       'routineName': instance.routineName,

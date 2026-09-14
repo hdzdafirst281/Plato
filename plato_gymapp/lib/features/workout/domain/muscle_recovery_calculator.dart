@@ -23,7 +23,7 @@ class MuscleRecoveryStatus {
 }
 
 class MuscleRecoveryCalculator {
-  static MuscleRecoveryStatus getRecoveryStatus(MuscleGroup targetMuscle, List<WorkoutSession> history) {
+  static MuscleRecoveryStatus getRecoveryStatus(MuscleGroup targetMuscle, List<WorkoutSession> history, {DateTime? at}) {
     if (history.isEmpty) {
       return MuscleRecoveryStatus(targetMuscle, 0, 999, 100, RecoveryState.FRESH, 0, 0);
     }
@@ -132,7 +132,7 @@ class MuscleRecoveryCalculator {
     // ---------------------------------------------------------
     // GIAI ĐOẠN 4: HIỂN THỊ UI & TRẠNG THÁI HIỆN TẠI
     // ---------------------------------------------------------
-    final now = DateTime.now().millisecondsSinceEpoch;
+    final now = (at ?? DateTime.now()).millisecondsSinceEpoch;
     final exactHoursPassed = max(0.0, (now - lastTrainedTime) / 3600000.0);
 
     // Tính mệt mỏi hiện hành (Current Fatigue)

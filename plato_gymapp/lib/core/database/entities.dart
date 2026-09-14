@@ -394,6 +394,11 @@ class WorkoutProgramEntity {
 // ======================= BẢNG SCHEDULED WORKOUTS =======================
 @Entity(tableName: 'scheduled_workouts_local')
 class ScheduledWorkoutEntity {
+  final int? timeOfDayMinutes;
+  final String? timeZoneId;
+  final bool reminderEnabled;
+  final int reminderMinutesBefore;
+  final String? completedWorkoutId;
   @primaryKey
   final String id;
   final String routineId; 
@@ -409,6 +414,11 @@ class ScheduledWorkoutEntity {
   final bool isDeleted;
 
   ScheduledWorkoutEntity({
+    this.timeOfDayMinutes,
+    this.timeZoneId,
+    this.reminderEnabled = false,
+    this.reminderMinutesBefore = 30,
+    this.completedWorkoutId,
     required this.id,
     required this.routineId,
     required this.routineName,
@@ -449,4 +459,12 @@ class RewardClaimEntity {
     required this.createdAt,
     required this.syncStatus,
   });
+}
+/// Durable local notification ledger. Never synchronized as workout data.
+@Entity(tableName: 'notification_records_local')
+class NotificationRecordEntity {
+  @primaryKey
+  final String id;
+  final String valueJson;
+  NotificationRecordEntity({required this.id, required this.valueJson});
 }

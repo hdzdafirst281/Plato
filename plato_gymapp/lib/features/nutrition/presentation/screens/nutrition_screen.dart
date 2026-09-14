@@ -1,5 +1,9 @@
+import '../../../notifications/presentation/notification_feedback_host.dart';
+import '../../../notifications/domain/notification_policy.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_snackbar.dart';
 import 'dart:async';
+import '../../../notifications/application/notification_coordinator.dart';
+import '../../../notifications/presentation/notification_controls.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -29,13 +33,15 @@ import '../bloc/nutrition_cubit.dart';
 import '../components/nutrition_components.dart'; 
 
 class NutritionScreen extends StatefulWidget {
-  const NutritionScreen({super.key});
+  final bool focusWater;
+  const NutritionScreen({super.key, this.focusWater = false});
 
   @override
   State<NutritionScreen> createState() => _NutritionScreenState();
 }
 
 class _NutritionScreenState extends State<NutritionScreen> {
+  final _waterFocusKey = GlobalKey();
   double _waterTargetLiters = 2.5;
   Timer? _tourDelayTimer;
   final bool forceShowTour = false; // Debug flag
@@ -44,6 +50,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
   void initState() {
     super.initState();
     _loadWaterTarget();
+    _focusWater();
 
     globalActiveTabIndex.addListener(_checkAndTriggerTour);
     globalIsTabSwiping.addListener(_checkAndTriggerTour);
@@ -51,6 +58,21 @@ class _NutritionScreenState extends State<NutritionScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _checkAndTriggerTour();
     });
+  }
+
+  void _focusWater() {
+    if (!widget.focusWater) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final target = _waterFocusKey.currentContext;
+      if (mounted && target != null) {
+        Scrollable.ensureVisible(target, duration: const Duration(milliseconds: 300), alignment: .1);
+      }
+    });
+  }
+  @override
+  void didUpdateWidget(covariant NutritionScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.focusWater) _focusWater();
   }
 
   @override
@@ -127,6 +149,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
   Future<void> _saveWaterTarget(double newTarget) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setDouble('saved_water_target', newTarget);
+    await NotificationCoordinator.instance?.setWaterTarget(newTarget);
   }
 
   @override
@@ -221,6 +244,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
       );
 
       final waterWidget = GymTourTarget(
+        key: _waterFocusKey,
         isActive: !context.read<TourCubit>().state.hasSeenNutrition || forceShowTour,
         tourKey: TourKeys.nutritionWaterTracker,
         title: t.tour.nutrition_water_title,
@@ -314,6 +338,8 @@ class _NutritionScreenState extends State<NutritionScreen> {
             ).animate(delay: 0.ms).fade(duration: 400.ms, curve: Curves.easeOutCubic).slideY(begin: 0.1, end: 0),
           ],
           
+          const WaterNotificationToggle(),
+          InlineAchievementFeedback(eventKey: 'event:hydration_completed:${NotificationPolicy.dayKey(DateTime.now())}'),
           const SizedBox(height: 24),
 
           GymTourTarget(

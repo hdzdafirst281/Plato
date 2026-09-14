@@ -221,7 +221,7 @@ class _GymSwipeToRevealActionState extends State<GymSwipeToRevealAction>
                           width: _actionWidth,
                           child: Center(
                             child: SvgPicture.asset(
-                              'assets/svg/icons/delete_trashcan.svg',
+                              'assets/svg/icons/delete_button.svg',
                               width: 28,
                               height: 28,
                               colorFilter: ColorFilter.mode(colorScheme.onError, BlendMode.srcIn),
@@ -2121,7 +2121,7 @@ class ActiveExerciseCardState extends State<ActiveExerciseCard> with AutomaticKe
       context: context,
       titleWidget: Row(
         children: [
-          Icon(Symbols.trophy, color: Theme.of(context).gymColors.goldRank, size: 28, fill: 1.0),
+          SvgPicture.asset('assets/svg/icons/trophy.svg', width: 28, height: 28, colorFilter: ColorFilter.mode(Theme.of(context).gymColors.goldRank, BlendMode.srcIn)),
           const SizedBox(width: 16), 
           Expanded(child: Text(t.workout.title_pr_congrats, style: TextStyle(color: Theme.of(context).gymColors.goldRank, fontWeight: FontWeight.bold))),
         ]
@@ -2705,7 +2705,7 @@ class ActiveExerciseCardState extends State<ActiveExerciseCard> with AutomaticKe
                                                     final prDialogMsgs = _generatePRMessages(setData, achievedPRMetrics, exType);
                                                     _showPRDialog(context, prDialogMsgs); 
                                                   },
-                                                  child: Center(child: Icon(Symbols.trophy, color: Theme.of(context).gymColors.goldRank, size: 16, fill: 1.0)),
+                                                  child: Center(child: SvgPicture.asset('assets/svg/icons/trophy.svg', width: 16, height: 16, colorFilter: ColorFilter.mode(Theme.of(context).gymColors.goldRank, BlendMode.srcIn))),
                                                 ),
                                               )
                                             : Material(

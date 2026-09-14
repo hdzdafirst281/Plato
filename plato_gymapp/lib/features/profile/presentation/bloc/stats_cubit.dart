@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import '../../../workout/domain/streak_calculator.dart';
 import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
@@ -26,8 +27,17 @@ class StatsState with _$StatsState {
 class StatsCubit extends Cubit<StatsState> {
   final WorkoutRepository _workoutRepo;
   StreamSubscription? _workoutSubscription;
+  Timer? _dayTimer;
+  DateTime _lastDay = DateTime.now();
 
   StatsCubit(this._workoutRepo) : super(const StatsState()) {
+    _dayTimer = Timer.periodic(const Duration(minutes: 1), (_) {
+      final now = DateTime.now();
+      if (now.year != _lastDay.year || now.month != _lastDay.month || now.day != _lastDay.day) {
+        _lastDay = now;
+        _calculateAndEmitStreaks(state.workouts);
+      }
+    });
     _workoutSubscription = _workoutRepo.workoutHistoryStream.listen((workouts) {
       final validWorkouts = workouts.where((w) => !w.isDeleted).toList();
       _calculateAndEmitStreaks(validWorkouts);
@@ -37,6 +47,7 @@ class StatsCubit extends Cubit<StatsState> {
   @override
   Future<void> close() {
     _workoutSubscription?.cancel();
+    _dayTimer?.cancel();
     return super.close();
   }
 
@@ -104,26 +115,7 @@ class StatsCubit extends Cubit<StatsState> {
     int restDays = today.difference(lastWorkoutDate).inDays - 1;
     if (restDays < 0) restDays = 0; // Chặn số âm nếu tập hôm nay (diff = 0) hoặc lỗi timezone
 
-    // 3. Tính Chuỗi Tuần (Weekly Streak)
-    int weeklyStreak = 0;
-    DateTime targetWeekDate = today;
-
-    // Kiểm tra xem tuần này có tập không
-    bool hasWorkoutThisWeek = dates.any((date) => _isSameWeek(date, targetWeekDate));
-    if (hasWorkoutThisWeek) {
-      weeklyStreak++;
-    }
-
-    while (true) {
-      targetWeekDate = targetWeekDate.subtract(const Duration(days: 7));
-      bool hasWorkout = dates.any((date) => _isSameWeek(date, targetWeekDate));
-
-      if (hasWorkout) {
-        weeklyStreak++;
-      } else {
-        break;
-      }
-    }
+    final weeklyStreak = StreakCalculator.count(workoutsList, current);
 
     emit(state.copyWith(
       workouts: workoutsList,
@@ -133,13 +125,4 @@ class StatsCubit extends Cubit<StatsState> {
     ));
   }
 
-  // --- Helper: Kiểm tra 2 ngày có nằm trong cùng 1 tuần (Thứ 2 -> CN) không ---
-  bool _isSameWeek(DateTime d1, DateTime d2) {
-    // Tìm ngày Thứ 2 của d1
-    final monday1 = d1.subtract(Duration(days: d1.weekday - 1));
-    // Tìm ngày Thứ 2 của d2
-    final monday2 = d2.subtract(Duration(days: d2.weekday - 1));
-
-    return monday1 == monday2;
-  }
 }

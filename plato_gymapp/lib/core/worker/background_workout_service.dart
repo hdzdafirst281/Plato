@@ -30,7 +30,8 @@ class BackgroundWorkoutService {
   Future<void> initialize() async {
     final FlutterLocalNotificationsPlugin flnp = FlutterLocalNotificationsPlugin();
     const InitializationSettings initSettings = InitializationSettings(
-      android: AndroidInitializationSettings('ic_stat_plato') 
+      android: AndroidInitializationSettings('ic_stat_plato'),
+      iOS: DarwinInitializationSettings(requestAlertPermission: false, requestBadgePermission: false, requestSoundPermission: false)
     );
     
     await flnp.initialize(
@@ -178,7 +179,8 @@ void onStart(ServiceInstance service) async {
 
   final FlutterLocalNotificationsPlugin flnp = FlutterLocalNotificationsPlugin();
   const InitializationSettings initSettings = InitializationSettings(
-    android: AndroidInitializationSettings('ic_stat_plato') 
+    android: AndroidInitializationSettings('ic_stat_plato'),
+      iOS: DarwinInitializationSettings(requestAlertPermission: false, requestBadgePermission: false, requestSoundPermission: false)
   );
   await flnp.initialize(settings: initSettings);
 

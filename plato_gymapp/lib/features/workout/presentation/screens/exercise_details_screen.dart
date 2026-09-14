@@ -569,7 +569,7 @@ class _ProgressTabState extends State<_ProgressTab> {
                   Container(
                     padding: const EdgeInsets.all(12),
                     decoration: BoxDecoration(color: Theme.of(context).gymColors.goldRank.withValues(alpha: 0.15), shape: BoxShape.circle),
-                    child: Icon(Symbols.trophy, color: Theme.of(context).gymColors.goldRank, size: 24, fill: 1.0),
+                    child: SvgPicture.asset('assets/svg/icons/trophy.svg', width: 24, height: 24, colorFilter: ColorFilter.mode(Theme.of(context).gymColors.goldRank, BlendMode.srcIn)),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
