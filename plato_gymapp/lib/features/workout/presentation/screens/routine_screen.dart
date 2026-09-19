@@ -438,7 +438,7 @@ class _RoutineScreenState extends State<RoutineScreen>
             if (error.toString().contains("MAX_ROUTINES_REACHED")) {
               GymSnackbar.show(
                 context,
-                message: "Rate Limit: Bạn chỉ được tạo tối đa 10 giáo án!",
+                message: t.workout.msg_rate_limit_routine,
                 icon: Symbols.error,
                 accentColor: Theme.of(context).colorScheme.error,
               );
@@ -2289,7 +2289,7 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
                       fit: BoxFit.scaleDown,
                       alignment: Alignment.center,
                       child: Text(
-                        t.workout.col_routine_history.toUpperCase(),
+                        t.rank.tab_history.toUpperCase(),
                         style: TextStyle(
                           fontSize: 11,
                           fontWeight: FontWeight.bold,

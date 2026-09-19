@@ -1218,7 +1218,7 @@ class _WorkoutSupersetBottomSheetState
       if (_baseExercises.length + _selectedIds.length + groupExs.length > 3) {
         HapticFeedback.heavyImpact();
         setState(
-          () => _warningMsg = t.workout.msg_superset_limit_proactive,
+          () => _warningMsg = t.workout.msg_superset_limit,
         );
         return;
       }
@@ -1252,7 +1252,7 @@ class _WorkoutSupersetBottomSheetState
       } else if (!baseIsGroup && targetIsGroup) {
         titleKey = 'workout.title_superset_add_to_group';
       } else {
-        titleKey = 'workout.title_superset_expand_base';
+        titleKey = 'workout.title_expand_superset';
       }
     }
 
@@ -2548,7 +2548,7 @@ class ActiveExerciseCardState extends State<ActiveExerciseCard> with AutomaticKe
                   SizedBox(width: 32, child: FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.center, child: Text(t.common.set.toUpperCase().toUpperCase(), style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6), letterSpacing: 0.5), textAlign: TextAlign.center))),
                   const SizedBox(width: 16), 
                   
-                  Expanded(flex: 3, child: FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.center, child: Text(t.workout.col_routine_history, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6), letterSpacing: 0.5), textAlign: TextAlign.center))),
+                  Expanded(flex: 3, child: FittedBox(fit: BoxFit.scaleDown, alignment: Alignment.center, child: Text(t.rank.tab_history, style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant.withValues(alpha: 0.6), letterSpacing: 0.5), textAlign: TextAlign.center))),
                   const SizedBox(width: 16),
 
                   if (exType == ExerciseType.TIME_ONLY)

@@ -2196,7 +2196,7 @@ class _AutoScrollRoutineRowState extends State<_AutoScrollRoutineRow> {
                                 if (error.toString().contains("MAX_ROUTINES_REACHED")) {
                                   GymSnackbar.show(
                                     context,
-                                    message: "Rate Limit: Bạn chỉ được tạo tối đa 10 giáo án!",
+                                    message: t.workout.msg_rate_limit_routine,
                                     icon: Symbols.error,
                                     accentColor: Theme.of(context).colorScheme.error,
                                   );

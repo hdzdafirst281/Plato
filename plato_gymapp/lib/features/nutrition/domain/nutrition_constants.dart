@@ -25,11 +25,11 @@ class NutritionConstants {
     IngredientDef(id: 'ing_lemon', nameKey: 'nutrition.ing_lemon', dietTags: ['diet_vegan', 'diet_keto']),
 
     // Cơm, Tinh bột
-    IngredientDef(id: 'ing_white_rice', nameKey: 'nutrition.ing_white_rice', dietTags: ['diet_vegan']),
+    IngredientDef(id: 'ing_white_rice', nameKey: 'nutrition.food_name_white_rice', dietTags: ['diet_vegan']),
     IngredientDef(id: 'ing_brown_rice', nameKey: 'nutrition.ing_brown_rice', dietTags: ['diet_vegan']),
     IngredientDef(id: 'ing_bread', nameKey: 'nutrition.ing_bread', allergenTags: ['allergy_gluten'], dietTags: ['diet_vegan']),
     IngredientDef(id: 'ing_potato', nameKey: 'nutrition.ing_potato', dietTags: ['diet_vegan']),
-    IngredientDef(id: 'ing_sweet_potato', nameKey: 'nutrition.ing_sweet_potato', dietTags: ['diet_vegan']),
+    IngredientDef(id: 'ing_sweet_potato', nameKey: 'nutrition.food_name_sweet_potato', dietTags: ['diet_vegan']),
     IngredientDef(id: 'ing_noodle', nameKey: 'nutrition.ing_noodle', allergenTags: ['allergy_gluten'], dietTags: ['diet_vegan']),
     IngredientDef(id: 'ing_oatmeal', nameKey: 'nutrition.ing_oatmeal', dietTags: ['diet_vegan']),
     IngredientDef(id: 'ing_rice_paper', nameKey: 'nutrition.ing_rice_paper', dietTags: ['diet_vegan']),
@@ -55,7 +55,7 @@ class NutritionConstants {
     IngredientDef(id: 'ing_yogurt', nameKey: 'nutrition.ing_yogurt', allergenTags: ['allergy_lactose']),
     IngredientDef(id: 'ing_butter', nameKey: 'nutrition.ing_butter', allergenTags: ['allergy_lactose'], dietTags: ['diet_keto']),
     IngredientDef(id: 'ing_peanut', nameKey: 'nutrition.ing_peanut', allergenTags: ['allergy_peanut'], dietTags: ['diet_vegan']),
-    IngredientDef(id: 'ing_peanut_butter', nameKey: 'nutrition.ing_peanut_butter', allergenTags: ['allergy_peanut'], dietTags: ['diet_vegan', 'diet_keto']),
+    IngredientDef(id: 'ing_peanut_butter', nameKey: 'nutrition.food_name_peanut_butter', allergenTags: ['allergy_peanut'], dietTags: ['diet_vegan', 'diet_keto']),
     IngredientDef(id: 'ing_almond', nameKey: 'nutrition.ing_almond', allergenTags: ['allergy_tree_nuts'], dietTags: ['diet_vegan', 'diet_keto']),
     IngredientDef(id: 'ing_walnut', nameKey: 'nutrition.ing_walnut', allergenTags: ['allergy_tree_nuts'], dietTags: ['diet_vegan', 'diet_keto']),
     IngredientDef(id: 'ing_soybean', nameKey: 'nutrition.ing_soybean', allergenTags: ['allergy_soy'], dietTags: ['diet_vegan']),
@@ -70,8 +70,8 @@ class NutritionConstants {
     IngredientDef(id: 'ing_broccoli', nameKey: 'nutrition.ing_broccoli', dietTags: ['diet_vegan', 'diet_keto']),
     IngredientDef(id: 'ing_carrot', nameKey: 'nutrition.ing_carrot', dietTags: ['diet_vegan']),
     IngredientDef(id: 'ing_mushroom', nameKey: 'nutrition.ing_mushroom', dietTags: ['diet_vegan', 'diet_keto']),
-    IngredientDef(id: 'ing_apple', nameKey: 'nutrition.ing_apple', dietTags: ['diet_vegan']),
-    IngredientDef(id: 'ing_banana', nameKey: 'nutrition.ing_banana', dietTags: ['diet_vegan']),
+    IngredientDef(id: 'ing_apple', nameKey: 'nutrition.food_name_apple', dietTags: ['diet_vegan']),
+    IngredientDef(id: 'ing_banana', nameKey: 'nutrition.food_name_banana', dietTags: ['diet_vegan']),
     IngredientDef(id: 'ing_orange', nameKey: 'nutrition.ing_orange', dietTags: ['diet_vegan']),
     IngredientDef(id: 'ing_avocado', nameKey: 'nutrition.ing_avocado', dietTags: ['diet_vegan', 'diet_keto']),
   ];

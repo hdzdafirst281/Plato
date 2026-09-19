@@ -62,7 +62,7 @@ class LocalNotificationGateway {
       notificationDetails: NotificationDetails(
         android: AndroidNotificationDetails(
           channelId,
-          NotificationCopy.text('notifications.title_settings')!,
+          NotificationCopy.text('settings.title_notifications_section')!,
           importance: Importance.defaultImportance,
           priority: Priority.defaultPriority,
           icon: 'ic_stat_plato',

@@ -516,7 +516,7 @@ class _LoadChartPainter extends CustomPainter {
 
       final textSpan = TextSpan(
         children: [
-          TextSpan(text: "Tuần: $weekStr\n", style: TextStyle(color: colorScheme.surface.withValues(alpha: 0.8), fontSize: 11)),
+          TextSpan(text: "${t.calendar.lbl_week}: $weekStr\n", style: TextStyle(color: colorScheme.surface.withValues(alpha: 0.8), fontSize: 11)),
           TextSpan(text: "${t.stats.lbl_load_acute}: ${d.acuteLoad.toInt()}\n", style: TextStyle(color: gymColors.success, fontSize: 13, fontWeight: FontWeight.w900, height: 1.5)),
           TextSpan(text: "${t.stats.lbl_load_chronic}: ${d.chronicLoad.toInt()}", style: TextStyle(color: gymColors.warning, fontSize: 13, fontWeight: FontWeight.w900)),
         ]

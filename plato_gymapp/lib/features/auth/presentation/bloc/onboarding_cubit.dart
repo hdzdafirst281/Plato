@@ -5,6 +5,7 @@ import 'package:injectable/injectable.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../../data/models/user_models.dart';
 import '../../../workout/data/repositories/workout_repository.dart';
+import 'package:plato_gymapp/i18n/strings.g.dart';
 
 part 'onboarding_cubit.freezed.dart';
 
@@ -28,7 +29,7 @@ class OnboardingCubit extends Cubit<OnboardingState> {
 
   Future<String> getSuggestedProgramName(UserProfile profile, String experienceLevelInput) async {
     final localPrograms = await _workoutRepo.exploreProgramsStream.first;
-    const customProgramFallbackName = "Gói tập Tùy chỉnh";
+    final customProgramFallbackName = t.workout.title_custom_program;
 
     if (localPrograms.isEmpty) return customProgramFallbackName;
 

@@ -144,7 +144,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                     Icon(Symbols.save_alt, color: colorScheme.onSurface, size: 20),
                     const SizedBox(width: 12),
                     Text(
-                      t.workout.menu_save_as_routine, 
+                      t.workout.title_log_save_new, 
                       style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.w600)
                     ),
                   ]

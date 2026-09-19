@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:plato_gymapp/features/nutrition/domain/nutrition_safety_helper.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
 import 'package:plato_gymapp/i18n/translation_helper.dart';
 import 'package:go_router/go_router.dart';
@@ -12,6 +13,7 @@ import '../../../../core/designsystem/components/gym_top_bar.dart';
 import '../bloc/nutrition_cubit.dart';
 import '../../data/models/nutrition_models.dart';
 import '../components/nutrition_components.dart';
+import '../../../profile/presentation/bloc/profile_cubit.dart';
 
 class NutritionHistoryScreen extends StatelessWidget {
   const NutritionHistoryScreen({super.key});
@@ -61,9 +63,11 @@ class _HistoryCard extends StatelessWidget {
   final DailyNutrition daily;
   const _HistoryCard({required this.daily});
 
-  Widget _buildMealSection(String title, List<FoodResult> foods, ColorScheme colorScheme) {
+  Widget _buildMealSection(String title, List<FoodResult> foods, ColorScheme colorScheme, BuildContext context) {
     if (foods.isEmpty) return const SizedBox.shrink();
     
+    final userProfile = context.read<ProfileCubit>().state.userProfile;
+
     return Padding(
       padding: const EdgeInsets.only(top: 16),
       child: Column(
@@ -71,33 +75,54 @@ class _HistoryCard extends StatelessWidget {
         children: [
           Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.primary, fontSize: 14)),
           const SizedBox(height: 8),
-          ...foods.map((f) => Padding(
-            padding: const EdgeInsets.only(bottom: 8),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(t.translateDynamic(f.foodName), style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: colorScheme.onSurface), maxLines: 1, overflow: TextOverflow.ellipsis),
-                      const SizedBox(height: 2),
-                      // ĐÃ FIX: Sử dụng Component MacroText để đồng bộ màu và format
-                      MacroText(
-                        protein: f.calculatedTotalProtein, 
-                        carbs: f.calculatedTotalCarbs, 
-                        fat: f.calculatedTotalFat,
-                        baseStyle: TextStyle(fontSize: 11, color: colorScheme.onSurfaceVariant),
-                      ),
-                    ],
+          ...foods.map((f) {
+            final violatedAllergens = NutritionSafetyHelper.getViolatedAllergens(f, userProfile);
+            final matchedDiets = NutritionSafetyHelper.getMatchedDiets(f, userProfile);
+            final isRecommended = matchedDiets.isNotEmpty && violatedAllergens.isEmpty;
+            final isViolating = violatedAllergens.isNotEmpty;
+
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Flexible(child: Text(t.translateDynamic(f.foodName), style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: colorScheme.onSurface), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                            if (isRecommended)
+                              Padding(
+                                padding: const EdgeInsets.only(left: 4.0),
+                                child: Icon(Symbols.auto_awesome, color: colorScheme.tertiary, size: 14, fill: 1.0),
+                              ),
+                            if (isViolating)
+                              Padding(
+                                padding: const EdgeInsets.only(left: 4.0),
+                                child: Icon(Symbols.warning, color: colorScheme.error, size: 14, fill: 1.0),
+                              ),
+                          ],
+                        ),
+                        const SizedBox(height: 2),
+                        // ĐÃ FIX: Sử dụng Component MacroText để đồng bộ màu và format
+                        MacroText(
+                          protein: f.calculatedTotalProtein, 
+                          carbs: f.calculatedTotalCarbs, 
+                          fat: f.calculatedTotalFat,
+                          baseStyle: TextStyle(fontSize: 11, color: colorScheme.onSurfaceVariant),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(width: 8),
-                // ĐÃ FIX: Đồng bộ key format_kcal
-                Text(t.nutrition.fmt_kcal(arg1: f.calculatedTotalCalories.toString()), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: colorScheme.primary)),
-              ],
-            ),
-          )),
+                  const SizedBox(width: 8),
+                  // ĐÃ FIX: Đồng bộ key format_kcal
+                  Text(t.nutrition.fmt_kcal(arg1: f.calculatedTotalCalories.toString()), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: colorScheme.primary)),
+                ],
+              ),
+            );
+          }),
         ],
       ),
     );
@@ -177,10 +202,10 @@ class _HistoryCard extends StatelessWidget {
               style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500)
             ),
             
-            _buildMealSection(t.nutrition.name_meal_breakfast, daily.breakfastMealsList, colorScheme),
-            _buildMealSection(t.nutrition.name_meal_lunch, daily.lunchMealsList, colorScheme),
-            _buildMealSection(t.nutrition.name_meal_dinner, daily.dinnerMealsList, colorScheme),
-            _buildMealSection(t.nutrition.name_meal_snack, daily.snackMealsList, colorScheme),
+            _buildMealSection(t.nutrition.name_meal_breakfast, daily.breakfastMealsList, colorScheme, context),
+            _buildMealSection(t.nutrition.name_meal_lunch, daily.lunchMealsList, colorScheme, context),
+            _buildMealSection(t.nutrition.name_meal_dinner, daily.dinnerMealsList, colorScheme, context),
+            _buildMealSection(t.nutrition.name_meal_snack, daily.snackMealsList, colorScheme, context),
           ]
         ],
       ),

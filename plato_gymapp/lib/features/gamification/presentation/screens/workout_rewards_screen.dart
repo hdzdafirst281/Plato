@@ -211,7 +211,7 @@ class _WorkoutRewardsScreenState extends State<WorkoutRewardsScreen> {
                   const SizedBox(height: 24),
                   TextButton(
                     onPressed: () => context.go('/workout'),
-                    child: Text(t.workout_rewards.back),
+                    child: Text(t.common.back),
                   ),
                 ],
               ),

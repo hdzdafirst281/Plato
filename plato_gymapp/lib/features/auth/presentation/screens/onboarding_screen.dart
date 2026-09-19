@@ -380,7 +380,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   String _formatBotText(String text) {
     String n = _draft.name.trim();
-    if (n.isEmpty) n = t.onboarding.lbl_you_fallback;
+    if (n.isEmpty) n = t.gamification.leaderboard_you;
     return text.replaceAll("{name}", "<b>$n</b>");
   }
 

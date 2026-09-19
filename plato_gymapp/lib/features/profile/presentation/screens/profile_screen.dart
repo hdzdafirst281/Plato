@@ -822,7 +822,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     if (!context.mounted) return;
                     GymSnackbar.show(
                       context,
-                      message: 'Có lỗi xảy ra, vui lòng thử lại!',
+                      message: t.common.error_generic,
                       icon: Symbols.error,
                       accentColor: Theme.of(context).colorScheme.error,
                     );

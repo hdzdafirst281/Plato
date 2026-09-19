@@ -719,7 +719,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         FilledButton.icon(
                           onPressed: () => _openScheduleFlow(parentContext, date),
                           icon: const Icon(Symbols.add),
-                          label: Text(t.calendar.btn_schedule),
+                          label: Text(t.calendar.btn_confirm),
                           style: FilledButton.styleFrom(
                             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                           ),

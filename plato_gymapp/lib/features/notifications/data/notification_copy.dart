@@ -16,5 +16,5 @@ class NotificationCopy {
     return null;
   }
 
-  static bool get available => text('notifications.title_settings') != null;
+  static bool get available => text('settings.title_notifications_section') != null;
 }

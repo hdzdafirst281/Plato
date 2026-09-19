@@ -5,7 +5,7 @@ import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
 import 'package:uuid/uuid.dart';
 import 'package:intl/intl.dart';
-
+import 'package:plato_gymapp/i18n/strings.g.dart';
 import '../../data/models/nutrition_models.dart';
 import '../../data/repositories/nutrition_repository.dart';
 import '../../../../core/database/enums.dart';
@@ -193,7 +193,7 @@ class NutritionCubit extends Cubit<NutritionState> {
     addFoodToLog(
       FoodResult(
         id: "",
-        foodName: "Thêm nhanh Calo",
+        foodName: t.nutrition.btn_food_quick_submit,
         baseCalories: caloriesAmount,
         baseProtein: 0,
         baseCarbs: 0,
@@ -323,6 +323,9 @@ class NutritionCubit extends Cubit<NutritionState> {
               measurementUnit: f.measurementUnit,
               consumedAmount: f.consumedAmount,
               assignedMealType: targetMeal,
+              ingredients: f.ingredients,
+              allergenTags: f.allergenTags,
+              dietTags: f.dietTags,
             ),
           )
           .toList();

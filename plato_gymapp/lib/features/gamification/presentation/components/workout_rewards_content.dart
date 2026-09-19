@@ -333,12 +333,12 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
   }
 
   String _questTitle(Quest quest) => switch (quest.type) {
-    QuestType.WORKOUT_COUNT => t.workout_rewards.quest_workouts,
-    QuestType.TOTAL_VOLUME => t.workout_rewards.quest_volume,
+    QuestType.WORKOUT_COUNT => t.profile.lbl_stats_workouts,
+    QuestType.TOTAL_VOLUME => t.common.volume,
     QuestType.PR_COUNT => t.workout_rewards.quest_prs,
-    QuestType.TOTAL_TIME => t.workout_rewards.quest_time,
+    QuestType.TOTAL_TIME => t.common.duration,
     QuestType.TOTAL_SETS => t.workout_rewards.quest_sets,
-    QuestType.TOTAL_EXERCISES => t.workout_rewards.quest_exercises,
+    QuestType.TOTAL_EXERCISES => t.profile.btn_menu_exercises,
   };
   String _number(int value) =>
       value >= 1000 && value % 1000 == 0 ? '${value ~/ 1000}k' : '$value';
@@ -554,7 +554,7 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         Text(
-                          '${t.workout_rewards.chest_title} · $current/$required',
+                          '${t.gamification.title_weekly_chest} · $current/$required',
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w700,
@@ -626,7 +626,7 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
                 Padding(
                   padding: const EdgeInsets.only(right: 8),
                   child: Tooltip(
-                    message: t.workout_rewards.level_up,
+                    message: t.gamification.msg_level_up_base,
                     child: Icon(Symbols.stars, color: colors.primary, size: 20),
                   ),
                 ),

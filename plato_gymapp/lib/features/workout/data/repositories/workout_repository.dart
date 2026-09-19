@@ -611,7 +611,7 @@ class WorkoutRepository {
                 ? exerciseInfo.toJson()
                 : {
                     'id': safeExerciseId,
-                    'name': 'Bài tập không khả dụng',
+                    'name': t.workout.lbl_unavailable_exercise,
                     'type': 'WEIGHT_REPS',
                     'is_deleted': false,
                     'is_custom': false,
@@ -673,7 +673,7 @@ class WorkoutRepository {
                 ? exerciseInfo.toJson()
                 : {
                     'id': safeExerciseId,
-                    'name': 'Bài tập không khả dụng',
+                    'name': t.workout.lbl_unavailable_exercise,
                     'type':
                         'WEIGHT_REPS', // FIX: Fallback về type hợp lệ của Enum
                     'is_deleted': false,
@@ -854,7 +854,7 @@ class WorkoutRepository {
   Future<void> addRoutineToFolder(String targetFolderName) async {
     final initializedRoutine = RoutineEntity(
       id: _generateSequentialId(), // FIX
-      name: "Buổi tập mới",
+      name: t.workout.title_new_workout,
       programName: targetFolderName,
       payloadJson: jsonEncode(
         WorkoutSessionPayload(schemaVersion: "1.0", exercises: []).toJson(),

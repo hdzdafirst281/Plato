@@ -241,7 +241,7 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
         
         final rawName = _targetSession!.name;
         final sessionName = rawName.isEmpty 
-            ? t.workout.lbl_ssn_sum_default_name 
+            ? t.workout.title_new_workout 
             : t.translateDynamic(rawName); 
             
         final currentRpe = _rpeValue ?? 5.0;

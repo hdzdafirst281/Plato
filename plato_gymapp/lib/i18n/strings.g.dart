@@ -4,9 +4,9 @@
 /// To regenerate, run: `dart run slang`
 ///
 /// Locales: 2
-/// Strings: 3258 (1629 per locale)
+/// Strings: 3212 (1606 per locale)
 ///
-/// Built on 2026-09-18 at 06:25 UTC
+/// Built on 2026-09-19 at 13:50 UTC
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -210,7 +210,6 @@ class _StringsAuthEn {
 	String get lbl_otp_input => '6-digit code';
 	String desc_otp_instruction({required Object arg1}) => 'A verification code has been sent to ${arg1}. Please check your inbox.';
 	String get msg_otp_sent_err => 'Connection error: Could not send the code. Please try again later.';
-	String get err_otp_sent_failed => 'Connection error: Could not send code. Please try again later.';
 	String get msg_otp_sent_success => 'A 6-digit verification code has been sent to your email!';
 	String get msg_processing => 'Processing...';
 	String get msg_pulling_cloud_data => 'Downloading cloud data...';
@@ -272,7 +271,6 @@ class _StringsCalendarEn {
 	String get repeat_interval => 'Every X days';
 	String get repeat_none => 'Once, today only';
 	String get repeat_weekly => 'Weekly on specific days';
-	String get btn_schedule => 'Schedule';
 	String get title_schedule_success => 'Schedule Created Successfully!';
 	String get msg_schedule_success => 'The new routine schedule has been added to your calendar.';
 	String get section_upcoming => 'Planned Routines';
@@ -285,6 +283,7 @@ class _StringsCalendarEn {
 	String get view_month => 'Month';
 	String get view_multi_year => 'Multi-Year';
 	String get view_year => 'Year';
+	String get lbl_week => 'Week';
 }
 
 // Path: common
@@ -353,6 +352,7 @@ class _StringsCommonEn {
 	String get unit_km => 'km';
 	String get unit_lbs => 'lbs';
 	String get video_err => 'Failed to load tutorial video';
+	String get error_generic => 'An error occurred, please try again!';
 	String get volume => 'Volume';
 	String get weight => 'Weight';
 }
@@ -851,7 +851,7 @@ class _StringsNutritionEn {
 	String get err_food_pcf => 'Protein/Carb/Fat must not exceed 500g.';
 	String get tab_food_quick_add => 'Input Meal';
 	String get title_food_quick_input => 'How many Calories did you just consume?';
-	String get btn_food_quick_submit => 'QUICK ADD';
+	String get btn_food_quick_submit => 'Quick Add';
 	String get desc_food_remove => 'Remove food from meal plan';
 	String get hint_food_search => 'Search for food...';
 	String get lbl_food_suggestions => 'Suggestions / Recent';
@@ -958,9 +958,7 @@ class _StringsNutritionEn {
 	String get hint_search_ingredient => 'Search for ingredients...';
 	String get ing_almond => 'Almond';
 	String get ing_almond_milk => 'Almond Milk';
-	String get ing_apple => 'Apple';
 	String get ing_avocado => 'Avocado';
-	String get ing_banana => 'Banana';
 	String get ing_beef => 'Beef';
 	String get ing_bread => 'Bread';
 	String get ing_broccoli => 'Broccoli';
@@ -989,7 +987,6 @@ class _StringsNutritionEn {
 	String get ing_onion => 'Onion';
 	String get ing_orange => 'Orange';
 	String get ing_peanut => 'Peanut';
-	String get ing_peanut_butter => 'Peanut Butter';
 	String get ing_pepper => 'Pepper';
 	String get ing_pork => 'Pork';
 	String get ing_pork_chop => 'Pork Chop';
@@ -1002,12 +999,10 @@ class _StringsNutritionEn {
 	String get ing_spinach => 'Spinach';
 	String get ing_squid => 'Squid';
 	String get ing_sugar => 'Sugar';
-	String get ing_sweet_potato => 'Sweet Potato';
 	String get ing_tea => 'Tea';
 	String get ing_tofu => 'Tofu';
 	String get ing_tomato => 'Tomato';
 	String get ing_walnut => 'Walnut';
-	String get ing_white_rice => 'White Rice';
 	String get ing_yogurt => 'Yogurt';
 	String get lbl_ingredients => 'Ingredients';
 	String get lbl_badge_recommended => 'Recommended';
@@ -1093,7 +1088,6 @@ class _StringsOnboardingEn {
 	String get hint_username => 'Enter your username...';
 	String get msg_warn_cardio => 'Important Note: With a cardiovascular history, you must consult a specialist before starting this program.';
 	String get hint_wt => 'e.g., 65 (kg)';
-	String get lbl_you_fallback => 'you';
 	String eula_intro({required Object brand, required Object app}) => 'This agreement is a legal contract between you (the User) and ${brand} (We/Us) regarding the use of the ${app} mobile application. By installing or using the app, you agree to abide by the following terms:';
 	String eula_p1_desc({required Object app}) => 'We grant you a limited, non-exclusive, non-transferable, and revocable license to download, install, and use ${app} on your personal mobile devices for personal, non-commercial purposes.';
 	String get eula_p1_title => '1. License Grant';
@@ -1166,7 +1160,6 @@ class _StringsProfileEn {
 	String get diet_dairy => 'Dairy Allergy';
 	String get diet_gluten => 'Gluten Intolerant';
 	String get diet_meat => 'Avoid Red Meat';
-	String get diet_peanut => 'Peanut Allergy';
 	String get diet_plan_balanced => 'Balanced Diet';
 	String get diet_plan_dash => 'DASH Diet';
 	String get diet_plan_high_protein => 'High Protein';
@@ -1543,7 +1536,6 @@ class _StringsStatsEn {
 	String get title_hexagon_comparison_header => 'Comparing the last 30 days with the previous month';
 	String get desc_hexagon_info_rank_prefix => 'This chart evaluates the training volume of each muscle group. The ranks ranging from';
 	String get desc_hexagon_info_rank_suffix => 'indicate whether you have reached the recommended training thresholds. Focus on improving the muscle groups with lower ranks to achieve a well-rounded and balanced physique.';
-	String get lbl_hexagon_legend_current => 'Current';
 	String get lbl_hexagon_legend_previous => 'Last Month';
 	String get title_hexagon_main => 'Muscle Distribution Chart';
 	String get lbl_history_filter_by => 'Filter by:';
@@ -1667,6 +1659,7 @@ class _StringsWorkoutEn {
 	String get lbl_default_folder => 'My Routines';
 	String get lbl_default_name => 'Freeform';
 	String get lbl_default_routine_name => 'New Routine';
+	String get title_custom_program => 'Custom Program';
 	String get title_delete_confirm => 'Confirm delete?';
 	String get menu_delete_folder => 'Delete folder';
 	String get msg_delete_irreversible => 'Data for this routine will disappear permanently.';
@@ -1735,7 +1728,6 @@ class _StringsWorkoutEn {
 	String get msg_log_cancel_confirm => 'All your effort so far will not be recorded in the system.';
 	String get btn_log_create_new => 'Create New Template';
 	String get btn_log_delete_finish => 'Finish';
-	String get btn_log_delete_swipe => 'DELETE';
 	String get msg_log_empty => 'No exercises added.\nPlease add exercises to get started.';
 	String get msg_log_end_reached => 'You have reached the last exercise of this workout.\nRemember to stretch thoroughly after finishing!';
 	String get title_log_incomplete => 'Incomplete';
@@ -1756,7 +1748,6 @@ class _StringsWorkoutEn {
 	String get msg_mini_player_cancel_warn => 'Are you sure you want to cancel the ongoing workout? All your effort so far will be lost.';
 	String get btn_mini_player_confirm_delete => 'Delete now';
 	String get desc_mini_player_delete => 'Cancel workout';
-	String get btn_mini_player_dismiss_dialog => 'Keep training';
 	String get btn_mini_player_resume => 'Resume';
 	String get lbl_mini_player_status => 'System recording...';
 	String get lbl_minute => 'Minute';
@@ -1767,6 +1758,7 @@ class _StringsWorkoutEn {
 	String get lbl_next => 'Up next';
 	String get title_no_ex_workout => 'Cannot Finish';
 	String get msg_no_ex_workout => 'Your workout has not completed any exercises. Please complete at least 1 exercise or Cancel this workout.';
+	String get lbl_unavailable_exercise => 'Unavailable exercise';
 	String get msg_no_routine_generic => 'Folder is empty.';
 	String get msg_no_routine_in_folder => 'You haven\'t saved any routines here. Create one or find one in Explore.';
 	String get desc_normal => 'Perform reps and weight according to the standard target. Focus on controlling form and rhythm.';
@@ -1801,7 +1793,6 @@ class _StringsWorkoutEn {
 	String get hint_routine_create_name => 'Enter routine name ...';
 	String get title_routine_create_new => 'Create New Routine';
 	String get title_routine_create_reorder => 'Reorder';
-	String get menu_routine_create_reorder => 'Reorder';
 	String get menu_routine_create_replace => 'Replace exercise';
 	String get lbl_routine_create_rest_off => 'Rest time off';
 	String fmt_routine_create_rest_time({required Object arg1}) => '${arg1} rest';
@@ -1809,12 +1800,11 @@ class _StringsWorkoutEn {
 	String get menu_routine_duplicate => 'Duplicate';
 	String fmt_routine_exercises_count({required Object arg1}) => '${arg1} exercises';
 	String get err_routine_exercises_empty => 'Please add at least one exercise to the routine';
-	String get col_routine_history => 'HISTORY';
 	String get err_routine_name_empty => 'Routine name cannot be empty';
+	String get msg_rate_limit_routine => 'Rate Limit: You can only create a maximum of 10 routines!';
 	String get lbl_rpe_completed => 'Completed';
 	String msg_safety_threshold_desc({required Object arg1}) => 'Your 30-day history shows your maximum weight is ${arg1} kg. Recommendation: Do not attempt to lift at this weight.';
 	String get title_safety_warn => 'Safety Warning';
-	String get menu_save_as_routine => 'Save as New Routine';
 	String get btn_save_changes => 'Save changes';
 	String get lbl_second => 'Second';
 	String get lbl_select_hour => 'Select duration';
@@ -1825,7 +1815,6 @@ class _StringsWorkoutEn {
 	String fmt_ssn_sum_acwr_stats({required Object arg1, required Object arg2}) => 'This Week: ${arg1} / Base: ${arg2}';
 	String get lbl_ssn_sum_advice_title => 'AI Analysis:';
 	String get title_ssn_sum_complete => 'AWESOME!';
-	String get lbl_ssn_sum_default_name => 'New Workout';
 	String get btn_ssn_sum_home => 'BACK TO HOME';
 	String get title_ssn_sum_rpe_card => 'Self-Assess Exertion Level';
 	String get lbl_ssn_sum_rpe_max => '10 - Complete failure';
@@ -1844,9 +1833,7 @@ class _StringsWorkoutEn {
 	String get btn_superset_add => 'Create / Add Superset';
 	String title_superset_add_to_group({required Object base, required Object targets}) => 'Add ${base} to group:\n${targets}';
 	String title_superset_create_new({required Object base, required Object targets}) => 'Create Superset:\n${base} & ${targets}';
-	String title_superset_expand_base({required Object targets, required Object base}) => 'Add ${targets} to group:\n${base}';
 	String get msg_superset_limit => 'You can only combine up to 3 exercises in a single Superset to ensure your muscles aren\'t overworked and to optimize effectiveness!';
-	String get msg_superset_limit_proactive => 'Exceeds maximum limit of 3 exercises per Superset.';
 	String get btn_superset_remove => 'Remove Superset';
 	String get err_time_exceed_global => 'Set time cannot exceed the actual total workout duration';
 	String fmt_time_hms({required Object arg1, required Object arg2, required Object arg3}) => '${arg1}h ${arg2}m ${arg3}s';
@@ -1901,22 +1888,15 @@ class _StringsWorkoutRewardsEn {
 	String get claim_error => 'Failed to claim reward';
 	String get load_error => 'Failed to load workout rewards';
 	String get loading => 'Loading your rewards...';
-	String get back => 'Back';
 	String get tap_skip => 'Tap to skip';
 	String get summary => 'View Summary';
 	String streak({required Object weeks}) => '${weeks} Week Streak!';
-	String get quest_workouts => 'Workouts';
-	String get quest_volume => 'Volume';
 	String get quest_prs => 'Personal Records';
-	String get quest_time => 'Duration';
 	String get quest_sets => 'Sets';
-	String get quest_exercises => 'Exercises';
 	String get tap_claim => 'Tap to claim';
 	String get claimed => 'Claimed';
 	String claim({required Object xp}) => 'Claim +${xp} XP';
-	String get chest_title => 'Weekly Chest';
 	String level({required Object level}) => 'Level ${level}';
-	String get level_up => 'Level Up!';
 	String get zone_demote => 'Demote';
 	String get zone_maintain => 'Maintain';
 	String get zone_promote => 'Promote';
@@ -1930,10 +1910,8 @@ class _StringsNotificationsEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
-	String get title_settings => 'Notifications';
 	String get lbl_workout_reminders => 'Workout reminders';
 	String get lbl_streak_reminders => 'Streak reminders';
-	String get lbl_hydration_reminders => 'Water reminders';
 	String get lbl_rank_reminders => 'Rank cycle reminders';
 	String get lbl_recovery_reminders => 'Recovery reminders';
 	String get lbl_inactivity_reminders => 'Return-to-training reminders';
@@ -1945,7 +1923,6 @@ class _StringsNotificationsEn {
 	String get msg_permission_required => 'Allow notifications to receive reminders outside the app.';
 	String get msg_permission_disabled => 'Notifications are turned off in your device settings.';
 	String get btn_enable => 'Enable notifications';
-	String get btn_open_settings => 'Open device settings';
 	String get msg_category_disabled => 'Enable this reminder group in Notification Settings first.';
 	String get lbl_remind_this_workout => 'Remind me before this workout';
 	String fmt_minutes_before({required Object minutes}) => '${minutes} minutes before';
@@ -1954,7 +1931,7 @@ class _StringsNotificationsEn {
 	String get title_workout_today => 'You have a workout planned today';
 	String body_workout_today({required Object routineName}) => 'Make time for ${routineName} when it suits you.';
 	String body_workout_streak({required Object routineName, required Object time}) => '${routineName} starts at ${time}. This workout can help keep your streak going.';
-	String get lbl_hydration_at_16 => 'Remind me to drink water at 4 PM';
+	String get lbl_hydration_at_16 => 'Hydration Reminder';
 	String get desc_hydration_reminder => 'One reminder at 4 PM, only if your logged intake is below your daily goal.';
 	String get title_hydration_reminder => 'A moment for water';
 	String get body_hydration_no_log => 'You haven\'t logged any water today. If you\'ve had some, update your log.';
@@ -2077,7 +2054,6 @@ class _StringsAuthVi extends _StringsAuthEn {
 	@override String get lbl_otp_input => 'Mã gồm 6 chữ số';
 	@override String desc_otp_instruction({required Object arg1}) => 'Mã xác nhận đã được gửi đến ${arg1}. Vui lòng kiểm tra hộp thư.';
 	@override String get msg_otp_sent_err => 'Lỗi kết nối: Không thể gửi mã. Vui lòng thử lại sau.';
-	@override String get err_otp_sent_failed => 'Lỗi kết nối: Không thể gửi mã. Vui lòng thử lại sau.';
 	@override String get msg_otp_sent_success => 'Đã gửi mã xác nhận 6 số đến thư điện tử của bạn!';
 	@override String get msg_processing => 'Đang xử lý...';
 	@override String get msg_pulling_cloud_data => 'Đang tải dữ liệu đám mây...';
@@ -2117,7 +2093,7 @@ class _StringsCalendarVi extends _StringsCalendarEn {
 	@override String get title_config_recurrence => 'Cấu hình chu kì';
 	@override String get btn_confirm => 'Tạo lịch';
 	@override String get title_day_dtl => 'Lịch trình ngày';
-	@override String get title_delete => 'Xóa lịch tập';
+	@override String get title_delete => 'Xóa buổi tập';
 	@override String get opt_delete_all => 'Xóa toàn bộ chuỗi';
 	@override String get msg_delete_confirm => 'Bạn có chắc chắn muốn xóa lịch tập này không?';
 	@override String get opt_delete_one => 'Chỉ xóa ngày này';
@@ -2139,7 +2115,6 @@ class _StringsCalendarVi extends _StringsCalendarEn {
 	@override String get repeat_interval => 'Cách X ngày tập 1 lần';
 	@override String get repeat_none => 'Chỉ một lần hôm nay';
 	@override String get repeat_weekly => 'Hàng tuần vào ngày cụ thể';
-	@override String get btn_schedule => 'Lên lịch';
 	@override String get title_schedule_success => 'Tạo lịch thành công!';
 	@override String get msg_schedule_success => 'Lịch tập mới đã được thêm vào lịch của bạn.';
 	@override String get section_upcoming => 'Kế hoạch';
@@ -2152,6 +2127,7 @@ class _StringsCalendarVi extends _StringsCalendarEn {
 	@override String get view_month => 'Tháng';
 	@override String get view_multi_year => 'Nhiều Năm';
 	@override String get view_year => 'Năm';
+	@override String get lbl_week => 'Tuần';
 }
 
 // Path: common
@@ -2220,6 +2196,7 @@ class _StringsCommonVi extends _StringsCommonEn {
 	@override String get unit_km => 'km';
 	@override String get unit_lbs => 'lbs';
 	@override String get video_err => 'Không thể tải video hướng dẫn';
+	@override String get error_generic => 'Có lỗi xảy ra, vui lòng thử lại!';
 	@override String get volume => 'Tải trọng';
 	@override String get weight => 'Trọng lượng';
 }
@@ -2280,7 +2257,7 @@ class _StringsExercisesVi extends _StringsExercisesEn {
 	@override String get desc_chest_dips => '1. Chuẩn bị: Nắm xà kép và nhảy lên duỗi thẳng tay. Đổ người ngả về trước khoảng 30 độ để nhắm vào cơ ngực.\n2. Thực hiện: Hít vào, từ từ gập cùi chỏ hạ cơ thể xuống cho đến khi vai thấp hơn cùi chỏ một chút.\n3. Đẩy lên: Thở ra, dồn lực vào lòng bàn tay và siết ngực đẩy người lên vị trí ban đầu.\n💡 Cảm nhận cơ: Tập trung cảm nhận ngực giãn ra ở điểm thấp nhất và siết chặt lại khi đẩy lên.\n⚠️ Lỗi sai cần tránh: Giữ người quá thẳng (sẽ ăn vào tay sau) hoặc hạ người quá sâu gây đau khớp vai.';
 	@override String get name_chest_supported_row => 'Nằm ghế dốc kéo lưng';
 	@override String get desc_chest_supported_row => '1. Nằm sấp ngực tựa chắc lên ghế dốc 45 độ. Hai tay buông thõng cầm tạ đơn.\n2. Thở ra, kéo cùi chỏ lên trần nhà ép chặt hai bả vai.\n3. Hít vào từ từ hạ tạ để giãn cơ lưng.';
-	@override String get name_chin_up => 'Hít xà đơn';
+	@override String get name_chin_up => 'Hít xà đơn ngửa tay';
 	@override String get desc_chin_up => '1. Nắm thanh xà với lòng bàn tay hướng về phía người. Treo người duỗi thẳng tay.\n2. Thở ra, siết lưng xô và bắp tay kéo người lên cho đến khi cằm vượt qua xà.\n3. Ép chặt hai bả vai. Hít vào và từ từ hạ thân người xuống hết cỡ (dead hang).';
 	@override String get name_close_grip_pulldown => 'Kéo xô hẹp tay';
 	@override String get desc_close_grip_pulldown => '1. Cầm tay cầm V-bar, ngực ưỡn nhẹ.\n2. Thở ra, kéo V-bar hướng xuống phần ngực giữa. Giữ cùi chỏ ép sát vào sườn.\n3. Ép bả vai ở điểm thấp nhất. Hít vào và nhả tạ lên từ từ để kéo giãn cơ xô.';
@@ -2386,7 +2363,7 @@ class _StringsExercisesVi extends _StringsExercisesEn {
 	@override String get desc_plank => '1. Chống hai cùi chỏ xuống sàn. Cơ thể thẳng tắp từ gót chân tới đầu.\n2. Chủ động siết cơ bụng, gồng cơ mông và đùi trước.\n3. Giữ tư thế tĩnh và duy trì nhịp thở đều đặn.';
 	@override String get name_preacher_curl => 'Cuốn tay trước trên ghế tựa';
 	@override String get desc_preacher_curl => '1. Ngồi ghế Preacher, khóa chặt bắp tay trên mặt đệm. Cầm tạ đòn ngửa tay.\n2. Thở ra, cuốn tạ về phía vai, siết chặt bắp tay.\n3. Hít vào, hạ tạ chậm đến khi tay gần duỗi thẳng.';
-	@override String get name_pull_up => 'Hít xà đơn';
+	@override String get name_pull_up => 'Hít xà đơn sấp tay';
 	@override String get desc_pull_up => '1. Nắm thanh xà lòng bàn tay hướng tới trước. Gồng cơ core chống đung đưa.\n2. Thở ra, kéo cùi chỏ hướng xuống để nâng người qua xà.\n3. Hít vào, từ từ hạ người xuống đến khi duỗi thẳng tay.';
 	@override String get name_push_up => 'Hít đất';
 	@override String get desc_push_up => '1. Nằm sấp chống thẳng tay. Lưng, hông, chân tạo đường thẳng.\n2. Hít vào, gập cùi chỏ hạ ngực cách sàn khoảng 1-2cm.\n3. Thở ra, đẩy ngực và tay sau vươn người lên vị trí ban đầu.';
@@ -2543,7 +2520,7 @@ class _StringsGamificationVi extends _StringsGamificationEn {
 	@override String get dialog_chest_title_success => 'Chúc mừng!';
 	@override String get tab_leaderboard => 'Xếp hạng';
 	@override String get leaderboard_you => 'Bạn';
-	@override String get msg_level_up_base => 'Thăng Cấp!';
+	@override String get msg_level_up_base => 'Lên cấp!';
 	@override String get title_main => 'Thành tích';
 	@override String get msg_no_quests => 'Không có nhiệm vụ nào trong tuần này. Hãy tập luyện chăm chỉ để nhận nhiệm vụ vào tuần tới nhé!';
 	@override String get btn_open_chest => 'MỞ RƯƠNG';
@@ -2564,7 +2541,7 @@ class _StringsGamificationVi extends _StringsGamificationEn {
 	@override String get desc_top_1_icon => 'Hạng 1';
 	@override String fmt_user_level({required Object arg1}) => 'Cấp ${arg1}';
 	@override String fmt_user_name_badge({required Object arg1}) => '${arg1} (Bạn)';
-	@override String get title_weekly_chest => 'Rương Tuần';
+	@override String get title_weekly_chest => 'Rương tuần';
 	@override String get title_weekly_quests => 'Nhiệm vụ tuần này';
 	@override String get msg_workout_deleted => 'Đã xóa buổi tập thành công';
 	@override String get lbl_xp_earned => 'XP Nhận được';
@@ -2718,7 +2695,7 @@ class _StringsNutritionVi extends _StringsNutritionEn {
 	@override String get err_food_pcf => 'Protein/Carb/Fat của món ăn không vượt quá 500g.';
 	@override String get tab_food_quick_add => 'Nhập món ăn';
 	@override String get title_food_quick_input => 'Bạn vừa nạp bao nhiêu Năng lượng?';
-	@override String get btn_food_quick_submit => 'THÊM NHANH';
+	@override String get btn_food_quick_submit => 'Thêm nhanh';
 	@override String get desc_food_remove => 'Bỏ món ăn khỏi thực đơn';
 	@override String get hint_food_search => 'Tìm kiếm thực phẩm...';
 	@override String get lbl_food_suggestions => 'Gợi ý / Ăn gần đây';
@@ -2825,9 +2802,7 @@ class _StringsNutritionVi extends _StringsNutritionEn {
 	@override String get hint_search_ingredient => 'Nhập tên nguyên liệu (ví dụ: Thịt bò)...';
 	@override String get ing_almond => 'Hạnh nhân';
 	@override String get ing_almond_milk => 'Sữa hạnh nhân';
-	@override String get ing_apple => 'Táo';
 	@override String get ing_avocado => 'Quả bơ';
-	@override String get ing_banana => 'Chuối';
 	@override String get ing_beef => 'Thịt bò';
 	@override String get ing_bread => 'Bánh mì';
 	@override String get ing_broccoli => 'Bông cải xanh';
@@ -2856,7 +2831,6 @@ class _StringsNutritionVi extends _StringsNutritionEn {
 	@override String get ing_onion => 'Hành tây';
 	@override String get ing_orange => 'Cam';
 	@override String get ing_peanut => 'Đậu phộng';
-	@override String get ing_peanut_butter => 'Bơ đậu phộng';
 	@override String get ing_pepper => 'Tiêu';
 	@override String get ing_pork => 'Thịt lợn';
 	@override String get ing_pork_chop => 'Sườn heo';
@@ -2869,12 +2843,10 @@ class _StringsNutritionVi extends _StringsNutritionEn {
 	@override String get ing_spinach => 'Rau chân vịt';
 	@override String get ing_squid => 'Mực';
 	@override String get ing_sugar => 'Đường';
-	@override String get ing_sweet_potato => 'Khoai lang';
 	@override String get ing_tea => 'Trà';
 	@override String get ing_tofu => 'Đậu phụ';
 	@override String get ing_tomato => 'Cà chua';
 	@override String get ing_walnut => 'Óc chó';
-	@override String get ing_white_rice => 'Cơm trắng';
 	@override String get ing_yogurt => 'Sữa chua';
 	@override String get lbl_ingredients => 'Thành phần nguyên liệu';
 	@override String get lbl_badge_recommended => 'Phù hợp';
@@ -2960,7 +2932,6 @@ class _StringsOnboardingVi extends _StringsOnboardingEn {
 	@override String get hint_username => 'Nhập username của bạn...';
 	@override String get msg_warn_cardio => 'Lưu ý quan trọng: Với tiền sử tim mạch, bạn cần tham khảo ý kiến bác sĩ chuyên khoa trước khi bắt đầu lộ trình.';
 	@override String get hint_wt => 'VD: 65 (kg)';
-	@override String get lbl_you_fallback => 'bạn';
 	@override String eula_intro({required Object brand, required Object app}) => 'Thỏa thuận này là hợp đồng pháp lý giữa bạn (Người dùng) và ${brand} (Chúng tôi) về việc sử dụng ứng dụng di động ${app}. Bằng việc cài đặt hoặc sử dụng ứng dụng, bạn đồng ý tuân thủ các điều khoản sau:';
 	@override String eula_p1_desc({required Object app}) => 'Chúng tôi cấp cho bạn một giấy phép giới hạn, không độc quyền, không thể chuyển nhượng và có thể thu hồi để tải xuống, cài đặt và sử dụng ${app} trên các thiết bị di động thuộc quyền sở hữu của bạn, phục vụ cho mục đích cá nhân và không thương mại.';
 	@override String get eula_p1_title => '1. Cấp phép sử dụng';
@@ -3033,7 +3004,6 @@ class _StringsProfileVi extends _StringsProfileEn {
 	@override String get diet_dairy => 'Dị ứng sữa';
 	@override String get diet_gluten => 'Không nạp Gluten';
 	@override String get diet_meat => 'Tránh các loại thịt đỏ';
-	@override String get diet_peanut => 'Dị ứng đậu phộng';
 	@override String get diet_plan_balanced => 'Cân bằng dinh dưỡng';
 	@override String get diet_plan_dash => 'Chế độ giảm huyết áp';
 	@override String get diet_plan_high_protein => 'Tập trung nhiều đạm';
@@ -3410,7 +3380,6 @@ class _StringsStatsVi extends _StringsStatsEn {
 	@override String get title_hexagon_comparison_header => 'So sánh 30 ngày qua với tháng trước';
 	@override String get desc_hexagon_info_rank_prefix => 'Biểu đồ này đánh giá mức độ tập luyện của từng nhóm cơ. Các mức hạng trải dài từ';
 	@override String get desc_hexagon_info_rank_suffix => 'cho biết bạn đã tập đủ khối lượng khuyến nghị hay chưa. Hãy tập trung cải thiện những nhóm cơ đang ở hạng thấp để cơ thể phát triển toàn diện và cân đối.';
-	@override String get lbl_hexagon_legend_current => 'Hiện tại';
 	@override String get lbl_hexagon_legend_previous => 'Tháng trước';
 	@override String get title_hexagon_main => 'Biểu đồ Phân bổ Cơ bắp';
 	@override String get lbl_history_filter_by => 'Thống kê theo:';
@@ -3534,6 +3503,7 @@ class _StringsWorkoutVi extends _StringsWorkoutEn {
 	@override String get lbl_default_folder => 'Lịch tập của tôi';
 	@override String get lbl_default_name => 'Tự do';
 	@override String get lbl_default_routine_name => 'Lịch tập mới';
+	@override String get title_custom_program => 'Gói tập Tùy chỉnh';
 	@override String get title_delete_confirm => 'Xác nhận xóa?';
 	@override String get menu_delete_folder => 'Xóa bỏ thư mục';
 	@override String get msg_delete_irreversible => 'Dữ liệu của lịch tập này sẽ biến mất vĩnh viễn.';
@@ -3588,7 +3558,7 @@ class _StringsWorkoutVi extends _StringsWorkoutEn {
 	@override String get err_invalid_wt => 'Vui lòng nhập trọng lượng hợp lệ!';
 	@override String get err_invalid_wt_max => 'Trọng lượng bất hợp lý (>=2000kg).';
 	@override String get btn_keep_ssn => 'Giữ buổi tập cũ';
-	@override String get btn_keep_training => 'Tập thêm';
+	@override String get btn_keep_training => 'Tiếp tục tập luyện';
 	@override String get status_last_set_done => 'Hoàn thành set cuối';
 	@override String msg_load_manager_caution_spike({required Object arg1}) => 'Thử thách cao (+${arg1}%). Hãy chú ý kỹ thuật thật chuẩn.';
 	@override String msg_load_manager_danger_spike({required Object arg1, required Object arg2}) => 'Cảnh báo! Mức tạ tăng quá nhanh (+${arg1}%). Kỷ lục gần đây: ${arg2}kg.';
@@ -3602,7 +3572,6 @@ class _StringsWorkoutVi extends _StringsWorkoutEn {
 	@override String get msg_log_cancel_confirm => 'Mọi nỗ lực nãy giờ của bạn sẽ không được ghi nhận vào hệ thống.';
 	@override String get btn_log_create_new => 'Tạo mẫu mới';
 	@override String get btn_log_delete_finish => 'Kết thúc';
-	@override String get btn_log_delete_swipe => 'XÓA BỎ';
 	@override String get msg_log_empty => 'Chưa có bài tập nào.\nHãy thêm bài tập để bắt đầu.';
 	@override String get msg_log_end_reached => 'Bạn đã đến bài tập cuối cùng của buổi tập này.\nHãy nhớ xả cơ thật kỹ sau khi tập xong nhé!';
 	@override String get title_log_incomplete => 'Chưa hoàn thành';
@@ -3623,7 +3592,6 @@ class _StringsWorkoutVi extends _StringsWorkoutEn {
 	@override String get msg_mini_player_cancel_warn => 'Bạn có chắc muốn hủy bỏ buổi tập đang diễn ra không? Toàn bộ công sức nãy giờ sẽ biến mất.';
 	@override String get btn_mini_player_confirm_delete => 'Xóa ngay';
 	@override String get desc_mini_player_delete => 'Hủy bỏ buổi tập';
-	@override String get btn_mini_player_dismiss_dialog => 'Vẫn tập tiếp';
 	@override String get btn_mini_player_resume => 'Tiếp tục';
 	@override String get lbl_mini_player_status => 'Hệ thống đang ghi nhận...';
 	@override String get lbl_minute => 'Phút';
@@ -3631,9 +3599,10 @@ class _StringsWorkoutVi extends _StringsWorkoutEn {
 	@override String get title_my_notes => 'Ghi chú của tôi';
 	@override String get msg_new_pr_generic => 'Kỷ lục cá nhân mới đã được thiết lập!';
 	@override String get title_new_workout => 'Buổi tập mới';
-	@override String get lbl_next => 'Tiếp theo';
+	@override String get lbl_next => 'Bài tiếp theo';
 	@override String get title_no_ex_workout => 'Không thể hoàn tất';
 	@override String get msg_no_ex_workout => 'Buổi tập của bạn chưa có hiệp tập nào được hoàn thành. Vui lòng hoàn thành ít nhất 1 hiệp tập hoặc Hủy buổi tập này.';
+	@override String get lbl_unavailable_exercise => 'Bài tập không khả dụng';
 	@override String get msg_no_routine_generic => 'Thư mục trống.';
 	@override String get msg_no_routine_in_folder => 'Bạn chưa lưu lịch tập nào ở đây. Hãy tự tạo hoặc tìm từ mục Khám phá.';
 	@override String get desc_normal => 'Thực hiện số lần lặp lại và mức tạ theo mục tiêu thông thường. Trọng tâm vào việc kiểm soát form và nhịp độ.';
@@ -3659,7 +3628,7 @@ class _StringsWorkoutVi extends _StringsWorkoutEn {
 	@override String get status_rest_over => 'Hết giờ nghỉ!';
 	@override String fmt_rest_seconds({required Object arg1}) => '${arg1} giây';
 	@override String get title_rest_time => 'Bộ đếm giờ nghỉ';
-	@override String get status_resting => 'Nghỉ ngơi';
+	@override String get status_resting => 'Đang nghỉ giữa hiệp';
 	@override String get btn_routine_create_add_ex => 'CHỌN BÀI TẬP';
 	@override String get btn_routine_create_add_set => 'Thêm hiệp';
 	@override String get title_routine_create_confirm_update => 'Cập nhật';
@@ -3668,7 +3637,6 @@ class _StringsWorkoutVi extends _StringsWorkoutEn {
 	@override String get hint_routine_create_name => 'Nhập tên lịch tập (ví dụ: Tập thân trên)...';
 	@override String get title_routine_create_new => 'Tạo Lịch tập mới';
 	@override String get title_routine_create_reorder => 'Sắp xếp thứ tự';
-	@override String get menu_routine_create_reorder => 'Đảo thứ tự';
 	@override String get menu_routine_create_replace => 'Đổi bài khác';
 	@override String get lbl_routine_create_rest_off => 'Tắt thời gian nghỉ';
 	@override String fmt_routine_create_rest_time({required Object arg1}) => '${arg1} nghỉ';
@@ -3676,12 +3644,11 @@ class _StringsWorkoutVi extends _StringsWorkoutEn {
 	@override String get menu_routine_duplicate => 'Nhân bản';
 	@override String fmt_routine_exercises_count({required Object arg1}) => '${arg1} bài tập';
 	@override String get err_routine_exercises_empty => 'Vui lòng thêm ít nhất một bài tập vào lịch tập';
-	@override String get col_routine_history => 'LỊCH SỬ';
 	@override String get err_routine_name_empty => 'Tên lịch tập không được để trống';
+	@override String get msg_rate_limit_routine => 'Rate Limit: Bạn chỉ được tạo tối đa 10 giáo án!';
 	@override String get lbl_rpe_completed => 'Hoàn thành';
 	@override String msg_safety_threshold_desc({required Object arg1}) => 'Lịch sử 30 ngày qua cho thấy mức tạ tối đa của bạn là ${arg1} kg. Khuyến cáo bạn không thử sức bản thân với mức tạ này.';
 	@override String get title_safety_warn => 'Cảnh báo sốc tạ';
-	@override String get menu_save_as_routine => 'Lưu thành lịch tập mới';
 	@override String get btn_save_changes => 'Lưu thay đổi';
 	@override String get lbl_second => 'Giây';
 	@override String get lbl_select_hour => 'Chọn thời lượng';
@@ -3692,7 +3659,6 @@ class _StringsWorkoutVi extends _StringsWorkoutEn {
 	@override String fmt_ssn_sum_acwr_stats({required Object arg1, required Object arg2}) => 'Tuần này: ${arg1} / Cơ sở: ${arg2}';
 	@override String get lbl_ssn_sum_advice_title => 'Phân tích từ AI:';
 	@override String get title_ssn_sum_complete => 'TUYỆT VỜI!';
-	@override String get lbl_ssn_sum_default_name => 'Buổi tập mới';
 	@override String get btn_ssn_sum_home => 'VỀ LẠI TRANG CHỦ';
 	@override String get title_ssn_sum_rpe_card => 'Tự đánh giá mức độ mệt mỏi';
 	@override String get lbl_ssn_sum_rpe_max => '10 - Gục ngã hoàn toàn';
@@ -3711,9 +3677,7 @@ class _StringsWorkoutVi extends _StringsWorkoutEn {
 	@override String get btn_superset_add => 'Tạo / Thêm Superset';
 	@override String title_superset_add_to_group({required Object base, required Object targets}) => 'Thêm ${base} vào nhóm:\n${targets}';
 	@override String title_superset_create_new({required Object base, required Object targets}) => 'Tạo Superset:\n${base} & ${targets}';
-	@override String title_superset_expand_base({required Object targets, required Object base}) => 'Thêm ${targets} vào nhóm:\n${base}';
 	@override String get msg_superset_limit => 'Chỉ được ghép tối đa 3 bài tập trong 1 Superset để đảm bảo cơ bắp không bị kiệt sức và tối ưu hiệu quả!';
-	@override String get msg_superset_limit_proactive => 'Vượt quá giới hạn tối đa 3 bài tập trong 1 Superset.';
 	@override String get btn_superset_remove => 'Hủy Superset';
 	@override String get err_time_exceed_global => 'Thời gian của set tập không được vượt quá tổng thời gian tập thực tế';
 	@override String fmt_time_hms({required Object arg1, required Object arg2, required Object arg3}) => '${arg1}g ${arg2}p ${arg3}s';
@@ -3725,9 +3689,9 @@ class _StringsWorkoutVi extends _StringsWorkoutEn {
 	@override String get tooltip_view_details => 'Xem chi tiết';
 	@override String get type_dropset => 'Drop-set';
 	@override String get type_failure => 'Thất bại';
-	@override String get type_normal => 'Tiêu chuẩn';
+	@override String get type_normal => 'Hiệp chuẩn';
 	@override String get type_superset => 'Superset';
-	@override String get type_warmup => 'Khởi động';
+	@override String get type_warmup => 'Hiệp khởi động';
 	@override String get title_unsaved_changes => 'Thay đổi chưa được lưu';
 	@override String get msg_unsaved_changes => 'Bạn có chắc muốn rời khỏi trang này mà không lưu lại những thay đổi vừa thực hiện không? Mọi thay đổi sẽ bị mất nếu bạn tiếp tục.';
 	@override String get title_update_routine => 'Cập nhật Lịch tập';
@@ -3768,23 +3732,16 @@ class _StringsWorkoutRewardsVi extends _StringsWorkoutRewardsEn {
 	@override String get claim_error => 'Lỗi nhận thưởng';
 	@override String get load_error => 'Không thể tải phần thưởng';
 	@override String get loading => 'Đang tải phần thưởng...';
-	@override String get back => 'Quay lại';
 	@override String get tap_skip => 'Chạm để bỏ qua';
 	@override String get summary => 'Xem tổng kết';
 	@override String streak({required Object weeks}) => 'Chuỗi ${weeks} tuần!';
-	@override String get quest_workouts => 'Buổi tập';
-	@override String get quest_volume => 'Khối lượng';
 	@override String get quest_prs => 'Kỷ lục cá nhân';
-	@override String get quest_time => 'Thời gian';
 	@override String get quest_sets => 'Hiệp tập';
-	@override String get quest_exercises => 'Bài tập';
 	@override String get tap_claim => 'Chạm để nhận';
 	@override String get claimed => 'Đã nhận';
 	@override String claim({required Object xp}) => 'Nhận +${xp} XP';
-	@override String get chest_title => 'Rương tuần';
 	@override String level({required Object level}) => 'Cấp ${level}';
-	@override String get level_up => 'Lên cấp!';
-	@override String get zone_demote => 'Rớt hạng';
+	@override String get zone_demote => 'Vùng rớt hạng';
 	@override String get zone_maintain => 'Giữ hạng';
 	@override String get zone_promote => 'Lên hạng';
 	@override String get rank_review => 'Hạng sẽ được xét duyệt vào cuối tuần';
@@ -3797,10 +3754,8 @@ class _StringsNotificationsVi extends _StringsNotificationsEn {
 	@override final _StringsVi _root; // ignore: unused_field
 
 	// Translations
-	@override String get title_settings => 'Thông báo';
 	@override String get lbl_workout_reminders => 'Nhắc lịch tập';
 	@override String get lbl_streak_reminders => 'Nhắc duy trì streak';
-	@override String get lbl_hydration_reminders => 'Nhắc uống nước';
 	@override String get lbl_rank_reminders => 'Nhắc chu kỳ xếp hạng';
 	@override String get lbl_recovery_reminders => 'Nhắc phục hồi';
 	@override String get lbl_inactivity_reminders => 'Nhắc quay lại tập';
@@ -3812,7 +3767,6 @@ class _StringsNotificationsVi extends _StringsNotificationsEn {
 	@override String get msg_permission_required => 'Cho phép thông báo để nhận lời nhắc ngoài ứng dụng.';
 	@override String get msg_permission_disabled => 'Thông báo đang bị tắt trong cài đặt thiết bị.';
 	@override String get btn_enable => 'Bật thông báo';
-	@override String get btn_open_settings => 'Mở cài đặt thiết bị';
 	@override String get msg_category_disabled => 'Hãy bật nhóm lời nhắc này trong Cài đặt thông báo trước.';
 	@override String get lbl_remind_this_workout => 'Nhắc trước buổi tập này';
 	@override String fmt_minutes_before({required Object minutes}) => 'Trước ${minutes} phút';
@@ -3821,7 +3775,7 @@ class _StringsNotificationsVi extends _StringsNotificationsEn {
 	@override String get title_workout_today => 'Hôm nay bạn có lịch tập';
 	@override String body_workout_today({required Object routineName}) => 'Dành thời gian cho buổi ${routineName} khi thuận tiện nhé.';
 	@override String body_workout_streak({required Object routineName, required Object time}) => 'Buổi ${routineName} bắt đầu lúc ${time}. Buổi tập này có thể giúp bạn duy trì streak.';
-	@override String get lbl_hydration_at_16 => 'Nhắc uống nước lúc 16:00';
+	@override String get lbl_hydration_at_16 => 'Nhắc uống nước';
 	@override String get desc_hydration_reminder => 'Nhắc một lần lúc 16:00 nếu lượng nước đã ghi chưa đạt mục tiêu ngày.';
 	@override String get title_hydration_reminder => 'Nhớ uống nước nhé';
 	@override String get body_hydration_no_log => 'Hôm nay bạn chưa ghi lượng nước. Nếu đã uống, hãy cập nhật nhé.';
@@ -3894,7 +3848,6 @@ extension on Translations {
 			case 'auth.lbl_otp_input': return '6-digit code';
 			case 'auth.desc_otp_instruction': return ({required Object arg1}) => 'A verification code has been sent to ${arg1}. Please check your inbox.';
 			case 'auth.msg_otp_sent_err': return 'Connection error: Could not send the code. Please try again later.';
-			case 'auth.err_otp_sent_failed': return 'Connection error: Could not send code. Please try again later.';
 			case 'auth.msg_otp_sent_success': return 'A 6-digit verification code has been sent to your email!';
 			case 'auth.msg_processing': return 'Processing...';
 			case 'auth.msg_pulling_cloud_data': return 'Downloading cloud data...';
@@ -3947,7 +3900,6 @@ extension on Translations {
 			case 'calendar.repeat_interval': return 'Every X days';
 			case 'calendar.repeat_none': return 'Once, today only';
 			case 'calendar.repeat_weekly': return 'Weekly on specific days';
-			case 'calendar.btn_schedule': return 'Schedule';
 			case 'calendar.title_schedule_success': return 'Schedule Created Successfully!';
 			case 'calendar.msg_schedule_success': return 'The new routine schedule has been added to your calendar.';
 			case 'calendar.section_upcoming': return 'Planned Routines';
@@ -3960,6 +3912,7 @@ extension on Translations {
 			case 'calendar.view_month': return 'Month';
 			case 'calendar.view_multi_year': return 'Multi-Year';
 			case 'calendar.view_year': return 'Year';
+			case 'calendar.lbl_week': return 'Week';
 			case 'common.about_us': return 'About Us';
 			case 'common.accept': return 'Allow';
 			case 'common.add': return 'Add';
@@ -4019,6 +3972,7 @@ extension on Translations {
 			case 'common.unit_km': return 'km';
 			case 'common.unit_lbs': return 'lbs';
 			case 'common.video_err': return 'Failed to load tutorial video';
+			case 'common.error_generic': return 'An error occurred, please try again!';
 			case 'common.volume': return 'Volume';
 			case 'common.weight': return 'Weight';
 			case 'equipment.band': return 'Resistance Band';
@@ -4454,7 +4408,7 @@ extension on Translations {
 			case 'nutrition.err_food_pcf': return 'Protein/Carb/Fat must not exceed 500g.';
 			case 'nutrition.tab_food_quick_add': return 'Input Meal';
 			case 'nutrition.title_food_quick_input': return 'How many Calories did you just consume?';
-			case 'nutrition.btn_food_quick_submit': return 'QUICK ADD';
+			case 'nutrition.btn_food_quick_submit': return 'Quick Add';
 			case 'nutrition.desc_food_remove': return 'Remove food from meal plan';
 			case 'nutrition.hint_food_search': return 'Search for food...';
 			case 'nutrition.lbl_food_suggestions': return 'Suggestions / Recent';
@@ -4561,9 +4515,7 @@ extension on Translations {
 			case 'nutrition.hint_search_ingredient': return 'Search for ingredients...';
 			case 'nutrition.ing_almond': return 'Almond';
 			case 'nutrition.ing_almond_milk': return 'Almond Milk';
-			case 'nutrition.ing_apple': return 'Apple';
 			case 'nutrition.ing_avocado': return 'Avocado';
-			case 'nutrition.ing_banana': return 'Banana';
 			case 'nutrition.ing_beef': return 'Beef';
 			case 'nutrition.ing_bread': return 'Bread';
 			case 'nutrition.ing_broccoli': return 'Broccoli';
@@ -4592,7 +4544,6 @@ extension on Translations {
 			case 'nutrition.ing_onion': return 'Onion';
 			case 'nutrition.ing_orange': return 'Orange';
 			case 'nutrition.ing_peanut': return 'Peanut';
-			case 'nutrition.ing_peanut_butter': return 'Peanut Butter';
 			case 'nutrition.ing_pepper': return 'Pepper';
 			case 'nutrition.ing_pork': return 'Pork';
 			case 'nutrition.ing_pork_chop': return 'Pork Chop';
@@ -4605,12 +4556,10 @@ extension on Translations {
 			case 'nutrition.ing_spinach': return 'Spinach';
 			case 'nutrition.ing_squid': return 'Squid';
 			case 'nutrition.ing_sugar': return 'Sugar';
-			case 'nutrition.ing_sweet_potato': return 'Sweet Potato';
 			case 'nutrition.ing_tea': return 'Tea';
 			case 'nutrition.ing_tofu': return 'Tofu';
 			case 'nutrition.ing_tomato': return 'Tomato';
 			case 'nutrition.ing_walnut': return 'Walnut';
-			case 'nutrition.ing_white_rice': return 'White Rice';
 			case 'nutrition.ing_yogurt': return 'Yogurt';
 			case 'nutrition.lbl_ingredients': return 'Ingredients';
 			case 'nutrition.lbl_badge_recommended': return 'Recommended';
@@ -4687,7 +4636,6 @@ extension on Translations {
 			case 'onboarding.hint_username': return 'Enter your username...';
 			case 'onboarding.msg_warn_cardio': return 'Important Note: With a cardiovascular history, you must consult a specialist before starting this program.';
 			case 'onboarding.hint_wt': return 'e.g., 65 (kg)';
-			case 'onboarding.lbl_you_fallback': return 'you';
 			case 'onboarding.eula_intro': return ({required Object brand, required Object app}) => 'This agreement is a legal contract between you (the User) and ${brand} (We/Us) regarding the use of the ${app} mobile application. By installing or using the app, you agree to abide by the following terms:';
 			case 'onboarding.eula_p1_desc': return ({required Object app}) => 'We grant you a limited, non-exclusive, non-transferable, and revocable license to download, install, and use ${app} on your personal mobile devices for personal, non-commercial purposes.';
 			case 'onboarding.eula_p1_title': return '1. License Grant';
@@ -4751,7 +4699,6 @@ extension on Translations {
 			case 'profile.diet_dairy': return 'Dairy Allergy';
 			case 'profile.diet_gluten': return 'Gluten Intolerant';
 			case 'profile.diet_meat': return 'Avoid Red Meat';
-			case 'profile.diet_peanut': return 'Peanut Allergy';
 			case 'profile.diet_plan_balanced': return 'Balanced Diet';
 			case 'profile.diet_plan_dash': return 'DASH Diet';
 			case 'profile.diet_plan_high_protein': return 'High Protein';
@@ -5083,7 +5030,6 @@ extension on Translations {
 			case 'stats.title_hexagon_comparison_header': return 'Comparing the last 30 days with the previous month';
 			case 'stats.desc_hexagon_info_rank_prefix': return 'This chart evaluates the training volume of each muscle group. The ranks ranging from';
 			case 'stats.desc_hexagon_info_rank_suffix': return 'indicate whether you have reached the recommended training thresholds. Focus on improving the muscle groups with lower ranks to achieve a well-rounded and balanced physique.';
-			case 'stats.lbl_hexagon_legend_current': return 'Current';
 			case 'stats.lbl_hexagon_legend_previous': return 'Last Month';
 			case 'stats.title_hexagon_main': return 'Muscle Distribution Chart';
 			case 'stats.lbl_history_filter_by': return 'Filter by:';
@@ -5189,6 +5135,7 @@ extension on Translations {
 			case 'workout.lbl_default_folder': return 'My Routines';
 			case 'workout.lbl_default_name': return 'Freeform';
 			case 'workout.lbl_default_routine_name': return 'New Routine';
+			case 'workout.title_custom_program': return 'Custom Program';
 			case 'workout.title_delete_confirm': return 'Confirm delete?';
 			case 'workout.menu_delete_folder': return 'Delete folder';
 			case 'workout.msg_delete_irreversible': return 'Data for this routine will disappear permanently.';
@@ -5257,7 +5204,6 @@ extension on Translations {
 			case 'workout.msg_log_cancel_confirm': return 'All your effort so far will not be recorded in the system.';
 			case 'workout.btn_log_create_new': return 'Create New Template';
 			case 'workout.btn_log_delete_finish': return 'Finish';
-			case 'workout.btn_log_delete_swipe': return 'DELETE';
 			case 'workout.msg_log_empty': return 'No exercises added.\nPlease add exercises to get started.';
 			case 'workout.msg_log_end_reached': return 'You have reached the last exercise of this workout.\nRemember to stretch thoroughly after finishing!';
 			case 'workout.title_log_incomplete': return 'Incomplete';
@@ -5278,7 +5224,6 @@ extension on Translations {
 			case 'workout.msg_mini_player_cancel_warn': return 'Are you sure you want to cancel the ongoing workout? All your effort so far will be lost.';
 			case 'workout.btn_mini_player_confirm_delete': return 'Delete now';
 			case 'workout.desc_mini_player_delete': return 'Cancel workout';
-			case 'workout.btn_mini_player_dismiss_dialog': return 'Keep training';
 			case 'workout.btn_mini_player_resume': return 'Resume';
 			case 'workout.lbl_mini_player_status': return 'System recording...';
 			case 'workout.lbl_minute': return 'Minute';
@@ -5289,6 +5234,7 @@ extension on Translations {
 			case 'workout.lbl_next': return 'Up next';
 			case 'workout.title_no_ex_workout': return 'Cannot Finish';
 			case 'workout.msg_no_ex_workout': return 'Your workout has not completed any exercises. Please complete at least 1 exercise or Cancel this workout.';
+			case 'workout.lbl_unavailable_exercise': return 'Unavailable exercise';
 			case 'workout.msg_no_routine_generic': return 'Folder is empty.';
 			case 'workout.msg_no_routine_in_folder': return 'You haven\'t saved any routines here. Create one or find one in Explore.';
 			case 'workout.desc_normal': return 'Perform reps and weight according to the standard target. Focus on controlling form and rhythm.';
@@ -5323,7 +5269,6 @@ extension on Translations {
 			case 'workout.hint_routine_create_name': return 'Enter routine name ...';
 			case 'workout.title_routine_create_new': return 'Create New Routine';
 			case 'workout.title_routine_create_reorder': return 'Reorder';
-			case 'workout.menu_routine_create_reorder': return 'Reorder';
 			case 'workout.menu_routine_create_replace': return 'Replace exercise';
 			case 'workout.lbl_routine_create_rest_off': return 'Rest time off';
 			case 'workout.fmt_routine_create_rest_time': return ({required Object arg1}) => '${arg1} rest';
@@ -5331,12 +5276,11 @@ extension on Translations {
 			case 'workout.menu_routine_duplicate': return 'Duplicate';
 			case 'workout.fmt_routine_exercises_count': return ({required Object arg1}) => '${arg1} exercises';
 			case 'workout.err_routine_exercises_empty': return 'Please add at least one exercise to the routine';
-			case 'workout.col_routine_history': return 'HISTORY';
 			case 'workout.err_routine_name_empty': return 'Routine name cannot be empty';
+			case 'workout.msg_rate_limit_routine': return 'Rate Limit: You can only create a maximum of 10 routines!';
 			case 'workout.lbl_rpe_completed': return 'Completed';
 			case 'workout.msg_safety_threshold_desc': return ({required Object arg1}) => 'Your 30-day history shows your maximum weight is ${arg1} kg. Recommendation: Do not attempt to lift at this weight.';
 			case 'workout.title_safety_warn': return 'Safety Warning';
-			case 'workout.menu_save_as_routine': return 'Save as New Routine';
 			case 'workout.btn_save_changes': return 'Save changes';
 			case 'workout.lbl_second': return 'Second';
 			case 'workout.lbl_select_hour': return 'Select duration';
@@ -5347,7 +5291,6 @@ extension on Translations {
 			case 'workout.fmt_ssn_sum_acwr_stats': return ({required Object arg1, required Object arg2}) => 'This Week: ${arg1} / Base: ${arg2}';
 			case 'workout.lbl_ssn_sum_advice_title': return 'AI Analysis:';
 			case 'workout.title_ssn_sum_complete': return 'AWESOME!';
-			case 'workout.lbl_ssn_sum_default_name': return 'New Workout';
 			case 'workout.btn_ssn_sum_home': return 'BACK TO HOME';
 			case 'workout.title_ssn_sum_rpe_card': return 'Self-Assess Exertion Level';
 			case 'workout.lbl_ssn_sum_rpe_max': return '10 - Complete failure';
@@ -5366,9 +5309,7 @@ extension on Translations {
 			case 'workout.btn_superset_add': return 'Create / Add Superset';
 			case 'workout.title_superset_add_to_group': return ({required Object base, required Object targets}) => 'Add ${base} to group:\n${targets}';
 			case 'workout.title_superset_create_new': return ({required Object base, required Object targets}) => 'Create Superset:\n${base} & ${targets}';
-			case 'workout.title_superset_expand_base': return ({required Object targets, required Object base}) => 'Add ${targets} to group:\n${base}';
 			case 'workout.msg_superset_limit': return 'You can only combine up to 3 exercises in a single Superset to ensure your muscles aren\'t overworked and to optimize effectiveness!';
-			case 'workout.msg_superset_limit_proactive': return 'Exceeds maximum limit of 3 exercises per Superset.';
 			case 'workout.btn_superset_remove': return 'Remove Superset';
 			case 'workout.err_time_exceed_global': return 'Set time cannot exceed the actual total workout duration';
 			case 'workout.fmt_time_hms': return ({required Object arg1, required Object arg2, required Object arg3}) => '${arg1}h ${arg2}m ${arg3}s';
@@ -5414,30 +5355,21 @@ extension on Translations {
 			case 'workout_rewards.claim_error': return 'Failed to claim reward';
 			case 'workout_rewards.load_error': return 'Failed to load workout rewards';
 			case 'workout_rewards.loading': return 'Loading your rewards...';
-			case 'workout_rewards.back': return 'Back';
 			case 'workout_rewards.tap_skip': return 'Tap to skip';
 			case 'workout_rewards.summary': return 'View Summary';
 			case 'workout_rewards.streak': return ({required Object weeks}) => '${weeks} Week Streak!';
-			case 'workout_rewards.quest_workouts': return 'Workouts';
-			case 'workout_rewards.quest_volume': return 'Volume';
 			case 'workout_rewards.quest_prs': return 'Personal Records';
-			case 'workout_rewards.quest_time': return 'Duration';
 			case 'workout_rewards.quest_sets': return 'Sets';
-			case 'workout_rewards.quest_exercises': return 'Exercises';
 			case 'workout_rewards.tap_claim': return 'Tap to claim';
 			case 'workout_rewards.claimed': return 'Claimed';
 			case 'workout_rewards.claim': return ({required Object xp}) => 'Claim +${xp} XP';
-			case 'workout_rewards.chest_title': return 'Weekly Chest';
 			case 'workout_rewards.level': return ({required Object level}) => 'Level ${level}';
-			case 'workout_rewards.level_up': return 'Level Up!';
 			case 'workout_rewards.zone_demote': return 'Demote';
 			case 'workout_rewards.zone_maintain': return 'Maintain';
 			case 'workout_rewards.zone_promote': return 'Promote';
 			case 'workout_rewards.rank_review': return 'Rank will be reviewed at the end of the week';
-			case 'notifications.title_settings': return 'Notifications';
 			case 'notifications.lbl_workout_reminders': return 'Workout reminders';
 			case 'notifications.lbl_streak_reminders': return 'Streak reminders';
-			case 'notifications.lbl_hydration_reminders': return 'Water reminders';
 			case 'notifications.lbl_rank_reminders': return 'Rank cycle reminders';
 			case 'notifications.lbl_recovery_reminders': return 'Recovery reminders';
 			case 'notifications.lbl_inactivity_reminders': return 'Return-to-training reminders';
@@ -5449,7 +5381,6 @@ extension on Translations {
 			case 'notifications.msg_permission_required': return 'Allow notifications to receive reminders outside the app.';
 			case 'notifications.msg_permission_disabled': return 'Notifications are turned off in your device settings.';
 			case 'notifications.btn_enable': return 'Enable notifications';
-			case 'notifications.btn_open_settings': return 'Open device settings';
 			case 'notifications.msg_category_disabled': return 'Enable this reminder group in Notification Settings first.';
 			case 'notifications.lbl_remind_this_workout': return 'Remind me before this workout';
 			case 'notifications.fmt_minutes_before': return ({required Object minutes}) => '${minutes} minutes before';
@@ -5458,7 +5389,7 @@ extension on Translations {
 			case 'notifications.title_workout_today': return 'You have a workout planned today';
 			case 'notifications.body_workout_today': return ({required Object routineName}) => 'Make time for ${routineName} when it suits you.';
 			case 'notifications.body_workout_streak': return ({required Object routineName, required Object time}) => '${routineName} starts at ${time}. This workout can help keep your streak going.';
-			case 'notifications.lbl_hydration_at_16': return 'Remind me to drink water at 4 PM';
+			case 'notifications.lbl_hydration_at_16': return 'Hydration Reminder';
 			case 'notifications.desc_hydration_reminder': return 'One reminder at 4 PM, only if your logged intake is below your daily goal.';
 			case 'notifications.title_hydration_reminder': return 'A moment for water';
 			case 'notifications.body_hydration_no_log': return 'You haven\'t logged any water today. If you\'ve had some, update your log.';
@@ -5531,7 +5462,6 @@ extension on _StringsVi {
 			case 'auth.lbl_otp_input': return 'Mã gồm 6 chữ số';
 			case 'auth.desc_otp_instruction': return ({required Object arg1}) => 'Mã xác nhận đã được gửi đến ${arg1}. Vui lòng kiểm tra hộp thư.';
 			case 'auth.msg_otp_sent_err': return 'Lỗi kết nối: Không thể gửi mã. Vui lòng thử lại sau.';
-			case 'auth.err_otp_sent_failed': return 'Lỗi kết nối: Không thể gửi mã. Vui lòng thử lại sau.';
 			case 'auth.msg_otp_sent_success': return 'Đã gửi mã xác nhận 6 số đến thư điện tử của bạn!';
 			case 'auth.msg_processing': return 'Đang xử lý...';
 			case 'auth.msg_pulling_cloud_data': return 'Đang tải dữ liệu đám mây...';
@@ -5562,7 +5492,7 @@ extension on _StringsVi {
 			case 'calendar.title_config_recurrence': return 'Cấu hình chu kì';
 			case 'calendar.btn_confirm': return 'Tạo lịch';
 			case 'calendar.title_day_dtl': return 'Lịch trình ngày';
-			case 'calendar.title_delete': return 'Xóa lịch tập';
+			case 'calendar.title_delete': return 'Xóa buổi tập';
 			case 'calendar.opt_delete_all': return 'Xóa toàn bộ chuỗi';
 			case 'calendar.msg_delete_confirm': return 'Bạn có chắc chắn muốn xóa lịch tập này không?';
 			case 'calendar.opt_delete_one': return 'Chỉ xóa ngày này';
@@ -5584,7 +5514,6 @@ extension on _StringsVi {
 			case 'calendar.repeat_interval': return 'Cách X ngày tập 1 lần';
 			case 'calendar.repeat_none': return 'Chỉ một lần hôm nay';
 			case 'calendar.repeat_weekly': return 'Hàng tuần vào ngày cụ thể';
-			case 'calendar.btn_schedule': return 'Lên lịch';
 			case 'calendar.title_schedule_success': return 'Tạo lịch thành công!';
 			case 'calendar.msg_schedule_success': return 'Lịch tập mới đã được thêm vào lịch của bạn.';
 			case 'calendar.section_upcoming': return 'Kế hoạch';
@@ -5597,6 +5526,7 @@ extension on _StringsVi {
 			case 'calendar.view_month': return 'Tháng';
 			case 'calendar.view_multi_year': return 'Nhiều Năm';
 			case 'calendar.view_year': return 'Năm';
+			case 'calendar.lbl_week': return 'Tuần';
 			case 'common.about_us': return 'Về chúng tôi';
 			case 'common.accept': return 'Cho phép';
 			case 'common.add': return 'Thêm';
@@ -5656,6 +5586,7 @@ extension on _StringsVi {
 			case 'common.unit_km': return 'km';
 			case 'common.unit_lbs': return 'lbs';
 			case 'common.video_err': return 'Không thể tải video hướng dẫn';
+			case 'common.error_generic': return 'Có lỗi xảy ra, vui lòng thử lại!';
 			case 'common.volume': return 'Tải trọng';
 			case 'common.weight': return 'Trọng lượng';
 			case 'equipment.band': return 'Dây kháng lực';
@@ -5698,7 +5629,7 @@ extension on _StringsVi {
 			case 'exercises.desc_chest_dips': return '1. Chuẩn bị: Nắm xà kép và nhảy lên duỗi thẳng tay. Đổ người ngả về trước khoảng 30 độ để nhắm vào cơ ngực.\n2. Thực hiện: Hít vào, từ từ gập cùi chỏ hạ cơ thể xuống cho đến khi vai thấp hơn cùi chỏ một chút.\n3. Đẩy lên: Thở ra, dồn lực vào lòng bàn tay và siết ngực đẩy người lên vị trí ban đầu.\n💡 Cảm nhận cơ: Tập trung cảm nhận ngực giãn ra ở điểm thấp nhất và siết chặt lại khi đẩy lên.\n⚠️ Lỗi sai cần tránh: Giữ người quá thẳng (sẽ ăn vào tay sau) hoặc hạ người quá sâu gây đau khớp vai.';
 			case 'exercises.name_chest_supported_row': return 'Nằm ghế dốc kéo lưng';
 			case 'exercises.desc_chest_supported_row': return '1. Nằm sấp ngực tựa chắc lên ghế dốc 45 độ. Hai tay buông thõng cầm tạ đơn.\n2. Thở ra, kéo cùi chỏ lên trần nhà ép chặt hai bả vai.\n3. Hít vào từ từ hạ tạ để giãn cơ lưng.';
-			case 'exercises.name_chin_up': return 'Hít xà đơn';
+			case 'exercises.name_chin_up': return 'Hít xà đơn ngửa tay';
 			case 'exercises.desc_chin_up': return '1. Nắm thanh xà với lòng bàn tay hướng về phía người. Treo người duỗi thẳng tay.\n2. Thở ra, siết lưng xô và bắp tay kéo người lên cho đến khi cằm vượt qua xà.\n3. Ép chặt hai bả vai. Hít vào và từ từ hạ thân người xuống hết cỡ (dead hang).';
 			case 'exercises.name_close_grip_pulldown': return 'Kéo xô hẹp tay';
 			case 'exercises.desc_close_grip_pulldown': return '1. Cầm tay cầm V-bar, ngực ưỡn nhẹ.\n2. Thở ra, kéo V-bar hướng xuống phần ngực giữa. Giữ cùi chỏ ép sát vào sườn.\n3. Ép bả vai ở điểm thấp nhất. Hít vào và nhả tạ lên từ từ để kéo giãn cơ xô.';
@@ -5804,7 +5735,7 @@ extension on _StringsVi {
 			case 'exercises.desc_plank': return '1. Chống hai cùi chỏ xuống sàn. Cơ thể thẳng tắp từ gót chân tới đầu.\n2. Chủ động siết cơ bụng, gồng cơ mông và đùi trước.\n3. Giữ tư thế tĩnh và duy trì nhịp thở đều đặn.';
 			case 'exercises.name_preacher_curl': return 'Cuốn tay trước trên ghế tựa';
 			case 'exercises.desc_preacher_curl': return '1. Ngồi ghế Preacher, khóa chặt bắp tay trên mặt đệm. Cầm tạ đòn ngửa tay.\n2. Thở ra, cuốn tạ về phía vai, siết chặt bắp tay.\n3. Hít vào, hạ tạ chậm đến khi tay gần duỗi thẳng.';
-			case 'exercises.name_pull_up': return 'Hít xà đơn';
+			case 'exercises.name_pull_up': return 'Hít xà đơn sấp tay';
 			case 'exercises.desc_pull_up': return '1. Nắm thanh xà lòng bàn tay hướng tới trước. Gồng cơ core chống đung đưa.\n2. Thở ra, kéo cùi chỏ hướng xuống để nâng người qua xà.\n3. Hít vào, từ từ hạ người xuống đến khi duỗi thẳng tay.';
 			case 'exercises.name_push_up': return 'Hít đất';
 			case 'exercises.desc_push_up': return '1. Nằm sấp chống thẳng tay. Lưng, hông, chân tạo đường thẳng.\n2. Hít vào, gập cùi chỏ hạ ngực cách sàn khoảng 1-2cm.\n3. Thở ra, đẩy ngực và tay sau vươn người lên vị trí ban đầu.';
@@ -5943,7 +5874,7 @@ extension on _StringsVi {
 			case 'gamification.dialog_chest_title_success': return 'Chúc mừng!';
 			case 'gamification.tab_leaderboard': return 'Xếp hạng';
 			case 'gamification.leaderboard_you': return 'Bạn';
-			case 'gamification.msg_level_up_base': return 'Thăng Cấp!';
+			case 'gamification.msg_level_up_base': return 'Lên cấp!';
 			case 'gamification.title_main': return 'Thành tích';
 			case 'gamification.msg_no_quests': return 'Không có nhiệm vụ nào trong tuần này. Hãy tập luyện chăm chỉ để nhận nhiệm vụ vào tuần tới nhé!';
 			case 'gamification.btn_open_chest': return 'MỞ RƯƠNG';
@@ -5964,7 +5895,7 @@ extension on _StringsVi {
 			case 'gamification.desc_top_1_icon': return 'Hạng 1';
 			case 'gamification.fmt_user_level': return ({required Object arg1}) => 'Cấp ${arg1}';
 			case 'gamification.fmt_user_name_badge': return ({required Object arg1}) => '${arg1} (Bạn)';
-			case 'gamification.title_weekly_chest': return 'Rương Tuần';
+			case 'gamification.title_weekly_chest': return 'Rương tuần';
 			case 'gamification.title_weekly_quests': return 'Nhiệm vụ tuần này';
 			case 'gamification.msg_workout_deleted': return 'Đã xóa buổi tập thành công';
 			case 'gamification.lbl_xp_earned': return 'XP Nhận được';
@@ -6091,7 +6022,7 @@ extension on _StringsVi {
 			case 'nutrition.err_food_pcf': return 'Protein/Carb/Fat của món ăn không vượt quá 500g.';
 			case 'nutrition.tab_food_quick_add': return 'Nhập món ăn';
 			case 'nutrition.title_food_quick_input': return 'Bạn vừa nạp bao nhiêu Năng lượng?';
-			case 'nutrition.btn_food_quick_submit': return 'THÊM NHANH';
+			case 'nutrition.btn_food_quick_submit': return 'Thêm nhanh';
 			case 'nutrition.desc_food_remove': return 'Bỏ món ăn khỏi thực đơn';
 			case 'nutrition.hint_food_search': return 'Tìm kiếm thực phẩm...';
 			case 'nutrition.lbl_food_suggestions': return 'Gợi ý / Ăn gần đây';
@@ -6198,9 +6129,7 @@ extension on _StringsVi {
 			case 'nutrition.hint_search_ingredient': return 'Nhập tên nguyên liệu (ví dụ: Thịt bò)...';
 			case 'nutrition.ing_almond': return 'Hạnh nhân';
 			case 'nutrition.ing_almond_milk': return 'Sữa hạnh nhân';
-			case 'nutrition.ing_apple': return 'Táo';
 			case 'nutrition.ing_avocado': return 'Quả bơ';
-			case 'nutrition.ing_banana': return 'Chuối';
 			case 'nutrition.ing_beef': return 'Thịt bò';
 			case 'nutrition.ing_bread': return 'Bánh mì';
 			case 'nutrition.ing_broccoli': return 'Bông cải xanh';
@@ -6229,7 +6158,6 @@ extension on _StringsVi {
 			case 'nutrition.ing_onion': return 'Hành tây';
 			case 'nutrition.ing_orange': return 'Cam';
 			case 'nutrition.ing_peanut': return 'Đậu phộng';
-			case 'nutrition.ing_peanut_butter': return 'Bơ đậu phộng';
 			case 'nutrition.ing_pepper': return 'Tiêu';
 			case 'nutrition.ing_pork': return 'Thịt lợn';
 			case 'nutrition.ing_pork_chop': return 'Sườn heo';
@@ -6242,12 +6170,10 @@ extension on _StringsVi {
 			case 'nutrition.ing_spinach': return 'Rau chân vịt';
 			case 'nutrition.ing_squid': return 'Mực';
 			case 'nutrition.ing_sugar': return 'Đường';
-			case 'nutrition.ing_sweet_potato': return 'Khoai lang';
 			case 'nutrition.ing_tea': return 'Trà';
 			case 'nutrition.ing_tofu': return 'Đậu phụ';
 			case 'nutrition.ing_tomato': return 'Cà chua';
 			case 'nutrition.ing_walnut': return 'Óc chó';
-			case 'nutrition.ing_white_rice': return 'Cơm trắng';
 			case 'nutrition.ing_yogurt': return 'Sữa chua';
 			case 'nutrition.lbl_ingredients': return 'Thành phần nguyên liệu';
 			case 'nutrition.lbl_badge_recommended': return 'Phù hợp';
@@ -6324,7 +6250,6 @@ extension on _StringsVi {
 			case 'onboarding.hint_username': return 'Nhập username của bạn...';
 			case 'onboarding.msg_warn_cardio': return 'Lưu ý quan trọng: Với tiền sử tim mạch, bạn cần tham khảo ý kiến bác sĩ chuyên khoa trước khi bắt đầu lộ trình.';
 			case 'onboarding.hint_wt': return 'VD: 65 (kg)';
-			case 'onboarding.lbl_you_fallback': return 'bạn';
 			case 'onboarding.eula_intro': return ({required Object brand, required Object app}) => 'Thỏa thuận này là hợp đồng pháp lý giữa bạn (Người dùng) và ${brand} (Chúng tôi) về việc sử dụng ứng dụng di động ${app}. Bằng việc cài đặt hoặc sử dụng ứng dụng, bạn đồng ý tuân thủ các điều khoản sau:';
 			case 'onboarding.eula_p1_desc': return ({required Object app}) => 'Chúng tôi cấp cho bạn một giấy phép giới hạn, không độc quyền, không thể chuyển nhượng và có thể thu hồi để tải xuống, cài đặt và sử dụng ${app} trên các thiết bị di động thuộc quyền sở hữu của bạn, phục vụ cho mục đích cá nhân và không thương mại.';
 			case 'onboarding.eula_p1_title': return '1. Cấp phép sử dụng';
@@ -6388,7 +6313,6 @@ extension on _StringsVi {
 			case 'profile.diet_dairy': return 'Dị ứng sữa';
 			case 'profile.diet_gluten': return 'Không nạp Gluten';
 			case 'profile.diet_meat': return 'Tránh các loại thịt đỏ';
-			case 'profile.diet_peanut': return 'Dị ứng đậu phộng';
 			case 'profile.diet_plan_balanced': return 'Cân bằng dinh dưỡng';
 			case 'profile.diet_plan_dash': return 'Chế độ giảm huyết áp';
 			case 'profile.diet_plan_high_protein': return 'Tập trung nhiều đạm';
@@ -6720,7 +6644,6 @@ extension on _StringsVi {
 			case 'stats.title_hexagon_comparison_header': return 'So sánh 30 ngày qua với tháng trước';
 			case 'stats.desc_hexagon_info_rank_prefix': return 'Biểu đồ này đánh giá mức độ tập luyện của từng nhóm cơ. Các mức hạng trải dài từ';
 			case 'stats.desc_hexagon_info_rank_suffix': return 'cho biết bạn đã tập đủ khối lượng khuyến nghị hay chưa. Hãy tập trung cải thiện những nhóm cơ đang ở hạng thấp để cơ thể phát triển toàn diện và cân đối.';
-			case 'stats.lbl_hexagon_legend_current': return 'Hiện tại';
 			case 'stats.lbl_hexagon_legend_previous': return 'Tháng trước';
 			case 'stats.title_hexagon_main': return 'Biểu đồ Phân bổ Cơ bắp';
 			case 'stats.lbl_history_filter_by': return 'Thống kê theo:';
@@ -6826,6 +6749,7 @@ extension on _StringsVi {
 			case 'workout.lbl_default_folder': return 'Lịch tập của tôi';
 			case 'workout.lbl_default_name': return 'Tự do';
 			case 'workout.lbl_default_routine_name': return 'Lịch tập mới';
+			case 'workout.title_custom_program': return 'Gói tập Tùy chỉnh';
 			case 'workout.title_delete_confirm': return 'Xác nhận xóa?';
 			case 'workout.menu_delete_folder': return 'Xóa bỏ thư mục';
 			case 'workout.msg_delete_irreversible': return 'Dữ liệu của lịch tập này sẽ biến mất vĩnh viễn.';
@@ -6880,7 +6804,7 @@ extension on _StringsVi {
 			case 'workout.err_invalid_wt': return 'Vui lòng nhập trọng lượng hợp lệ!';
 			case 'workout.err_invalid_wt_max': return 'Trọng lượng bất hợp lý (>=2000kg).';
 			case 'workout.btn_keep_ssn': return 'Giữ buổi tập cũ';
-			case 'workout.btn_keep_training': return 'Tập thêm';
+			case 'workout.btn_keep_training': return 'Tiếp tục tập luyện';
 			case 'workout.status_last_set_done': return 'Hoàn thành set cuối';
 			case 'workout.msg_load_manager_caution_spike': return ({required Object arg1}) => 'Thử thách cao (+${arg1}%). Hãy chú ý kỹ thuật thật chuẩn.';
 			case 'workout.msg_load_manager_danger_spike': return ({required Object arg1, required Object arg2}) => 'Cảnh báo! Mức tạ tăng quá nhanh (+${arg1}%). Kỷ lục gần đây: ${arg2}kg.';
@@ -6894,7 +6818,6 @@ extension on _StringsVi {
 			case 'workout.msg_log_cancel_confirm': return 'Mọi nỗ lực nãy giờ của bạn sẽ không được ghi nhận vào hệ thống.';
 			case 'workout.btn_log_create_new': return 'Tạo mẫu mới';
 			case 'workout.btn_log_delete_finish': return 'Kết thúc';
-			case 'workout.btn_log_delete_swipe': return 'XÓA BỎ';
 			case 'workout.msg_log_empty': return 'Chưa có bài tập nào.\nHãy thêm bài tập để bắt đầu.';
 			case 'workout.msg_log_end_reached': return 'Bạn đã đến bài tập cuối cùng của buổi tập này.\nHãy nhớ xả cơ thật kỹ sau khi tập xong nhé!';
 			case 'workout.title_log_incomplete': return 'Chưa hoàn thành';
@@ -6915,7 +6838,6 @@ extension on _StringsVi {
 			case 'workout.msg_mini_player_cancel_warn': return 'Bạn có chắc muốn hủy bỏ buổi tập đang diễn ra không? Toàn bộ công sức nãy giờ sẽ biến mất.';
 			case 'workout.btn_mini_player_confirm_delete': return 'Xóa ngay';
 			case 'workout.desc_mini_player_delete': return 'Hủy bỏ buổi tập';
-			case 'workout.btn_mini_player_dismiss_dialog': return 'Vẫn tập tiếp';
 			case 'workout.btn_mini_player_resume': return 'Tiếp tục';
 			case 'workout.lbl_mini_player_status': return 'Hệ thống đang ghi nhận...';
 			case 'workout.lbl_minute': return 'Phút';
@@ -6923,9 +6845,10 @@ extension on _StringsVi {
 			case 'workout.title_my_notes': return 'Ghi chú của tôi';
 			case 'workout.msg_new_pr_generic': return 'Kỷ lục cá nhân mới đã được thiết lập!';
 			case 'workout.title_new_workout': return 'Buổi tập mới';
-			case 'workout.lbl_next': return 'Tiếp theo';
+			case 'workout.lbl_next': return 'Bài tiếp theo';
 			case 'workout.title_no_ex_workout': return 'Không thể hoàn tất';
 			case 'workout.msg_no_ex_workout': return 'Buổi tập của bạn chưa có hiệp tập nào được hoàn thành. Vui lòng hoàn thành ít nhất 1 hiệp tập hoặc Hủy buổi tập này.';
+			case 'workout.lbl_unavailable_exercise': return 'Bài tập không khả dụng';
 			case 'workout.msg_no_routine_generic': return 'Thư mục trống.';
 			case 'workout.msg_no_routine_in_folder': return 'Bạn chưa lưu lịch tập nào ở đây. Hãy tự tạo hoặc tìm từ mục Khám phá.';
 			case 'workout.desc_normal': return 'Thực hiện số lần lặp lại và mức tạ theo mục tiêu thông thường. Trọng tâm vào việc kiểm soát form và nhịp độ.';
@@ -6951,7 +6874,7 @@ extension on _StringsVi {
 			case 'workout.status_rest_over': return 'Hết giờ nghỉ!';
 			case 'workout.fmt_rest_seconds': return ({required Object arg1}) => '${arg1} giây';
 			case 'workout.title_rest_time': return 'Bộ đếm giờ nghỉ';
-			case 'workout.status_resting': return 'Nghỉ ngơi';
+			case 'workout.status_resting': return 'Đang nghỉ giữa hiệp';
 			case 'workout.btn_routine_create_add_ex': return 'CHỌN BÀI TẬP';
 			case 'workout.btn_routine_create_add_set': return 'Thêm hiệp';
 			case 'workout.title_routine_create_confirm_update': return 'Cập nhật';
@@ -6960,7 +6883,6 @@ extension on _StringsVi {
 			case 'workout.hint_routine_create_name': return 'Nhập tên lịch tập (ví dụ: Tập thân trên)...';
 			case 'workout.title_routine_create_new': return 'Tạo Lịch tập mới';
 			case 'workout.title_routine_create_reorder': return 'Sắp xếp thứ tự';
-			case 'workout.menu_routine_create_reorder': return 'Đảo thứ tự';
 			case 'workout.menu_routine_create_replace': return 'Đổi bài khác';
 			case 'workout.lbl_routine_create_rest_off': return 'Tắt thời gian nghỉ';
 			case 'workout.fmt_routine_create_rest_time': return ({required Object arg1}) => '${arg1} nghỉ';
@@ -6968,12 +6890,11 @@ extension on _StringsVi {
 			case 'workout.menu_routine_duplicate': return 'Nhân bản';
 			case 'workout.fmt_routine_exercises_count': return ({required Object arg1}) => '${arg1} bài tập';
 			case 'workout.err_routine_exercises_empty': return 'Vui lòng thêm ít nhất một bài tập vào lịch tập';
-			case 'workout.col_routine_history': return 'LỊCH SỬ';
 			case 'workout.err_routine_name_empty': return 'Tên lịch tập không được để trống';
+			case 'workout.msg_rate_limit_routine': return 'Rate Limit: Bạn chỉ được tạo tối đa 10 giáo án!';
 			case 'workout.lbl_rpe_completed': return 'Hoàn thành';
 			case 'workout.msg_safety_threshold_desc': return ({required Object arg1}) => 'Lịch sử 30 ngày qua cho thấy mức tạ tối đa của bạn là ${arg1} kg. Khuyến cáo bạn không thử sức bản thân với mức tạ này.';
 			case 'workout.title_safety_warn': return 'Cảnh báo sốc tạ';
-			case 'workout.menu_save_as_routine': return 'Lưu thành lịch tập mới';
 			case 'workout.btn_save_changes': return 'Lưu thay đổi';
 			case 'workout.lbl_second': return 'Giây';
 			case 'workout.lbl_select_hour': return 'Chọn thời lượng';
@@ -6984,7 +6905,6 @@ extension on _StringsVi {
 			case 'workout.fmt_ssn_sum_acwr_stats': return ({required Object arg1, required Object arg2}) => 'Tuần này: ${arg1} / Cơ sở: ${arg2}';
 			case 'workout.lbl_ssn_sum_advice_title': return 'Phân tích từ AI:';
 			case 'workout.title_ssn_sum_complete': return 'TUYỆT VỜI!';
-			case 'workout.lbl_ssn_sum_default_name': return 'Buổi tập mới';
 			case 'workout.btn_ssn_sum_home': return 'VỀ LẠI TRANG CHỦ';
 			case 'workout.title_ssn_sum_rpe_card': return 'Tự đánh giá mức độ mệt mỏi';
 			case 'workout.lbl_ssn_sum_rpe_max': return '10 - Gục ngã hoàn toàn';
@@ -7003,9 +6923,7 @@ extension on _StringsVi {
 			case 'workout.btn_superset_add': return 'Tạo / Thêm Superset';
 			case 'workout.title_superset_add_to_group': return ({required Object base, required Object targets}) => 'Thêm ${base} vào nhóm:\n${targets}';
 			case 'workout.title_superset_create_new': return ({required Object base, required Object targets}) => 'Tạo Superset:\n${base} & ${targets}';
-			case 'workout.title_superset_expand_base': return ({required Object targets, required Object base}) => 'Thêm ${targets} vào nhóm:\n${base}';
 			case 'workout.msg_superset_limit': return 'Chỉ được ghép tối đa 3 bài tập trong 1 Superset để đảm bảo cơ bắp không bị kiệt sức và tối ưu hiệu quả!';
-			case 'workout.msg_superset_limit_proactive': return 'Vượt quá giới hạn tối đa 3 bài tập trong 1 Superset.';
 			case 'workout.btn_superset_remove': return 'Hủy Superset';
 			case 'workout.err_time_exceed_global': return 'Thời gian của set tập không được vượt quá tổng thời gian tập thực tế';
 			case 'workout.fmt_time_hms': return ({required Object arg1, required Object arg2, required Object arg3}) => '${arg1}g ${arg2}p ${arg3}s';
@@ -7017,9 +6935,9 @@ extension on _StringsVi {
 			case 'workout.tooltip_view_details': return 'Xem chi tiết';
 			case 'workout.type_dropset': return 'Drop-set';
 			case 'workout.type_failure': return 'Thất bại';
-			case 'workout.type_normal': return 'Tiêu chuẩn';
+			case 'workout.type_normal': return 'Hiệp chuẩn';
 			case 'workout.type_superset': return 'Superset';
-			case 'workout.type_warmup': return 'Khởi động';
+			case 'workout.type_warmup': return 'Hiệp khởi động';
 			case 'workout.title_unsaved_changes': return 'Thay đổi chưa được lưu';
 			case 'workout.msg_unsaved_changes': return 'Bạn có chắc muốn rời khỏi trang này mà không lưu lại những thay đổi vừa thực hiện không? Mọi thay đổi sẽ bị mất nếu bạn tiếp tục.';
 			case 'workout.title_update_routine': return 'Cập nhật Lịch tập';
@@ -7051,30 +6969,21 @@ extension on _StringsVi {
 			case 'workout_rewards.claim_error': return 'Lỗi nhận thưởng';
 			case 'workout_rewards.load_error': return 'Không thể tải phần thưởng';
 			case 'workout_rewards.loading': return 'Đang tải phần thưởng...';
-			case 'workout_rewards.back': return 'Quay lại';
 			case 'workout_rewards.tap_skip': return 'Chạm để bỏ qua';
 			case 'workout_rewards.summary': return 'Xem tổng kết';
 			case 'workout_rewards.streak': return ({required Object weeks}) => 'Chuỗi ${weeks} tuần!';
-			case 'workout_rewards.quest_workouts': return 'Buổi tập';
-			case 'workout_rewards.quest_volume': return 'Khối lượng';
 			case 'workout_rewards.quest_prs': return 'Kỷ lục cá nhân';
-			case 'workout_rewards.quest_time': return 'Thời gian';
 			case 'workout_rewards.quest_sets': return 'Hiệp tập';
-			case 'workout_rewards.quest_exercises': return 'Bài tập';
 			case 'workout_rewards.tap_claim': return 'Chạm để nhận';
 			case 'workout_rewards.claimed': return 'Đã nhận';
 			case 'workout_rewards.claim': return ({required Object xp}) => 'Nhận +${xp} XP';
-			case 'workout_rewards.chest_title': return 'Rương tuần';
 			case 'workout_rewards.level': return ({required Object level}) => 'Cấp ${level}';
-			case 'workout_rewards.level_up': return 'Lên cấp!';
-			case 'workout_rewards.zone_demote': return 'Rớt hạng';
+			case 'workout_rewards.zone_demote': return 'Vùng rớt hạng';
 			case 'workout_rewards.zone_maintain': return 'Giữ hạng';
 			case 'workout_rewards.zone_promote': return 'Lên hạng';
 			case 'workout_rewards.rank_review': return 'Hạng sẽ được xét duyệt vào cuối tuần';
-			case 'notifications.title_settings': return 'Thông báo';
 			case 'notifications.lbl_workout_reminders': return 'Nhắc lịch tập';
 			case 'notifications.lbl_streak_reminders': return 'Nhắc duy trì streak';
-			case 'notifications.lbl_hydration_reminders': return 'Nhắc uống nước';
 			case 'notifications.lbl_rank_reminders': return 'Nhắc chu kỳ xếp hạng';
 			case 'notifications.lbl_recovery_reminders': return 'Nhắc phục hồi';
 			case 'notifications.lbl_inactivity_reminders': return 'Nhắc quay lại tập';
@@ -7086,7 +6995,6 @@ extension on _StringsVi {
 			case 'notifications.msg_permission_required': return 'Cho phép thông báo để nhận lời nhắc ngoài ứng dụng.';
 			case 'notifications.msg_permission_disabled': return 'Thông báo đang bị tắt trong cài đặt thiết bị.';
 			case 'notifications.btn_enable': return 'Bật thông báo';
-			case 'notifications.btn_open_settings': return 'Mở cài đặt thiết bị';
 			case 'notifications.msg_category_disabled': return 'Hãy bật nhóm lời nhắc này trong Cài đặt thông báo trước.';
 			case 'notifications.lbl_remind_this_workout': return 'Nhắc trước buổi tập này';
 			case 'notifications.fmt_minutes_before': return ({required Object minutes}) => 'Trước ${minutes} phút';
@@ -7095,7 +7003,7 @@ extension on _StringsVi {
 			case 'notifications.title_workout_today': return 'Hôm nay bạn có lịch tập';
 			case 'notifications.body_workout_today': return ({required Object routineName}) => 'Dành thời gian cho buổi ${routineName} khi thuận tiện nhé.';
 			case 'notifications.body_workout_streak': return ({required Object routineName, required Object time}) => 'Buổi ${routineName} bắt đầu lúc ${time}. Buổi tập này có thể giúp bạn duy trì streak.';
-			case 'notifications.lbl_hydration_at_16': return 'Nhắc uống nước lúc 16:00';
+			case 'notifications.lbl_hydration_at_16': return 'Nhắc uống nước';
 			case 'notifications.desc_hydration_reminder': return 'Nhắc một lần lúc 16:00 nếu lượng nước đã ghi chưa đạt mục tiêu ngày.';
 			case 'notifications.title_hydration_reminder': return 'Nhớ uống nước nhé';
 			case 'notifications.body_hydration_no_log': return 'Hôm nay bạn chưa ghi lượng nước. Nếu đã uống, hãy cập nhật nhé.';

@@ -97,7 +97,7 @@ class AuthCubit extends Cubit<AuthState> {
       return false;
     }
     final isSuccess = await _authRepo.requestLoginOtp(email);
-    emit(state.copyWith(isLoading: false, authMessage: isSuccess ? 'auth.msg_otp_sent_success' : 'auth.err_otp_sent_failed'));
+    emit(state.copyWith(isLoading: false, authMessage: isSuccess ? 'auth.msg_otp_sent_success' : 'auth.msg_otp_sent_err'));
     return isSuccess;
   }
 
@@ -117,7 +117,7 @@ class AuthCubit extends Cubit<AuthState> {
       isSuccess = await _authRepo.requestLinkOtp(email); 
     }
     
-    emit(state.copyWith(isLoading: false, authMessage: isSuccess ? 'auth.msg_otp_sent_success' : 'auth.err_otp_sent_failed'));
+    emit(state.copyWith(isLoading: false, authMessage: isSuccess ? 'auth.msg_otp_sent_success' : 'auth.msg_otp_sent_err'));
     return isSuccess;
   }
 
@@ -138,7 +138,7 @@ class AuthCubit extends Cubit<AuthState> {
       return false;
     }
     final isSuccess = await _authRepo.requestLoginOtp(email);
-    emit(state.copyWith(isLoading: false, authMessage: isSuccess ? 'auth.msg_otp_sent_success' : 'auth.err_otp_sent_failed'));
+    emit(state.copyWith(isLoading: false, authMessage: isSuccess ? 'auth.msg_otp_sent_success' : 'auth.msg_otp_sent_err'));
     return isSuccess;
   }
 
