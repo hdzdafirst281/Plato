@@ -4,14 +4,14 @@
 
 - Workout: one reminder per timed schedule, 15/30/60 minutes before it. Date-only legacy schedules remain date-only with reminders off. Calendar supports setting a date/time, editing one occurrence, and starting its linked workout.
 - No missed-workout notification.
-- Water: opt-in, one candidate at 16:00 for today, using today's logged intake and current target. No log / below 50% / below target use different Sheet copy; reaching the goal cancels the pending reminder. Conflicts are skipped, never moved later.
+- Water: opt-in, one candidate per day at 16:00, prepared up to 30 days ahead with each day's own logged intake and current target. No log / below 50% / below target use different Sheet copy; reaching the goal cancels the pending reminder. Conflicts are skipped, never moved later.
 - Streak: Sunday 17:00 if the preceding streak is alive and this week has no qualifying workout. A scheduled Sunday-evening workout reminder replaces it.
 - Rank: 48 hours before the personal 45-day cycle ends, once per cycle.
 - Recovery: trained muscles crossing 80%, grouped within three hours, with an available routine; at most one per day and two per week. Skip workout days. The workout screen also recommends recovered routines and routine details show low-recovery context.
 - Inactivity: experimental, disabled by default; candidates after 14 and 28 days without a qualifying workout, suppressed by upcoming schedules.
-- Daily ceiling: three by default, four selectable; never a quota. Workout reminders have priority. Automatic reminders are at least three hours apart. Quiet hours default to 22:00–08:00; selected minutes are preserved. At most 48 pending reminders, planned up to 14 days ahead.
+- Daily ceiling: three by default, four selectable; never a quota. Workout reminders have priority. Automatic reminders are at least three hours apart. Quiet hours default to 22:00–08:00; selected minutes are preserved. At most 48 pending reminders, planned up to 30 days ahead (nearer days first).
 
-Only Water and an individual schedule have their own reminder switches. The common switch in Settings governs all OS reminders; it is independent of in-app feedback and the existing ongoing-workout service notification.
+Only Water and an individual schedule have their own reminder switches. Enabling a workout reminder on Android can open the system Alarms & reminders permission screen for precise timing. Declining keeps an inexact fallback. The common switch in Settings governs all OS reminders; it is independent of in-app feedback and the existing ongoing-workout service notification.
 
 ## Data and in-app feedback
 
@@ -21,9 +21,23 @@ In-app feedback reuses `GymTopNotification` with a queue. Streak/workout achieve
 
 ## Local scheduling limits
 
-This is local scheduling, without a server push worker. Reconciliation runs after data changes, lifecycle changes and while the app is active. Future reminders already registered with the OS can fire while the app is closed. Water is deliberately scheduled for **today only**: there is no repeating reminder with stale intake or a promise of daily reminders when the app has not been opened. The rolling 14-day horizon is replenished when the app runs. Cross-device data changes cannot change pending reminders until this device reconciles.
+The OS stores and delivers the alarms even after the app process exits. Opening Calendar or Water no longer cancels the day's future requests, and initialization/lifecycle refresh no longer depends on a 400 ms Dart timer. Notification wall-clock scheduling uses the device clock rather than a cached server/uptime offset that may be stale after reboot.
 
-Android uses inexact alarms, so 16:00 is the requested delivery time; OS battery restrictions may delay actual delivery. Force-stop and device restrictions need native testing. Schedules retain their selected IANA timezone; water and quiet hours use the current device timezone. Background delivery uses the most recent reconciled snapshot.
+A Workmanager task (`vn.zenithas.plato.reminder_refresh`) requests a refresh every six hours, without a network constraint. It restores locale/profile/data locally and replenishes the rolling 30-day plan with at most 48 pending requests. It does not depend on an authenticated Supabase session or server availability. Android persists periodic work; iOS has BGAppRefresh registration and decides when to grant runtime. The pre-scheduled requests remain useful when a refresh is delayed. Thirty days is the planning horizon, not a promise that 30 full days fit when many workouts consume the finite OS queue.
+
+The headless engine uses a separate SQLite connection so closing it cannot close the foreground database. A renewable SQLite lease serializes OS reconciliation across engines; a persistent reset flag prevents background scheduling during account clearing. The plugin resolves the live IANA timezone in either engine. Diagnostic preferences include `notification_last_reconciled_at`, `notification_pending_count`, `notification_last_background_refresh_at` and `notification_background_error`.
+
+Workout reminders use `exactAllowWhileIdle` when Android grants Alarms & reminders access. Other reminders, and workouts without that access, use `inexactAllowWhileIdle` and can be delayed by Doze. The notification permission and channel must also be enabled. Force-stop, revoked permissions, a powered-off phone, or OS restrictions cannot be overridden. iOS can withhold background refresh after prolonged inactivity; indefinite remote reminders would require a separately configured APNs/FCM backend. This implementation does not claim such a backend is deployed.
+
+Workouts retain their selected IANA timezone; water and quiet hours use the device timezone at the last refresh. Cross-device changes only affect this device after the existing data sync downloads them; the reminder worker itself does not fetch server data.
+
+## Regression checks for closed-app delivery
+
+- Schedule tomorrow's 10:00 workout with 30-minute lead time, leave Calendar open, press Home and swipe away normally: the OS request for 09:30 must remain.
+- On Pixel, allow Alarms & reminders when enabling the workout reminder. Repeat with the permission declined and account for Android's inexact timing window.
+- Reach today's water target: today's pending request disappears, tomorrow's 16:00 request remains. Start the app after 16:00: no replay for today, future dates remain scheduled.
+- Run `tool/notification_device_probe.dart` explicitly on a development device. It schedules only ID 99999 (outside production IDs). Press Home and use `adb shell am kill vn.zenithas.plato`, not force-stop; verify the OS notification arrives after process exit. Re-run with `--dart-define=PROBE_CLEANUP=true` to cancel the probe, then restore the normal app entry point.
+- Use `adb shell dumpsys jobscheduler` to find the reminder worker, trigger its job with `cmd jobscheduler run -f`, and check the reminder diagnostic preferences. Do not clear app data to test this.
 
 ## Manual device checks before release
 
@@ -41,7 +55,7 @@ Android/iOS delivery and tap behavior require physical devices or emulators. Win
 ## Verification performed
 
 - Full existing Flutter suite: 65 tests passed before the final regression cases were added.
-- Final notification suite: 35 tests passed, including real SQLite migration/DAO tests and banner widget tests.
+- Closed-app regression notification suite: 43 tests passed, including SQLite serialization, 30-day hydration planning, foreground route retention and finite OS queue ordering.
 - Targeted Dart analysis of notifications, Calendar, the shared banner and notification tests: no issues.
 - Targeted Floor/Freezed/JSON generation: succeeded after clearing the stale build cache; unrelated generated files removed by the filtered build were restored unchanged. The pinned generator still warns about its older analyzer versus the installed Dart SDK.
 - Final Android debug APK build: succeeded. No device/emulator was connected, so native delivery, reboot and cold-start tap checks remain manual.

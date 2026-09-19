@@ -109,3 +109,22 @@ class EquipmentConverter extends TypeConverter<Equipment?, String?> {
   @override
   String? encode(Equipment? value) => value?.name;
 }
+
+class StringListConverter extends TypeConverter<List<String>?, String?> {
+  @override
+  List<String>? decode(String? databaseValue) {
+    if (databaseValue == null || databaseValue.isEmpty) return [];
+    try {
+      final List<dynamic> jsonList = jsonDecode(databaseValue);
+      return jsonList.map((e) => e.toString()).toList();
+    } catch (e) {
+      return [];
+    }
+  }
+
+  @override
+  String? encode(List<String>? value) {
+    if (value == null) return '[]';
+    return jsonEncode(value);
+  }
+}

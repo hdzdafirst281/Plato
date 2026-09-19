@@ -4,9 +4,9 @@
 /// To regenerate, run: `dart run slang`
 ///
 /// Locales: 2
-/// Strings: 3116 (1558 per locale)
+/// Strings: 3258 (1629 per locale)
 ///
-/// Built on 2026-09-14 at 07:09 UTC
+/// Built on 2026-09-18 at 06:25 UTC
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -148,7 +148,6 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final Translations _root = this; // ignore: unused_field
 
 	// Translations
-	late final _StringsWorkoutRewardsEn workout_rewards = _StringsWorkoutRewardsEn._(_root);
 	String get app_name => 'Plato';
 	String get company_name => 'Zenithas';
 	late final _StringsAuthEn auth = _StringsAuthEn._(_root);
@@ -170,53 +169,8 @@ class Translations implements BaseTranslations<AppLocale, Translations> {
 	late final _StringsStatsEn stats = _StringsStatsEn._(_root);
 	late final _StringsTourEn tour = _StringsTourEn._(_root);
 	late final _StringsWorkoutEn workout = _StringsWorkoutEn._(_root);
+	late final _StringsWorkoutRewardsEn workout_rewards = _StringsWorkoutRewardsEn._(_root);
 	late final _StringsNotificationsEn notifications = _StringsNotificationsEn._(_root);
-}
-
-// Path: workout_rewards
-class _StringsWorkoutRewardsEn {
-	_StringsWorkoutRewardsEn._(this._root);
-
-	final Translations _root; // ignore: unused_field
-
-	// Translations
-	String get tap_skip => 'Tap to finish animations';
-	String get tap_claim => 'Tap a completed quest to claim XP';
-	String streak({required Object weeks}) => '${weeks}-week streak';
-	String get quest_workouts => 'Workouts';
-	String get quest_volume => 'Volume';
-	String get quest_prs => 'Records';
-	String get quest_time => 'Time';
-	String get quest_sets => 'Sets';
-	String get quest_exercises => 'Exercises';
-	String get zone_demote => 'Drop';
-	String get zone_maintain => 'Hold';
-	String get zone_promote => 'Rise';
-	String get rank_review => 'Rank reviewed at the end of the 45-day season';
-	String xp_breakdown({required Object base, required Object bonus}) => 'Completion +${base} XP · Personal records +${bonus} XP';
-	String get chest_title => 'Weekly chest';
-	String chest_progress({required Object current, required Object target}) => '${current} / ${target} quests completed';
-	String chest_locked({required Object xp}) => 'Complete more quests to unlock +${xp} XP.';
-	String get eyebrow => 'SESSION COMPLETE';
-	String get subtitle => 'Every session moves you forward.';
-	String get earned => 'Workout XP';
-	String level({required Object level}) => 'Level ${level}';
-	String get summary => 'View workout summary';
-	String get loading => 'Saving your workout and updating rewards…';
-	String get load_error => 'Rewards could not be loaded. Your workout may already be saved. Return to your workout history to check.';
-	String get back => 'Back to workouts';
-	String claim({required Object xp}) => 'Claim +${xp} XP';
-	String get claimed => 'Reward claimed';
-	String get claim_error => 'Could not claim this reward. Please try again.';
-	String get quests_hint => 'Claim completed quests for extra XP.';
-	String get rank_hint => 'Rank is reviewed at the end of your 45-day season.';
-	String rank_progress({required Object current, required Object target}) => '${current} / ${target} RP to promotion';
-	String rank_max({required Object points}) => 'Highest rank · ${points} RP to maintain';
-	String session_rp({required Object points}) => '+${points} RP this session';
-	String get skip => 'Skip animation';
-	String get level_up => 'Level up!';
-	String quest_progress({required Object current, required Object target}) => '${current} / ${target}';
-	String get empty_quests => 'Your weekly quests will appear here when available.';
 }
 
 // Path: auth
@@ -853,32 +807,43 @@ class _StringsNutritionEn {
 	String get err_food_name => 'Food name must contain letters and be at most 50 characters long.';
 	String get food_name_almonds => 'Almonds';
 	String get food_name_apple => 'Apple';
+	String get food_name_avocado_banana_smoothie => 'Avocado Banana Smoothie';
 	String get food_name_avocado_smoothie => 'Avocado Smoothie';
 	String get food_name_banana => 'Banana';
 	String get food_name_banh_cuon => 'Banh Cuon';
 	String get food_name_banh_mi => 'Banh Mi Meat';
+	String get food_name_beef_steak_broccoli => 'Beef Steak with Broccoli';
 	String get food_name_beef_tenderloin => 'Beef Tenderloin';
 	String get food_name_boiled_chicken_breast => 'Boiled Chicken Breast';
 	String get food_name_boiled_egg => 'Boiled Egg';
 	String get food_name_broccoli_boiled => 'Boiled Broccoli';
+	String get food_name_broccoli_tomato_salad => 'Broccoli Tomato Salad';
+	String get food_name_brown_rice_tofu => 'Brown Rice with Tofu & Mushroom';
+	String get food_name_bulletproof_coffee => 'Bulletproof Coffee';
 	String get food_name_bun_bo_hue => 'Bun Bo Hue';
 	String get food_name_bun_cha => 'Bun Cha';
+	String get food_name_cheese_omelet => 'Cheese Omelet';
 	String get food_name_com_tam => 'Com Tam (Broken Rice)';
 	String get food_name_fresh_milk => 'Fresh Milk';
 	String get food_name_fried_egg => 'Fried Egg';
+	String get food_name_garlic_butter_salmon => 'Garlic Butter Salmon';
 	String get food_name_goi_cuon => 'Spring Rolls';
 	String get food_name_greek_yogurt => 'Greek Yogurt';
+	String get food_name_grilled_chicken_breast => 'Grilled Chicken Breast';
 	String get food_name_hu_tieu => 'Hu Tieu';
 	String get food_name_iced_coffee => 'Iced Milk Coffee';
 	String get food_name_mi_quang => 'Mi Quang';
+	String get food_name_oatmeal_almond_milk => 'Oatmeal with Almond Milk';
 	String get food_name_oatmeal_raw => 'Raw Oatmeal';
 	String get food_name_olive_oil => 'Olive Oil';
 	String get food_name_orange_juice => 'Orange Juice';
 	String get food_name_peanut_butter => 'Peanut Butter';
+	String get food_name_peanut_butter_toast => 'Peanut Butter Toast';
 	String get food_name_pho_bo => 'Beef Pho';
 	String get food_name_salmon_raw => 'Raw Salmon';
 	String get food_name_sweet_potato => 'Sweet Potato';
 	String get food_name_tofu => 'Tofu';
+	String get food_name_vegan_pho => 'Vegan Pho';
 	String get food_name_whey_protein => 'Whey Protein';
 	String get food_name_white_rice => 'White Rice';
 	String get food_name_xoi_man => 'Xoi Man (Savory Sticky Rice)';
@@ -980,6 +945,77 @@ class _StringsNutritionEn {
 	String get title_wt_dialog => 'Log Weight';
 	String get lbl_wt_input => 'Current Weight (kg)';
 	String get msg_wt_instruction => 'Update your weight on time for the system to calculate Calories and Nutrition accurately.';
+	String get allergy_egg => 'Egg Allergy';
+	String get allergy_gluten => 'Gluten Intolerance';
+	String get allergy_lactose => 'Lactose Intolerance';
+	String get allergy_peanut => 'Peanut Allergy';
+	String get allergy_seafood => 'Seafood Allergy';
+	String get allergy_soy => 'Soy Allergy';
+	String get allergy_tree_nuts => 'Tree Nut Allergy';
+	String get diet_keto => 'Keto';
+	String get diet_no_red_meat => 'No Red Meat';
+	String get diet_vegan => 'Vegan';
+	String get hint_search_ingredient => 'Search for ingredients...';
+	String get ing_almond => 'Almond';
+	String get ing_almond_milk => 'Almond Milk';
+	String get ing_apple => 'Apple';
+	String get ing_avocado => 'Avocado';
+	String get ing_banana => 'Banana';
+	String get ing_beef => 'Beef';
+	String get ing_bread => 'Bread';
+	String get ing_broccoli => 'Broccoli';
+	String get ing_brown_rice => 'Brown Rice';
+	String get ing_butter => 'Butter';
+	String get ing_carrot => 'Carrot';
+	String get ing_cheese => 'Cheese';
+	String get ing_chicken => 'Chicken';
+	String get ing_chicken_breast => 'Chicken Breast';
+	String get ing_chicken_thigh => 'Chicken Thigh';
+	String get ing_coffee => 'Coffee';
+	String get ing_crab => 'Crab';
+	String get ing_cucumber => 'Cucumber';
+	String get ing_egg => 'Egg';
+	String get ing_fish => 'Fish';
+	String get ing_fish_salmon => 'Salmon';
+	String get ing_fish_tilapia => 'Tilapia';
+	String get ing_garlic => 'Garlic';
+	String get ing_lemon => 'Lemon';
+	String get ing_lettuce => 'Lettuce';
+	String get ing_milk => 'Milk';
+	String get ing_mushroom => 'Mushroom';
+	String get ing_noodle => 'Noodle';
+	String get ing_oatmeal => 'Oatmeal';
+	String get ing_olive_oil => 'Olive Oil';
+	String get ing_onion => 'Onion';
+	String get ing_orange => 'Orange';
+	String get ing_peanut => 'Peanut';
+	String get ing_peanut_butter => 'Peanut Butter';
+	String get ing_pepper => 'Pepper';
+	String get ing_pork => 'Pork';
+	String get ing_pork_chop => 'Pork Chop';
+	String get ing_potato => 'Potato';
+	String get ing_rice => 'Rice';
+	String get ing_rice_paper => 'Rice Paper';
+	String get ing_salt => 'Salt';
+	String get ing_shrimp => 'Shrimp';
+	String get ing_soybean => 'Soybean';
+	String get ing_spinach => 'Spinach';
+	String get ing_squid => 'Squid';
+	String get ing_sugar => 'Sugar';
+	String get ing_sweet_potato => 'Sweet Potato';
+	String get ing_tea => 'Tea';
+	String get ing_tofu => 'Tofu';
+	String get ing_tomato => 'Tomato';
+	String get ing_walnut => 'Walnut';
+	String get ing_white_rice => 'White Rice';
+	String get ing_yogurt => 'Yogurt';
+	String get lbl_ingredients => 'Ingredients';
+	String get lbl_badge_recommended => 'Recommended';
+	String get lbl_safe_for_me => 'Safe for me only';
+	String get msg_allergy_confirm_prefix => 'This food contains ingredients you need to avoid:';
+	String get msg_allergy_confirm_suffix => 'Are you sure you want to eat this?';
+	String get title_allergy_warning => 'Allergy Warning';
+	String get warn_allergy => 'Allergy risk to';
 }
 
 // Path: onboarding
@@ -1409,6 +1445,9 @@ class _StringsSettingsEn {
 	String get desc_item_tutorial => 'Review feature tutorial videos';
 	String get lbl_item_version => 'Version';
 	String get title_language_dialog => 'Select Language';
+	String get title_notification_screen => 'Notification Settings';
+	String get lbl_item_notification => 'Notifications & Background';
+	String get desc_item_notification => 'Manage reminders and background activities';
 	String get title_notifications_section => 'Notifications';
 	String get desc_notifications_section => 'Receive notifications for rest reminders and workout reports';
 	String get title_permission_denied => 'Permission Denied';
@@ -1852,6 +1891,38 @@ class _StringsWorkoutEn {
 	String get col_workout_name => 'Workout Name';
 }
 
+// Path: workout_rewards
+class _StringsWorkoutRewardsEn {
+	_StringsWorkoutRewardsEn._(this._root);
+
+	final Translations _root; // ignore: unused_field
+
+	// Translations
+	String get claim_error => 'Failed to claim reward';
+	String get load_error => 'Failed to load workout rewards';
+	String get loading => 'Loading your rewards...';
+	String get back => 'Back';
+	String get tap_skip => 'Tap to skip';
+	String get summary => 'View Summary';
+	String streak({required Object weeks}) => '${weeks} Week Streak!';
+	String get quest_workouts => 'Workouts';
+	String get quest_volume => 'Volume';
+	String get quest_prs => 'Personal Records';
+	String get quest_time => 'Duration';
+	String get quest_sets => 'Sets';
+	String get quest_exercises => 'Exercises';
+	String get tap_claim => 'Tap to claim';
+	String get claimed => 'Claimed';
+	String claim({required Object xp}) => 'Claim +${xp} XP';
+	String get chest_title => 'Weekly Chest';
+	String level({required Object level}) => 'Level ${level}';
+	String get level_up => 'Level Up!';
+	String get zone_demote => 'Demote';
+	String get zone_maintain => 'Maintain';
+	String get zone_promote => 'Promote';
+	String get rank_review => 'Rank will be reviewed at the end of the week';
+}
+
 // Path: notifications
 class _StringsNotificationsEn {
 	_StringsNotificationsEn._(this._root);
@@ -1944,7 +2015,6 @@ class _StringsVi extends Translations {
 	@override late final _StringsVi _root = this; // ignore: unused_field
 
 	// Translations
-	@override late final _StringsWorkoutRewardsVi workout_rewards = _StringsWorkoutRewardsVi._(_root);
 	@override String get app_name => 'Plato';
 	@override String get company_name => 'Zenithas';
 	@override late final _StringsAuthVi auth = _StringsAuthVi._(_root);
@@ -1966,53 +2036,8 @@ class _StringsVi extends Translations {
 	@override late final _StringsStatsVi stats = _StringsStatsVi._(_root);
 	@override late final _StringsTourVi tour = _StringsTourVi._(_root);
 	@override late final _StringsWorkoutVi workout = _StringsWorkoutVi._(_root);
+	@override late final _StringsWorkoutRewardsVi workout_rewards = _StringsWorkoutRewardsVi._(_root);
 	@override late final _StringsNotificationsVi notifications = _StringsNotificationsVi._(_root);
-}
-
-// Path: workout_rewards
-class _StringsWorkoutRewardsVi extends _StringsWorkoutRewardsEn {
-	_StringsWorkoutRewardsVi._(_StringsVi root) : this._root = root, super._(root);
-
-	@override final _StringsVi _root; // ignore: unused_field
-
-	// Translations
-	@override String get tap_skip => 'Chạm để hoàn tất hiệu ứng';
-	@override String get tap_claim => 'Chạm nhiệm vụ hoàn thành để nhận XP';
-	@override String streak({required Object weeks}) => 'Chuỗi ${weeks} tuần';
-	@override String get quest_workouts => 'Buổi tập';
-	@override String get quest_volume => 'Khối lượng';
-	@override String get quest_prs => 'Kỷ lục';
-	@override String get quest_time => 'Thời gian';
-	@override String get quest_sets => 'Hiệp tập';
-	@override String get quest_exercises => 'Bài tập';
-	@override String get zone_demote => 'Rớt';
-	@override String get zone_maintain => 'Giữ';
-	@override String get zone_promote => 'Thăng';
-	@override String get rank_review => 'Xét hạng cuối mùa 45 ngày';
-	@override String xp_breakdown({required Object base, required Object bonus}) => 'Hoàn thành +${base} XP · Kỷ lục cá nhân +${bonus} XP';
-	@override String get chest_title => 'Rương tuần';
-	@override String chest_progress({required Object current, required Object target}) => 'Hoàn thành ${current} / ${target} nhiệm vụ';
-	@override String chest_locked({required Object xp}) => 'Hoàn thành thêm nhiệm vụ để mở khóa +${xp} XP.';
-	@override String get eyebrow => 'HOÀN THÀNH BUỔI TẬP';
-	@override String get subtitle => 'Mỗi buổi tập là một bước tiến.';
-	@override String get earned => 'XP từ buổi tập';
-	@override String level({required Object level}) => 'Cấp ${level}';
-	@override String get summary => 'Xem tổng kết buổi tập';
-	@override String get loading => 'Đang lưu buổi tập và cập nhật phần thưởng…';
-	@override String get load_error => 'Chưa tải được phần thưởng. Buổi tập có thể đã được lưu. Hãy quay lại lịch sử tập luyện để kiểm tra.';
-	@override String get back => 'Về trang tập luyện';
-	@override String claim({required Object xp}) => 'Nhận +${xp} XP';
-	@override String get claimed => 'Đã nhận thưởng';
-	@override String get claim_error => 'Chưa nhận được thưởng. Vui lòng thử lại.';
-	@override String get quests_hint => 'Nhận thưởng nhiệm vụ hoàn thành để có thêm XP.';
-	@override String get rank_hint => 'Hạng được xét khi kết thúc mùa 45 ngày.';
-	@override String rank_progress({required Object current, required Object target}) => '${current} / ${target} RP để thăng hạng';
-	@override String rank_max({required Object points}) => 'Hạng cao nhất · ${points} RP để giữ hạng';
-	@override String session_rp({required Object points}) => '+${points} RP từ buổi tập';
-	@override String get skip => 'Bỏ qua hiệu ứng';
-	@override String get level_up => 'Lên cấp!';
-	@override String quest_progress({required Object current, required Object target}) => '${current} / ${target}';
-	@override String get empty_quests => 'Nhiệm vụ tuần sẽ xuất hiện tại đây khi có dữ liệu.';
 }
 
 // Path: auth
@@ -2649,32 +2674,43 @@ class _StringsNutritionVi extends _StringsNutritionEn {
 	@override String get err_food_name => 'Tên món ăn phải chứa chữ cái và tối đa 50 ký tự.';
 	@override String get food_name_almonds => 'Hạnh Nhân';
 	@override String get food_name_apple => 'Táo';
+	@override String get food_name_avocado_banana_smoothie => 'Sinh tố Bơ Chuối Hạnh nhân';
 	@override String get food_name_avocado_smoothie => 'Sinh Tố Bơ';
 	@override String get food_name_banana => 'Chuối';
 	@override String get food_name_banh_cuon => 'Bánh Cuốn';
 	@override String get food_name_banh_mi => 'Bánh Mì Thịt';
+	@override String get food_name_beef_steak_broccoli => 'Bít tết Bò Bông cải xanh';
 	@override String get food_name_beef_tenderloin => 'Thịt Bò Thăn';
 	@override String get food_name_boiled_chicken_breast => 'Ức Gà Luộc';
 	@override String get food_name_boiled_egg => 'Trứng Luộc';
 	@override String get food_name_broccoli_boiled => 'Bông Cải Xanh Luộc';
+	@override String get food_name_broccoli_tomato_salad => 'Salad Súp lơ Cà chua';
+	@override String get food_name_brown_rice_tofu => 'Cơm lứt Đậu hũ Nấm';
+	@override String get food_name_bulletproof_coffee => 'Cà phê Bơ Keto';
 	@override String get food_name_bun_bo_hue => 'Bún Bò Huế';
 	@override String get food_name_bun_cha => 'Bún Chả';
+	@override String get food_name_cheese_omelet => 'Trứng ốp la Phô mai';
 	@override String get food_name_com_tam => 'Cơm Tấm';
 	@override String get food_name_fresh_milk => 'Sữa Tươi';
 	@override String get food_name_fried_egg => 'Trứng Ốp La';
+	@override String get food_name_garlic_butter_salmon => 'Cá hồi nướng Bơ tỏi';
 	@override String get food_name_goi_cuon => 'Gỏi Cuốn';
 	@override String get food_name_greek_yogurt => 'Sữa Chua Hy Lạp';
+	@override String get food_name_grilled_chicken_breast => 'Ức gà áp chảo';
 	@override String get food_name_hu_tieu => 'Hủ Tiếu';
 	@override String get food_name_iced_coffee => 'Cà Phê Sữa Đá';
 	@override String get food_name_mi_quang => 'Mỳ Quảng';
+	@override String get food_name_oatmeal_almond_milk => 'Yến mạch Sữa hạnh nhân';
 	@override String get food_name_oatmeal_raw => 'Yến Mạch (Sống)';
 	@override String get food_name_olive_oil => 'Dầu Ô-liu';
 	@override String get food_name_orange_juice => 'Nước Ép Cam';
 	@override String get food_name_peanut_butter => 'Bơ Đậu Phộng';
+	@override String get food_name_peanut_butter_toast => 'Bánh mì Bơ đậu phộng';
 	@override String get food_name_pho_bo => 'Phở Bò';
 	@override String get food_name_salmon_raw => 'Cá Hồi Tươi';
 	@override String get food_name_sweet_potato => 'Khoai Lang';
 	@override String get food_name_tofu => 'Đậu Hũ';
+	@override String get food_name_vegan_pho => 'Phở Chay';
 	@override String get food_name_whey_protein => 'Whey Protein';
 	@override String get food_name_white_rice => 'Cơm Trắng';
 	@override String get food_name_xoi_man => 'Xôi Mặn';
@@ -2776,6 +2812,77 @@ class _StringsNutritionVi extends _StringsNutritionEn {
 	@override String get title_wt_dialog => 'Ghi nhận cân nặng';
 	@override String get lbl_wt_input => 'Cân nặng hiện tại (kg)';
 	@override String get msg_wt_instruction => 'Cập nhật cân nặng đúng hạn để hệ thống tính toán lại Năng lượng và Dinh dưỡng chuẩn xác nhất.';
+	@override String get allergy_egg => 'Dị ứng Trứng';
+	@override String get allergy_gluten => 'Dị ứng Gluten';
+	@override String get allergy_lactose => 'Dị ứng Lactose';
+	@override String get allergy_peanut => 'Dị ứng Đậu phộng';
+	@override String get allergy_seafood => 'Dị ứng Hải sản';
+	@override String get allergy_soy => 'Dị ứng Đậu nành';
+	@override String get allergy_tree_nuts => 'Dị ứng Hạt cây';
+	@override String get diet_keto => 'Ăn kiêng Keto';
+	@override String get diet_no_red_meat => 'Kiêng thịt đỏ';
+	@override String get diet_vegan => 'Thuần chay';
+	@override String get hint_search_ingredient => 'Nhập tên nguyên liệu (ví dụ: Thịt bò)...';
+	@override String get ing_almond => 'Hạnh nhân';
+	@override String get ing_almond_milk => 'Sữa hạnh nhân';
+	@override String get ing_apple => 'Táo';
+	@override String get ing_avocado => 'Quả bơ';
+	@override String get ing_banana => 'Chuối';
+	@override String get ing_beef => 'Thịt bò';
+	@override String get ing_bread => 'Bánh mì';
+	@override String get ing_broccoli => 'Bông cải xanh';
+	@override String get ing_brown_rice => 'Cơm lứt';
+	@override String get ing_butter => 'Bơ lạt';
+	@override String get ing_carrot => 'Cà rốt';
+	@override String get ing_cheese => 'Phô mai';
+	@override String get ing_chicken => 'Thịt gà';
+	@override String get ing_chicken_breast => 'Ức gà';
+	@override String get ing_chicken_thigh => 'Đùi gà';
+	@override String get ing_coffee => 'Cà phê';
+	@override String get ing_crab => 'Cua';
+	@override String get ing_cucumber => 'Dưa chuột';
+	@override String get ing_egg => 'Trứng';
+	@override String get ing_fish => 'Cá';
+	@override String get ing_fish_salmon => 'Cá hồi';
+	@override String get ing_fish_tilapia => 'Cá rô phi';
+	@override String get ing_garlic => 'Tỏi';
+	@override String get ing_lemon => 'Chanh';
+	@override String get ing_lettuce => 'Rau xà lách';
+	@override String get ing_milk => 'Sữa';
+	@override String get ing_mushroom => 'Nấm';
+	@override String get ing_noodle => 'Mì';
+	@override String get ing_oatmeal => 'Yến mạch';
+	@override String get ing_olive_oil => 'Dầu olive';
+	@override String get ing_onion => 'Hành tây';
+	@override String get ing_orange => 'Cam';
+	@override String get ing_peanut => 'Đậu phộng';
+	@override String get ing_peanut_butter => 'Bơ đậu phộng';
+	@override String get ing_pepper => 'Tiêu';
+	@override String get ing_pork => 'Thịt lợn';
+	@override String get ing_pork_chop => 'Sườn heo';
+	@override String get ing_potato => 'Khoai tây';
+	@override String get ing_rice => 'Gạo';
+	@override String get ing_rice_paper => 'Bánh tráng';
+	@override String get ing_salt => 'Muối';
+	@override String get ing_shrimp => 'Tôm';
+	@override String get ing_soybean => 'Đậu nành';
+	@override String get ing_spinach => 'Rau chân vịt';
+	@override String get ing_squid => 'Mực';
+	@override String get ing_sugar => 'Đường';
+	@override String get ing_sweet_potato => 'Khoai lang';
+	@override String get ing_tea => 'Trà';
+	@override String get ing_tofu => 'Đậu phụ';
+	@override String get ing_tomato => 'Cà chua';
+	@override String get ing_walnut => 'Óc chó';
+	@override String get ing_white_rice => 'Cơm trắng';
+	@override String get ing_yogurt => 'Sữa chua';
+	@override String get lbl_ingredients => 'Thành phần nguyên liệu';
+	@override String get lbl_badge_recommended => 'Phù hợp';
+	@override String get lbl_safe_for_me => 'Chỉ món an toàn';
+	@override String get msg_allergy_confirm_prefix => 'Món ăn này chứa thành phần bạn cần kiêng:';
+	@override String get msg_allergy_confirm_suffix => 'Bạn có chắc chắn muốn ăn không?';
+	@override String get title_allergy_warning => 'Cảnh báo Dị ứng';
+	@override String get warn_allergy => 'Nguy cơ dị ứng với';
 }
 
 // Path: onboarding
@@ -3205,6 +3312,9 @@ class _StringsSettingsVi extends _StringsSettingsEn {
 	@override String get desc_item_tutorial => 'Xem lại các video hướng dẫn tính năng';
 	@override String get lbl_item_version => 'Phiên bản';
 	@override String get title_language_dialog => 'Chọn ngôn ngữ';
+	@override String get title_notification_screen => 'Cài đặt thông báo';
+	@override String get lbl_item_notification => 'Thông báo & Chạy ngầm';
+	@override String get desc_item_notification => 'Quản lý nhắc nhở và hoạt động nền';
 	@override String get title_notifications_section => 'Thông báo';
 	@override String get desc_notifications_section => 'Nhận thông báo nhắc nhở thời gian nghỉ và báo cáo buổi tập';
 	@override String get title_permission_denied => 'Quyền truy cập bị từ chối';
@@ -3648,6 +3758,38 @@ class _StringsWorkoutVi extends _StringsWorkoutEn {
 	@override String get col_workout_name => 'Tên buổi tập';
 }
 
+// Path: workout_rewards
+class _StringsWorkoutRewardsVi extends _StringsWorkoutRewardsEn {
+	_StringsWorkoutRewardsVi._(_StringsVi root) : this._root = root, super._(root);
+
+	@override final _StringsVi _root; // ignore: unused_field
+
+	// Translations
+	@override String get claim_error => 'Lỗi nhận thưởng';
+	@override String get load_error => 'Không thể tải phần thưởng';
+	@override String get loading => 'Đang tải phần thưởng...';
+	@override String get back => 'Quay lại';
+	@override String get tap_skip => 'Chạm để bỏ qua';
+	@override String get summary => 'Xem tổng kết';
+	@override String streak({required Object weeks}) => 'Chuỗi ${weeks} tuần!';
+	@override String get quest_workouts => 'Buổi tập';
+	@override String get quest_volume => 'Khối lượng';
+	@override String get quest_prs => 'Kỷ lục cá nhân';
+	@override String get quest_time => 'Thời gian';
+	@override String get quest_sets => 'Hiệp tập';
+	@override String get quest_exercises => 'Bài tập';
+	@override String get tap_claim => 'Chạm để nhận';
+	@override String get claimed => 'Đã nhận';
+	@override String claim({required Object xp}) => 'Nhận +${xp} XP';
+	@override String get chest_title => 'Rương tuần';
+	@override String level({required Object level}) => 'Cấp ${level}';
+	@override String get level_up => 'Lên cấp!';
+	@override String get zone_demote => 'Rớt hạng';
+	@override String get zone_maintain => 'Giữ hạng';
+	@override String get zone_promote => 'Lên hạng';
+	@override String get rank_review => 'Hạng sẽ được xét duyệt vào cuối tuần';
+}
+
 // Path: notifications
 class _StringsNotificationsVi extends _StringsNotificationsEn {
 	_StringsNotificationsVi._(_StringsVi root) : this._root = root, super._(root);
@@ -3720,43 +3862,6 @@ class _StringsNotificationsVi extends _StringsNotificationsEn {
 extension on Translations {
 	dynamic _flatMapFunction(String path) {
 		switch (path) {
-			case 'workout_rewards.tap_skip': return 'Tap to finish animations';
-			case 'workout_rewards.tap_claim': return 'Tap a completed quest to claim XP';
-			case 'workout_rewards.streak': return ({required Object weeks}) => '${weeks}-week streak';
-			case 'workout_rewards.quest_workouts': return 'Workouts';
-			case 'workout_rewards.quest_volume': return 'Volume';
-			case 'workout_rewards.quest_prs': return 'Records';
-			case 'workout_rewards.quest_time': return 'Time';
-			case 'workout_rewards.quest_sets': return 'Sets';
-			case 'workout_rewards.quest_exercises': return 'Exercises';
-			case 'workout_rewards.zone_demote': return 'Drop';
-			case 'workout_rewards.zone_maintain': return 'Hold';
-			case 'workout_rewards.zone_promote': return 'Rise';
-			case 'workout_rewards.rank_review': return 'Rank reviewed at the end of the 45-day season';
-			case 'workout_rewards.xp_breakdown': return ({required Object base, required Object bonus}) => 'Completion +${base} XP · Personal records +${bonus} XP';
-			case 'workout_rewards.chest_title': return 'Weekly chest';
-			case 'workout_rewards.chest_progress': return ({required Object current, required Object target}) => '${current} / ${target} quests completed';
-			case 'workout_rewards.chest_locked': return ({required Object xp}) => 'Complete more quests to unlock +${xp} XP.';
-			case 'workout_rewards.eyebrow': return 'SESSION COMPLETE';
-			case 'workout_rewards.subtitle': return 'Every session moves you forward.';
-			case 'workout_rewards.earned': return 'Workout XP';
-			case 'workout_rewards.level': return ({required Object level}) => 'Level ${level}';
-			case 'workout_rewards.summary': return 'View workout summary';
-			case 'workout_rewards.loading': return 'Saving your workout and updating rewards…';
-			case 'workout_rewards.load_error': return 'Rewards could not be loaded. Your workout may already be saved. Return to your workout history to check.';
-			case 'workout_rewards.back': return 'Back to workouts';
-			case 'workout_rewards.claim': return ({required Object xp}) => 'Claim +${xp} XP';
-			case 'workout_rewards.claimed': return 'Reward claimed';
-			case 'workout_rewards.claim_error': return 'Could not claim this reward. Please try again.';
-			case 'workout_rewards.quests_hint': return 'Claim completed quests for extra XP.';
-			case 'workout_rewards.rank_hint': return 'Rank is reviewed at the end of your 45-day season.';
-			case 'workout_rewards.rank_progress': return ({required Object current, required Object target}) => '${current} / ${target} RP to promotion';
-			case 'workout_rewards.rank_max': return ({required Object points}) => 'Highest rank · ${points} RP to maintain';
-			case 'workout_rewards.session_rp': return ({required Object points}) => '+${points} RP this session';
-			case 'workout_rewards.skip': return 'Skip animation';
-			case 'workout_rewards.level_up': return 'Level up!';
-			case 'workout_rewards.quest_progress': return ({required Object current, required Object target}) => '${current} / ${target}';
-			case 'workout_rewards.empty_quests': return 'Your weekly quests will appear here when available.';
 			case 'app_name': return 'Plato';
 			case 'company_name': return 'Zenithas';
 			case 'auth.err_account_not_found': return 'Account does not exist. Please check again.';
@@ -4305,32 +4410,43 @@ extension on Translations {
 			case 'nutrition.err_food_name': return 'Food name must contain letters and be at most 50 characters long.';
 			case 'nutrition.food_name_almonds': return 'Almonds';
 			case 'nutrition.food_name_apple': return 'Apple';
+			case 'nutrition.food_name_avocado_banana_smoothie': return 'Avocado Banana Smoothie';
 			case 'nutrition.food_name_avocado_smoothie': return 'Avocado Smoothie';
 			case 'nutrition.food_name_banana': return 'Banana';
 			case 'nutrition.food_name_banh_cuon': return 'Banh Cuon';
 			case 'nutrition.food_name_banh_mi': return 'Banh Mi Meat';
+			case 'nutrition.food_name_beef_steak_broccoli': return 'Beef Steak with Broccoli';
 			case 'nutrition.food_name_beef_tenderloin': return 'Beef Tenderloin';
 			case 'nutrition.food_name_boiled_chicken_breast': return 'Boiled Chicken Breast';
 			case 'nutrition.food_name_boiled_egg': return 'Boiled Egg';
 			case 'nutrition.food_name_broccoli_boiled': return 'Boiled Broccoli';
+			case 'nutrition.food_name_broccoli_tomato_salad': return 'Broccoli Tomato Salad';
+			case 'nutrition.food_name_brown_rice_tofu': return 'Brown Rice with Tofu & Mushroom';
+			case 'nutrition.food_name_bulletproof_coffee': return 'Bulletproof Coffee';
 			case 'nutrition.food_name_bun_bo_hue': return 'Bun Bo Hue';
 			case 'nutrition.food_name_bun_cha': return 'Bun Cha';
+			case 'nutrition.food_name_cheese_omelet': return 'Cheese Omelet';
 			case 'nutrition.food_name_com_tam': return 'Com Tam (Broken Rice)';
 			case 'nutrition.food_name_fresh_milk': return 'Fresh Milk';
 			case 'nutrition.food_name_fried_egg': return 'Fried Egg';
+			case 'nutrition.food_name_garlic_butter_salmon': return 'Garlic Butter Salmon';
 			case 'nutrition.food_name_goi_cuon': return 'Spring Rolls';
 			case 'nutrition.food_name_greek_yogurt': return 'Greek Yogurt';
+			case 'nutrition.food_name_grilled_chicken_breast': return 'Grilled Chicken Breast';
 			case 'nutrition.food_name_hu_tieu': return 'Hu Tieu';
 			case 'nutrition.food_name_iced_coffee': return 'Iced Milk Coffee';
 			case 'nutrition.food_name_mi_quang': return 'Mi Quang';
+			case 'nutrition.food_name_oatmeal_almond_milk': return 'Oatmeal with Almond Milk';
 			case 'nutrition.food_name_oatmeal_raw': return 'Raw Oatmeal';
 			case 'nutrition.food_name_olive_oil': return 'Olive Oil';
 			case 'nutrition.food_name_orange_juice': return 'Orange Juice';
 			case 'nutrition.food_name_peanut_butter': return 'Peanut Butter';
+			case 'nutrition.food_name_peanut_butter_toast': return 'Peanut Butter Toast';
 			case 'nutrition.food_name_pho_bo': return 'Beef Pho';
 			case 'nutrition.food_name_salmon_raw': return 'Raw Salmon';
 			case 'nutrition.food_name_sweet_potato': return 'Sweet Potato';
 			case 'nutrition.food_name_tofu': return 'Tofu';
+			case 'nutrition.food_name_vegan_pho': return 'Vegan Pho';
 			case 'nutrition.food_name_whey_protein': return 'Whey Protein';
 			case 'nutrition.food_name_white_rice': return 'White Rice';
 			case 'nutrition.food_name_xoi_man': return 'Xoi Man (Savory Sticky Rice)';
@@ -4432,6 +4548,77 @@ extension on Translations {
 			case 'nutrition.title_wt_dialog': return 'Log Weight';
 			case 'nutrition.lbl_wt_input': return 'Current Weight (kg)';
 			case 'nutrition.msg_wt_instruction': return 'Update your weight on time for the system to calculate Calories and Nutrition accurately.';
+			case 'nutrition.allergy_egg': return 'Egg Allergy';
+			case 'nutrition.allergy_gluten': return 'Gluten Intolerance';
+			case 'nutrition.allergy_lactose': return 'Lactose Intolerance';
+			case 'nutrition.allergy_peanut': return 'Peanut Allergy';
+			case 'nutrition.allergy_seafood': return 'Seafood Allergy';
+			case 'nutrition.allergy_soy': return 'Soy Allergy';
+			case 'nutrition.allergy_tree_nuts': return 'Tree Nut Allergy';
+			case 'nutrition.diet_keto': return 'Keto';
+			case 'nutrition.diet_no_red_meat': return 'No Red Meat';
+			case 'nutrition.diet_vegan': return 'Vegan';
+			case 'nutrition.hint_search_ingredient': return 'Search for ingredients...';
+			case 'nutrition.ing_almond': return 'Almond';
+			case 'nutrition.ing_almond_milk': return 'Almond Milk';
+			case 'nutrition.ing_apple': return 'Apple';
+			case 'nutrition.ing_avocado': return 'Avocado';
+			case 'nutrition.ing_banana': return 'Banana';
+			case 'nutrition.ing_beef': return 'Beef';
+			case 'nutrition.ing_bread': return 'Bread';
+			case 'nutrition.ing_broccoli': return 'Broccoli';
+			case 'nutrition.ing_brown_rice': return 'Brown Rice';
+			case 'nutrition.ing_butter': return 'Butter';
+			case 'nutrition.ing_carrot': return 'Carrot';
+			case 'nutrition.ing_cheese': return 'Cheese';
+			case 'nutrition.ing_chicken': return 'Chicken';
+			case 'nutrition.ing_chicken_breast': return 'Chicken Breast';
+			case 'nutrition.ing_chicken_thigh': return 'Chicken Thigh';
+			case 'nutrition.ing_coffee': return 'Coffee';
+			case 'nutrition.ing_crab': return 'Crab';
+			case 'nutrition.ing_cucumber': return 'Cucumber';
+			case 'nutrition.ing_egg': return 'Egg';
+			case 'nutrition.ing_fish': return 'Fish';
+			case 'nutrition.ing_fish_salmon': return 'Salmon';
+			case 'nutrition.ing_fish_tilapia': return 'Tilapia';
+			case 'nutrition.ing_garlic': return 'Garlic';
+			case 'nutrition.ing_lemon': return 'Lemon';
+			case 'nutrition.ing_lettuce': return 'Lettuce';
+			case 'nutrition.ing_milk': return 'Milk';
+			case 'nutrition.ing_mushroom': return 'Mushroom';
+			case 'nutrition.ing_noodle': return 'Noodle';
+			case 'nutrition.ing_oatmeal': return 'Oatmeal';
+			case 'nutrition.ing_olive_oil': return 'Olive Oil';
+			case 'nutrition.ing_onion': return 'Onion';
+			case 'nutrition.ing_orange': return 'Orange';
+			case 'nutrition.ing_peanut': return 'Peanut';
+			case 'nutrition.ing_peanut_butter': return 'Peanut Butter';
+			case 'nutrition.ing_pepper': return 'Pepper';
+			case 'nutrition.ing_pork': return 'Pork';
+			case 'nutrition.ing_pork_chop': return 'Pork Chop';
+			case 'nutrition.ing_potato': return 'Potato';
+			case 'nutrition.ing_rice': return 'Rice';
+			case 'nutrition.ing_rice_paper': return 'Rice Paper';
+			case 'nutrition.ing_salt': return 'Salt';
+			case 'nutrition.ing_shrimp': return 'Shrimp';
+			case 'nutrition.ing_soybean': return 'Soybean';
+			case 'nutrition.ing_spinach': return 'Spinach';
+			case 'nutrition.ing_squid': return 'Squid';
+			case 'nutrition.ing_sugar': return 'Sugar';
+			case 'nutrition.ing_sweet_potato': return 'Sweet Potato';
+			case 'nutrition.ing_tea': return 'Tea';
+			case 'nutrition.ing_tofu': return 'Tofu';
+			case 'nutrition.ing_tomato': return 'Tomato';
+			case 'nutrition.ing_walnut': return 'Walnut';
+			case 'nutrition.ing_white_rice': return 'White Rice';
+			case 'nutrition.ing_yogurt': return 'Yogurt';
+			case 'nutrition.lbl_ingredients': return 'Ingredients';
+			case 'nutrition.lbl_badge_recommended': return 'Recommended';
+			case 'nutrition.lbl_safe_for_me': return 'Safe for me only';
+			case 'nutrition.msg_allergy_confirm_prefix': return 'This food contains ingredients you need to avoid:';
+			case 'nutrition.msg_allergy_confirm_suffix': return 'Are you sure you want to eat this?';
+			case 'nutrition.title_allergy_warning': return 'Allergy Warning';
+			case 'nutrition.warn_allergy': return 'Allergy risk to';
 			case 'onboarding.hint_age': return 'Enter age (e.g., 25)';
 			case 'onboarding.lbl_ai_safe': return 'AI Assistant: Medical safety configured';
 			case 'onboarding.msg_alert_back': return 'Replaced heavy back exercises with safer variations';
@@ -4807,6 +4994,9 @@ extension on Translations {
 			case 'settings.desc_item_tutorial': return 'Review feature tutorial videos';
 			case 'settings.lbl_item_version': return 'Version';
 			case 'settings.title_language_dialog': return 'Select Language';
+			case 'settings.title_notification_screen': return 'Notification Settings';
+			case 'settings.lbl_item_notification': return 'Notifications & Background';
+			case 'settings.desc_item_notification': return 'Manage reminders and background activities';
 			case 'settings.title_notifications_section': return 'Notifications';
 			case 'settings.desc_notifications_section': return 'Receive notifications for rest reminders and workout reports';
 			case 'settings.title_permission_denied': return 'Permission Denied';
@@ -5221,6 +5411,29 @@ extension on Translations {
 			case 'workout.status_workout_done': return 'Workout finished';
 			case 'workout.lbl_workout_in_progress': return 'Working out...';
 			case 'workout.col_workout_name': return 'Workout Name';
+			case 'workout_rewards.claim_error': return 'Failed to claim reward';
+			case 'workout_rewards.load_error': return 'Failed to load workout rewards';
+			case 'workout_rewards.loading': return 'Loading your rewards...';
+			case 'workout_rewards.back': return 'Back';
+			case 'workout_rewards.tap_skip': return 'Tap to skip';
+			case 'workout_rewards.summary': return 'View Summary';
+			case 'workout_rewards.streak': return ({required Object weeks}) => '${weeks} Week Streak!';
+			case 'workout_rewards.quest_workouts': return 'Workouts';
+			case 'workout_rewards.quest_volume': return 'Volume';
+			case 'workout_rewards.quest_prs': return 'Personal Records';
+			case 'workout_rewards.quest_time': return 'Duration';
+			case 'workout_rewards.quest_sets': return 'Sets';
+			case 'workout_rewards.quest_exercises': return 'Exercises';
+			case 'workout_rewards.tap_claim': return 'Tap to claim';
+			case 'workout_rewards.claimed': return 'Claimed';
+			case 'workout_rewards.claim': return ({required Object xp}) => 'Claim +${xp} XP';
+			case 'workout_rewards.chest_title': return 'Weekly Chest';
+			case 'workout_rewards.level': return ({required Object level}) => 'Level ${level}';
+			case 'workout_rewards.level_up': return 'Level Up!';
+			case 'workout_rewards.zone_demote': return 'Demote';
+			case 'workout_rewards.zone_maintain': return 'Maintain';
+			case 'workout_rewards.zone_promote': return 'Promote';
+			case 'workout_rewards.rank_review': return 'Rank will be reviewed at the end of the week';
 			case 'notifications.title_settings': return 'Notifications';
 			case 'notifications.lbl_workout_reminders': return 'Workout reminders';
 			case 'notifications.lbl_streak_reminders': return 'Streak reminders';
@@ -5286,43 +5499,6 @@ extension on Translations {
 extension on _StringsVi {
 	dynamic _flatMapFunction(String path) {
 		switch (path) {
-			case 'workout_rewards.tap_skip': return 'Chạm để hoàn tất hiệu ứng';
-			case 'workout_rewards.tap_claim': return 'Chạm nhiệm vụ hoàn thành để nhận XP';
-			case 'workout_rewards.streak': return ({required Object weeks}) => 'Chuỗi ${weeks} tuần';
-			case 'workout_rewards.quest_workouts': return 'Buổi tập';
-			case 'workout_rewards.quest_volume': return 'Khối lượng';
-			case 'workout_rewards.quest_prs': return 'Kỷ lục';
-			case 'workout_rewards.quest_time': return 'Thời gian';
-			case 'workout_rewards.quest_sets': return 'Hiệp tập';
-			case 'workout_rewards.quest_exercises': return 'Bài tập';
-			case 'workout_rewards.zone_demote': return 'Rớt';
-			case 'workout_rewards.zone_maintain': return 'Giữ';
-			case 'workout_rewards.zone_promote': return 'Thăng';
-			case 'workout_rewards.rank_review': return 'Xét hạng cuối mùa 45 ngày';
-			case 'workout_rewards.xp_breakdown': return ({required Object base, required Object bonus}) => 'Hoàn thành +${base} XP · Kỷ lục cá nhân +${bonus} XP';
-			case 'workout_rewards.chest_title': return 'Rương tuần';
-			case 'workout_rewards.chest_progress': return ({required Object current, required Object target}) => 'Hoàn thành ${current} / ${target} nhiệm vụ';
-			case 'workout_rewards.chest_locked': return ({required Object xp}) => 'Hoàn thành thêm nhiệm vụ để mở khóa +${xp} XP.';
-			case 'workout_rewards.eyebrow': return 'HOÀN THÀNH BUỔI TẬP';
-			case 'workout_rewards.subtitle': return 'Mỗi buổi tập là một bước tiến.';
-			case 'workout_rewards.earned': return 'XP từ buổi tập';
-			case 'workout_rewards.level': return ({required Object level}) => 'Cấp ${level}';
-			case 'workout_rewards.summary': return 'Xem tổng kết buổi tập';
-			case 'workout_rewards.loading': return 'Đang lưu buổi tập và cập nhật phần thưởng…';
-			case 'workout_rewards.load_error': return 'Chưa tải được phần thưởng. Buổi tập có thể đã được lưu. Hãy quay lại lịch sử tập luyện để kiểm tra.';
-			case 'workout_rewards.back': return 'Về trang tập luyện';
-			case 'workout_rewards.claim': return ({required Object xp}) => 'Nhận +${xp} XP';
-			case 'workout_rewards.claimed': return 'Đã nhận thưởng';
-			case 'workout_rewards.claim_error': return 'Chưa nhận được thưởng. Vui lòng thử lại.';
-			case 'workout_rewards.quests_hint': return 'Nhận thưởng nhiệm vụ hoàn thành để có thêm XP.';
-			case 'workout_rewards.rank_hint': return 'Hạng được xét khi kết thúc mùa 45 ngày.';
-			case 'workout_rewards.rank_progress': return ({required Object current, required Object target}) => '${current} / ${target} RP để thăng hạng';
-			case 'workout_rewards.rank_max': return ({required Object points}) => 'Hạng cao nhất · ${points} RP để giữ hạng';
-			case 'workout_rewards.session_rp': return ({required Object points}) => '+${points} RP từ buổi tập';
-			case 'workout_rewards.skip': return 'Bỏ qua hiệu ứng';
-			case 'workout_rewards.level_up': return 'Lên cấp!';
-			case 'workout_rewards.quest_progress': return ({required Object current, required Object target}) => '${current} / ${target}';
-			case 'workout_rewards.empty_quests': return 'Nhiệm vụ tuần sẽ xuất hiện tại đây khi có dữ liệu.';
 			case 'app_name': return 'Plato';
 			case 'company_name': return 'Zenithas';
 			case 'auth.err_account_not_found': return 'Tài khoản chưa tồn tại. Vui lòng kiểm tra lại.';
@@ -5871,32 +6047,43 @@ extension on _StringsVi {
 			case 'nutrition.err_food_name': return 'Tên món ăn phải chứa chữ cái và tối đa 50 ký tự.';
 			case 'nutrition.food_name_almonds': return 'Hạnh Nhân';
 			case 'nutrition.food_name_apple': return 'Táo';
+			case 'nutrition.food_name_avocado_banana_smoothie': return 'Sinh tố Bơ Chuối Hạnh nhân';
 			case 'nutrition.food_name_avocado_smoothie': return 'Sinh Tố Bơ';
 			case 'nutrition.food_name_banana': return 'Chuối';
 			case 'nutrition.food_name_banh_cuon': return 'Bánh Cuốn';
 			case 'nutrition.food_name_banh_mi': return 'Bánh Mì Thịt';
+			case 'nutrition.food_name_beef_steak_broccoli': return 'Bít tết Bò Bông cải xanh';
 			case 'nutrition.food_name_beef_tenderloin': return 'Thịt Bò Thăn';
 			case 'nutrition.food_name_boiled_chicken_breast': return 'Ức Gà Luộc';
 			case 'nutrition.food_name_boiled_egg': return 'Trứng Luộc';
 			case 'nutrition.food_name_broccoli_boiled': return 'Bông Cải Xanh Luộc';
+			case 'nutrition.food_name_broccoli_tomato_salad': return 'Salad Súp lơ Cà chua';
+			case 'nutrition.food_name_brown_rice_tofu': return 'Cơm lứt Đậu hũ Nấm';
+			case 'nutrition.food_name_bulletproof_coffee': return 'Cà phê Bơ Keto';
 			case 'nutrition.food_name_bun_bo_hue': return 'Bún Bò Huế';
 			case 'nutrition.food_name_bun_cha': return 'Bún Chả';
+			case 'nutrition.food_name_cheese_omelet': return 'Trứng ốp la Phô mai';
 			case 'nutrition.food_name_com_tam': return 'Cơm Tấm';
 			case 'nutrition.food_name_fresh_milk': return 'Sữa Tươi';
 			case 'nutrition.food_name_fried_egg': return 'Trứng Ốp La';
+			case 'nutrition.food_name_garlic_butter_salmon': return 'Cá hồi nướng Bơ tỏi';
 			case 'nutrition.food_name_goi_cuon': return 'Gỏi Cuốn';
 			case 'nutrition.food_name_greek_yogurt': return 'Sữa Chua Hy Lạp';
+			case 'nutrition.food_name_grilled_chicken_breast': return 'Ức gà áp chảo';
 			case 'nutrition.food_name_hu_tieu': return 'Hủ Tiếu';
 			case 'nutrition.food_name_iced_coffee': return 'Cà Phê Sữa Đá';
 			case 'nutrition.food_name_mi_quang': return 'Mỳ Quảng';
+			case 'nutrition.food_name_oatmeal_almond_milk': return 'Yến mạch Sữa hạnh nhân';
 			case 'nutrition.food_name_oatmeal_raw': return 'Yến Mạch (Sống)';
 			case 'nutrition.food_name_olive_oil': return 'Dầu Ô-liu';
 			case 'nutrition.food_name_orange_juice': return 'Nước Ép Cam';
 			case 'nutrition.food_name_peanut_butter': return 'Bơ Đậu Phộng';
+			case 'nutrition.food_name_peanut_butter_toast': return 'Bánh mì Bơ đậu phộng';
 			case 'nutrition.food_name_pho_bo': return 'Phở Bò';
 			case 'nutrition.food_name_salmon_raw': return 'Cá Hồi Tươi';
 			case 'nutrition.food_name_sweet_potato': return 'Khoai Lang';
 			case 'nutrition.food_name_tofu': return 'Đậu Hũ';
+			case 'nutrition.food_name_vegan_pho': return 'Phở Chay';
 			case 'nutrition.food_name_whey_protein': return 'Whey Protein';
 			case 'nutrition.food_name_white_rice': return 'Cơm Trắng';
 			case 'nutrition.food_name_xoi_man': return 'Xôi Mặn';
@@ -5998,6 +6185,77 @@ extension on _StringsVi {
 			case 'nutrition.title_wt_dialog': return 'Ghi nhận cân nặng';
 			case 'nutrition.lbl_wt_input': return 'Cân nặng hiện tại (kg)';
 			case 'nutrition.msg_wt_instruction': return 'Cập nhật cân nặng đúng hạn để hệ thống tính toán lại Năng lượng và Dinh dưỡng chuẩn xác nhất.';
+			case 'nutrition.allergy_egg': return 'Dị ứng Trứng';
+			case 'nutrition.allergy_gluten': return 'Dị ứng Gluten';
+			case 'nutrition.allergy_lactose': return 'Dị ứng Lactose';
+			case 'nutrition.allergy_peanut': return 'Dị ứng Đậu phộng';
+			case 'nutrition.allergy_seafood': return 'Dị ứng Hải sản';
+			case 'nutrition.allergy_soy': return 'Dị ứng Đậu nành';
+			case 'nutrition.allergy_tree_nuts': return 'Dị ứng Hạt cây';
+			case 'nutrition.diet_keto': return 'Ăn kiêng Keto';
+			case 'nutrition.diet_no_red_meat': return 'Kiêng thịt đỏ';
+			case 'nutrition.diet_vegan': return 'Thuần chay';
+			case 'nutrition.hint_search_ingredient': return 'Nhập tên nguyên liệu (ví dụ: Thịt bò)...';
+			case 'nutrition.ing_almond': return 'Hạnh nhân';
+			case 'nutrition.ing_almond_milk': return 'Sữa hạnh nhân';
+			case 'nutrition.ing_apple': return 'Táo';
+			case 'nutrition.ing_avocado': return 'Quả bơ';
+			case 'nutrition.ing_banana': return 'Chuối';
+			case 'nutrition.ing_beef': return 'Thịt bò';
+			case 'nutrition.ing_bread': return 'Bánh mì';
+			case 'nutrition.ing_broccoli': return 'Bông cải xanh';
+			case 'nutrition.ing_brown_rice': return 'Cơm lứt';
+			case 'nutrition.ing_butter': return 'Bơ lạt';
+			case 'nutrition.ing_carrot': return 'Cà rốt';
+			case 'nutrition.ing_cheese': return 'Phô mai';
+			case 'nutrition.ing_chicken': return 'Thịt gà';
+			case 'nutrition.ing_chicken_breast': return 'Ức gà';
+			case 'nutrition.ing_chicken_thigh': return 'Đùi gà';
+			case 'nutrition.ing_coffee': return 'Cà phê';
+			case 'nutrition.ing_crab': return 'Cua';
+			case 'nutrition.ing_cucumber': return 'Dưa chuột';
+			case 'nutrition.ing_egg': return 'Trứng';
+			case 'nutrition.ing_fish': return 'Cá';
+			case 'nutrition.ing_fish_salmon': return 'Cá hồi';
+			case 'nutrition.ing_fish_tilapia': return 'Cá rô phi';
+			case 'nutrition.ing_garlic': return 'Tỏi';
+			case 'nutrition.ing_lemon': return 'Chanh';
+			case 'nutrition.ing_lettuce': return 'Rau xà lách';
+			case 'nutrition.ing_milk': return 'Sữa';
+			case 'nutrition.ing_mushroom': return 'Nấm';
+			case 'nutrition.ing_noodle': return 'Mì';
+			case 'nutrition.ing_oatmeal': return 'Yến mạch';
+			case 'nutrition.ing_olive_oil': return 'Dầu olive';
+			case 'nutrition.ing_onion': return 'Hành tây';
+			case 'nutrition.ing_orange': return 'Cam';
+			case 'nutrition.ing_peanut': return 'Đậu phộng';
+			case 'nutrition.ing_peanut_butter': return 'Bơ đậu phộng';
+			case 'nutrition.ing_pepper': return 'Tiêu';
+			case 'nutrition.ing_pork': return 'Thịt lợn';
+			case 'nutrition.ing_pork_chop': return 'Sườn heo';
+			case 'nutrition.ing_potato': return 'Khoai tây';
+			case 'nutrition.ing_rice': return 'Gạo';
+			case 'nutrition.ing_rice_paper': return 'Bánh tráng';
+			case 'nutrition.ing_salt': return 'Muối';
+			case 'nutrition.ing_shrimp': return 'Tôm';
+			case 'nutrition.ing_soybean': return 'Đậu nành';
+			case 'nutrition.ing_spinach': return 'Rau chân vịt';
+			case 'nutrition.ing_squid': return 'Mực';
+			case 'nutrition.ing_sugar': return 'Đường';
+			case 'nutrition.ing_sweet_potato': return 'Khoai lang';
+			case 'nutrition.ing_tea': return 'Trà';
+			case 'nutrition.ing_tofu': return 'Đậu phụ';
+			case 'nutrition.ing_tomato': return 'Cà chua';
+			case 'nutrition.ing_walnut': return 'Óc chó';
+			case 'nutrition.ing_white_rice': return 'Cơm trắng';
+			case 'nutrition.ing_yogurt': return 'Sữa chua';
+			case 'nutrition.lbl_ingredients': return 'Thành phần nguyên liệu';
+			case 'nutrition.lbl_badge_recommended': return 'Phù hợp';
+			case 'nutrition.lbl_safe_for_me': return 'Chỉ món an toàn';
+			case 'nutrition.msg_allergy_confirm_prefix': return 'Món ăn này chứa thành phần bạn cần kiêng:';
+			case 'nutrition.msg_allergy_confirm_suffix': return 'Bạn có chắc chắn muốn ăn không?';
+			case 'nutrition.title_allergy_warning': return 'Cảnh báo Dị ứng';
+			case 'nutrition.warn_allergy': return 'Nguy cơ dị ứng với';
 			case 'onboarding.hint_age': return 'Nhập số tuổi (VD: 25)';
 			case 'onboarding.lbl_ai_safe': return 'Trợ lý ảo: Đã cấu hình an toàn y tế';
 			case 'onboarding.msg_alert_back': return 'Thay thế bài tập kéo tạ lưng bằng biến thể an toàn hơn';
@@ -6373,6 +6631,9 @@ extension on _StringsVi {
 			case 'settings.desc_item_tutorial': return 'Xem lại các video hướng dẫn tính năng';
 			case 'settings.lbl_item_version': return 'Phiên bản';
 			case 'settings.title_language_dialog': return 'Chọn ngôn ngữ';
+			case 'settings.title_notification_screen': return 'Cài đặt thông báo';
+			case 'settings.lbl_item_notification': return 'Thông báo & Chạy ngầm';
+			case 'settings.desc_item_notification': return 'Quản lý nhắc nhở và hoạt động nền';
 			case 'settings.title_notifications_section': return 'Thông báo';
 			case 'settings.desc_notifications_section': return 'Nhận thông báo nhắc nhở thời gian nghỉ và báo cáo buổi tập';
 			case 'settings.title_permission_denied': return 'Quyền truy cập bị từ chối';
@@ -6787,6 +7048,29 @@ extension on _StringsVi {
 			case 'workout.status_workout_done': return 'Đã hoàn thành buổi tập';
 			case 'workout.lbl_workout_in_progress': return 'Đang tập luyện...';
 			case 'workout.col_workout_name': return 'Tên buổi tập';
+			case 'workout_rewards.claim_error': return 'Lỗi nhận thưởng';
+			case 'workout_rewards.load_error': return 'Không thể tải phần thưởng';
+			case 'workout_rewards.loading': return 'Đang tải phần thưởng...';
+			case 'workout_rewards.back': return 'Quay lại';
+			case 'workout_rewards.tap_skip': return 'Chạm để bỏ qua';
+			case 'workout_rewards.summary': return 'Xem tổng kết';
+			case 'workout_rewards.streak': return ({required Object weeks}) => 'Chuỗi ${weeks} tuần!';
+			case 'workout_rewards.quest_workouts': return 'Buổi tập';
+			case 'workout_rewards.quest_volume': return 'Khối lượng';
+			case 'workout_rewards.quest_prs': return 'Kỷ lục cá nhân';
+			case 'workout_rewards.quest_time': return 'Thời gian';
+			case 'workout_rewards.quest_sets': return 'Hiệp tập';
+			case 'workout_rewards.quest_exercises': return 'Bài tập';
+			case 'workout_rewards.tap_claim': return 'Chạm để nhận';
+			case 'workout_rewards.claimed': return 'Đã nhận';
+			case 'workout_rewards.claim': return ({required Object xp}) => 'Nhận +${xp} XP';
+			case 'workout_rewards.chest_title': return 'Rương tuần';
+			case 'workout_rewards.level': return ({required Object level}) => 'Cấp ${level}';
+			case 'workout_rewards.level_up': return 'Lên cấp!';
+			case 'workout_rewards.zone_demote': return 'Rớt hạng';
+			case 'workout_rewards.zone_maintain': return 'Giữ hạng';
+			case 'workout_rewards.zone_promote': return 'Lên hạng';
+			case 'workout_rewards.rank_review': return 'Hạng sẽ được xét duyệt vào cuối tuần';
 			case 'notifications.title_settings': return 'Thông báo';
 			case 'notifications.lbl_workout_reminders': return 'Nhắc lịch tập';
 			case 'notifications.lbl_streak_reminders': return 'Nhắc duy trì streak';

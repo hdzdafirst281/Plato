@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import '../../features/notifications/application/notification_coordinator.dart';
 import 'dart:async';
 import 'dart:ui';
@@ -300,9 +301,9 @@ class _MainScaffoldState extends State<MainScaffold> with TickerProviderStateMix
     final Color iconColorInactive = colorScheme.onSurfaceVariant.withValues(alpha: 0.7);
 
     Widget? profileAvatarWidget;
-    if (profile.avatarBase64 != null && profile.avatarBase64!.isNotEmpty) {
-      profileAvatarWidget = Image.memory(
-        base64Decode(profile.avatarBase64!), 
+    if (profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty) {
+      profileAvatarWidget = Image.network(
+        profile.avatarUrl!, 
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) => Icon(Symbols.person, color: colorScheme.onPrimaryContainer, size: 20),
       );

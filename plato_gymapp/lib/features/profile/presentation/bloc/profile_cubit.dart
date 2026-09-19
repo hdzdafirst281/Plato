@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
+import 'package:plato_gymapp/core/worker/sync_manager.dart';
 
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../auth/data/models/user_models.dart';
@@ -119,10 +120,18 @@ class ProfileCubit extends Cubit<ProfileState> {
     emit(state.copyWith(userProfile: finalized));
   }
 
-  Future<void> updateAvatar(String? base64Image) async {
-    final updatedProfile = state.userProfile.copyWith(avatarBase64: base64Image);
+  Future<void> updateAvatar(List<int>? imageBytes) async {
+    String? newUrl;
+    if (imageBytes != null) {
+      newUrl = await _authRepo.uploadAvatarToStorage(imageBytes);
+    }
+    
+    final updatedProfile = state.userProfile.copyWith(avatarUrl: newUrl);
     await _authRepo.saveProfile(updatedProfile);
     emit(state.copyWith(userProfile: updatedProfile));
+    
+    // Đồng bộ lập tức lên Supabase để bảng users có được link URL kèm timestamp mới nhất
+    SyncManager.syncNow(pushOnly: true).ignore();
   }
 
   // ==========================================

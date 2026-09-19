@@ -117,6 +117,7 @@ void main() {
         SupabaseClient('https://example.supabase.co', 'test'),
       ),
       FakeAuth(),
+      horizonDays: 1,
       gateway: gateway,
       clock: () async => now,
       permissionGranted: () async => true,
@@ -125,6 +126,24 @@ void main() {
   tearDown(() async {
     service.dispose();
     await db.close();
+  });
+  test('thirty-day OS plan survives today goal and a headless refresh', () async {
+    final background = NotificationCoordinator(db, prefs,
+      WorkoutRepository(db, SupabaseClient('https://example.supabase.co', 'test')),
+      FakeAuth(), backgroundRefresh: true, gateway: gateway,
+      clock: () async => now, permissionGranted: () async => true);
+    try {
+      await background.reconcileNow();
+      expect(gateway.scheduled, hasLength(30));
+      await saveWater(db, '2026-09-13', 2.5);
+      await background.reconcileNow();
+      expect(gateway.scheduled, hasLength(29));
+      expect(gateway.scheduled.values.every((c) => c.at.day != 13 || c.at.month != 9), isTrue);
+      final calls = gateway.scheduleCalls;
+      await background.reconcileNow();
+      expect(gateway.scheduleCalls, calls);
+      expect(gateway.scheduled.values.first.bodyKey, 'notifications.body_hydration_no_log');
+    } finally { background.dispose(); }
   });
   test('reconciliation updates water content and cancels at goal', () async {
     await service.reconcileNow();
@@ -142,6 +161,58 @@ void main() {
     await service.reconcileNow();
     expect(gateway.scheduled, isEmpty);
   });
+  test(
+    'viewing Calendar does not erase a pending workout OS reminder',
+    () async {
+      await prefs.setBool('notification_water', false);
+      final schedule = fixtures.schedule();
+      await db.workoutDao.insertScheduledWorkout(schedule);
+      service.foreground = true;
+      service.visibleRoute = '/profile/calendar';
+      await service.reconcileNow();
+      expect(
+        gateway.scheduled.values.where((c) => c.kind == ReminderKind.workout),
+        hasLength(1),
+      );
+      service.foreground = false;
+      await service.reconcileNow();
+      expect(gateway.scheduleCalls, 1);
+    },
+  );
+  test(
+    'viewing Water does not remove the OS request needed after closing',
+    () async {
+      service.foreground = true;
+      service.visibleRoute = '/nutrition?water=1';
+      await service.reconcileNow();
+      expect(gateway.scheduled, hasLength(1));
+    },
+  );
+  test(
+    'two engines serialize their scheduling against the same ledger',
+    () async {
+      final other = NotificationCoordinator(
+        db,
+        prefs,
+        WorkoutRepository(
+          db,
+          SupabaseClient('https://example.supabase.co', 'test'),
+        ),
+        FakeAuth(),
+        horizonDays: 1,
+        backgroundRefresh: true,
+        gateway: gateway,
+        clock: () async => now,
+        permissionGranted: () async => true,
+      );
+      try {
+        await Future.wait([service.reconcileNow(), other.reconcileNow()]);
+        expect(gateway.scheduleCalls, 1);
+      } finally {
+        other.dispose();
+      }
+    },
+  );
   test('same snapshot and pending OS request are not rescheduled', () async {
     await service.reconcileNow();
     await service.reconcileNow();
@@ -155,6 +226,7 @@ void main() {
         SupabaseClient('https://example.supabase.co', 'test'),
       ),
       FakeAuth(),
+      horizonDays: 1,
       gateway: gateway,
       clock: () async => now,
       permissionGranted: () async => true,

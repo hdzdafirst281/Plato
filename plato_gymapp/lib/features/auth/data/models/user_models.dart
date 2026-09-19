@@ -10,7 +10,7 @@ class UserProfile with _$UserProfile {
   const factory UserProfile({
     @JsonKey(name: 'id') String? id,
     @JsonKey(name: 'name') @Default('Gym Warrior') String displayName,
-    @JsonKey(name: 'avatar_base64') String? avatarBase64, 
+    @JsonKey(name: 'avatar_url') String? avatarUrl, 
     
     @JsonKey(name: 'gender') @Default(Gender.MALE) Gender gender,
     @JsonKey(name: 'age') @Default(25) int userAge,

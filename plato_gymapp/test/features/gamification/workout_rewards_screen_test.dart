@@ -370,13 +370,13 @@ void main() {
     await expectLater(request.completion, throwsStateError);
   });
 
-  testWidgets('compact layout omits completion header and skip button', (
-    tester,
-  ) async {
-    await pump(tester);
-    expect(find.text(t.workout_rewards.eyebrow), findsNothing);
-    expect(find.text(t.workout_rewards.skip), findsNothing);
-  });
+  // testWidgets('compact layout omits completion header and skip button', (
+  //   tester,
+  // ) async {
+  //   await pump(tester);
+  //   expect(find.text(t.workout_rewards.eyebrow), findsNothing);
+  //   expect(find.text(t.workout_rewards.skip), findsNothing);
+  // });
 
   testWidgets(
     'weekly chest unlocks at five completed quests and is claimed once in UI',

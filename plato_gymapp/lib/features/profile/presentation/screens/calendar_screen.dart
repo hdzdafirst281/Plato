@@ -54,6 +54,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
   int _earliestMonthOffset = 0;
   int _initialMonthPage = 0;
   int _currentMonthIndex = 0;
+  int _earliestYearOffset = 0;
+  int _initialYearPage = 0;
   int _currentYearIndex = 0;
 
   Timer? _tourDelayTimer;
@@ -175,19 +177,22 @@ class _CalendarScreenState extends State<CalendarScreen> {
       final minMillis = pastWorkouts.map((w) => w.startTime).reduce(math.min);
       final earliestDate = DateTime.fromMillisecondsSinceEpoch(minMillis).toLocal();
       _earliestMonthOffset = (earliestDate.year - now.year) * 12 + earliestDate.month - now.month;
+      _earliestYearOffset = earliestDate.year - now.year;
     } else {
       _earliestMonthOffset = 0;
+      _earliestYearOffset = 0;
     }
 
     if (_earliestMonthOffset > 0) _earliestMonthOffset = 0;
+    if (_earliestYearOffset > 0) _earliestYearOffset = 0;
 
     _initialMonthPage = -_earliestMonthOffset;
     _currentMonthIndex = _initialMonthPage;
     _monthPageController = PageController(initialPage: _initialMonthPage);
 
-    // Gán page hiển thị năm hiện tại hoặc năm cuối cùng có data
-    _currentYearIndex = math.max(0, _activeYears.length - 1);
-    _yearPageController = PageController(initialPage: _currentYearIndex);
+    _initialYearPage = -_earliestYearOffset;
+    _currentYearIndex = _initialYearPage;
+    _yearPageController = PageController(initialPage: _initialYearPage);
   }
 
   // [PERF FIX]: Giới hạn tạo Map tương lai 3 năm và cập nhật mảng năm (active years)
@@ -225,9 +230,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
     _lastFutureWorkouts = future;
     
     _activeYears = yearsSet.toList()..sort();
-    if (_currentYearIndex >= _activeYears.length) {
-      _currentYearIndex = math.max(0, _activeYears.length - 1);
-    }
   }
 
   String _formatDuration(int totalSeconds) {
@@ -244,8 +246,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
       final offset = _currentMonthIndex + _earliestMonthOffset;
       return DateTime(now.year, now.month + offset, 1);
     } else {
-      if (_activeYears.isEmpty) return now;
-      return DateTime(_activeYears[_currentYearIndex], 1, 1);
+      final offset = _currentYearIndex + _earliestYearOffset;
+      return DateTime(now.year + offset, 1, 1);
     }
   }
 
@@ -257,7 +259,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
         _monthPageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOutCubic);
       }
     } else if (_viewMode == CalendarViewMode.YEAR) {
-      if (isNext && _currentYearIndex < _activeYears.length - 1) {
+      if (isNext) {
         _yearPageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOutCubic);
       } else if (!isNext && _currentYearIndex > 0) {
         _yearPageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOutCubic);
@@ -269,10 +271,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     if (_viewMode == CalendarViewMode.MONTH) {
       _monthPageController.animateToPage(_initialMonthPage, duration: const Duration(milliseconds: 400), curve: Curves.easeInOutCubic);
     } else if (_viewMode == CalendarViewMode.YEAR) {
-      int todayIdx = _activeYears.indexOf(DateTime.now().year);
-      if (todayIdx != -1) {
-        _yearPageController.animateToPage(todayIdx, duration: const Duration(milliseconds: 400), curve: Curves.easeInOutCubic);
-      }
+      _yearPageController.animateToPage(_initialYearPage, duration: const Duration(milliseconds: 400), curve: Curves.easeInOutCubic);
     } else {
       // Đối với Multi-Year, ta có thể dùng ScrollController nếu cần, 
       // nhưng mặc định danh sách xếp ngược từ mới nhất xuống.
@@ -310,12 +309,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
     if (_viewMode == CalendarViewMode.MONTH) {
       titleLabel = DateFormat("MMMM yyyy", currentLangCode).format(_activeDate);
     } else {
-      final y = _activeYears.isNotEmpty ? _activeYears[_currentYearIndex] : DateTime.now().year;
-      titleLabel = t.stats.fmt_cal_year_title(arg1: y.toString());
+      titleLabel = t.stats.fmt_cal_year_title(arg1: _activeDate.year.toString());
     }
 
     final isLeftArrowActive = _viewMode == CalendarViewMode.MONTH ? _currentMonthIndex > 0 : _currentYearIndex > 0;
-    final isRightArrowActive = _viewMode == CalendarViewMode.YEAR ? _currentYearIndex < _activeYears.length - 1 : true;
 
     // Label cho App Bar
     final String viewModeLabel = switch (_viewMode) {
@@ -483,8 +480,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                             child: Text(titleLabel.toUpperCase(), key: ValueKey(titleLabel), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
                           ),
                           IconButton(
-                            icon: Icon(Symbols.arrow_right, color: isRightArrowActive ? null : colorScheme.onSurface.withValues(alpha: 0.38)), 
-                            onPressed: isRightArrowActive ? () => _onArrowPressed(true) : null
+                            icon: const Icon(Symbols.arrow_right), 
+                            onPressed: () => _onArrowPressed(true),
                           ),
                         ],
                       ),
@@ -530,10 +527,11 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               child: PageView.builder(
                                 key: const ValueKey("year_view"),
                                 controller: _yearPageController,
-                                itemCount: _activeYears.length,
                                 onPageChanged: (idx) => setState(() => _currentYearIndex = idx),
                                 itemBuilder: (context, index) {
-                                  return _YearHeatmapView(year: _activeYears[index], mappedItems: _mappedItemsCache);
+                                  final offset = index + _earliestYearOffset;
+                                  final year = DateTime.now().year + offset;
+                                  return _YearHeatmapView(year: year, mappedItems: _mappedItemsCache);
                                 },
                               ),
                             )
@@ -1292,6 +1290,7 @@ class _RecurrenceConfigPageState extends State<_RecurrenceConfigPage> {
               value: _reminder,
               onChanged: _time == null || _saving ? null : (value) async {
                 if (value && !(await NotificationCoordinator.instance?.setEnabled(true) ?? false)) return;
+                  if (value) await NotificationCoordinator.instance?.gateway.requestWorkoutTimingPermission();
                 if (mounted) setState(() => _reminder = value);
               }),
             if (_reminder) DropdownButtonFormField<int>(initialValue: _lead,

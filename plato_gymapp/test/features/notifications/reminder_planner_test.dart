@@ -65,7 +65,9 @@ List<ReminderCandidate> plan({
   double target = 2,
   bool active = false,
   bool inactivity = false,
+  int horizonDays = 1,
 }) => ReminderPlanner.build(
+  horizonDays: horizonDays,
   now: now ?? DateTime(2026, 9, 13, 12),
   history: history,
   schedules: schedules,
@@ -86,6 +88,44 @@ List<ReminderCandidate> plan({
   inactivityEnabled: inactivity,
 );
 void main() {
+  test('closed app has separate OS hydration requests for 30 days', () {
+    final water = plan(
+      horizonDays: 30,
+    ).where((c) => c.kind == ReminderKind.hydration).toList();
+    expect(water.length, 30);
+    expect(water.map((c) => c.key).toSet().length, 30);
+    expect(water.every((c) => c.at.hour == 16 && c.at.minute == 0), isTrue);
+    expect(water.last.at, DateTime(2026, 10, 12, 16));
+  });
+  test(
+    'today goal and active workout do not disable future water reminders',
+    () {
+      for (final candidates in [
+        plan(water: 2, horizonDays: 30),
+        plan(active: true, horizonDays: 30),
+      ]) {
+        final water = candidates
+            .where((c) => c.kind == ReminderKind.hydration)
+            .toList();
+        expect(water.length, 29);
+        expect(water.first.at, DateTime(2026, 9, 14, 16));
+        expect(water.first.bodyKey, 'notifications.body_hydration_no_log');
+      }
+    },
+  );
+  test(
+    'a workout this week schedules risk for next Sunday without reopening',
+    () {
+      final candidates = plan(
+        horizonDays: 30,
+        history: [workout(DateTime(2026, 9, 10))],
+      );
+      final risk = candidates
+          .where((c) => c.kind == ReminderKind.streak)
+          .toList();
+      expect(risk.single.at, DateTime(2026, 9, 20, 17));
+    },
+  );
   test('legacy schedule keeps nullable time and reminder off', () {
     final s = ScheduledWorkout.fromJson({
       'id': 's',

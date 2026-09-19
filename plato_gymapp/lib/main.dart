@@ -1,3 +1,4 @@
+import 'features/notifications/application/notification_background_worker.dart';
 import 'package:flutter/material.dart';
 import 'features/notifications/application/notification_coordinator.dart';
 import 'features/notifications/presentation/notification_feedback_host.dart';
@@ -44,7 +45,7 @@ void main() async {
 
   try {
     await dotenv.load(fileName: ".env");
-    SyncManager.initialize();
+    await SyncManager.initialize();
     
     await BackgroundWorkoutService().initialize();
     
@@ -71,6 +72,11 @@ void main() async {
     }
 
     await NotificationCoordinator(db, prefs, getIt<WorkoutRepository>(), getIt<AuthRepository>()).initialize();
+    try {
+      await NotificationBackgroundWorker.register();
+    } catch (error) {
+      debugPrint('Notification background registration failed: $error');
+    }
 
     runApp(
       TranslationProvider(

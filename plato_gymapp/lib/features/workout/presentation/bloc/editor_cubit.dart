@@ -65,6 +65,10 @@ class EditorCubit extends Cubit<EditorState> {
       currentRoutines = await _workoutRepo.routinesStream.first.timeout(const Duration(seconds: 2));
     } catch (_) {}
 
+    if (currentRoutines.length >= 10) {
+      throw Exception("MAX_ROUTINES_REACHED");
+    }
+
     final existingRoutineNames = currentRoutines
         .where((r) => (r.programName ?? "").trim() == _targetProgramName.trim())
         .map((r) => r.name)

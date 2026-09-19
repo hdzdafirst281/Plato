@@ -8,7 +8,6 @@ import 'package:timezone/timezone.dart' as tz;
 import 'package:plato_gymapp/core/database/app_database.dart';
 import 'package:plato_gymapp/core/database/entities.dart';
 import 'package:plato_gymapp/core/database/enums.dart';
-import 'package:plato_gymapp/core/utils/time_manager.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
 import 'package:plato_gymapp/i18n/translation_helper.dart';
 import 'package:plato_gymapp/features/auth/domain/repositories/auth_repository.dart';
@@ -33,10 +32,12 @@ class NotificationCoordinator extends ChangeNotifier
   final LocalNotificationGateway gateway;
   final Future<DateTime> Function() clock;
   final Future<bool> Function() permissionGranted;
+  final int horizonDays;
+  final bool backgroundRefresh;
   late final store = NotificationStore(db);
   final List<StreamSubscription<dynamic>> _subscriptions = [];
   Timer? _timer;
-  Timer? _debounce;
+  bool _initialized = false;
   Future<void> _work = Future.value();
   bool _disposed = false;
   bool _suspended = false;
@@ -52,21 +53,19 @@ class NotificationCoordinator extends ChangeNotifier
     this.prefs,
     this.workouts,
     this.auth, {
+    this.horizonDays = 30,
+    this.backgroundRefresh = false,
     LocalNotificationGateway? gateway,
     Future<DateTime> Function()? clock,
     Future<bool> Function()? permissionGranted,
   }) : gateway = gateway ?? LocalNotificationGateway(),
-       clock =
-           clock ??
-           (() async => DateTime.fromMillisecondsSinceEpoch(
-             await TimeManager.getTrueTimeMillis(),
-           )),
+       clock = clock ?? (() async => DateTime.now()),
        permissionGranted =
            permissionGranted ?? (() => Permission.notification.isGranted);
 
   /// Serializes lifecycle reconciliation and data-change reconciliation.
   Future<void> reconcileNow() {
-    final task = _work.then((_) => _reconcile());
+    final task = _work.then((_) => store.withDeliveryLock(_reconcile));
     _work = task.catchError((Object error) {
       debugPrint('Notification reconciliation failed: $error');
     });
@@ -82,6 +81,7 @@ class NotificationCoordinator extends ChangeNotifier
 
   Future<void> initialize() async {
     instance = this;
+    _initialized = true;
     WidgetsBinding.instance.addObserver(this);
     if (!prefs.containsKey('notification_scope')) {
       await prefs.setString(
@@ -100,17 +100,22 @@ class NotificationCoordinator extends ChangeNotifier
       const Duration(minutes: 1),
       (_) => requestReconcile(),
     );
-    requestReconcile();
+    // Persist OS requests before initialization returns, not after a Dart timer.
+    try {
+      await reconcileNow();
+    } catch (error) {
+      debugPrint('Initial reminder scheduling failed: $error');
+    }
   }
 
   void requestReconcile() {
-    if (_disposed || _suspended) return;
-    _debounce?.cancel();
-    _debounce = Timer(const Duration(milliseconds: 400), () {
+    if (!_initialized || _disposed || _suspended) return;
+    // Start immediately: a timer may never run after the app is backgrounded.
+    unawaited(
       reconcileNow().catchError((Object error) {
         debugPrint('Notification reconciliation failed: $error');
-      });
-    });
+      }),
+    );
   }
 
   Future<bool> setEnabled(bool value) async {
@@ -119,9 +124,9 @@ class NotificationCoordinator extends ChangeNotifier
     await prefs.setBool('notification_enabled', value);
     if (!value) {
       await _work;
-      await gateway.clearOwned();
+      await store.withDeliveryLock(gateway.clearOwned);
     }
-    requestReconcile();
+    await reconcileNow();
     notifyListeners();
     return true;
   }
@@ -129,7 +134,7 @@ class NotificationCoordinator extends ChangeNotifier
   Future<bool> setWaterEnabled(bool value) async {
     if (value && !await setEnabled(true)) return false;
     await prefs.setBool('notification_water', value);
-    requestReconcile();
+    await reconcileNow();
     notifyListeners();
     return true;
   }
@@ -137,13 +142,13 @@ class NotificationCoordinator extends ChangeNotifier
   Future<void> setWaterTarget(double value) async {
     if (!value.isFinite || value <= 0) return;
     await prefs.setDouble('saved_water_target', value);
-    requestReconcile();
+    await reconcileNow();
     notifyListeners();
   }
 
   Future<void> setLimit(int value) async {
     await prefs.setInt('notification_limit', value.clamp(1, 4));
-    requestReconcile();
+    await reconcileNow();
     notifyListeners();
   }
 
@@ -157,14 +162,18 @@ class NotificationCoordinator extends ChangeNotifier
     await prefs.setInt('notification_quiet_end', end);
     await prefs.setInt('notification_quiet_start_minute', startMinute);
     await prefs.setInt('notification_quiet_end_minute', endMinute);
-    requestReconcile();
+    await reconcileNow();
     notifyListeners();
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     foreground = state == AppLifecycleState.resumed;
-    requestReconcile();
+    unawaited(
+      reconcileNow().catchError((Object error) {
+        debugPrint('Notification lifecycle reconciliation failed: $error');
+      }),
+    );
   }
 
   DateTime scheduleTime(ScheduledWorkoutEntity s) {
@@ -187,10 +196,12 @@ class NotificationCoordinator extends ChangeNotifier
   Future<void> _reconcile() async {
     if (_disposed || _suspended) return;
     if (_scope != null && _scope != scope) return;
+    await prefs.reload();
+    if (prefs.getBool('notification_resetting') == true) return;
     final capturedScope = scope;
     final now = await clock();
     final history = await workouts.workoutHistoryStream.first;
-    await _rankEvents(history, now);
+    if (!backgroundRefresh) await _rankEvents(history, now);
     if (!enabled || !await permissionGranted() || !NotificationCopy.available) {
       await gateway.clearOwned();
       return;
@@ -199,7 +210,13 @@ class NotificationCoordinator extends ChangeNotifier
     final schedules = await db.workoutDao.getAllScheduledWorkouts();
     final day = NotificationPolicy.dayKey(now);
     final nutrition = await db.nutritionDao.getDailyNutritionByDate(day);
+    final waterByDay = {
+      for (final entry in await db.nutritionDao.getAllNutritionHistory())
+        entry.dateId: entry.waterConsumedLiters,
+    };
     final candidates = ReminderPlanner.build(
+      horizonDays: horizonDays,
+      waterByDay: waterByDay,
       now: now,
       schedules: schedules.where((s) => s.id != activeScheduleId).toList(),
       history: history,
@@ -234,16 +251,10 @@ class NotificationCoordinator extends ChangeNotifier
         );
       }
     }
-    final visibleCandidates = candidates
-        .where(
-          (c) =>
-              !(foreground &&
-                  visibleRoute.split('?').first == c.route.split('?').first &&
-                  NotificationPolicy.dayKey(c.at) == day),
-        )
-        .toList();
+    // Viewing a screen must not delete reminders needed after the app closes.
+    // Darwin foreground presentation is suppressed by the notification gateway.
     final selected = NotificationPolicy.select(
-      visibleCandidates,
+      candidates,
       now: now,
       committed: committed,
       dailyLimit: dailyLimit,
@@ -260,9 +271,9 @@ class NotificationCoordinator extends ChangeNotifier
       final invalidWater =
           value['kind'] == ReminderKind.hydration.name &&
           (!waterEnabled ||
-              activeWorkout ||
-              NotificationPolicy.dayKey(at) != day ||
-              (nutrition?.waterConsumedLiters ?? 0) >= waterTarget);
+              (activeWorkout && NotificationPolicy.dayKey(at) == day) ||
+              NotificationPolicy.dayKey(at).compareTo(day) < 0 ||
+              (waterByDay[NotificationPolicy.dayKey(at)] ?? 0) >= waterTarget);
       final invalidWorkout =
           value['kind'] == ReminderKind.workout.name &&
           !schedules.any(
@@ -280,6 +291,7 @@ class NotificationCoordinator extends ChangeNotifier
           pending.any((p) => p.id == value['id']);
       if ((!desiredKeys.contains(entry.key) && at.isAfter(now)) ||
           pendingInvalid) {
+        await store.renewDeliveryLock();
         await gateway.cancel(value['id'] as int);
         if (at.isAfter(now)) {
           await store.write(entry.key, {...value, 'state': 'cancelled'});
@@ -291,16 +303,20 @@ class NotificationCoordinator extends ChangeNotifier
       stored.values.fold<int>(99999, (n, v) => max(n, v['id'] as int)) + 1,
     );
     for (final candidate in selected) {
-      if (_suspended || capturedScope != scope || !enabled) {
-        await gateway.clearOwned();
+      await store.renewDeliveryLock();
+      await prefs.reload();
+      if (_suspended ||
+          capturedScope != scope ||
+          !enabled ||
+          prefs.getBool('notification_resetting') == true)
         return;
-      }
       final key = 'schedule:${candidate.key}';
       final previous = stored[key];
       final fingerprint = jsonEncode([
         scope,
         candidate.at.millisecondsSinceEpoch,
         LocaleSettings.currentLocale.languageCode,
+        candidate.kind == ReminderKind.workout && gateway.exactWorkoutTiming,
         candidate.bodyKey,
         candidate.arguments,
       ]);
@@ -323,6 +339,11 @@ class NotificationCoordinator extends ChangeNotifier
       }
     }
     await prefs.setInt('notification_next_id', nextId);
+    await prefs.setInt(
+      'notification_last_reconciled_at',
+      now.millisecondsSinceEpoch,
+    );
+    await prefs.setInt('notification_pending_count', selected.length);
     notifyListeners();
   }
 
@@ -611,11 +632,13 @@ class NotificationCoordinator extends ChangeNotifier
   /// Called before clearing account data. Wait for in-flight scheduling first.
   Future<void> reset() async {
     _suspended = true;
-    _debounce?.cancel();
+    await prefs.setBool('notification_resetting', true);
     await _work;
     await _eventWork;
-    await gateway.clearOwned();
-    await db.notificationDao.clear();
+    await store.withDeliveryLock(() async {
+      await gateway.clearOwned();
+      await db.notificationDao.clear();
+    });
     await prefs.remove('saved_water_target');
     await prefs.remove('notification_water');
     await prefs.setString(
@@ -628,7 +651,8 @@ class NotificationCoordinator extends ChangeNotifier
     levelHandledThrough = 0;
   }
 
-  void resumeAfterReset() {
+  Future<void> resumeAfterReset() async {
+    await prefs.remove('notification_resetting');
     _suspended = false;
     requestReconcile();
   }
@@ -637,7 +661,6 @@ class NotificationCoordinator extends ChangeNotifier
   void dispose() {
     _disposed = true;
     _timer?.cancel();
-    _debounce?.cancel();
     for (final sub in _subscriptions) {
       sub.cancel();
     }

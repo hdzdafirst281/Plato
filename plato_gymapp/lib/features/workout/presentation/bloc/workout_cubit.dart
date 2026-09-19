@@ -133,6 +133,9 @@ class WorkoutCubit extends Cubit<WorkoutState> {
   }
 
   Future<void> duplicateRoutine(String routineIdToDuplicate) async {
+    if (state.userCustomRoutinesList.length >= 10) {
+      throw Exception("MAX_ROUTINES_REACHED");
+    }
     await _workoutRepo.duplicateRoutine(routineIdToDuplicate);
   }
 
@@ -155,6 +158,9 @@ class WorkoutCubit extends Cubit<WorkoutState> {
   }
 
   Future<void> addProgramRoutines(WorkoutProgram programDataToSave) async {
+    if (state.userCustomRoutinesList.length + programDataToSave.routines.length > 10) {
+      throw Exception("MAX_ROUTINES_REACHED");
+    }
     await _workoutRepo.saveProgramRoutines(programDataToSave);
   }
 

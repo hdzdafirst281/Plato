@@ -18,9 +18,10 @@ part 'app_database.g.dart';
   WorkoutGoalConverter,
   MuscleGroupListConverter,
   EquipmentConverter,
+  StringListConverter,
 ])
 @Database(
-  version: 7, // 🚀 CẬP NHẬT LÊN VERSION 6
+  version: 8, // 🚀 CẬP NHẬT LÊN VERSION 8
   entities: [
     Exercise, 
     FoodResult, 
@@ -34,6 +35,21 @@ part 'app_database.g.dart';
   ]
 )
 abstract class AppDatabase extends FloorDatabase {
+  /// A headless engine must not close the UI engine's shared sqflite handle.
+  /// Schema upgrades belong to foreground initialization, before workers register.
+  static Future<AppDatabase> openNotificationBackgroundConnection() async {
+    final path = await sqfliteDatabaseFactory.getDatabasePath('plato_app_database.db');
+    if (!await sqflite.databaseExists(path)) throw StateError('App database not initialized');
+    final connection = await sqflite.openDatabase(path, singleInstance: false);
+    if (await connection.getVersion() != 8) {
+      await connection.close();
+      throw StateError('App database requires foreground migration');
+    }
+    await connection.execute('PRAGMA foreign_keys = ON');
+    final result = _$AppDatabase();
+    result.database = connection;
+    return result;
+  }
   NotificationDao get notificationDao;
   ExerciseDao get exerciseDao;
   FoodDao get foodDao;
@@ -84,4 +100,11 @@ final migration6to7 = Migration(6, 7, (sqflite.Database database) async {
   await database.execute('ALTER TABLE scheduled_workouts_local ADD COLUMN reminderEnabled INTEGER NOT NULL DEFAULT 0');
   await database.execute('ALTER TABLE scheduled_workouts_local ADD COLUMN reminderMinutesBefore INTEGER NOT NULL DEFAULT 30');
   await database.execute('ALTER TABLE scheduled_workouts_local ADD COLUMN completedWorkoutId TEXT');
+});
+
+// Migration từ v7 lên v8: Thêm cột cho FoodResult
+final migration7to8 = Migration(7, 8, (sqflite.Database database) async {
+  await database.execute('ALTER TABLE foods ADD COLUMN ingredients TEXT');
+  await database.execute('ALTER TABLE foods ADD COLUMN diet_tags TEXT');
+  await database.execute('ALTER TABLE foods ADD COLUMN allergen_tags TEXT');
 });

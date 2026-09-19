@@ -45,6 +45,7 @@ class LeaderboardEntry with _$LeaderboardEntry {
   const factory LeaderboardEntry({
     required String id,
     required String name,
+    @JsonKey(name: 'avatar_url') String? avatarUrl,
     required int xp,
     @JsonKey(name: 'current_rank_id') @Default(1) int currentRankId,
     @JsonKey(includeFromJson: false, includeToJson: false) @Default(false) bool isUser,

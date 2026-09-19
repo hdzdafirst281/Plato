@@ -20,13 +20,7 @@ import '../../../../core/designsystem/theme/theme_cubit.dart';
 import '../../../../core/navigation/app_routes.dart';
 import '../../../auth/presentation/bloc/auth_cubit.dart';
 import '../bloc/profile_cubit.dart';
-import '../../../../core/di/injection.dart';
-import '../../../../core/utils/workout_permission_helper.dart';
-import 'package:permission_handler/permission_handler.dart';
-import 'package:flutter_background_service/flutter_background_service.dart';
-import 'dart:io';
-import '../../../notifications/presentation/notification_controls.dart';
-import 'package:device_info_plus/device_info_plus.dart';
+import '../../../notifications/presentation/screens/notification_settings_screen.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -36,39 +30,9 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _isBackgroundWorkoutEnabled = true;
-
   @override
   void initState() {
     super.initState();
-    _initSettings();
-  }
-
-  void _initSettings() async {
-    final prefs = getIt<SharedPreferences>();
-    bool isEnabled = prefs.getBool(WorkoutPermissionHelper.isBackgroundWorkoutEnabledKey) ?? false;
-    
-    if (isEnabled) {
-      // Double check OS permissions. If they revoked it via OS, sync our toggle to false.
-      bool hasNoti = await Permission.notification.isGranted;
-      bool hasActivity = true;
-      if (Platform.isAndroid) {
-        final androidInfo = await DeviceInfoPlugin().androidInfo;
-        if (androidInfo.version.sdkInt >= 34) {
-          hasActivity = await Permission.activityRecognition.isGranted;
-        }
-      }
-      if (!hasNoti || !hasActivity) {
-        isEnabled = false;
-        await prefs.setBool(WorkoutPermissionHelper.isBackgroundWorkoutEnabledKey, false);
-      }
-    }
-    
-    if (mounted) {
-      setState(() {
-        _isBackgroundWorkoutEnabled = isEnabled;
-      });
-    }
   }
 
   void _sendSupportEmail() async {
@@ -274,78 +238,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ),
                     ),
 
-                    // 1.5. Background Workout Switch
-                    SwitchListTile(
+                    // 1.5. Notification & Background Settings
+                    ListTile(
                       contentPadding: itemPadding,
-                      secondary: const Icon(Symbols.notifications_active),
-                      title: Text(t.settings.title_bg_workout, style: titleStyle),
-                      subtitle: Text(t.settings.desc_bg_workout, style: subtitleStyle),
-                      value: _isBackgroundWorkoutEnabled,
-                      onChanged: (bool value) async {
-                        if (value) {
-                          bool hasNoti = await Permission.notification.isGranted;
-                          bool hasActivity = true;
-                          if (Platform.isAndroid) {
-                            final androidInfo = await DeviceInfoPlugin().androidInfo;
-                            if (androidInfo.version.sdkInt >= 34) {
-                              hasActivity = await Permission.activityRecognition.isGranted;
-                            }
-                          }
-                          
-                          if (!hasNoti || !hasActivity) {
-                             if (!hasNoti) await Permission.notification.request();
-                             if (Platform.isAndroid && !hasActivity) {
-                                final androidInfo = await DeviceInfoPlugin().androidInfo;
-                                if (androidInfo.version.sdkInt >= 34) {
-                                  await Permission.activityRecognition.request();
-                                }
-                             }
-                             
-                             hasNoti = await Permission.notification.isGranted;
-                             if (Platform.isAndroid) {
-                                final androidInfo = await DeviceInfoPlugin().androidInfo;
-                                if (androidInfo.version.sdkInt >= 34) {
-                                  hasActivity = await Permission.activityRecognition.isGranted;
-                                }
-                             }
-
-                             if (!hasNoti || !hasActivity) {
-                                if (context.mounted) {
-                                  GymDialog.showConfirm(
-                                    context: context,
-                                    title: t.settings.title_permission_denied,
-                                    message: t.settings.msg_permission_permanently_denied,
-                                    confirmText: t.common.open_settings,
-                                    cancelText: t.common.cancel,
-                                  ).then((res) {
-                                    if (res == true) {
-                                      openAppSettings();
-                                    }
-                                  });
-                                }
-                                return;
-                             }
-                          }
-                          
-                          setState(() {
-                             _isBackgroundWorkoutEnabled = true;
-                          });
-                          final prefs = getIt<SharedPreferences>();
-                          await prefs.setBool(WorkoutPermissionHelper.isBackgroundWorkoutEnabledKey, true);
-                        } else {
-                          setState(() {
-                             _isBackgroundWorkoutEnabled = false;
-                          });
-                          final prefs = getIt<SharedPreferences>();
-                          await prefs.setBool(WorkoutPermissionHelper.isBackgroundWorkoutEnabledKey, false);
-                          FlutterBackgroundService().invoke("stopService");
-                        }
+                      leading: const Icon(Symbols.notifications),
+                      title: Text(t.settings.lbl_item_notification, style: titleStyle),
+                      subtitle: Text(t.settings.desc_item_notification, style: subtitleStyle),
+                      trailing: const Icon(Symbols.chevron_right),
+                      onTap: () {
+                        Navigator.of(context, rootNavigator: false).push(
+                          MaterialPageRoute(builder: (_) => const NotificationSettingsScreen())
+                        );
                       },
-                      activeTrackColor: Theme.of(context).colorScheme.primary,
-                      activeThumbColor: Colors.white,
                     ),
-
-                    const NotificationSettingsControls(),
 
                     // 2. Account Management Hub
                     ListTile(

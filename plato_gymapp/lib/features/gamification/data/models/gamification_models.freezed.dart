@@ -564,6 +564,8 @@ LeaderboardEntry _$LeaderboardEntryFromJson(Map<String, dynamic> json) {
 mixin _$LeaderboardEntry {
   String get id => throw _privateConstructorUsedError;
   String get name => throw _privateConstructorUsedError;
+  @JsonKey(name: 'avatar_url')
+  String? get avatarUrl => throw _privateConstructorUsedError;
   int get xp => throw _privateConstructorUsedError;
   @JsonKey(name: 'current_rank_id')
   int get currentRankId => throw _privateConstructorUsedError;
@@ -585,6 +587,7 @@ abstract class $LeaderboardEntryCopyWith<$Res> {
   $Res call(
       {String id,
       String name,
+      @JsonKey(name: 'avatar_url') String? avatarUrl,
       int xp,
       @JsonKey(name: 'current_rank_id') int currentRankId,
       @JsonKey(includeFromJson: false, includeToJson: false) bool isUser});
@@ -605,6 +608,7 @@ class _$LeaderboardEntryCopyWithImpl<$Res, $Val extends LeaderboardEntry>
   $Res call({
     Object? id = null,
     Object? name = null,
+    Object? avatarUrl = freezed,
     Object? xp = null,
     Object? currentRankId = null,
     Object? isUser = null,
@@ -618,6 +622,10 @@ class _$LeaderboardEntryCopyWithImpl<$Res, $Val extends LeaderboardEntry>
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
+      avatarUrl: freezed == avatarUrl
+          ? _value.avatarUrl
+          : avatarUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
       xp: null == xp
           ? _value.xp
           : xp // ignore: cast_nullable_to_non_nullable
@@ -645,6 +653,7 @@ abstract class _$$LeaderboardEntryImplCopyWith<$Res>
   $Res call(
       {String id,
       String name,
+      @JsonKey(name: 'avatar_url') String? avatarUrl,
       int xp,
       @JsonKey(name: 'current_rank_id') int currentRankId,
       @JsonKey(includeFromJson: false, includeToJson: false) bool isUser});
@@ -663,6 +672,7 @@ class __$$LeaderboardEntryImplCopyWithImpl<$Res>
   $Res call({
     Object? id = null,
     Object? name = null,
+    Object? avatarUrl = freezed,
     Object? xp = null,
     Object? currentRankId = null,
     Object? isUser = null,
@@ -676,6 +686,10 @@ class __$$LeaderboardEntryImplCopyWithImpl<$Res>
           ? _value.name
           : name // ignore: cast_nullable_to_non_nullable
               as String,
+      avatarUrl: freezed == avatarUrl
+          ? _value.avatarUrl
+          : avatarUrl // ignore: cast_nullable_to_non_nullable
+              as String?,
       xp: null == xp
           ? _value.xp
           : xp // ignore: cast_nullable_to_non_nullable
@@ -698,6 +712,7 @@ class _$LeaderboardEntryImpl implements _LeaderboardEntry {
   const _$LeaderboardEntryImpl(
       {required this.id,
       required this.name,
+      @JsonKey(name: 'avatar_url') this.avatarUrl,
       required this.xp,
       @JsonKey(name: 'current_rank_id') this.currentRankId = 1,
       @JsonKey(includeFromJson: false, includeToJson: false)
@@ -711,6 +726,9 @@ class _$LeaderboardEntryImpl implements _LeaderboardEntry {
   @override
   final String name;
   @override
+  @JsonKey(name: 'avatar_url')
+  final String? avatarUrl;
+  @override
   final int xp;
   @override
   @JsonKey(name: 'current_rank_id')
@@ -721,7 +739,7 @@ class _$LeaderboardEntryImpl implements _LeaderboardEntry {
 
   @override
   String toString() {
-    return 'LeaderboardEntry(id: $id, name: $name, xp: $xp, currentRankId: $currentRankId, isUser: $isUser)';
+    return 'LeaderboardEntry(id: $id, name: $name, avatarUrl: $avatarUrl, xp: $xp, currentRankId: $currentRankId, isUser: $isUser)';
   }
 
   @override
@@ -731,6 +749,8 @@ class _$LeaderboardEntryImpl implements _LeaderboardEntry {
             other is _$LeaderboardEntryImpl &&
             (identical(other.id, id) || other.id == id) &&
             (identical(other.name, name) || other.name == name) &&
+            (identical(other.avatarUrl, avatarUrl) ||
+                other.avatarUrl == avatarUrl) &&
             (identical(other.xp, xp) || other.xp == xp) &&
             (identical(other.currentRankId, currentRankId) ||
                 other.currentRankId == currentRankId) &&
@@ -740,7 +760,7 @@ class _$LeaderboardEntryImpl implements _LeaderboardEntry {
   @JsonKey(ignore: true)
   @override
   int get hashCode =>
-      Object.hash(runtimeType, id, name, xp, currentRankId, isUser);
+      Object.hash(runtimeType, id, name, avatarUrl, xp, currentRankId, isUser);
 
   @JsonKey(ignore: true)
   @override
@@ -761,6 +781,7 @@ abstract class _LeaderboardEntry implements LeaderboardEntry {
   const factory _LeaderboardEntry(
       {required final String id,
       required final String name,
+      @JsonKey(name: 'avatar_url') final String? avatarUrl,
       required final int xp,
       @JsonKey(name: 'current_rank_id') final int currentRankId,
       @JsonKey(includeFromJson: false, includeToJson: false)
@@ -773,6 +794,9 @@ abstract class _LeaderboardEntry implements LeaderboardEntry {
   String get id;
   @override
   String get name;
+  @override
+  @JsonKey(name: 'avatar_url')
+  String? get avatarUrl;
   @override
   int get xp;
   @override

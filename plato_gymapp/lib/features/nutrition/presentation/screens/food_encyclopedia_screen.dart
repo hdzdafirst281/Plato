@@ -18,6 +18,9 @@ import '../../../../core/database/entities.dart';
 
 import '../bloc/nutrition_cubit.dart';
 import '../components/nutrition_components.dart';
+import '../../domain/nutrition_constants.dart';
+import '../../domain/nutrition_safety_helper.dart';
+import '../../../profile/presentation/bloc/profile_cubit.dart';
 
 
 
@@ -46,6 +49,7 @@ class FoodEncyclopediaScreen extends StatefulWidget {
 class _FoodEncyclopediaScreenState extends State<FoodEncyclopediaScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   String _searchQuery = "";
+  bool _safeForMeOnly = true;
   
   final Map<FoodResult, double> _selectedFoods = {}; 
 
@@ -56,7 +60,8 @@ class _FoodEncyclopediaScreenState extends State<FoodEncyclopediaScreen> with Si
   String _quickCarb = "";
   String _quickFat = "";
   double _quickQty = 1.0;
-  FoodUnit _quickUnit = FoodUnit.SERVING; 
+  FoodUnit _quickUnit = FoodUnit.GRAM;
+  List<IngredientDef> _quickSelectedIngredients = []; 
 
   // Trạng thái Báo lỗi tách biệt (Inline Errors)
   String? _quickNameError;
@@ -153,6 +158,9 @@ class _FoodEncyclopediaScreenState extends State<FoodEncyclopediaScreen> with Si
       measurementUnit: _quickUnit, 
       consumedAmount: 1.0, 
       assignedMealType: widget.mealType,
+      ingredients: _quickSelectedIngredients.map((e) => e.id).toList(),
+      allergenTags: _quickSelectedIngredients.expand((e) => e.allergenTags).toSet().toList(),
+      dietTags: _quickSelectedIngredients.expand((e) => e.dietTags).toSet().toList(),
     );
 
     context.read<NutritionCubit>().saveCustomFoodBlueprint(customFood);
@@ -235,6 +243,7 @@ class _FoodEncyclopediaScreenState extends State<FoodEncyclopediaScreen> with Si
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final nutritionCubit = context.watch<NutritionCubit>();
+    final userProfile = context.watch<ProfileCubit>().state.userProfile;
     
     final foodDatabase = nutritionCubit.state.foodDatabase; 
     final recentFoods = nutritionCubit.state.recentFoods; 
@@ -245,12 +254,16 @@ class _FoodEncyclopediaScreenState extends State<FoodEncyclopediaScreen> with Si
         .values.toList();
 
     final queryTokens = _searchQuery.removeAccents().toLowerCase().trim().split(RegExp(r'\s+')).where((e) => e.isNotEmpty).toList();
-    final filteredFoods = queryTokens.isEmpty 
+    var filteredFoods = queryTokens.isEmpty 
         ? allFoods 
         : allFoods.where((f) {
             final normalizedName = t.translateDynamic(f.foodName).removeAccents().toLowerCase();
             return queryTokens.every((token) => normalizedName.contains(token));
           }).toList();
+
+    if (_safeForMeOnly && userProfile.dietaryRestrictions.isNotEmpty) {
+      filteredFoods = filteredFoods.where((f) => NutritionSafetyHelper.isFoodSafe(f, userProfile)).toList();
+    }
 
     final customFoods = filteredFoods.where(_isCustomFood).toList();
     final sqlFoods = filteredFoods.where((f) => !_isCustomFood(f)).toList();
@@ -273,6 +286,48 @@ class _FoodEncyclopediaScreenState extends State<FoodEncyclopediaScreen> with Si
               ),
             ),
           ),
+          if (userProfile.dietaryRestrictions.isNotEmpty)
+            Padding(
+              padding: const EdgeInsets.only(left: 16.0, right: 16.0, bottom: 8.0),
+              child: Row(
+                children: [
+                  FilterChip(
+                    label: Text(
+                      t.translateDynamic('nutrition.lbl_safe_for_me'), 
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: _safeForMeOnly ? colorScheme.onPrimary : colorScheme.primary)
+                    ),
+                    selected: _safeForMeOnly,
+                    selectedColor: colorScheme.primary,
+                    checkmarkColor: colorScheme.onPrimary,
+                    onSelected: (val) => setState(() => _safeForMeOnly = val),
+                    visualDensity: VisualDensity.compact,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: userProfile.dietaryRestrictions.map((tag) {
+                          return Padding(
+                            padding: const EdgeInsets.only(right: 6),
+                            child: Chip(
+                              label: Text(
+                                t.translateDynamic(tag),
+                                style: TextStyle(fontSize: 11, color: colorScheme.onSurfaceVariant),
+                              ),
+                              padding: EdgeInsets.zero,
+                              visualDensity: VisualDensity.compact,
+                              backgroundColor: colorScheme.surfaceContainerHighest,
+                              side: BorderSide.none,
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
           
           Expanded(
             child: filteredFoods.isEmpty
@@ -360,6 +415,62 @@ class _FoodEncyclopediaScreenState extends State<FoodEncyclopediaScreen> with Si
                 ],
               ),
               
+              const SizedBox(height: 16),
+              Text(t.nutrition.lbl_ingredients, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: colorScheme.onSurface)),
+              const SizedBox(height: 8),
+              if (_quickSelectedIngredients.isNotEmpty) ...[
+                Wrap(
+                  spacing: 8, runSpacing: 8,
+                  children: _quickSelectedIngredients.map((ing) => Chip(
+                    label: Text(t.translateDynamic(ing.nameKey), style: const TextStyle(fontSize: 12)),
+                    onDeleted: () => setState(() => _quickSelectedIngredients.remove(ing)),
+                    deleteIcon: const Icon(Symbols.close, size: 16),
+                  )).toList(),
+                ),
+                const SizedBox(height: 12),
+              ],
+              Autocomplete<IngredientDef>(
+                optionsBuilder: (TextEditingValue textEditingValue) {
+                  if (textEditingValue.text == '') {
+                    return const Iterable<IngredientDef>.empty();
+                  }
+                  final query = textEditingValue.text.toLowerCase();
+                  return NutritionConstants.knownIngredients.where((IngredientDef option) {
+                    final trName = t.translateDynamic(option.nameKey).toLowerCase();
+                    return trName.contains(query);
+                  });
+                },
+                displayStringForOption: (IngredientDef option) => t.translateDynamic(option.nameKey),
+                onSelected: (IngredientDef selection) {
+                  if (!_quickSelectedIngredients.contains(selection)) {
+                    setState(() {
+                      _quickSelectedIngredients.add(selection);
+                    });
+                  }
+                },
+                fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
+                  return TextField(
+                    controller: controller,
+                    focusNode: focusNode,
+                    decoration: InputDecoration(
+                      hintText: t.nutrition.hint_search_ingredient,
+                      hintStyle: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant),
+                      isDense: true,
+                      filled: true,
+                      fillColor: colorScheme.surface,
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colorScheme.onSurfaceVariant)),
+                      enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5))),
+                      focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colorScheme.primary, width: 2)),
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    ),
+                    onEditingComplete: () {
+                      controller.clear();
+                      onEditingComplete();
+                    },
+                  );
+                },
+              ),
+
               const Padding(padding: EdgeInsets.symmetric(vertical: 24), child: Divider()),
               
               Column(
@@ -559,12 +670,39 @@ class _FoodEncyclopediaScreenState extends State<FoodEncyclopediaScreen> with Si
                       (food.measurementUnit == FoodUnit.ML) ? t.nutrition.lbl_food_unit_100ml :
                       t.nutrition.fmt_food_unit_pieces(arg1: _translateFoodUnit(food.measurementUnit));
 
+    final userProfile = context.read<ProfileCubit>().state.userProfile;
+    final violatedAllergens = NutritionSafetyHelper.getViolatedAllergens(food, userProfile);
+    final matchedDiets = NutritionSafetyHelper.getMatchedDiets(food, userProfile);
+    final isViolating = violatedAllergens.isNotEmpty;
+    final isRecommended = matchedDiets.isNotEmpty && !isViolating;
+
+    void confirmAndExecute(Function action) async {
+      if (isViolating) {
+        final confirm = await GymDialog.showDestructive(
+          context: context,
+          title: t.translateDynamic('nutrition.title_allergy_warning'),
+          message: "${t.translateDynamic('nutrition.msg_allergy_confirm_prefix')} ${violatedAllergens.map((e) => t.translateDynamic(e)).join(', ')}.\n\n${t.translateDynamic('nutrition.msg_allergy_confirm_suffix')}",
+          confirmText: t.common.confirm,
+          cancelText: t.common.cancel,
+        );
+        if (confirm == true) {
+          action();
+        }
+      } else {
+        action();
+      }
+    }
+
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
-        color: colorScheme.surface,
+        color: isViolating ? colorScheme.errorContainer.withValues(alpha: 0.1) : colorScheme.surface,
         borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: qty > 0 ? colorScheme.primary.withValues(alpha: 0.5) : colorScheme.outlineVariant.withValues(alpha: 0.2)),
+        border: Border.all(
+          color: isViolating 
+              ? colorScheme.error.withValues(alpha: 0.5) 
+              : qty > 0 ? colorScheme.primary.withValues(alpha: 0.5) : colorScheme.outlineVariant.withValues(alpha: 0.2)
+        ),
         boxShadow: [
           BoxShadow(color: Colors.black.withValues(alpha: 0.05), blurRadius: 8, offset: const Offset(0, 3))
         ]
@@ -578,7 +716,21 @@ class _FoodEncyclopediaScreenState extends State<FoodEncyclopediaScreen> with Si
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Expanded(child: Text(t.translateDynamic(food.foodName), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16), maxLines: 2, overflow: TextOverflow.ellipsis)),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Flexible(child: Text(t.translateDynamic(food.foodName), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16), maxLines: 2, overflow: TextOverflow.ellipsis)),
+                      if (isRecommended) ...[
+                        const SizedBox(width: 8),
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                          decoration: BoxDecoration(color: colorScheme.tertiary, borderRadius: BorderRadius.circular(4)),
+                          child: Text("✨ ${t.translateDynamic('nutrition.lbl_badge_recommended')}", style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
                 
                 Row(
                   mainAxisSize: MainAxisSize.min,
@@ -615,7 +767,72 @@ class _FoodEncyclopediaScreenState extends State<FoodEncyclopediaScreen> with Si
               unitSuffix: ' / $unitLabel',
               baseStyle: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.w600),
             ),
-            const SizedBox(height: 16),
+            const SizedBox(height: 12),
+            Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (food.ingredients != null && food.ingredients!.isNotEmpty) ...[
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            Icon(Symbols.restaurant_menu, size: 14, color: colorScheme.onSurfaceVariant),
+                            const SizedBox(width: 8),
+                            ...food.ingredients!.map((ingId) {
+                              final ingDef = NutritionConstants.knownIngredients.cast<IngredientDef?>().firstWhere((e) => e?.id == ingId, orElse: () => null);
+                              if (ingDef == null) return const SizedBox.shrink();
+                              
+                              final isViolatingIngredient = ingDef.allergenTags.any((t) => userProfile.dietaryRestrictions.contains("nutrition.$t"));
+
+                              return Container(
+                                margin: const EdgeInsets.only(right: 6),
+                                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                decoration: BoxDecoration(
+                                  color: isViolatingIngredient ? colorScheme.errorContainer : colorScheme.surfaceContainerHighest,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Text(
+                                  t.translateDynamic(ingDef.nameKey), 
+                                  style: TextStyle(
+                                    fontSize: 11, 
+                                    color: isViolatingIngredient ? colorScheme.error : colorScheme.onSurfaceVariant,
+                                    fontWeight: isViolatingIngredient ? FontWeight.bold : FontWeight.normal
+                                  )
+                                ),
+                              );
+                            }),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                    ] else ...[
+                      const SizedBox(height: 4),
+                    ],
+                    if (violatedAllergens.isNotEmpty)
+                      Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          color: colorScheme.errorContainer.withValues(alpha: 0.3),
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: colorScheme.error.withValues(alpha: 0.3)),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Icon(Symbols.warning, color: colorScheme.error, size: 16),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                "${t.nutrition.warn_allergy}: ${violatedAllergens.map((e) => t.translateDynamic(e)).join(', ')}",
+                                style: TextStyle(color: colorScheme.error, fontSize: 12, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                  ],
+                ),
             
             if (qty > 0) ...[
               Divider(color: colorScheme.outlineVariant.withValues(alpha: 0.3)),
@@ -669,19 +886,23 @@ class _FoodEncyclopediaScreenState extends State<FoodEncyclopediaScreen> with Si
                            accentColor: Theme.of(context).colorScheme.error,
                          );
                       } else {
-                        if (isExisting) {
-                          nutritionCubit.updateFoodWeight(existingItem.id, widget.mealType, nextQty);
-                        } else {
-                          setState(() => _selectedFoods[food] = nextQty);
-                        }
+                        confirmAndExecute(() {
+                          if (isExisting) {
+                            nutritionCubit.updateFoodWeight(existingItem.id, widget.mealType, nextQty);
+                          } else {
+                            setState(() => _selectedFoods[food] = nextQty);
+                          }
+                        });
                       }
                     },
                     onManualInput: (newQty) {
-                      if (isExisting) {
-                        nutritionCubit.updateFoodWeight(existingItem.id, widget.mealType, newQty);
-                      } else {
-                        setState(() => _selectedFoods[food] = newQty);
-                      }
+                      confirmAndExecute(() {
+                        if (isExisting) {
+                          nutritionCubit.updateFoodWeight(existingItem.id, widget.mealType, newQty);
+                        } else {
+                          setState(() => _selectedFoods[food] = newQty);
+                        }
+                      });
                     },
                   )
                 ],
@@ -696,7 +917,11 @@ class _FoodEncyclopediaScreenState extends State<FoodEncyclopediaScreen> with Si
                   ),
                   icon: const Icon(Symbols.add, size: 18),
                   label: Text(t.nutrition.btn_add_food, style: const TextStyle(fontWeight: FontWeight.bold)),
-                  onPressed: () => setState(() => _selectedFoods[food] = 1.0),
+                  onPressed: () {
+                    confirmAndExecute(() {
+                      setState(() => _selectedFoods[food] = 1.0);
+                    });
+                  },
                 ),
               )
             ]
@@ -723,6 +948,7 @@ class _EditFoodBottomSheetState extends State<_EditFoodBottomSheet> {
   late String _pro;
   late String _carb;
   late String _fat;
+  List<IngredientDef> _selectedIngredients = [];
 
   // Trạng thái Báo lỗi tách biệt (Inline Errors)
   String? _nameError;
@@ -739,6 +965,12 @@ class _EditFoodBottomSheetState extends State<_EditFoodBottomSheet> {
     _pro = widget.food.baseProtein.toString();
     _carb = widget.food.baseCarbs.toString();
     _fat = widget.food.baseFat.toString();
+
+    if (widget.food.ingredients != null) {
+      _selectedIngredients = NutritionConstants.knownIngredients
+          .where((ing) => widget.food.ingredients!.contains(ing.id))
+          .toList();
+    }
   }
 
   // VALIDATION VÀ SET ERROR STATE
@@ -796,6 +1028,10 @@ class _EditFoodBottomSheetState extends State<_EditFoodBottomSheet> {
   }
 
   void _submit() {
+    final selectedIngIds = _selectedIngredients.map((e) => e.id).toList();
+    final autoAllergens = _selectedIngredients.expand((e) => e.allergenTags).toSet().toList();
+    final autoDiets = _selectedIngredients.expand((e) => e.dietTags).toSet().toList();
+
     final newFood = FoodResult(
       id: widget.food.id.startsWith('custom_') ? widget.food.id : "custom_${DateTime.now().millisecondsSinceEpoch}",
       foodName: _name.trim(),
@@ -806,6 +1042,9 @@ class _EditFoodBottomSheetState extends State<_EditFoodBottomSheet> {
       measurementUnit: widget.food.measurementUnit,
       consumedAmount: widget.food.consumedAmount,
       assignedMealType: widget.food.assignedMealType,
+      ingredients: selectedIngIds,
+      allergenTags: autoAllergens,
+      dietTags: autoDiets,
     );
     widget.onSave(newFood);
     Navigator.pop(context);
@@ -853,6 +1092,61 @@ class _EditFoodBottomSheetState extends State<_EditFoodBottomSheet> {
               const SizedBox(width: 16),
               Expanded(child: GymTextField(initialValue: _fat, labelText: t.onboarding.lbl_macro_fat, unitText: 'g', isInteger: true, errorText: _fatError, onChanged: (v) { _fat = v; _validateEdit(); })),
             ],
+          ),
+          const SizedBox(height: 16),
+          Text(t.nutrition.lbl_ingredients, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: colorScheme.onSurface)),
+          const SizedBox(height: 8),
+          if (_selectedIngredients.isNotEmpty) ...[
+            Wrap(
+              spacing: 8, runSpacing: 8,
+              children: _selectedIngredients.map((ing) => Chip(
+                label: Text(t.translateDynamic(ing.nameKey), style: const TextStyle(fontSize: 12)),
+                onDeleted: () => setState(() => _selectedIngredients.remove(ing)),
+                deleteIcon: const Icon(Symbols.close, size: 16),
+              )).toList(),
+            ),
+            const SizedBox(height: 12),
+          ],
+          Autocomplete<IngredientDef>(
+            optionsBuilder: (TextEditingValue textEditingValue) {
+              if (textEditingValue.text == '') {
+                return const Iterable<IngredientDef>.empty();
+              }
+              final query = textEditingValue.text.toLowerCase();
+              return NutritionConstants.knownIngredients.where((IngredientDef option) {
+                final trName = t.translateDynamic(option.nameKey).toLowerCase();
+                return trName.contains(query);
+              });
+            },
+            displayStringForOption: (IngredientDef option) => t.translateDynamic(option.nameKey),
+            onSelected: (IngredientDef selection) {
+              if (!_selectedIngredients.contains(selection)) {
+                setState(() {
+                  _selectedIngredients.add(selection);
+                });
+              }
+            },
+            fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
+              return TextField(
+                controller: controller,
+                focusNode: focusNode,
+                decoration: InputDecoration(
+                  hintText: t.nutrition.hint_search_ingredient,
+                  hintStyle: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant),
+                  isDense: true,
+                  filled: true,
+                  fillColor: colorScheme.surface,
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colorScheme.onSurfaceVariant)),
+                  enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5))),
+                  focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colorScheme.primary, width: 2)),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                ),
+                onEditingComplete: () {
+                  controller.clear();
+                  onEditingComplete();
+                },
+              );
+            },
           ),
           const SizedBox(height: 32),
             

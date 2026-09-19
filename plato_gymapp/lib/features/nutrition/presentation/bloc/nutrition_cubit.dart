@@ -108,6 +108,9 @@ class NutritionCubit extends Cubit<NutritionState> {
       measurementUnit: foodItem.measurementUnit,
       consumedAmount: foodItem.consumedAmount,
       assignedMealType: targetMeal,
+      ingredients: foodItem.ingredients,
+      allergenTags: foodItem.allergenTags,
+      dietTags: foodItem.dietTags,
     );
 
     final updatedDaily = _updateMealsList(
@@ -158,6 +161,9 @@ class NutritionCubit extends Cubit<NutritionState> {
                     measurementUnit: f.measurementUnit,
                     consumedAmount: newAmount,
                     assignedMealType: f.assignedMealType,
+                    ingredients: f.ingredients,
+                    allergenTags: f.allergenTags,
+                    dietTags: f.dietTags,
                   )
                 : f,
           )

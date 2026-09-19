@@ -391,6 +391,17 @@ class GamificationRepository {
         try {
           final List<dynamic> jsonList = jsonDecode(cacheStr);
           final leaderboard = jsonList.map((e) => LeaderboardEntry.fromJson(e)).toList();
+          
+          // Vá lỗi hiển thị: Luôn cập nhật avatar mới nhất của user đang đăng nhập vào dữ liệu cache
+          final currentUserStr = _prefs.getString('USER_PROFILE');
+          if (currentUserStr != null) {
+            final currentUser = UserProfile.fromJson(jsonDecode(currentUserStr));
+            final index = leaderboard.indexWhere((e) => e.id == currentUser.id);
+            if (index != -1 && leaderboard[index].avatarUrl != currentUser.avatarUrl) {
+              leaderboard[index] = leaderboard[index].copyWith(avatarUrl: currentUser.avatarUrl);
+            }
+          }
+          
           return leaderboard;
         } catch (e) {
           debugPrint("Lỗi parse cache leaderboard: $e");
@@ -403,7 +414,7 @@ class GamificationRepository {
     try {
       final response = await _supabase
           .from('users')
-          .select('id, name, xp, current_rank_id')
+          .select('id, name, xp, current_rank_id, avatar_url')
           .order('xp', ascending: false)
           .limit(50);
           
@@ -419,6 +430,16 @@ class GamificationRepository {
       }
 
       debugPrint("🎯 [DEBUG LEADERBOARD] Đã parse thành công ${leaderboard.length} users.");
+
+      // Vá lỗi hiển thị: Luôn cập nhật avatar mới nhất của user đang đăng nhập (đề phòng SyncManager chưa kịp Push)
+      final currentUserStr = _prefs.getString('USER_PROFILE');
+      if (currentUserStr != null) {
+        final currentUser = UserProfile.fromJson(jsonDecode(currentUserStr));
+        final index = leaderboard.indexWhere((e) => e.id == currentUser.id);
+        if (index != -1 && leaderboard[index].avatarUrl != currentUser.avatarUrl) {
+          leaderboard[index] = leaderboard[index].copyWith(avatarUrl: currentUser.avatarUrl);
+        }
+      }
 
       // Lưu Cache mới
       final jsonToCache = jsonEncode(leaderboard.map((e) => e.toJson()).toList());

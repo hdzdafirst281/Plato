@@ -11,6 +11,13 @@ ReminderCandidate c(String key, ReminderKind kind, int hour, {int day = 13}) =>
       route: '',
     );
 void main() {
+  test('finite OS queue does not let distant workouts starve today', () {
+    final result = NotificationPolicy.select([
+      c('today-water', ReminderKind.hydration, 16),
+      for (var day = 14; day < 25; day++) c('workout-$day', ReminderKind.workout, 10, day: day),
+    ], now: DateTime(2026, 9, 13, 8), pendingLimit: 3);
+    expect(result.map((c) => c.key), ['today-water', 'workout-14', 'workout-15']);
+  });
   final now = DateTime(2026, 9, 13, 8);
   test('hydration uses actual progress and stops at target', () {
     expect(

@@ -10,7 +10,7 @@ _$UserProfileImpl _$$UserProfileImplFromJson(Map<String, dynamic> json) =>
     _$UserProfileImpl(
       id: json['id'] as String?,
       displayName: json['name'] as String? ?? 'Gym Warrior',
-      avatarBase64: json['avatar_base64'] as String?,
+      avatarUrl: json['avatar_url'] as String?,
       gender:
           $enumDecodeNullable(_$GenderEnumMap, json['gender']) ?? Gender.MALE,
       userAge: (json['age'] as num?)?.toInt() ?? 25,
@@ -68,7 +68,7 @@ Map<String, dynamic> _$$UserProfileImplToJson(_$UserProfileImpl instance) =>
     <String, dynamic>{
       'id': instance.id,
       'name': instance.displayName,
-      'avatar_base64': instance.avatarBase64,
+      'avatar_url': instance.avatarUrl,
       'gender': _$GenderEnumMap[instance.gender]!,
       'age': instance.userAge,
       'height_cm': instance.heightInCm,

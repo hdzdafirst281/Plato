@@ -432,8 +432,17 @@ class _RoutineScreenState extends State<RoutineScreen>
             context.read<EditorCubit>().setRoutineToEdit(null);
             _showSuccessDialogAndExit();
           })
-          .catchError((_) {
+          .catchError((error) {
+            if (!mounted) return;
             setState(() => _isSaving = false);
+            if (error.toString().contains("MAX_ROUTINES_REACHED")) {
+              GymSnackbar.show(
+                context,
+                message: "Rate Limit: Bạn chỉ được tạo tối đa 10 giáo án!",
+                icon: Symbols.error,
+                accentColor: Theme.of(context).colorScheme.error,
+              );
+            }
           });
     } else {
       _showConfirmUpdateDialog(draft.id, finalNameToSave);

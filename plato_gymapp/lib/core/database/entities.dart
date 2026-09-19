@@ -275,6 +275,15 @@ class FoodResult {
   @ColumnInfo(name: 'is_deleted')
   final bool isMarkedForDeletion;
 
+  @ColumnInfo(name: 'ingredients')
+  final List<String>? ingredients;
+
+  @ColumnInfo(name: 'diet_tags')
+  final List<String>? dietTags;
+
+  @ColumnInfo(name: 'allergen_tags')
+  final List<String>? allergenTags;
+
   FoodResult({
     required this.id,
     required this.foodName,
@@ -287,6 +296,9 @@ class FoodResult {
     this.assignedMealType,
     this.lastUpdatedAt,
     this.isMarkedForDeletion = false,
+    this.ingredients = const [],
+    this.dietTags = const [],
+    this.allergenTags = const [],
   });
 
   int get calculatedTotalCalories => (baseCalories * consumedAmount).toInt();
@@ -311,6 +323,9 @@ class FoodResult {
           : null,
       lastUpdatedAt: json['updated_at'] as String?,
       isMarkedForDeletion: json['is_deleted'] == true || json['is_deleted'] == 1 || json['is_deleted'] == 'true',
+      ingredients: (json['ingredients'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+      dietTags: (json['diet_tags'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+      allergenTags: (json['allergen_tags'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
     );
   }
 
@@ -319,6 +334,7 @@ class FoodResult {
     'c': baseCarbs, 'f': baseFat, 'unit': measurementUnit.name,
     'amount': consumedAmount, 'mealType': assignedMealType?.name,
     'updated_at': lastUpdatedAt, 'is_deleted': isMarkedForDeletion,
+    'ingredients': ingredients, 'diet_tags': dietTags, 'allergen_tags': allergenTags,
   };
 }
 

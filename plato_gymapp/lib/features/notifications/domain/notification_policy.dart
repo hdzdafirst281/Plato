@@ -61,6 +61,9 @@ class NotificationPolicy {
     final seen = committed.map((e) => e.key).toSet();
     final ordered = [...candidates]
       ..sort((a, b) {
+        // Reserve nearer days before filling the finite OS queue with distant workouts.
+        final dayOrder = dayKey(a.at).compareTo(dayKey(b.at));
+        if (dayOrder != 0) return dayOrder;
         int priorityOf(ReminderKind kind) =>
             kind == ReminderKind.rank ? ReminderKind.streak.index : kind.index;
         final priority = priorityOf(a.kind).compareTo(priorityOf(b.kind));

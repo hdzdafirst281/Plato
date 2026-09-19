@@ -1,4 +1,6 @@
+import 'package:floor/floor.dart';
 import 'package:flutter/foundation.dart';
+import '../../features/notifications/application/notification_background_worker.dart';
 import '../../features/notifications/application/notification_coordinator.dart';
 import 'dart:convert';
 import 'dart:isolate';
@@ -148,6 +150,7 @@ Future<bool> _executeCoreSyncLogic({
       backgroundDb = await $FloorAppDatabase
           .databaseBuilder('plato_app_database.db')
           .addMigrations([migration2to3, migration3to4, migration4to5, migration5to6, migration6to7])
+          .addCallback(Callback(onOpen: (db) async => await db.rawQuery('PRAGMA journal_mode=WAL')))
           .build();
       database = backgroundDb;
     } else {
@@ -186,6 +189,7 @@ Future<bool> _executeCoreSyncLogic({
               'age': profile.userAge, 'height_cm': profile.heightInCm, 'weight_kg': profile.weightInKg,
               'body_fat': profile.bodyFatPercentage,
               'current_rank_id': profile.activeRankId, 'current_rp': profile.currentRp,
+              'avatar_url': profile.avatarUrl,
               'workout_preferences': {
                 'workout_goal': profile.workoutGoal.name, 'experience_level': profile.experienceLevel,
                 'activity_level': profile.activityLevel.name, 'days_available': profile.trainingDaysPerWeek,
@@ -240,6 +244,40 @@ Future<bool> _executeCoreSyncLogic({
           }
         }
       } catch (e) { debugPrint("⚠️ Lỗi PUSH Workouts: $e"); isSyncSuccessful = false; }
+
+      // --- STEP 2.5: PUSH ROUTINES ---
+      try {
+        final pendingRoutines = await workoutDao.getPendingSyncRoutines();
+        if (pendingRoutines.isNotEmpty) {
+          final toDelete = pendingRoutines.where((e) => e.isDeleted).map((e) => e.id).toList();
+          final toUpsert = pendingRoutines.where((e) => !e.isDeleted).toList()
+            ..sort((a, b) => a.updatedAt.compareTo(b.updatedAt));
+
+          if (toDelete.isNotEmpty) {
+            await supabase.from('routines').delete().inFilter('id', toDelete);
+            await workoutDao.deleteRoutinesByIds(toDelete);
+          }
+
+          if (toUpsert.isNotEmpty) {
+            final mappedDtos = await Isolate.run(() {
+              return toUpsert.map((r) {
+                return {
+                  'id': r.id,
+                  'user_id': currentUserId,
+                  'name': r.name,
+                  'program_name': r.programName,
+                  'payload': jsonDecode(r.payloadJson),
+                  'updated_at': DateTime.fromMillisecondsSinceEpoch(r.updatedAt).toUtc().toIso8601String(),
+                  'is_deleted': r.isDeleted,
+                };
+              }).toList();
+            });
+
+            await supabase.from('routines').upsert(mappedDtos);
+            await workoutDao.markRoutinesAsSynced(toUpsert.map((e) => e.id).toList());
+          }
+        }
+      } catch (e) { debugPrint("⚠️ Lỗi PUSH Routines: $e"); isSyncSuccessful = false; }
 
       // --- STEP 3: PUSH REWARDS LEDGER ---
       if (!criticalWorkoutsOnly) {
@@ -318,6 +356,53 @@ Future<bool> _executeCoreSyncLogic({
           if (remoteSessions.isNotEmpty) await workoutDao.insertHistory(remoteSessions); 
         }
       } catch (e) { debugPrint("⚠️ Lỗi PULL Workout: $e"); isSyncSuccessful = false; }
+
+      // --- STEP 5.5: PULL ROUTINES ---
+      try {
+        final response = await supabase.from('routines').select().eq('user_id', currentUserId).gt('updated_at', lastSyncIsoStr);
+        if ((response as List).isNotEmpty) {
+          final allExercises = await database.exerciseDao.getAllExercises();
+          final exerciseMap = {for (var e in allExercises) e.id: e.toJson()};
+
+          final remoteRoutines = await Isolate.run(() {
+            return (response).map((data) {
+              final strippedPayload = data['payload'] as Map<String, dynamic>;
+              
+              final hydratedExercises = ((strippedPayload['exercises'] as List?) ?? []).map((ex) {
+                final String safeExerciseId = ex['exercise_id']?.toString() ??
+                  (ex['exercise'] is Map ? ex['exercise']['id']?.toString() : null) ?? const Uuid().v4();
+                
+                final exerciseInfo = exerciseMap[safeExerciseId];
+                return {
+                  'id': ex['id']?.toString() ?? const Uuid().v4(),
+                  'exercise': exerciseInfo ?? {
+                    'id': safeExerciseId, 'name': 'Bài tập không khả dụng',
+                    'type': 'NORMAL', 'is_deleted': false, 'is_custom': false, 'secondary_muscles': [],
+                  },
+                  'sets': ex['sets'] ?? [],
+                };
+              }).toList();
+
+              final fullPayload = {
+                'schema_version': strippedPayload['schema_version'] ?? '1.0',
+                'exercises': hydratedExercises,
+              };
+
+              return RoutineEntity(
+                id: data['id'],
+                name: data['name'] ?? "Buổi tập mới",
+                programName: data['program_name'],
+                payloadJson: jsonEncode(fullPayload),
+                syncStatus: 'SYNCED',
+                updatedAt: DateTime.parse(data['updated_at']).millisecondsSinceEpoch,
+                isDeleted: false,
+              );
+            }).toList();
+          });
+
+          if (remoteRoutines.isNotEmpty) await workoutDao.insertRoutines(remoteRoutines);
+        }
+      } catch (e) { debugPrint("⚠️ Lỗi PULL Routines: $e"); isSyncSuccessful = false; }
     }
 
     // --- CẬP NHẬT LAST SYNC TIME (Chỉ update nếu có Pull) ---
@@ -336,6 +421,9 @@ Future<bool> _executeCoreSyncLogic({
 @pragma('vm:entry-point')
 void callbackDispatcher() {
   Workmanager().executeTask((task, inputData) async {
+    if (task == NotificationBackgroundWorker.taskName) {
+      return NotificationBackgroundWorker.run();
+    }
     final refreshToken = inputData?['refresh_token'] as String?;
     await dotenv.load(fileName: ".env"); 
 
@@ -352,8 +440,8 @@ void callbackDispatcher() {
 class SyncManager {
   static bool _isSyncing = false; 
 
-  static void initialize() {
-    Workmanager().initialize(callbackDispatcher);
+  static Future<void> initialize() async {
+    await Workmanager().initialize(callbackDispatcher);
   }
 
   // ĐÃ SỬA: Thêm pushOnly, pullOnly và trả về Future<bool>
@@ -427,7 +515,7 @@ class SyncManager {
       await database.exerciseDao.deleteAllCustomExercises();
       await database.exerciseDao.clearAllUserNotes(); // Reset note bài hệ thống
       
-      NotificationCoordinator.instance?.resumeAfterReset();
+      await NotificationCoordinator.instance?.resumeAfterReset();
       debugPrint("✅ [WIPE] Hoàn tất xóa dữ liệu cá nhân. Master Data an toàn.");
     } catch (e) {
       debugPrint("🚨 [WIPE ERROR] Lỗi khi dọn dẹp SQLite: $e");

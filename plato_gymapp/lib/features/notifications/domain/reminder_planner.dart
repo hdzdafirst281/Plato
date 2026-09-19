@@ -19,9 +19,11 @@ class ReminderPlanner {
     bool inactivityEnabled = false,
     bool activeWorkout = false,
     int? activeWorkoutStartedAt,
+    int horizonDays = 30,
+    Map<String, double> waterByDay = const {},
   }) {
     final result = <ReminderCandidate>[];
-    final horizon = now.add(const Duration(days: 14));
+    final horizon = DateTime(now.year, now.month, now.day + horizonDays);
     for (final schedule in schedules) {
       if (!schedule.reminderEnabled ||
           schedule.isCompleted ||
@@ -53,66 +55,71 @@ class ReminderPlanner {
         ),
       );
     }
-    final waterBody = NotificationPolicy.hydrationBody(water, target);
-    final waterAt = DateTime(now.year, now.month, now.day, 16);
-    // Do not replenish today's reminder after a workout overlapping 16:00.
-    final overlapsWater = activeWorkout;
-    if (waterEnabled &&
-        waterBody != null &&
-        !overlapsWater &&
-        waterAt.isAfter(now)) {
-      result.add(
-        ReminderCandidate(
-          key: 'hydration:${NotificationPolicy.dayKey(now)}',
-          kind: ReminderKind.hydration,
-          at: waterAt,
-          titleKey: 'notifications.title_hydration_reminder',
-          bodyKey: waterBody,
-          arguments: water <= 0
-              ? {}
-              : water / target < .5
-              ? {
-                  'consumed': water.toStringAsFixed(2),
-                  'target': target.toStringAsFixed(2),
-                }
-              : {
-                  'consumed': water.toStringAsFixed(2),
-                  'target': target.toStringAsFixed(2),
-                  'remaining': (target - water).toStringAsFixed(2),
-                },
-          route: '/nutrition?water=1',
-        ),
-      );
-    }
+    // Hand each day's reminder to the OS in advance; today's progress must
+    // never be copied into tomorrow. Future logs, when present, remain authoritative.
+    if (waterEnabled)
+      for (var offset = 0; offset < horizonDays; offset++) {
+        final waterAt = DateTime(now.year, now.month, now.day + offset, 16);
+        if (!waterAt.isAfter(now)) continue;
+        if (activeWorkout && offset == 0) continue;
+        final consumed = offset == 0
+            ? water
+            : waterByDay[NotificationPolicy.dayKey(waterAt)] ?? 0;
+        final body = NotificationPolicy.hydrationBody(consumed, target);
+        if (body == null) continue;
+        result.add(
+          ReminderCandidate(
+            key: 'hydration:${NotificationPolicy.dayKey(waterAt)}',
+            kind: ReminderKind.hydration,
+            at: waterAt,
+            titleKey: 'notifications.title_hydration_reminder',
+            bodyKey: body,
+            arguments: consumed <= 0
+                ? {}
+                : {
+                    'consumed': consumed.toStringAsFixed(2),
+                    'target': target.toStringAsFixed(2),
+                    if (consumed / target >= .5)
+                      'remaining': (target - consumed).toStringAsFixed(2),
+                  },
+            route: '/nutrition?water=1',
+          ),
+        );
+      }
     if (history.isEmpty) return result;
-    final week = StreakCalculator.weekStart(now);
-    final streak = StreakCalculator.count(history, now);
-    final sunday = DateTime(week.year, week.month, week.day + 6, 17);
-    final hasSundaySchedule = schedules.any(
-      (s) =>
-          !s.isDeleted &&
-          !s.isCompleted &&
-          s.reminderEnabled &&
-          s.timeOfDayMinutes != null &&
-          NotificationPolicy.dayKey(scheduledTime(s)) ==
-              NotificationPolicy.dayKey(sunday) &&
-          scheduledTime(s).isAfter(sunday),
-    );
-    if (!activeWorkout &&
-        streak > 0 &&
-        !StreakCalculator.weeks(history, now).contains(week) &&
-        !hasSundaySchedule) {
-      result.add(
-        ReminderCandidate(
-          key: 'streak:${NotificationPolicy.dayKey(week)}',
-          kind: ReminderKind.streak,
-          at: sunday,
-          titleKey: 'notifications.title_streak_at_risk',
-          bodyKey: 'notifications.body_streak_at_risk',
-          arguments: {'weeks': '$streak'},
-          route: '/workout',
-        ),
+    // Evaluate upcoming Sundays against the known history. A workout this
+    // week protects this Sunday, but next Sunday can still put the streak at risk.
+    for (var offset = 0; offset < horizonDays; offset++) {
+      final sunday = DateTime(now.year, now.month, now.day + offset, 17);
+      if (sunday.weekday != DateTime.sunday || !sunday.isAfter(now)) continue;
+      final week = StreakCalculator.weekStart(sunday);
+      final streak = StreakCalculator.count(history, sunday);
+      final hasSundaySchedule = schedules.any(
+        (s) =>
+            !s.isDeleted &&
+            !s.isCompleted &&
+            s.reminderEnabled &&
+            s.timeOfDayMinutes != null &&
+            NotificationPolicy.dayKey(scheduledTime(s)) ==
+                NotificationPolicy.dayKey(sunday) &&
+            scheduledTime(s).isAfter(sunday),
       );
+      if (streak > 0 &&
+          !StreakCalculator.weeks(history, sunday).contains(week) &&
+          !hasSundaySchedule &&
+          !(activeWorkout && offset == 0)) {
+        result.add(
+          ReminderCandidate(
+            key: 'streak:${NotificationPolicy.dayKey(week)}',
+            kind: ReminderKind.streak,
+            at: sunday,
+            titleKey: 'notifications.title_streak_at_risk',
+            bodyKey: 'notifications.body_streak_at_risk',
+            arguments: {'weeks': '$streak'},
+            route: '/workout',
+          ),
+        );
+      }
     }
     final season = RankCalculator.calculateTrueRankAndSeasons(
       history,

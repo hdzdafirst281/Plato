@@ -54,17 +54,10 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   late String _neckStr, _shouldersStr, _chestStr, _waistStr, _hipsStr;
   late String _bicepsLStr, _bicepsRStr, _thighsLStr, _thighsRStr, _calvesLStr, _calvesRStr;
 
-  final TextEditingController _otherInjuryCtrl = TextEditingController();
-  final TextEditingController _otherDietCtrl = TextEditingController();
-  
-  final FocusNode _otherInjuryFocus = FocusNode();
-  final FocusNode _otherDietFocus = FocusNode();
-  
-  bool _injuryOtherTouched = false;
-  bool _dietOtherTouched = false;
 
-  final injuriesKeys = ["common.none", "profile.injury_knee", "profile.injury_back", "profile.injury_shoulder", "profile.injury_cardio", "profile.injury_blood_pressure", "profile.injury_diabetes", "profile.injury_cholesterol", "common.other"];
-  final dietsKeys = ["common.none", "profile.diet_vegetarian", "profile.diet_vegan", "profile.diet_gluten", "profile.diet_peanut", "profile.diet_dairy", "profile.diet_meat", "common.other"];
+
+  final injuriesKeys = ["common.none", "profile.injury_knee", "profile.injury_back", "profile.injury_shoulder", "profile.injury_cardio", "profile.injury_blood_pressure", "profile.injury_diabetes", "profile.injury_cholesterol"];
+  final dietsKeys = ["common.none", "nutrition.allergy_lactose", "nutrition.allergy_gluten", "nutrition.allergy_seafood", "nutrition.allergy_peanut", "nutrition.allergy_tree_nuts", "nutrition.allergy_egg", "nutrition.allergy_soy", "nutrition.diet_vegan", "nutrition.diet_keto", "nutrition.diet_no_red_meat"];
 
   // Validation States
   bool _isFormValid = true;
@@ -72,8 +65,7 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   String? _ageError;
   String? _heightError;
   String? _weightError;
-  String? _injuryError;
-  String? _dietError;
+
   
   String? _bfError, _neckError, _shouldersError, _chestError, _waistError, _hipsError;
   String? _bicepsLError, _bicepsRError, _thighsLError, _thighsRError, _calvesLError, _calvesRError;
@@ -108,55 +100,22 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     _calvesLStr = _draftMetrics.calfLeftCm > 0 ? _formatDouble(_draftMetrics.calfLeftCm) : "";
     _calvesRStr = _draftMetrics.calfRightCm > 0 ? _formatDouble(_draftMetrics.calfRightCm) : "";
 
-    final customInjuries = currentProfile.reportedInjuries.where((id) => !injuriesKeys.contains(id)).toList();
     _selectedInjuries = currentProfile.reportedInjuries.where((id) => injuriesKeys.contains(id)).toSet();
-    if (customInjuries.isNotEmpty) {
-      _selectedInjuries.add("common.other");
-      _otherInjuryCtrl.text = customInjuries.first;
-      _injuryOtherTouched = true;
-    }
     if (_selectedInjuries.isEmpty) {
       _selectedInjuries.add("common.none");
     }
 
-    final customDiets = currentProfile.dietaryRestrictions.where((id) => !dietsKeys.contains(id)).toList();
     _selectedDiets = currentProfile.dietaryRestrictions.where((id) => dietsKeys.contains(id)).toSet();
-    if (customDiets.isNotEmpty) {
-      _selectedDiets.add("common.other");
-      _otherDietCtrl.text = customDiets.first;
-      _dietOtherTouched = true;
-    }
     if (_selectedDiets.isEmpty) {
       _selectedDiets.add("common.none");
     }
-
-    _otherInjuryFocus.addListener(() {
-      if (!_otherInjuryFocus.hasFocus) {
-        setState(() {
-          _injuryOtherTouched = true;
-          _validateForm();
-        });
-      }
-    });
-
-    _otherDietFocus.addListener(() {
-      if (!_otherDietFocus.hasFocus) {
-        setState(() {
-          _dietOtherTouched = true;
-          _validateForm();
-        });
-      }
-    });
 
     _validateForm(); 
   }
 
   @override
   void dispose() {
-    _otherInjuryCtrl.dispose();
-    _otherDietCtrl.dispose();
-    _otherInjuryFocus.dispose();
-    _otherDietFocus.dispose();
+
     super.dispose();
   }
 
@@ -256,59 +215,18 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
       valid = false;
     }
 
-    // Other Injury (Bắt buộc phải chứa ít nhất 1 chữ cái)
-    if (_selectedInjuries.contains("common.other")) {
-      String txt = _otherInjuryCtrl.text.trim();
-      if (txt.isEmpty) {
-        if (_injuryOtherTouched) {
-          _injuryError = t.onboarding.msg_err_injury_empty;
-        } else {
-          _injuryError = null;
-        } 
-        valid = false;
-      } else if (!RegExp(r'[a-zA-ZÀ-ỹ]').hasMatch(txt)) {
-        _injuryError = t.profile.msg_err_text_required;
-        valid = false;
-      } else {
-        _injuryError = null;
-      }
-    }
-
-    // Other Diet (Bắt buộc phải chứa ít nhất 1 chữ cái)
-    if (_selectedDiets.contains("common.other")) {
-      String txt = _otherDietCtrl.text.trim();
-      if (txt.isEmpty) {
-        if (_dietOtherTouched) {
-          _dietError = t.onboarding.msg_err_diet_empty;
-        } else {
-          _dietError = null;
-        }
-        valid = false;
-      } else if (!RegExp(r'[a-zA-ZÀ-ỹ]').hasMatch(txt)) {
-        _dietError = t.profile.msg_err_text_required;
-        valid = false;
-      } else {
-        _dietError = null;
-      }
-    }
 
     _isFormValid = valid;
   }
 
   // BUILD DRAFT CHUẨN XÁC ĐỂ LƯU VÀ ĐỂ SO SÁNH
   UserProfile _buildUpdatedProfile() {
-    List<String> finalInjuries = _selectedInjuries.where((e) => e != "common.other").toList();
-    if (_selectedInjuries.contains("common.other") && _otherInjuryCtrl.text.trim().isNotEmpty) {
-      finalInjuries.add(_otherInjuryCtrl.text.trim());
-    }
+    List<String> finalInjuries = _selectedInjuries.toList();
     if (finalInjuries.length == 1 && finalInjuries.first == "common.none") {
       finalInjuries = [];
     }
 
-    List<String> finalDiets = _selectedDiets.where((e) => e != "common.other").toList();
-    if (_selectedDiets.contains("common.other") && _otherDietCtrl.text.trim().isNotEmpty) {
-      finalDiets.add(_otherDietCtrl.text.trim());
-    }
+    List<String> finalDiets = _selectedDiets.toList();
     if (finalDiets.length == 1 && finalDiets.first == "common.none") {
       finalDiets = [];
     }
@@ -396,18 +314,10 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     // Compare lists
     final originalInjuries = original.reportedInjuries.where((id) => id != "common.none").toSet();
     final currentInjuries = _selectedInjuries.where((id) => id != "common.none").toSet();
-    if (currentInjuries.contains("common.other") && _otherInjuryCtrl.text.trim().isNotEmpty) {
-      currentInjuries.remove("common.other");
-      currentInjuries.add(_otherInjuryCtrl.text.trim());
-    }
     if (originalInjuries.length != currentInjuries.length || !originalInjuries.containsAll(currentInjuries)) return true;
 
     final originalDiets = original.dietaryRestrictions.where((id) => id != "common.none").toSet();
     final currentDiets = _selectedDiets.where((id) => id != "common.none").toSet();
-    if (currentDiets.contains("common.other") && _otherDietCtrl.text.trim().isNotEmpty) {
-      currentDiets.remove("common.other");
-      currentDiets.add(_otherDietCtrl.text.trim());
-    }
     if (originalDiets.length != currentDiets.length || !originalDiets.containsAll(currentDiets)) return true;
 
     return false;
@@ -821,55 +731,10 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
             label: t.translateDynamic(key), 
             isSelected: _selectedInjuries.contains(key), 
             onTap: () => setState(() {
-              bool isSelectingOther = key == "common.other" && !_selectedInjuries.contains("common.other");
               _selectedInjuries = _toggleSetOption(_selectedInjuries, key);
-              
-              if (isSelectingOther) {
-                _injuryOtherTouched = false; 
-                _injuryError = null; 
-                Future.delayed(const Duration(milliseconds: 100), () {
-                  _otherInjuryFocus.requestFocus();
-                });
-              }
               _validateForm();
             })
           )).toList()),
-          
-          AnimatedSize(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOutCubic,
-            child: _selectedInjuries.contains("common.other") 
-                ? Padding(
-                    padding: const EdgeInsets.only(top: 16),
-                    child: TextField(
-                      controller: _otherInjuryCtrl, 
-                      focusNode: _otherInjuryFocus,
-                      onChanged: (_) => setState(() { _validateForm(); }),
-                      decoration: InputDecoration(
-                        hintText: t.onboarding.hint_injury_other, 
-                        hintStyle: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant),
-                        error: _injuryError != null
-                            ? Row(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Icon(Symbols.error_outline, color: colorScheme.error, size: 14),
-                                  const SizedBox(width: 4),
-                                  Flexible(
-                                    child: Text(_injuryError!, style: TextStyle(color: colorScheme.error, fontSize: 12)),
-                                  ),
-                                ],
-                              )
-                            : null,
-                        errorMaxLines: 3,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)), 
-                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.5))),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14)
-                      )
-                    ),
-                  ) 
-                : const SizedBox(width: double.infinity),
-          ),
           
           const SizedBox(height: 24),
 
@@ -879,55 +744,10 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
             label: t.translateDynamic(key), 
             isSelected: _selectedDiets.contains(key), 
             onTap: () => setState(() {
-              bool isSelectingOther = key == "common.other" && !_selectedDiets.contains("common.other");
               _selectedDiets = _toggleSetOption(_selectedDiets, key);
-
-              if (isSelectingOther) {
-                _dietOtherTouched = false;
-                _dietError = null;
-                Future.delayed(const Duration(milliseconds: 100), () {
-                  _otherDietFocus.requestFocus();
-                });
-              }
               _validateForm();
             })
           )).toList()),
-          
-          AnimatedSize(
-            duration: const Duration(milliseconds: 300),
-            curve: Curves.easeOutCubic,
-            child: _selectedDiets.contains("common.other") 
-                ? Padding(
-                    padding: const EdgeInsets.only(top: 16),
-                    child: TextField(
-                      controller: _otherDietCtrl, 
-                      focusNode: _otherDietFocus,
-                      onChanged: (_) => setState(() { _validateForm(); }),
-                      decoration: InputDecoration(
-                        hintText: t.onboarding.hint_diet_other, 
-                        hintStyle: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant),
-                        error: _dietError != null
-                            ? Row(
-                                mainAxisSize: MainAxisSize.min,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Icon(Symbols.error_outline, color: colorScheme.error, size: 14),
-                                  const SizedBox(width: 4),
-                                  Flexible(
-                                    child: Text(_dietError!, style: TextStyle(color: colorScheme.error, fontSize: 12)),
-                                  ),
-                                ],
-                              )
-                            : null,
-                        errorMaxLines: 3,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)), 
-                        enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colorScheme.outlineVariant.withValues(alpha: 0.5))),
-                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14)
-                      )
-                    ),
-                  ) 
-                : const SizedBox(width: double.infinity),
-          ),
         ],
       )
     ).animate(delay: 400.ms).fade(duration: 400.ms, curve: Curves.easeOutCubic).slideY(begin: 0.1, end: 0);

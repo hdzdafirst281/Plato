@@ -168,9 +168,9 @@ class _UserProfileHeader extends StatelessWidget {
         : const [xpGradientStartLight, xpGradientEndLight];
 
     Widget avatarWidget;
-    if (userProfile.avatarBase64 != null && userProfile.avatarBase64!.isNotEmpty) {
-      avatarWidget = Image.memory(
-        base64Decode(userProfile.avatarBase64!),
+    if (userProfile.avatarUrl != null && userProfile.avatarUrl!.isNotEmpty) {
+      avatarWidget = Image.network(
+        userProfile.avatarUrl!,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) => Text(displayName[0].toUpperCase(), style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.w900, fontSize: avatarSize * 0.4)),
       );
@@ -646,6 +646,9 @@ class _PodiumColumn extends StatelessWidget {
     final colorScheme = Theme.of(context).colorScheme;
 
     Widget avatarWidget = Text(user.name.isNotEmpty ? user.name[0].toUpperCase() : "?", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24 * scale, color: colorScheme.onSurface));
+    if (user.avatarUrl != null && user.avatarUrl!.isNotEmpty) {
+      avatarWidget = Image.network(user.avatarUrl!, fit: BoxFit.cover, errorBuilder: (_, __, ___) => avatarWidget);
+    }
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -680,7 +683,7 @@ class _PodiumColumn extends StatelessWidget {
                   top: -12, right: -10,
                   child: Transform.rotate(
                     angle: 15 * math.pi / 180, 
-                    child: SvgPicture.asset('assets/svg/icons/trophy.svg', width: 30, height: 30, colorFilter: ColorFilter.mode(Theme.of(context).gymColors.goldRank, BlendMode.srcIn)),
+                    child: SvgPicture.asset('assets/svg/icons/trophy_fill.svg', width: 30, height: 30, colorFilter: ColorFilter.mode(Theme.of(context).gymColors.goldRank, BlendMode.srcIn)),
                   ),
                 )
             ],
@@ -748,6 +751,9 @@ class _RankItem extends StatelessWidget {
     final rankColor = Color(RankConfig.getRankById(itemRankId).colorHex);
 
     Widget avatarWidget = Text(entry.name.isNotEmpty ? entry.name[0].toUpperCase() : "?", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: colorScheme.onSurface));
+    if (entry.avatarUrl != null && entry.avatarUrl!.isNotEmpty) {
+      avatarWidget = Image.network(entry.avatarUrl!, fit: BoxFit.cover, errorBuilder: (_, __, ___) => avatarWidget);
+    }
 
     return Container(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),

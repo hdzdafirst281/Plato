@@ -3,7 +3,6 @@ import '../../../notifications/domain/notification_policy.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_snackbar.dart';
 import 'dart:async';
 import '../../../notifications/application/notification_coordinator.dart';
-import '../../../notifications/presentation/notification_controls.dart';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -31,6 +30,8 @@ import '../../../../core/database/entities.dart';
 import '../../../profile/presentation/bloc/profile_cubit.dart'; 
 import '../bloc/nutrition_cubit.dart';
 import '../components/nutrition_components.dart'; 
+import '../../domain/nutrition_safety_helper.dart'; 
+import '../../domain/nutrition_constants.dart';
 
 class NutritionScreen extends StatefulWidget {
   final bool focusWater;
@@ -338,7 +339,6 @@ class _NutritionScreenState extends State<NutritionScreen> {
             ).animate(delay: 0.ms).fade(duration: 400.ms, curve: Curves.easeOutCubic).slideY(begin: 0.1, end: 0),
           ],
           
-          const WaterNotificationToggle(),
           InlineAchievementFeedback(eventKey: 'event:hydration_completed:${NotificationPolicy.dayKey(DateTime.now())}'),
           const SizedBox(height: 24),
 
@@ -595,7 +595,8 @@ class _MealSectionCard extends StatelessWidget {
                 )
             ],
           ),
-          const SizedBox(height: 16),
+          
+
 
           if (consumedFoods.isEmpty)
             Container(
@@ -650,7 +651,7 @@ class _MealSectionCard extends StatelessWidget {
   }
 }
 
-class _FoodItemRow extends StatelessWidget {
+class _FoodItemRow extends StatefulWidget {
   final FoodResult food;
   final MealType mealType;
   final NutritionCubit nutritionCubit;
@@ -658,14 +659,22 @@ class _FoodItemRow extends StatelessWidget {
   const _FoodItemRow({required this.food, required this.mealType, required this.nutritionCubit});
 
   @override
+  State<_FoodItemRow> createState() => _FoodItemRowState();
+}
+
+class _FoodItemRowState extends State<_FoodItemRow> {
+  bool _isExpanded = false;
+
+  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final userProfile = context.read<ProfileCubit>().state.userProfile;
     
-    final String localizedName = t.translateDynamic(food.foodName);
+    final String localizedName = t.translateDynamic(widget.food.foodName);
     final String avatarLetter = localizedName.isNotEmpty ? localizedName[0].toUpperCase() : '?';
     
-    final bool isScale = food.measurementUnit == FoodUnit.GRAM || food.measurementUnit == FoodUnit.ML;
-    final double displayAmount = isScale ? food.consumedAmount * 100 : food.consumedAmount;
+    final bool isScale = widget.food.measurementUnit == FoodUnit.GRAM || widget.food.measurementUnit == FoodUnit.ML;
+    final double displayAmount = isScale ? widget.food.consumedAmount * 100 : widget.food.consumedAmount;
     
     String amountStr;
     if (displayAmount % 1 == 0) {
@@ -678,7 +687,7 @@ class _FoodItemRow extends StatelessWidget {
     }
 
     String unitName;
-    switch (food.measurementUnit) {
+    switch (widget.food.measurementUnit) {
       case FoodUnit.GRAM: unitName = t.nutrition.lbl_unit_gram; break;
       case FoodUnit.ML: unitName = t.nutrition.lbl_unit_ml; break;
       case FoodUnit.QUANTITY: unitName = t.nutrition.lbl_unit_quantity; break;
@@ -687,116 +696,234 @@ class _FoodItemRow extends StatelessWidget {
     }
 
     final String unitLabel = '$amountStr $unitName';
+    
+    final violatedAllergens = NutritionSafetyHelper.getViolatedAllergens(widget.food, userProfile);
+    final matchedDiets = NutritionSafetyHelper.getMatchedDiets(widget.food, userProfile);
+    final isRecommended = matchedDiets.isNotEmpty && violatedAllergens.isEmpty;
+    final isViolating = violatedAllergens.isNotEmpty;
+
+    Color? statusColor;
+    if (isViolating) {
+      statusColor = colorScheme.error;
+    } else if (isRecommended) {
+      statusColor = colorScheme.tertiary;
+    }
 
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 8),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          Container(
-            width: 40,
-            height: 40,
-            decoration: BoxDecoration(
-              color: colorScheme.primaryContainer.withValues(alpha: 0.5),
-              shape: BoxShape.circle,
-            ),
-            alignment: Alignment.center,
-            child: Text(
-              avatarLetter,
-              style: TextStyle(
-                color: colorScheme.onPrimaryContainer,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: InkWell(
+        onTap: () => setState(() => _isExpanded = !_isExpanded),
+        borderRadius: BorderRadius.circular(12),
+        child: Container(
+          decoration: BoxDecoration(
+            color: statusColor?.withValues(alpha: 0.08),
+            borderRadius: BorderRadius.circular(12),
           ),
-          const SizedBox(width: 12),
-          
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  localizedName, 
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15), 
-                  maxLines: 2, 
-                  softWrap: true,
-                  overflow: TextOverflow.ellipsis
-                ),
-                const SizedBox(height: 4),
-                FittedBox(
-                  fit: BoxFit.scaleDown,
-                  child: MacroText(
-                    calories: food.calculatedTotalCalories, 
-                    protein: food.calculatedTotalProtein, 
-                    carbs: food.calculatedTotalCarbs, 
-                    fat: food.calculatedTotalFat,
-                    unitSuffix: ' / $unitLabel',
-                  ),
-                ),
-              ],
-            ),
-          ),
-          
-          PopupMenuButton<String>(
-            icon: Icon(Symbols.more_vert, color: colorScheme.onSurfaceVariant),
-            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-            position: PopupMenuPosition.under,
-            onSelected: (value) {
-              if (value == 'edit') {
-                showModalBottomSheet(
-                  context: context,
-                  isScrollControlled: true,
-                  backgroundColor: colorScheme.surface, 
-                  shape: RoundedRectangleBorder(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                    side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.3)), 
-                  ),
-                  builder: (ctx) => FoodBottomSheet(
-                    food: food,
-                    onSave: (updatedLogEntry, newBlueprint) {
-                      // 1. Nếu có thay đổi Blueprint (Tên/Macros) => Lưu vào Database Custom Food
-                      if (newBlueprint != null) {
-                        nutritionCubit.saveCustomFoodBlueprint(newBlueprint);
-                      }
-                      // 2. BẤT KỂ là đổi số lượng hay Tên/Macros, Đều phải cập nhật lại Log Entry bằng hàm MỚI
-                      nutritionCubit.updateFoodEntry(food.id, mealType, updatedLogEntry);
-                    },
-                  )
-                );
-              } else if (value == 'delete') {
-                nutritionCubit.removeFoodFromLog(food.id, mealType);
-              }
-            },
-            itemBuilder: (context) => [
-              PopupMenuItem(
-                value: 'edit',
-                child: Row(
-                  children: [
-                    Icon(Symbols.edit, size: 20, color: colorScheme.primary, fill: 1.0),
-                    const SizedBox(width: 12),
-                    Text(t.common.edit), 
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'delete',
-                child: Row(
-                  children: [
-                    SvgPicture.asset(
-                      'assets/svg/icons/delete_trashcan.svg',
-                      width: 20,
-                      height: 20,
-                      colorFilter: ColorFilter.mode(colorScheme.error, BlendMode.srcIn),
+          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+          child: Column(
+            children: [
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  if (statusColor != null)
+                    Container(
+                      width: 4,
+                      height: 40,
+                      margin: const EdgeInsets.only(right: 8, left: 4),
+                      decoration: BoxDecoration(
+                        color: statusColor,
+                        borderRadius: BorderRadius.circular(2),
+                      ),
+                    )
+                  else
+                    const SizedBox(width: 16),
+                    
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      color: colorScheme.primaryContainer.withValues(alpha: 0.5),
+                      shape: BoxShape.circle,
                     ),
-                    const SizedBox(width: 12),
-                    Text(t.common.delete, style: TextStyle(color: colorScheme.error)),
-                  ],
+                    alignment: Alignment.center,
+                    child: Text(
+                      avatarLetter,
+                      style: TextStyle(
+                        color: colorScheme.onPrimaryContainer,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Icon(
+                    _isExpanded ? Symbols.expand_less : Symbols.expand_more, 
+                    color: colorScheme.onSurfaceVariant, 
+                    size: 20
+                  ),
+                  const SizedBox(width: 4),
+                  
+                  Expanded(
+                    child: Text(
+                      localizedName, 
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15), 
+                      maxLines: 2, 
+                      softWrap: true,
+                      overflow: TextOverflow.ellipsis
+                    ),
+                  ),
+                  
+                  // Trailing section
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        "${widget.food.calculatedTotalCalories} kcal",
+                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: colorScheme.primary),
+                      ),
+                      const SizedBox(width: 4),
+                      PopupMenuButton<String>(
+                        icon: Icon(Symbols.more_vert, color: colorScheme.onSurfaceVariant, size: 20),
+                        padding: EdgeInsets.zero,
+                        constraints: const BoxConstraints(),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        position: PopupMenuPosition.under,
+                        onSelected: (value) {
+                          if (value == 'edit') {
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              backgroundColor: colorScheme.surface, 
+                              shape: RoundedRectangleBorder(
+                                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
+                                side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.3)), 
+                              ),
+                              builder: (ctx) => FoodBottomSheet(
+                                food: widget.food,
+                                onSave: (updatedLogEntry, newBlueprint) {
+                                  if (newBlueprint != null) {
+                                    widget.nutritionCubit.saveCustomFoodBlueprint(newBlueprint);
+                                  }
+                                  widget.nutritionCubit.updateFoodEntry(widget.food.id, widget.mealType, updatedLogEntry);
+                                },
+                              )
+                            );
+                          } else if (value == 'delete') {
+                            widget.nutritionCubit.removeFoodFromLog(widget.food.id, widget.mealType);
+                          }
+                        },
+                        itemBuilder: (context) => [
+                          PopupMenuItem(
+                            value: 'edit',
+                            child: Row(
+                              children: [
+                                Icon(Symbols.edit, size: 20, color: colorScheme.primary, fill: 1.0),
+                                const SizedBox(width: 12),
+                                Text(t.common.edit), 
+                              ],
+                            ),
+                          ),
+                          PopupMenuItem(
+                            value: 'delete',
+                            child: Row(
+                              children: [
+                                SvgPicture.asset(
+                                  'assets/svg/icons/delete_trashcan.svg',
+                                  width: 20,
+                                  height: 20,
+                                  colorFilter: ColorFilter.mode(colorScheme.error, BlendMode.srcIn),
+                                ),
+                                const SizedBox(width: 12),
+                                Text(t.common.delete, style: TextStyle(color: colorScheme.error)),
+                              ],
+                            ),
+                          ),
+                        ],
+                      )
+                    ],
+                  ),
+                ],
+              ),
+              
+              // Expanded Section
+              AnimatedCrossFade(
+                duration: const Duration(milliseconds: 200),
+                crossFadeState: _isExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                firstChild: const SizedBox(width: double.infinity, height: 0),
+                secondChild: Padding(
+                  padding: const EdgeInsets.only(left: 52, top: 4, right: 8),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        child: MacroText(
+                          calories: widget.food.calculatedTotalCalories, 
+                          protein: widget.food.calculatedTotalProtein, 
+                          carbs: widget.food.calculatedTotalCarbs, 
+                          fat: widget.food.calculatedTotalFat,
+                          unitSuffix: ' / $unitLabel',
+                        ),
+                      ),
+                      if (widget.food.ingredients != null && widget.food.ingredients!.isNotEmpty) ...[
+                        const SizedBox(height: 8),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Row(
+                            children: [
+                              Icon(Symbols.restaurant_menu, size: 14, color: colorScheme.onSurfaceVariant),
+                              const SizedBox(width: 8),
+                              ...widget.food.ingredients!.map((ingId) {
+                                final ingDef = NutritionConstants.knownIngredients.cast<IngredientDef?>().firstWhere((e) => e?.id == ingId, orElse: () => null);
+                                if (ingDef == null) return const SizedBox.shrink();
+                                
+                                final isViolatingIngredient = ingDef.allergenTags.any((t) => userProfile.dietaryRestrictions.contains("nutrition.$t"));
+
+                                return Container(
+                                  margin: const EdgeInsets.only(right: 6),
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: isViolatingIngredient ? colorScheme.errorContainer : colorScheme.surfaceContainerHighest,
+                                    borderRadius: BorderRadius.circular(8),
+                                  ),
+                                  child: Text(
+                                    t.translateDynamic(ingDef.nameKey), 
+                                    style: TextStyle(
+                                      fontSize: 11, 
+                                      color: isViolatingIngredient ? colorScheme.error : colorScheme.onSurfaceVariant,
+                                      fontWeight: isViolatingIngredient ? FontWeight.bold : FontWeight.normal
+                                    )
+                                  ),
+                                );
+                              }),
+                            ],
+                          ),
+                        ),
+                      ],
+                      if (violatedAllergens.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsets.only(top: 8),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Icon(Symbols.warning, color: colorScheme.error, size: 14),
+                              const SizedBox(width: 6),
+                              Expanded(
+                                child: Text(
+                                  "${t.nutrition.warn_allergy}: ${violatedAllergens.map((e) => t.translateDynamic(e)).join(', ')}",
+                                  style: TextStyle(color: colorScheme.error, fontSize: 11, fontWeight: FontWeight.bold),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ],
-          )
-        ],
+          ),
+        ),
       ),
     );
   }
@@ -819,6 +946,7 @@ class _FoodBottomSheetState extends State<FoodBottomSheet> {
   late String _carb;
   late String _fat;
   late double _consumedAmount;
+  List<IngredientDef> _selectedIngredients = [];
 
   String? _nameError;
   String? _calError;
@@ -835,6 +963,12 @@ class _FoodBottomSheetState extends State<FoodBottomSheet> {
     _carb = widget.food.baseCarbs.toString();
     _fat = widget.food.baseFat.toString();
     _consumedAmount = widget.food.consumedAmount;
+
+    if (widget.food.ingredients != null) {
+      _selectedIngredients = NutritionConstants.knownIngredients
+          .where((ing) => widget.food.ingredients!.contains(ing.id))
+          .toList();
+    }
   }
 
   void _validateEdit() {
@@ -913,6 +1047,16 @@ class _FoodBottomSheetState extends State<FoodBottomSheet> {
                               _carb.trim() != widget.food.baseCarbs.toString() ||
                               _fat.trim() != widget.food.baseFat.toString();
 
+    final selectedIngIds = _selectedIngredients.map((e) => e.id).toList();
+    final autoAllergens = _selectedIngredients.expand((e) => e.allergenTags).toSet().toList();
+    final autoDiets = _selectedIngredients.expand((e) => e.dietTags).toSet().toList();
+
+    // Check if ingredients changed
+    final originalIngs = widget.food.ingredients ?? [];
+    if (selectedIngIds.length != originalIngs.length || !selectedIngIds.every((e) => originalIngs.contains(e))) {
+      isBlueprintChanged = true;
+    }
+
     final updatedLogEntry = FoodResult(
       id: widget.food.id, 
       foodName: finalFoodName, 
@@ -923,12 +1067,15 @@ class _FoodBottomSheetState extends State<FoodBottomSheet> {
       measurementUnit: widget.food.measurementUnit,
       consumedAmount: _consumedAmount, 
       assignedMealType: widget.food.assignedMealType,
+      ingredients: selectedIngIds,
+      allergenTags: autoAllergens,
+      dietTags: autoDiets,
     );
 
     FoodResult? newBlueprint;
     if (isBlueprintChanged) {
       newBlueprint = FoodResult(
-        id: "custom_${DateTime.now().millisecondsSinceEpoch}", 
+        id: widget.food.id.startsWith('custom_') ? widget.food.id : "custom_${DateTime.now().millisecondsSinceEpoch}", 
         foodName: finalFoodName,
         baseCalories: int.tryParse(_cal.trim()) ?? 0,
         baseProtein: int.tryParse(_pro.trim()) ?? 0,
@@ -937,6 +1084,9 @@ class _FoodBottomSheetState extends State<FoodBottomSheet> {
         measurementUnit: widget.food.measurementUnit,
         consumedAmount: 1.0, 
         assignedMealType: widget.food.assignedMealType,
+        ingredients: selectedIngIds,
+        allergenTags: autoAllergens,
+        dietTags: autoDiets,
       );
     }
 
@@ -1026,8 +1176,63 @@ class _FoodBottomSheetState extends State<FoodBottomSheet> {
               ],
             ),
 
+            const SizedBox(height: 16),
+            Text(t.nutrition.lbl_ingredients, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: colorScheme.onSurface)),
+            const SizedBox(height: 8),
+            if (_selectedIngredients.isNotEmpty) ...[
+              Wrap(
+                spacing: 8, runSpacing: 8,
+                children: _selectedIngredients.map((ing) => Chip(
+                  label: Text(t.translateDynamic(ing.nameKey), style: const TextStyle(fontSize: 12)),
+                  onDeleted: () => setState(() => _selectedIngredients.remove(ing)),
+                  deleteIcon: const Icon(Symbols.close, size: 16),
+                )).toList(),
+              ),
+              const SizedBox(height: 12),
+            ],
+            Autocomplete<IngredientDef>(
+              optionsBuilder: (TextEditingValue textEditingValue) {
+                if (textEditingValue.text == '') {
+                  return const Iterable<IngredientDef>.empty();
+                }
+                final query = textEditingValue.text.toLowerCase();
+                return NutritionConstants.knownIngredients.where((IngredientDef option) {
+                  final trName = t.translateDynamic(option.nameKey).toLowerCase();
+                  return trName.contains(query);
+                });
+              },
+              displayStringForOption: (IngredientDef option) => t.translateDynamic(option.nameKey),
+              onSelected: (IngredientDef selection) {
+                if (!_selectedIngredients.contains(selection)) {
+                  setState(() {
+                    _selectedIngredients.add(selection);
+                  });
+                }
+              },
+              fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
+                return TextField(
+                  controller: controller,
+                  focusNode: focusNode,
+                  decoration: InputDecoration(
+                    hintText: t.nutrition.hint_search_ingredient,
+                    hintStyle: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant),
+                    isDense: true,
+                    filled: true,
+                    fillColor: colorScheme.surface,
+                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colorScheme.onSurfaceVariant)),
+                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5))),
+                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colorScheme.primary, width: 2)),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  ),
+                  onEditingComplete: () {
+                    controller.clear();
+                    onEditingComplete();
+                  },
+                );
+              },
+            ),
+            
             const SizedBox(height: 32),
-              
             ElevatedButton(
               style: ElevatedButton.styleFrom(
                 backgroundColor: colorScheme.primary, 

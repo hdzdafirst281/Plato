@@ -47,6 +47,10 @@
         </array>
       </dict>
     </dict>
+    <key>UIBackgroundModes</key>
+    <array><string>fetch</string></array>
+    <key>BGTaskSchedulerPermittedIdentifiers</key>
+    <array><string>vn.zenithas.plato.reminder_refresh</string></array>
     <key>UIApplicationSupportsIndirectInputEvents</key>
     <true/>
     <key>UILaunchStoryboardName</key>

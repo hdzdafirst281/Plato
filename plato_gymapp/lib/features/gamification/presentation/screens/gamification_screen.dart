@@ -1,5 +1,4 @@
 import 'dart:math' as math; 
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart'; 
@@ -291,6 +290,7 @@ class _GamificationScreenState extends State<GamificationScreen> with SingleTick
     final me = LeaderboardEntry(
       id: "me", 
       name: displayName, 
+      avatarUrl: userProfile.avatarUrl,
       xp: userProfile.experiencePoints, 
       isUser: true,
       currentRankId: userProfile.activeRankId,

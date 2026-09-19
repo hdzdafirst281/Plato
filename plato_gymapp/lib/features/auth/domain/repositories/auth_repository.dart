@@ -5,6 +5,7 @@ abstract class AuthRepository {
   
   UserProfile getProfile();
   Future<void> saveProfile(UserProfile profile);
+  Future<String?> uploadAvatarToStorage(List<int> imageBytes);
   void dispose();
   
   List<BodyMeasurement> getBodyMeasurements();

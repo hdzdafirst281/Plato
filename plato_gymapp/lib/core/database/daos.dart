@@ -138,6 +138,9 @@ abstract class WorkoutDao {
   @Query("UPDATE routines_local SET syncStatus = 'SYNCED' WHERE id IN (:ids)")
   Future<void> markRoutinesAsSynced(List<String> ids);
 
+  @Query('DELETE FROM routines_local WHERE id IN (:ids)')
+  Future<void> deleteRoutinesByIds(List<String> ids);
+
   @Query('DELETE FROM routines_local')
   Future<void> deleteAllRoutines();
 

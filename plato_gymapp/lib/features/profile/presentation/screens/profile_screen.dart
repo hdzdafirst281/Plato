@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_snackbar.dart';
 import 'dart:async';
-import 'dart:convert';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
@@ -83,10 +82,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
         if (croppedFile != null) {
           final Uint8List imageBytes = await croppedFile.readAsBytes();
-          final String base64String = base64Encode(imageBytes);
 
           if (context.mounted) {
-            context.read<ProfileCubit>().updateAvatar(base64String);
+            context.read<ProfileCubit>().updateAvatar(imageBytes);
           }
         }
       }
@@ -204,12 +202,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ..sort((a, b) => b.startTime.compareTo(a.startTime));
 
     final bool hasAvatar =
-        profile.avatarBase64 != null && profile.avatarBase64!.isNotEmpty;
+        profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty;
 
     Widget avatarImageWidget;
     if (hasAvatar) {
-      avatarImageWidget = Image.memory(
-        base64Decode(profile.avatarBase64!),
+      avatarImageWidget = Image.network(
+        profile.avatarUrl!,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) =>
             Icon(Symbols.person, size: 56, color: colorScheme.onSurfaceVariant),

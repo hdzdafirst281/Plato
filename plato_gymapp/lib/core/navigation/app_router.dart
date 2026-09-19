@@ -419,6 +419,9 @@ class AppRouter {
                                   measurementUnit: food.measurementUnit,
                                   consumedAmount: qty.toDouble(),
                                   assignedMealType: mealType,
+                                  ingredients: food.ingredients,
+                                  allergenTags: food.allergenTags,
+                                  dietTags: food.dietTags,
                                 );
                                 nutritionCubit.addFoodToLog(updatedFood, mealType);
                               });

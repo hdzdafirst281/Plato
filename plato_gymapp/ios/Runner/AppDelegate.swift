@@ -1,6 +1,7 @@
 import Flutter
 import UIKit
 import UserNotifications
+import workmanager_apple
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
@@ -8,16 +9,19 @@ import UserNotifications
     _ application: UIApplication,
     didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?
   ) -> Bool {
+    WorkmanagerPlugin.setPluginRegistrantCallback { registry in
+      GeneratedPluginRegistrant.register(with: registry)
+    }
+    WorkmanagerPlugin.registerPeriodicTask(
+      withIdentifier: "vn.zenithas.plato.reminder_refresh",
+      frequency: NSNumber(value: 6 * 60 * 60)
+    )
     UNUserNotificationCenter.current().delegate = self
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }
 
   func didInitializeImplicitFlutterEngine(_ engineBridge: FlutterImplicitEngineBridge) {
     GeneratedPluginRegistrant.register(with: engineBridge.pluginRegistry)
-    let channel = FlutterMethodChannel(name: "vn.zenithas.plato/timezone", binaryMessenger: engineBridge.applicationRegistrar.messenger())
-    channel.setMethodCallHandler { call, result in
-      if call.method == "getTimeZone" { result(TimeZone.current.identifier) }
-      else { result(FlutterMethodNotImplemented) }
-    }
+
   }
 }

@@ -183,6 +183,7 @@ Future<_i174.GetIt> init(
             gh<_i787.AuthRepository>(),
           ));
   gh.factory<_i207.GamificationCubit>(() => _i207.GamificationCubit(
+        gh<_i787.AuthRepository>(),
         gh<_i493.GamificationRepository>(),
         gh<_i956.WorkoutRepository>(),
         gh<_i212.RefreshWeeklyQuestsUseCase>(),

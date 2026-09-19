@@ -1,6 +1,5 @@
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_snackbar.dart';
-import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
@@ -326,7 +325,7 @@ class AccountManagementScreen extends StatelessWidget {
           final isLinked = profileState.isUserLoggedIn;
           final profile = profileState.userProfile;
           final bool hasAvatar =
-              profile.avatarBase64 != null && profile.avatarBase64!.isNotEmpty;
+              profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty;
           final currentUserEmail =
               Supabase.instance.client.auth.currentUser?.email;
 
@@ -377,8 +376,8 @@ class AccountManagementScreen extends StatelessWidget {
                           // Sử dụng antiAlias để viền ảnh tròn mượt mà, không bị mẻ cạnh (pixelated)
                           clipBehavior: Clip.antiAlias,
                           child: hasAvatar
-                              ? Image.memory(
-                                  base64Decode(profile.avatarBase64!),
+                              ? Image.network(
+                                  profile.avatarUrl!,
                                   fit: BoxFit.cover,
                                   errorBuilder: (context, error, stackTrace) =>
                                       Icon(

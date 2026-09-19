@@ -22,6 +22,7 @@ abstract class AppModule {
 
     final callback = Callback(
       onOpen: (sqflite.Database database) async {
+        await database.rawQuery('PRAGMA journal_mode=WAL');
         debugPrint("🛠️ [DEBUG DB] 2. Callback onOpen được gọi!");
         try {
           const int currentSqlVersion = 4; // ĐÃ CẬP NHẬT LÊN VERSION 4
@@ -90,7 +91,7 @@ abstract class AppModule {
     debugPrint("🛠️ [DEBUG DB] Đang build Floor Database...");
     return await $FloorAppDatabase
         .databaseBuilder('plato_app_database.db')
-        .addMigrations([migration2to3, migration3to4, migration4to5, migration5to6, migration6to7])
+        .addMigrations([migration2to3, migration3to4, migration4to5, migration5to6, migration6to7, migration7to8])
         .addCallback(callback)
         .build();
   }

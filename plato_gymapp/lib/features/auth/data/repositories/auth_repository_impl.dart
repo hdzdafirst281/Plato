@@ -56,6 +56,32 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
+  Future<String?> uploadAvatarToStorage(List<int> imageBytes) async {
+    try {
+      final userId = currentUserId;
+      if (userId == null) return null;
+
+      final extension = 'jpg';
+      final fileName = 'avatar_$userId.$extension';
+      final path = '$userId/$fileName';
+
+      // Upload file directly using the Supabase Storage client
+      await _supabase.storage.from('avatars').uploadBinary(
+            path,
+            Uint8List.fromList(imageBytes),
+            fileOptions: const FileOptions(upsert: true, contentType: 'image/jpeg'),
+          );
+
+      // Get public URL
+      final publicUrl = _supabase.storage.from('avatars').getPublicUrl(path);
+      return "$publicUrl?t=${DateTime.now().millisecondsSinceEpoch}";
+    } catch (e) {
+      debugPrint("🚨 Error uploading avatar: $e");
+      return null;
+    }
+  }
+
+  @override
   void dispose() {
     _profileUpdateController.close();
   }
@@ -249,6 +275,7 @@ class AuthRepositoryImpl implements AuthRepository {
           lastRpSeasonId: response['last_rp_season_id'] ?? 1, 
           activeRankId: response['current_rank_id'] ?? 1,
           rankAdvancementHistory: parsedHistory, 
+          avatarUrl: response['avatar_url'],
           
           workoutGoal: WorkoutGoal.values.firstWhere((e) => e.name == prefs['workout_goal'], orElse: () => WorkoutGoal.STRENGTH),
           nutritionGoal: NutritionGoal.values.firstWhere((e) => e.name == targets['nutrition_goal'], orElse: () => NutritionGoal.MAINTAIN_WEIGHT),

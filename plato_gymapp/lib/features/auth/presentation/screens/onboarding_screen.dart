@@ -150,8 +150,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   String? _ageError;
   String? _heightError;
   String? _weightError;
-  String? _injuryError;
-  String? _dietError;
+
 
   final FocusNode _nameFocus = FocusNode();
   final FocusNode _ageFocus = FocusNode();
@@ -278,17 +277,21 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           return "- $envStr\n- $freqStr";
         case 7:
           List<String> injList = [];
-          if (_draft.injuries.contains("common.none")) {
+          if (_draft.injuries.contains("common.none") || _draft.injuries.isEmpty) {
             injList.add(t.common.none);
-          } else for (var key in _draft.injuries) { if (key == "common.other" && _draft.otherInjury.isNotEmpty) {
-            injList.add(_draft.otherInjury);
-          } else if (key != "common.other") injList.add(t.translateDynamic(key)); }
+          } else {
+            for (var key in _draft.injuries) {
+              injList.add(t.translateDynamic(key));
+            }
+          }
           List<String> dietList = [];
-          if (_draft.dietary.contains("common.none")) {
+          if (_draft.dietary.contains("common.none") || _draft.dietary.isEmpty) {
             dietList.add(t.common.none);
-          } else for (var key in _draft.dietary) { if (key == "common.other" && _draft.otherDiet.isNotEmpty) {
-            dietList.add(_draft.otherDiet);
-          } else if (key != "common.other") dietList.add(t.translateDynamic(key)); }
+          } else {
+            for (var key in _draft.dietary) {
+              dietList.add(t.translateDynamic(key));
+            }
+          }
           return "- ${injList.join(', ')}\n- ${dietList.join(', ')}";
       default:
         return "";
@@ -658,43 +661,6 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   void _handleStep7Submit() {
-    bool hasError = false;
-
-    // Validate Other Injury
-    if (_draft.injuries.contains("common.other")) {
-      String txt = _otherInjuryCtrl.text.trim();
-      if (txt.isEmpty) {
-        setState(() => _injuryError = t.onboarding.msg_err_injury_empty);
-        hasError = true;
-      } else if (!RegExp(r'[a-zA-ZÀ-ỹ]').hasMatch(txt)) {
-        setState(() => _injuryError = t.profile.msg_err_text_required);
-        hasError = true;
-      } else {
-        setState(() => _injuryError = null);
-      }
-    } else {
-      setState(() => _injuryError = null);
-    }
-
-    // Validate Other Diet
-    if (_draft.dietary.contains("common.other")) {
-      String txt = _otherDietCtrl.text.trim();
-      if (txt.isEmpty) {
-        setState(() => _dietError = t.onboarding.msg_err_diet_empty);
-        hasError = true;
-      } else if (!RegExp(r'[a-zA-ZÀ-ỹ]').hasMatch(txt)) {
-        setState(() => _dietError = t.profile.msg_err_text_required);
-        hasError = true;
-      } else {
-        setState(() => _dietError = null);
-      }
-    } else {
-      setState(() => _dietError = null);
-    }
-
-    if (hasError) return;
-
-    _draft = _draft.copyWith(otherInjury: _otherInjuryCtrl.text.trim(), otherDiet: _otherDietCtrl.text.trim());
     _submitUserAnswer(7);
   }
 
@@ -1757,8 +1723,8 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         );
 
       case 7: 
-        final injuriesKeys = ["common.none", "profile.injury_knee", "profile.injury_back", "profile.injury_shoulder", "profile.injury_cardio", "profile.injury_blood_pressure", "profile.injury_diabetes", "profile.injury_cholesterol", "common.other"];
-        final dietsKeys = ["common.none", "profile.diet_vegetarian", "profile.diet_vegan", "profile.diet_gluten", "profile.diet_peanut", "profile.diet_dairy", "profile.diet_meat", "common.other"];
+        final injuriesKeys = ["common.none", "profile.injury_knee", "profile.injury_back", "profile.injury_shoulder", "profile.injury_cardio", "profile.injury_blood_pressure", "profile.injury_diabetes", "profile.injury_cholesterol"];
+        final dietsKeys = ["common.none", "nutrition.allergy_lactose", "nutrition.allergy_gluten", "nutrition.allergy_seafood", "nutrition.allergy_peanut", "nutrition.allergy_tree_nuts", "nutrition.allergy_egg", "nutrition.allergy_soy", "nutrition.diet_vegan", "nutrition.diet_keto", "nutrition.diet_no_red_meat"];
         
         // [UI/UX FIX]: Phân biệt "Edit Mode" và "Initial Display"
         final bool isEditMode = _currentStep < _maxStepReached;
@@ -1776,38 +1742,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 children: injuriesKeys.map((key) => GymMultiSelectChip(
                   label: t.translateDynamic(key), isSelected: _draft.injuries.contains(key),
                   onTap: () {
-                    bool isSelectingOther = key == "common.other" && !_draft.injuries.contains("common.other");
                     setState(() => _draft = _draft.copyWith(injuries: _toggleSetOption(_draft.injuries, key)));
-                    if (isSelectingOther) {
-                      Future.delayed(const Duration(milliseconds: 100), () => _otherInjuryFocus.requestFocus());
-                    }
                   }
                 )).toList(),
               ),
-              if (_draft.injuries.contains("common.other"))
-                Padding(
-                  padding: const EdgeInsets.only(top: 8, bottom: 8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      GymShakeWrapper(
-                        hasError: _injuryError != null,
-                        child: TextField(
-                          controller: _otherInjuryCtrl, 
-                          focusNode: _otherInjuryFocus,
-                          onChanged: (_) => setState(() => _injuryError = null),
-                          decoration: InputDecoration(
-                            hintText: t.onboarding.hint_injury_other, 
-                            isDense: true,
-                            errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: colorScheme.error, width: 1.5)),
-                            focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: colorScheme.error, width: 1.5)),
-                            error: buildErrorWidget(_injuryError, colorScheme),
-                          )
-                        ),
-                      ),
-                    ],
-                  ),
-                )
             ],
           );
         }
@@ -1824,38 +1762,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                 children: dietsKeys.map((key) => GymMultiSelectChip(
                   label: t.translateDynamic(key), isSelected: _draft.dietary.contains(key),
                   onTap: () {
-                    bool isSelectingOther = key == "common.other" && !_draft.dietary.contains("common.other");
                     setState(() => _draft = _draft.copyWith(dietary: _toggleSetOption(_draft.dietary, key)));
-                    if (isSelectingOther) {
-                      Future.delayed(const Duration(milliseconds: 100), () => _otherDietFocus.requestFocus());
-                    }
                   }
                 )).toList(),
               ),
-              if (_draft.dietary.contains("common.other"))
-                Padding(
-                  padding: const EdgeInsets.only(top: 8, bottom: 8),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      GymShakeWrapper(
-                        hasError: _dietError != null,
-                        child: TextField(
-                          controller: _otherDietCtrl, 
-                          focusNode: _otherDietFocus,
-                          onChanged: (_) => setState(() => _dietError = null),
-                          decoration: InputDecoration(
-                            hintText: t.onboarding.hint_diet_other, 
-                            isDense: true,
-                            errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: colorScheme.error, width: 1.5)),
-                            focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: colorScheme.error, width: 1.5)),
-                            error: buildErrorWidget(_dietError, colorScheme),
-                          )
-                        ),
-                      ),
-                    ],
-                  ),
-                )
             ],
           );
         }

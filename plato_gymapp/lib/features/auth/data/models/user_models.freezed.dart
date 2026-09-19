@@ -24,8 +24,8 @@ mixin _$UserProfile {
   String? get id => throw _privateConstructorUsedError;
   @JsonKey(name: 'name')
   String get displayName => throw _privateConstructorUsedError;
-  @JsonKey(name: 'avatar_base64')
-  String? get avatarBase64 => throw _privateConstructorUsedError;
+  @JsonKey(name: 'avatar_url')
+  String? get avatarUrl => throw _privateConstructorUsedError;
   @JsonKey(name: 'gender')
   Gender get gender => throw _privateConstructorUsedError;
   @JsonKey(name: 'age')
@@ -110,7 +110,7 @@ abstract class $UserProfileCopyWith<$Res> {
   $Res call(
       {@JsonKey(name: 'id') String? id,
       @JsonKey(name: 'name') String displayName,
-      @JsonKey(name: 'avatar_base64') String? avatarBase64,
+      @JsonKey(name: 'avatar_url') String? avatarUrl,
       @JsonKey(name: 'gender') Gender gender,
       @JsonKey(name: 'age') int userAge,
       @JsonKey(name: 'height_cm') double heightInCm,
@@ -167,7 +167,7 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
   $Res call({
     Object? id = freezed,
     Object? displayName = null,
-    Object? avatarBase64 = freezed,
+    Object? avatarUrl = freezed,
     Object? gender = null,
     Object? userAge = null,
     Object? heightInCm = null,
@@ -209,9 +209,9 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
           ? _value.displayName
           : displayName // ignore: cast_nullable_to_non_nullable
               as String,
-      avatarBase64: freezed == avatarBase64
-          ? _value.avatarBase64
-          : avatarBase64 // ignore: cast_nullable_to_non_nullable
+      avatarUrl: freezed == avatarUrl
+          ? _value.avatarUrl
+          : avatarUrl // ignore: cast_nullable_to_non_nullable
               as String?,
       gender: null == gender
           ? _value.gender
@@ -369,7 +369,7 @@ abstract class _$$UserProfileImplCopyWith<$Res>
   $Res call(
       {@JsonKey(name: 'id') String? id,
       @JsonKey(name: 'name') String displayName,
-      @JsonKey(name: 'avatar_base64') String? avatarBase64,
+      @JsonKey(name: 'avatar_url') String? avatarUrl,
       @JsonKey(name: 'gender') Gender gender,
       @JsonKey(name: 'age') int userAge,
       @JsonKey(name: 'height_cm') double heightInCm,
@@ -426,7 +426,7 @@ class __$$UserProfileImplCopyWithImpl<$Res>
   $Res call({
     Object? id = freezed,
     Object? displayName = null,
-    Object? avatarBase64 = freezed,
+    Object? avatarUrl = freezed,
     Object? gender = null,
     Object? userAge = null,
     Object? heightInCm = null,
@@ -468,9 +468,9 @@ class __$$UserProfileImplCopyWithImpl<$Res>
           ? _value.displayName
           : displayName // ignore: cast_nullable_to_non_nullable
               as String,
-      avatarBase64: freezed == avatarBase64
-          ? _value.avatarBase64
-          : avatarBase64 // ignore: cast_nullable_to_non_nullable
+      avatarUrl: freezed == avatarUrl
+          ? _value.avatarUrl
+          : avatarUrl // ignore: cast_nullable_to_non_nullable
               as String?,
       gender: null == gender
           ? _value.gender
@@ -607,7 +607,7 @@ class _$UserProfileImpl implements _UserProfile {
   const _$UserProfileImpl(
       {@JsonKey(name: 'id') this.id,
       @JsonKey(name: 'name') this.displayName = 'Gym Warrior',
-      @JsonKey(name: 'avatar_base64') this.avatarBase64,
+      @JsonKey(name: 'avatar_url') this.avatarUrl,
       @JsonKey(name: 'gender') this.gender = Gender.MALE,
       @JsonKey(name: 'age') this.userAge = 25,
       @JsonKey(name: 'height_cm') this.heightInCm = 175.0,
@@ -661,8 +661,8 @@ class _$UserProfileImpl implements _UserProfile {
   @JsonKey(name: 'name')
   final String displayName;
   @override
-  @JsonKey(name: 'avatar_base64')
-  final String? avatarBase64;
+  @JsonKey(name: 'avatar_url')
+  final String? avatarUrl;
   @override
   @JsonKey(name: 'gender')
   final Gender gender;
@@ -784,7 +784,7 @@ class _$UserProfileImpl implements _UserProfile {
 
   @override
   String toString() {
-    return 'UserProfile(id: $id, displayName: $displayName, avatarBase64: $avatarBase64, gender: $gender, userAge: $userAge, heightInCm: $heightInCm, weightInKg: $weightInKg, bodyFatPercentage: $bodyFatPercentage, workoutGoal: $workoutGoal, nutritionGoal: $nutritionGoal, activityLevel: $activityLevel, trainingDaysPerWeek: $trainingDaysPerWeek, reportedInjuries: $reportedInjuries, dietaryRestrictions: $dietaryRestrictions, environment: $environment, calculatedTdee: $calculatedTdee, targetMacros: $targetMacros, isCustomMacros: $isCustomMacros, weeklyGoalRate: $weeklyGoalRate, experiencePoints: $experiencePoints, currentRp: $currentRp, lastRpSeasonId: $lastRpSeasonId, rankAdvancementHistory: $rankAdvancementHistory, activeRankId: $activeRankId, detailedBodyMetrics: $detailedBodyMetrics, socialFollowersCount: $socialFollowersCount, socialFollowingCount: $socialFollowingCount, experienceLevel: $experienceLevel, dietPlan: $dietPlan, targetGoalWeightKg: $targetGoalWeightKg, startingWeightKg: $startingWeightKg, goalStartTimestampMillis: $goalStartTimestampMillis, lastWeightUpdateTimestampMillis: $lastWeightUpdateTimestampMillis, disableWeeklyWeightReminder: $disableWeeklyWeightReminder)';
+    return 'UserProfile(id: $id, displayName: $displayName, avatarUrl: $avatarUrl, gender: $gender, userAge: $userAge, heightInCm: $heightInCm, weightInKg: $weightInKg, bodyFatPercentage: $bodyFatPercentage, workoutGoal: $workoutGoal, nutritionGoal: $nutritionGoal, activityLevel: $activityLevel, trainingDaysPerWeek: $trainingDaysPerWeek, reportedInjuries: $reportedInjuries, dietaryRestrictions: $dietaryRestrictions, environment: $environment, calculatedTdee: $calculatedTdee, targetMacros: $targetMacros, isCustomMacros: $isCustomMacros, weeklyGoalRate: $weeklyGoalRate, experiencePoints: $experiencePoints, currentRp: $currentRp, lastRpSeasonId: $lastRpSeasonId, rankAdvancementHistory: $rankAdvancementHistory, activeRankId: $activeRankId, detailedBodyMetrics: $detailedBodyMetrics, socialFollowersCount: $socialFollowersCount, socialFollowingCount: $socialFollowingCount, experienceLevel: $experienceLevel, dietPlan: $dietPlan, targetGoalWeightKg: $targetGoalWeightKg, startingWeightKg: $startingWeightKg, goalStartTimestampMillis: $goalStartTimestampMillis, lastWeightUpdateTimestampMillis: $lastWeightUpdateTimestampMillis, disableWeeklyWeightReminder: $disableWeeklyWeightReminder)';
   }
 
   @override
@@ -795,8 +795,8 @@ class _$UserProfileImpl implements _UserProfile {
             (identical(other.id, id) || other.id == id) &&
             (identical(other.displayName, displayName) ||
                 other.displayName == displayName) &&
-            (identical(other.avatarBase64, avatarBase64) ||
-                other.avatarBase64 == avatarBase64) &&
+            (identical(other.avatarUrl, avatarUrl) ||
+                other.avatarUrl == avatarUrl) &&
             (identical(other.gender, gender) || other.gender == gender) &&
             (identical(other.userAge, userAge) || other.userAge == userAge) &&
             (identical(other.heightInCm, heightInCm) ||
@@ -870,7 +870,7 @@ class _$UserProfileImpl implements _UserProfile {
         runtimeType,
         id,
         displayName,
-        avatarBase64,
+        avatarUrl,
         gender,
         userAge,
         heightInCm,
@@ -922,7 +922,7 @@ abstract class _UserProfile implements UserProfile {
   const factory _UserProfile(
       {@JsonKey(name: 'id') final String? id,
       @JsonKey(name: 'name') final String displayName,
-      @JsonKey(name: 'avatar_base64') final String? avatarBase64,
+      @JsonKey(name: 'avatar_url') final String? avatarUrl,
       @JsonKey(name: 'gender') final Gender gender,
       @JsonKey(name: 'age') final int userAge,
       @JsonKey(name: 'height_cm') final double heightInCm,
@@ -972,8 +972,8 @@ abstract class _UserProfile implements UserProfile {
   @JsonKey(name: 'name')
   String get displayName;
   @override
-  @JsonKey(name: 'avatar_base64')
-  String? get avatarBase64;
+  @JsonKey(name: 'avatar_url')
+  String? get avatarUrl;
   @override
   @JsonKey(name: 'gender')
   Gender get gender;

@@ -19,14 +19,12 @@ class NotificationFeedbackHost extends StatefulWidget {
 }
 
 class _NotificationFeedbackHostState extends State<NotificationFeedbackHost> {
-  Timer? _timer;
   bool _busy = false;
   String? _lastScope;
   final service = NotificationCoordinator.instance;
   @override
   void initState() {
     super.initState();
-    _timer = Timer.periodic(const Duration(seconds: 2), (_) => _drain());
     service?.addListener(_drain);
     AppRouter.router.routeInformationProvider.addListener(_routeChanged);
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -48,7 +46,6 @@ class _NotificationFeedbackHostState extends State<NotificationFeedbackHost> {
 
   @override
   void dispose() {
-    _timer?.cancel();
     service?.removeListener(_drain);
     AppRouter.router.routeInformationProvider.removeListener(_routeChanged);
     super.dispose();

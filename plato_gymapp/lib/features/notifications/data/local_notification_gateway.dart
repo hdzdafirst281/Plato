@@ -1,5 +1,7 @@
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/services.dart';
+import 'package:flutter_timezone/flutter_timezone.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:timezone/data/latest.dart' as tzdata;
 import 'package:timezone/timezone.dart' as tz;
@@ -8,9 +10,20 @@ import 'notification_copy.dart';
 
 class LocalNotificationGateway {
   final plugin = FlutterLocalNotificationsPlugin();
-  static const platform = MethodChannel('vn.zenithas.plato/timezone');
   static const channelId = 'plato_reminders_v1';
   String zoneId = 'UTC';
+  bool exactWorkoutTiming = false;
+  Future<void> requestWorkoutTimingPermission() async {
+    if (!Platform.isAndroid) return;
+    final android = plugin
+        .resolvePlatformSpecificImplementation<
+          AndroidFlutterLocalNotificationsPlugin
+        >();
+    if (await android?.canScheduleExactNotifications() != true) {
+      await android?.requestExactAlarmsPermission();
+    }
+  }
+
   bool _timezoneInitialized = false;
   Future<void> updateTimezone() async {
     if (!_timezoneInitialized) {
@@ -18,10 +31,18 @@ class LocalNotificationGateway {
       _timezoneInitialized = true;
     }
     // Never silently schedule against UTC if the platform lookup fails.
-    final name = await platform.invokeMethod<String>('getTimeZone');
-    if (name == null) throw StateError('Device timezone unavailable');
+    final name = (await FlutterTimezone.getLocalTimezone()).identifier;
     tz.setLocalLocation(tz.getLocation(name));
     zoneId = name;
+    if (Platform.isAndroid) {
+      exactWorkoutTiming =
+          await plugin
+              .resolvePlatformSpecificImplementation<
+                AndroidFlutterLocalNotificationsPlugin
+              >()
+              ?.canScheduleExactNotifications() ??
+          false;
+    }
   }
 
   static bool owns(int id) => id >= 100000 && id < 2000000000;
@@ -33,7 +54,7 @@ class LocalNotificationGateway {
     final title = NotificationCopy.text(candidate.titleKey);
     final body = NotificationCopy.text(candidate.bodyKey, candidate.arguments);
     if (title == null || body == null) return false;
-    await plugin.zonedSchedule(
+    Future<void> deliver(AndroidScheduleMode mode) => plugin.zonedSchedule(
       id: id,
       title: title,
       body: body,
@@ -52,7 +73,7 @@ class LocalNotificationGateway {
           presentSound: false,
         ),
       ),
-      androidScheduleMode: AndroidScheduleMode.inexactAllowWhileIdle,
+      androidScheduleMode: mode,
       payload: jsonEncode({
         'v': 1,
         'scope': scope,
@@ -61,6 +82,16 @@ class LocalNotificationGateway {
         'sourceId': candidate.sourceId,
       }),
     );
+    try {
+      await deliver(
+        candidate.kind == ReminderKind.workout && exactWorkoutTiming
+            ? AndroidScheduleMode.exactAllowWhileIdle
+            : AndroidScheduleMode.inexactAllowWhileIdle,
+      );
+    } on PlatformException catch (error) {
+      if (error.code != 'exact_alarms_not_permitted') rethrow;
+      await deliver(AndroidScheduleMode.inexactAllowWhileIdle);
+    }
     return true;
   }
 

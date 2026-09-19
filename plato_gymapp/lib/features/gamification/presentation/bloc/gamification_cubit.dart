@@ -8,6 +8,7 @@ import '../../data/repositories/gamification_repository.dart';
 import '../../data/models/gamification_models.dart';
 import '../../../workout/data/models/workout_models.dart';
 import '../../../workout/data/repositories/workout_repository.dart';
+import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../domain/usecases/refresh_weekly_quests_usecase.dart';
 import '../../domain/usecases/claim_quest_reward_usecase.dart';
 import '../../domain/usecases/claim_chest_reward_usecase.dart';
@@ -36,8 +37,10 @@ class GamificationCubit extends Cubit<GamificationState> {
   final RefreshGamificationStateUseCase _refreshGamificationStateUseCase;
   final ResetGamificationUseCase _resetGamificationUseCase;
   final GetLeaderboardUseCase _getLeaderboardUseCase;
+  final AuthRepository _authRepo;
 
   StreamSubscription? _historySubscription;
+  StreamSubscription? _profileSubscription;
   Future<void> _pendingStatsUpdate = Future.value();
 
   // Claims and history refreshes both mutate the reward ledger and XP state.
@@ -55,6 +58,7 @@ class GamificationCubit extends Cubit<GamificationState> {
   }
 
   GamificationCubit(
+    this._authRepo,
     this._gamificationRepo, 
     this._workoutRepo,
     this._refreshWeeklyQuestsUseCase,
@@ -68,11 +72,24 @@ class GamificationCubit extends Cubit<GamificationState> {
     _historySubscription = _workoutRepo.workoutHistoryStream.listen((historicalSessions) {
       refreshWeeklyQuests(historicalSessions).ignore();
     });
+
+    _profileSubscription = _authRepo.profileUpdateStream.listen((profile) {
+      final currentLeaderboard = state.leaderboard;
+      if (currentLeaderboard != null) {
+        final updatedLeaderboard = List<LeaderboardEntry>.from(currentLeaderboard);
+        final index = updatedLeaderboard.indexWhere((e) => e.id == profile.id);
+        if (index != -1 && updatedLeaderboard[index].avatarUrl != profile.avatarUrl) {
+          updatedLeaderboard[index] = updatedLeaderboard[index].copyWith(avatarUrl: profile.avatarUrl);
+          emit(state.copyWith(leaderboard: updatedLeaderboard));
+        }
+      }
+    });
   }
 
   @override
   Future<void> close() {
     _historySubscription?.cancel();
+    _profileSubscription?.cancel();
     return super.close();
   }
 

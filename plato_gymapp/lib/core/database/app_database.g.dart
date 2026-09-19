@@ -92,7 +92,7 @@ class _$AppDatabase extends AppDatabase {
     Callback? callback,
   ]) async {
     final databaseOptions = sqflite.OpenDatabaseOptions(
-      version: 7,
+      version: 8,
       onConfigure: (database) async {
         await database.execute('PRAGMA foreign_keys = ON');
         await callback?.onConfigure?.call(database);
@@ -110,7 +110,7 @@ class _$AppDatabase extends AppDatabase {
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `exercises` (`id` TEXT NOT NULL, `idx` INTEGER, `name` TEXT NOT NULL, `primary_muscle` TEXT, `secondary_muscles` TEXT, `instructions` TEXT, `type` TEXT NOT NULL, `equipment` TEXT, `url_instructions` TEXT, `created_at` TEXT, `updated_at` TEXT, `is_deleted` INTEGER NOT NULL, `is_custom` INTEGER NOT NULL, `local_image_path` TEXT, `user_note` TEXT, `image` TEXT, PRIMARY KEY (`id`))');
         await database.execute(
-            'CREATE TABLE IF NOT EXISTS `foods` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `cal` INTEGER NOT NULL, `p` INTEGER NOT NULL, `c` INTEGER NOT NULL, `f` INTEGER NOT NULL, `unit` TEXT NOT NULL, `amount` REAL NOT NULL, `mealType` TEXT, `updated_at` TEXT, `is_deleted` INTEGER NOT NULL, PRIMARY KEY (`id`))');
+            'CREATE TABLE IF NOT EXISTS `foods` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `cal` INTEGER NOT NULL, `p` INTEGER NOT NULL, `c` INTEGER NOT NULL, `f` INTEGER NOT NULL, `unit` TEXT NOT NULL, `amount` REAL NOT NULL, `mealType` TEXT, `updated_at` TEXT, `is_deleted` INTEGER NOT NULL, `ingredients` TEXT, `diet_tags` TEXT, `allergen_tags` TEXT, PRIMARY KEY (`id`))');
         await database.execute(
             'CREATE TABLE IF NOT EXISTS `workout_programs_local` (`id` TEXT NOT NULL, `name` TEXT NOT NULL, `description` TEXT NOT NULL, `environment` TEXT NOT NULL, `difficulty` TEXT NOT NULL, `goal` TEXT NOT NULL, `routines` TEXT NOT NULL, `updatedAt` INTEGER NOT NULL, PRIMARY KEY (`id`))');
         await database.execute(
@@ -413,7 +413,11 @@ class _$FoodDao extends FoodDao {
                   'amount': item.consumedAmount,
                   'mealType': _mealTypeConverter.encode(item.assignedMealType),
                   'updated_at': item.lastUpdatedAt,
-                  'is_deleted': item.isMarkedForDeletion ? 1 : 0
+                  'is_deleted': item.isMarkedForDeletion ? 1 : 0,
+                  'ingredients': _stringListConverter.encode(item.ingredients),
+                  'diet_tags': _stringListConverter.encode(item.dietTags),
+                  'allergen_tags':
+                      _stringListConverter.encode(item.allergenTags)
                 });
 
   final sqflite.DatabaseExecutor database;
@@ -439,7 +443,12 @@ class _$FoodDao extends FoodDao {
             assignedMealType:
                 _mealTypeConverter.decode(row['mealType'] as String?),
             lastUpdatedAt: row['updated_at'] as String?,
-            isMarkedForDeletion: (row['is_deleted'] as int) != 0));
+            isMarkedForDeletion: (row['is_deleted'] as int) != 0,
+            ingredients:
+                _stringListConverter.decode(row['ingredients'] as String?),
+            dietTags: _stringListConverter.decode(row['diet_tags'] as String?),
+            allergenTags:
+                _stringListConverter.decode(row['allergen_tags'] as String?)));
   }
 
   @override
@@ -754,6 +763,19 @@ class _$WorkoutDao extends WorkoutDao {
             .join(',');
     await _queryAdapter.queryNoReturn(
         'UPDATE routines_local SET syncStatus = \'SYNCED\' WHERE id IN (' +
+            _sqliteVariablesForIds +
+            ')',
+        arguments: [...ids]);
+  }
+
+  @override
+  Future<void> deleteRoutinesByIds(List<String> ids) async {
+    const offset = 1;
+    final _sqliteVariablesForIds =
+        Iterable<String>.generate(ids.length, (i) => '?${i + offset}')
+            .join(',');
+    await _queryAdapter.queryNoReturn(
+        'DELETE FROM routines_local WHERE id IN (' +
             _sqliteVariablesForIds +
             ')',
         arguments: [...ids]);
@@ -1127,3 +1149,4 @@ final _workoutEnvironmentConverter = WorkoutEnvironmentConverter();
 final _workoutGoalConverter = WorkoutGoalConverter();
 final _muscleGroupListConverter = MuscleGroupListConverter();
 final _equipmentConverter = EquipmentConverter();
+final _stringListConverter = StringListConverter();

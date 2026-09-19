@@ -3,6 +3,9 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:plato_gymapp/features/notifications/application/notification_coordinator.dart';
+import 'package:plato_gymapp/features/notifications/data/notification_copy.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
 import 'package:plato_gymapp/i18n/translation_helper.dart';
 import 'package:flutter_animate/flutter_animate.dart';
@@ -1476,6 +1479,20 @@ class WaterTrackerCard extends StatelessWidget {
                                   color: accentBlue.withValues(alpha: 0.8),
                                 ),
                               ),
+                              if (NotificationCoordinator.instance != null) ...[
+                                const SizedBox(width: 8),
+                                ListenableBuilder(
+                                  listenable: NotificationCoordinator.instance!,
+                                  builder: (context, _) {
+                                    final service = NotificationCoordinator.instance!;
+                                    return Icon(
+                                      service.waterEnabled ? Symbols.notifications_active : Symbols.notifications_off,
+                                      size: 16,
+                                      color: service.waterEnabled ? accentBlue : emptyIconColor,
+                                    );
+                                  },
+                                ),
+                              ],
                             ],
                           ),
                         ),
@@ -2207,6 +2224,7 @@ Future<void> showWaterSettingsDialog(
   );
   String? errorMsg;
   final colorScheme = Theme.of(context).colorScheme;
+  bool localWaterEnabled = NotificationCoordinator.instance?.waterEnabled ?? false;
 
   await GymDialog.showCustom(
     context: context,
@@ -2297,6 +2315,28 @@ Future<void> showWaterSettingsDialog(
               ),
 
             const SizedBox(height: 16),
+            if (NotificationCoordinator.instance != null)
+              SwitchListTile.adaptive(
+                title: Text(
+                  NotificationCopy.text('notifications.lbl_hydration_at_16') ?? '',
+                  style: const TextStyle(fontWeight: FontWeight.bold),
+                ),
+                subtitle: Text(
+                  NotificationCopy.text(
+                    NotificationCoordinator.instance!.enabled
+                        ? 'notifications.desc_hydration_reminder'
+                        : 'notifications.msg_category_disabled',
+                  ) ?? '',
+                ),
+                contentPadding: EdgeInsets.zero,
+                value: localWaterEnabled,
+                onChanged: (value) {
+                  setLocalState(() {
+                    localWaterEnabled = value;
+                  });
+                },
+              ),
+            const SizedBox(height: 16),
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
@@ -2340,6 +2380,14 @@ Future<void> showWaterSettingsDialog(
                         () => errorMsg = t.nutrition.err_water_current,
                       );
                       return;
+                    }
+
+                    if (localWaterEnabled != NotificationCoordinator.instance?.waterEnabled) {
+                      NotificationCoordinator.instance?.setWaterEnabled(localWaterEnabled).then((success) {
+                        if (localWaterEnabled && !success && context.mounted) {
+                          openAppSettings();
+                        }
+                      });
                     }
 
                     onConfirm(currVal, targetVal);

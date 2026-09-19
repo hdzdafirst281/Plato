@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_snackbar.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
 import 'package:plato_gymapp/i18n/translation_helper.dart';
 import 'package:go_router/go_router.dart';
@@ -158,8 +159,18 @@ class _ExploreProgramsScreenState extends State<ExploreProgramsScreen> {
               translateEnv: _translateEnv,
               translateLevel: _translateLevel,
               onAdd: () {
-                context.read<WorkoutCubit>().addProgramRoutines(_detailedProgram!);
-                _showSuccessBottomSheet(_detailedProgram!);
+                context.read<WorkoutCubit>().addProgramRoutines(_detailedProgram!).then((_) {
+                  _showSuccessBottomSheet(_detailedProgram!);
+                }).catchError((error) {
+                  if (error.toString().contains("MAX_ROUTINES_REACHED")) {
+                    GymSnackbar.show(
+                      context,
+                      message: "Rate Limit: Bạn chỉ được tạo tối đa 10 giáo án!",
+                      icon: Symbols.error,
+                      accentColor: Theme.of(context).colorScheme.error,
+                    );
+                  }
+                });
               },
             )
           : Column(
@@ -226,8 +237,18 @@ class _ExploreProgramsScreenState extends State<ExploreProgramsScreen> {
                             translateGoal: _translateGoal,
                             onClick: () => setState(() => _detailedProgram = prog),
                             onAdd: () {
-                              context.read<WorkoutCubit>().addProgramRoutines(prog);
-                              _showSuccessBottomSheet(prog);
+                              context.read<WorkoutCubit>().addProgramRoutines(prog).then((_) {
+                                _showSuccessBottomSheet(prog);
+                              }).catchError((error) {
+                                if (error.toString().contains("MAX_ROUTINES_REACHED")) {
+                                  GymSnackbar.show(
+                                    context,
+                                    message: "Rate Limit: Bạn chỉ được tạo tối đa 10 giáo án!",
+                                    icon: Symbols.error,
+                                    accentColor: Theme.of(context).colorScheme.error,
+                                  );
+                                }
+                              });
                             },
                           );
                         },

@@ -741,6 +741,7 @@ class WorkoutRepository {
       isDeleted: false,
     );
     await _workoutDao.insertOrUpdateRoutine(newRoutine);
+    SyncManager.syncNow(pushOnly: true, criticalWorkoutsOnly: true).ignore();
   }
 
   Future<void> updateRoutine(
@@ -769,6 +770,7 @@ class WorkoutRepository {
       isDeleted: false,
     );
     await _workoutDao.insertOrUpdateRoutine(updatedEntity);
+    SyncManager.syncNow(pushOnly: true, criticalWorkoutsOnly: true).ignore();
   }
 
   Future<void> deleteRoutine(String routineIdToDelete) async {
@@ -776,6 +778,7 @@ class WorkoutRepository {
       routineIdToDelete,
       DateTime.now().millisecondsSinceEpoch,
     );
+    SyncManager.syncNow(pushOnly: true, criticalWorkoutsOnly: true).ignore();
   }
 
   Future<void> duplicateRoutine(String originalRoutineIdToDuplicate) async {
@@ -812,6 +815,7 @@ class WorkoutRepository {
       isDeleted: false,
     );
     await _workoutDao.insertOrUpdateRoutine(duplicatedRoutineEntity);
+    SyncManager.syncNow(pushOnly: true, criticalWorkoutsOnly: true).ignore();
   }
 
   Future<void> renameFolder(String oldFolderName, String newFolderName) async {
@@ -860,6 +864,7 @@ class WorkoutRepository {
       isDeleted: false,
     );
     await _workoutDao.insertOrUpdateRoutine(initializedRoutine);
+    SyncManager.syncNow(pushOnly: true, criticalWorkoutsOnly: true).ignore();
   }
 
   Future<void> saveProgramRoutines(WorkoutProgram programObjectToSave) async {
@@ -905,6 +910,7 @@ class WorkoutRepository {
 
       routineIndex++;
     }
+    SyncManager.syncNow(pushOnly: true, criticalWorkoutsOnly: true).ignore();
   }
 
   Future<void> updateSessionRpe(String sessionIdTarget, int newRpeValue) async {

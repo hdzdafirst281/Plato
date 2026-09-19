@@ -1,3 +1,5 @@
+import 'package:plato_gymapp/core/designsystem/components/gym_snackbar.dart';
+
 import '../../../notifications/presentation/recovery_recommendations.dart';
 import 'dart:async';
 import 'dart:math' as math;
@@ -2186,9 +2188,21 @@ class _AutoScrollRoutineRowState extends State<_AutoScrollRoutineRow> {
                                 extra: false,
                               );
                             },
-                            onDuplicate: () => context
-                                .read<WorkoutCubit>()
-                                .duplicateRoutine(routine.id),
+                            onDuplicate: () {
+                              context
+                                  .read<WorkoutCubit>()
+                                  .duplicateRoutine(routine.id)
+                                  .catchError((error) {
+                                if (error.toString().contains("MAX_ROUTINES_REACHED")) {
+                                  GymSnackbar.show(
+                                    context,
+                                    message: "Rate Limit: Bạn chỉ được tạo tối đa 10 giáo án!",
+                                    icon: Symbols.error,
+                                    accentColor: Theme.of(context).colorScheme.error,
+                                  );
+                                }
+                              });
+                            },
                             onDelete: () => widget.onRequestDelete(routine.id),
                             onDialogReorderRoutine:
                                 widget.onRequestReorderDialog,
