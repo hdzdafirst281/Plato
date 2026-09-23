@@ -473,7 +473,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
   }
 }
 
-class _MealSectionCard extends StatelessWidget {
+class _MealSectionCard extends StatefulWidget {
   final String title;
   final IconData icon;
   final MealType mealType;
@@ -483,12 +483,19 @@ class _MealSectionCard extends StatelessWidget {
   const _MealSectionCard({required this.title, required this.icon, required this.mealType, required this.consumedFoods, required this.nutritionCubit});
 
   @override
+  State<_MealSectionCard> createState() => _MealSectionCardState();
+}
+
+class _MealSectionCardState extends State<_MealSectionCard> {
+  List<String> _copiedIds = [];
+
+  @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final totalCal = consumedFoods.fold(0, (sum, f) => sum + f.calculatedTotalCalories);
-    final totalP = consumedFoods.fold(0, (sum, f) => sum + f.calculatedTotalProtein);
-    final totalC = consumedFoods.fold(0, (sum, f) => sum + f.calculatedTotalCarbs);
-    final totalF = consumedFoods.fold(0, (sum, f) => sum + f.calculatedTotalFat);
+    final totalCal = widget.consumedFoods.fold(0, (sum, f) => sum + f.calculatedTotalCalories);
+    final totalP = widget.consumedFoods.fold(0, (sum, f) => sum + f.calculatedTotalProtein);
+    final totalC = widget.consumedFoods.fold(0, (sum, f) => sum + f.calculatedTotalCarbs);
+    final totalF = widget.consumedFoods.fold(0, (sum, f) => sum + f.calculatedTotalFat);
 
     final cardPadding = ResponsiveValue<double>(
       context,
@@ -524,15 +531,15 @@ class _MealSectionCard extends StatelessWidget {
                     Container(
                       padding: const EdgeInsets.all(8),
                       decoration: BoxDecoration(color: colorScheme.primary.withValues(alpha: 0.15), shape: BoxShape.circle),
-                      child: Icon(icon, color: colorScheme.primary, size: 20),
+                      child: Icon(widget.icon, color: colorScheme.primary, size: 20),
                     ),
                     const SizedBox(width: 10),
                     
                     // NÂNG CẤP: Hệ tư tưởng 3 cấp độ thông minh theo đặc tính chuỗi văn bản
                     Flexible(
-                      child: title.trim().contains(' ')
+                      child: widget.title.trim().contains(' ')
                           ? Text(
-                              title,
+                              widget.title,
                               style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
                               maxLines: 2,
                               softWrap: true,
@@ -542,30 +549,67 @@ class _MealSectionCard extends StatelessWidget {
                               fit: BoxFit.scaleDown,
                               alignment: Alignment.centerLeft,
                               child: Text(
-                                title,
+                                widget.title,
                                 style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
                               ),
                             ),
                     ),
                     IconButton(
-                      icon: SvgPicture.asset(
-                        'assets/svg/icons/copy.svg',
-                        width: 18,
-                        height: 18,
-                        colorFilter: ColorFilter.mode(colorScheme.primary, BlendMode.srcIn),
-                      ),
-                      tooltip: t.nutrition.btn_main_copy_yesterday,
+                      icon: _copiedIds.isNotEmpty
+                          ? Icon(Symbols.undo, size: 20, color: colorScheme.primary)
+                          : SvgPicture.asset(
+                              'assets/svg/icons/copy.svg',
+                              width: 18,
+                              height: 18,
+                              colorFilter: ColorFilter.mode(colorScheme.primary, BlendMode.srcIn),
+                            ),
+                      tooltip: _copiedIds.isNotEmpty ? t.translateDynamic('nutrition.btn_undo_copy') : t.nutrition.btn_main_copy_yesterday,
                       onPressed: () async {
-                        final success = await nutritionCubit.copyMealFromYesterday(mealType);
-                        if (context.mounted) {
-                          GymDialog.showInfo(
+                        if (_copiedIds.isNotEmpty) {
+                          // Undo logic
+                          final confirm = await GymDialog.showConfirm(
                             context: context,
-                            icon: success ? Symbols.check_circle_outline : Symbols.info,
-                            iconColor: success ? Theme.of(context).gymColors.success : colorScheme.primary,
-                            title: t.nutrition.title_copy_meal,
-                            message: success ? t.nutrition.msg_copy_success : t.nutrition.msg_copy_empty,
-                            buttonText: t.common.confirm,
+                            title: t.translateDynamic('nutrition.title_undo_copy'),
+                            message: t.translateDynamic('nutrition.msg_undo_copy_confirm'),
+                            confirmText: t.translateDynamic('nutrition.btn_undo_copy'),
+                            cancelText: t.common.cancel,
+                            isDestructive: true,
                           );
+                          if (confirm == true) {
+                            widget.nutritionCubit.undoCopyMeal(_copiedIds, widget.mealType);
+                            if (mounted) {
+                              setState(() {
+                                _copiedIds = [];
+                              });
+                            }
+                          }
+                        } else {
+                          // Copy logic
+                          final copiedIds = await widget.nutritionCubit.copyMealFromYesterday(widget.mealType);
+                          if (context.mounted) {
+                            if (copiedIds.isNotEmpty) {
+                              setState(() {
+                                _copiedIds = copiedIds;
+                              });
+                              GymDialog.showInfo(
+                                context: context,
+                                icon: Symbols.check_circle_outline,
+                                iconColor: Theme.of(context).gymColors.success,
+                                title: t.nutrition.title_copy_meal,
+                                message: t.nutrition.msg_copy_success,
+                                buttonText: t.common.confirm,
+                              );
+                            } else {
+                              GymDialog.showInfo(
+                                context: context,
+                                icon: Symbols.info,
+                                iconColor: colorScheme.primary,
+                                title: t.nutrition.title_copy_meal,
+                                message: t.nutrition.msg_copy_empty,
+                                buttonText: t.common.confirm,
+                              );
+                            }
+                          }
                         }
                       },
                       padding: const EdgeInsets.symmetric(horizontal: 4),
@@ -598,7 +642,7 @@ class _MealSectionCard extends StatelessWidget {
           
 
 
-          if (consumedFoods.isEmpty)
+          if (widget.consumedFoods.isEmpty)
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
@@ -632,7 +676,7 @@ class _MealSectionCard extends StatelessWidget {
               ),
             )
           else ...[
-            ...consumedFoods.map((food) => _FoodItemRow(food: food, mealType: mealType, nutritionCubit: nutritionCubit)),
+            ...widget.consumedFoods.map((food) => _FoodItemRow(food: food, mealType: widget.mealType, nutritionCubit: widget.nutritionCubit)),
             const SizedBox(height: 12),
             TextButton.icon(
               onPressed: () => _openFoodSearch(context),
@@ -647,7 +691,7 @@ class _MealSectionCard extends StatelessWidget {
   }
 
   void _openFoodSearch(BuildContext context) {
-    context.push('/nutrition/food_encyclopedia/${mealType.name}');
+    context.push('/nutrition/food_encyclopedia/${widget.mealType.name}');
   }
 }
 

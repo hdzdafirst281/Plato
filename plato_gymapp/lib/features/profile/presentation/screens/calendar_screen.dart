@@ -23,6 +23,7 @@ import '../../../../core/designsystem/components/streak_icon.dart';
 import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
 import 'package:plato_gymapp/core/designsystem/theme/colors.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_time_picker.dart';
 
 import 'package:plato_gymapp/core/navigation/app_routes.dart';
 import 'package:plato_gymapp/core/utils/tour_keys.dart';
@@ -583,7 +584,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   void _showDayWorkoutsSheet(BuildContext context, DateTime date, List<dynamic> initialSessions) {
-    final parentContext = context; 
+    // Cache cubits before showing bottom sheet to prevent deactivated context crashes on tablet resize
+    final workoutCubit = context.read<WorkoutCubit>();
+    final statsCubit = context.read<StatsCubit>();
+    final editorCubit = context.read<EditorCubit>();
+    final activeSessionCubit = context.read<ActiveSessionCubit>();
+    
     showModalBottomSheet(
       context: context,
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -599,8 +605,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
           padding: const EdgeInsets.only(top: 24, left: 16, right: 16, bottom: 24),
           child: MultiBlocProvider(
             providers: [
-              BlocProvider.value(value: parentContext.read<WorkoutCubit>()),
-              BlocProvider.value(value: parentContext.read<StatsCubit>()),
+              BlocProvider.value(value: workoutCubit),
+              BlocProvider.value(value: statsCubit),
+              BlocProvider.value(value: editorCubit),
+              BlocProvider.value(value: activeSessionCubit),
             ],
             child: BlocBuilder<WorkoutCubit, WorkoutState>(
               builder: (builderCtx, workoutState) {
@@ -611,9 +619,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 }
                 final liveSessions = <dynamic>[
                   ...workoutState.scheduledWorkoutsList.where((s) => sameDay(s.targetDateMillis)),
-                  ...parentContext.read<StatsCubit>().state.workouts.where((w) => sameDay(w.startTime)),
+                  ...statsCubit.state.workouts.where((w) => sameDay(w.startTime)),
                 ];
-                return _buildDayDetailsInline(parentContext, date, liveSessions, isModal: true, modalContext: ctx);
+                // Use builderCtx instead of parentContext to avoid ancestor lookup crash
+                return _buildDayDetailsInline(builderCtx, date, liveSessions, isModal: true, modalContext: ctx);
               },
             ),
           ),
@@ -796,7 +805,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                 Text("${t.calendar.title_planned} ${t.translateDynamic(displayRoutineName)}", 
                                   style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: colorScheme.onSurface), maxLines: 1, overflow: TextOverflow.ellipsis),
                                 const SizedBox(height: 4),
-                                Text(s.isCompleted ? t.common.done : s.timeOfDayMinutes == null ? t.calendar.lbl_upcoming : TimeOfDay(hour: s.timeOfDayMinutes! ~/ 60, minute: s.timeOfDayMinutes! % 60).format(context), style: TextStyle(fontSize: 12, color: cardColor, fontWeight: FontWeight.bold)),
+                                Text(s.isCompleted ? t.common.done : s.timeOfDayMinutes == null ? t.calendar.lbl_upcoming : TimeOfDay(hour: s.timeOfDayMinutes! ~/ 60, minute: s.timeOfDayMinutes! % 60).formatGym(parentContext), style: TextStyle(fontSize: 12, color: cardColor, fontWeight: FontWeight.bold)),
                               ],
                             ),
                           ),
@@ -926,23 +935,36 @@ class _CalendarScreenState extends State<CalendarScreen> {
       context: parentContext,
       useRootNavigator: true,
       barrierDismissible: true,
+      useSafeArea: false,
       builder: (ctx) {
-        return Dialog(
-          backgroundColor: Theme.of(parentContext).colorScheme.surface,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(24),
-            side: BorderSide(color: Theme.of(parentContext).colorScheme.outline.withValues(alpha: 0.3)),
-          ),
-          clipBehavior: Clip.antiAlias,
-          insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-          child: BlocProvider.value(
-            value: parentContext.read<WorkoutCubit>(),
-            child: _ScheduleDialogContent(
-              targetDate: targetDate,
-              existingSchedule: existingSchedule,
-              initialRoutine: initialRoutine,
-            ),
-          ),
+        return Builder(
+          builder: (innerCtx) {
+            final isCurrent = ModalRoute.of(innerCtx)?.isCurrent ?? true;
+            return MediaQuery(
+              data: MediaQuery.of(innerCtx).copyWith(
+                viewInsets: isCurrent ? MediaQuery.viewInsetsOf(innerCtx) : EdgeInsets.zero,
+              ),
+              child: SafeArea(
+                child: Dialog(
+                  backgroundColor: Theme.of(parentContext).colorScheme.surface,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(24),
+                    side: BorderSide(color: Theme.of(parentContext).colorScheme.outline.withValues(alpha: 0.3)),
+                  ),
+                  clipBehavior: Clip.antiAlias,
+                  insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                  child: BlocProvider.value(
+                    value: parentContext.read<WorkoutCubit>(),
+                    child: _ScheduleDialogContent(
+                      targetDate: targetDate,
+                      existingSchedule: existingSchedule,
+                      initialRoutine: initialRoutine,
+                    ),
+                  ),
+                ),
+              ),
+            );
+          },
         );
       },
     );
@@ -1259,110 +1281,104 @@ class _RecurrenceConfigPageState extends State<_RecurrenceConfigPage> {
                   maxLines: 1, overflow: TextOverflow.ellipsis,
                 ),
               ),
-              IconButton(icon: const Icon(Symbols.close), onPressed: () => Navigator.pop(context), padding: EdgeInsets.zero, alignment: Alignment.centerRight),
+              IconButton(icon: Icon(Symbols.close, color: colorScheme.error), onPressed: () => Navigator.pop(context), padding: EdgeInsets.zero, alignment: Alignment.centerRight),
             ],
           ),
           const SizedBox(height: 16),
           
-          ListTile(
-            contentPadding: EdgeInsets.zero, leading: const Icon(Symbols.calendar_month),
-            title: Text(DateFormat.yMMMd(TranslationProvider.of(context).flutterLocale.languageCode).format(_date)),
-            trailing: const Icon(Symbols.edit),
+          InkWell(
             onTap: _saving ? null : () async {
               final date = await showDatePicker(context: context, initialDate: _date,
                 firstDate: DateTime(2020), lastDate: DateTime(DateTime.now().year + 5));
               if (date != null && mounted) setState(() => _date = date);
-            }),
-          ListTile(
-            contentPadding: EdgeInsets.zero, leading: const Icon(Symbols.schedule),
-            title: Text(_time?.format(context) ?? MaterialLocalizations.of(context).timePickerInputHelpText),
-            trailing: _time == null ? const Icon(Symbols.add) : IconButton(
-              tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
-              onPressed: _saving ? null : () => setState(() { _time = null; _reminder = false; }),
-              icon: const Icon(Symbols.close)),
-            onTap: _saving ? null : () async {
-              final time = await showTimePicker(context: context, initialTime: _time ?? const TimeOfDay(hour: 18, minute: 0));
-              if (time != null && mounted) setState(() => _time = time);
-            }),
-          if (NotificationCopy.available) ...[
-            SwitchListTile.adaptive(contentPadding: EdgeInsets.zero,
-              title: Text(NotificationCopy.text('notifications.lbl_remind_this_workout')!),
-              value: _reminder,
-              onChanged: _time == null || _saving ? null : (value) async {
-                if (value && !(await NotificationCoordinator.instance?.setEnabled(true) ?? false)) return;
-                  if (value) await NotificationCoordinator.instance?.gateway.requestWorkoutTimingPermission();
-                if (mounted) setState(() => _reminder = value);
-              }),
-            if (_reminder) DropdownButtonFormField<int>(initialValue: _lead,
-              items: [15,30,60].map((n) => DropdownMenuItem(value:n,
-                child: Text(NotificationCopy.text('notifications.fmt_minutes_before', {'minutes':'$n'})!))).toList(),
-              onChanged: _saving ? null : (n) { if(n != null) setState(() => _lead = n); }),
-          ],
-          if (widget.existingSchedule == null) Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(t.calendar.lbl_frequency, style: TextStyle(color: colorScheme.primary, fontSize: 12, fontWeight: FontWeight.bold)),
-                const SizedBox(height: 4),
-                Theme(
-                  data: Theme.of(context).copyWith(
-                    splashColor: Colors.transparent,
-                    highlightColor: Colors.transparent,
-                  ),
-                  child: PopupMenuButton<int>(
-                    initialValue: _repeatType,
-                    onSelected: (val) => setState(() => _repeatType = val),
-                    offset: const Offset(0, 56), 
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                      side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.3)),
-                    ),
-                    color: colorScheme.surface,
-                    // Sử dụng ResponsiveValue thay cho fix object Width
-                    constraints: BoxConstraints(
-                      minWidth: ResponsiveValue<double>(
-                        context, 
-                        defaultValue: MediaQuery.sizeOf(context).width - 80, 
-                        conditionalValues: [
-                          Condition.largerThan(name: TABLET, value: 400.0),
-                        ]
-                      ).value,
-                    ), 
-                    itemBuilder: (context) => [
-                      PopupMenuItem(value: 0, child: Text(t.calendar.repeat_none)),
-                      PopupMenuItem(value: 1, child: Text(t.calendar.repeat_daily)),
-                      PopupMenuItem(value: 2, child: Text(t.calendar.repeat_weekly)),
-                      PopupMenuItem(value: 3, child: Text(t.calendar.repeat_interval)),
-                    ],
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                      decoration: BoxDecoration(
-                        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: colorScheme.outlineVariant),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          Text(frequencyLabel, style: const TextStyle(fontSize: 16)),
-                          Icon(Symbols.unfold_more, color: colorScheme.onSurfaceVariant),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12.0),
+              child: Row(
+                children: [
+                  Icon(Symbols.calendar_month, color: colorScheme.onSurfaceVariant),
+                  const SizedBox(width: 16),
+                  Expanded(child: Text(DateFormat.yMMMd(TranslationProvider.of(context).flutterLocale.languageCode).format(_date), style: const TextStyle(fontSize: 16))),
+                  SizedBox(width: 48, child: Align(alignment: Alignment.centerRight, child: Icon(Symbols.edit, color: colorScheme.onSurfaceVariant))),
+                ],
+              ),
             ),
+          ),
+          const SizedBox(height: 16),
+          if (widget.existingSchedule == null) Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 8),
+              Row(
+                children: [
+                  Icon(Symbols.repeat, color: colorScheme.onSurfaceVariant),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Text(t.calendar.lbl_frequency, style: const TextStyle(fontSize: 16)),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Padding(
+                padding: const EdgeInsets.only(left: 40.0, right: 0.0),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return Theme(
+                      data: Theme.of(context).copyWith(
+                        splashColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
+                      ),
+                      child: PopupMenuButton<int>(
+                        initialValue: _repeatType,
+                        onSelected: (val) => setState(() => _repeatType = val),
+                        offset: const Offset(0, 56), 
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.3)),
+                        ),
+                        color: colorScheme.surface,
+                        constraints: BoxConstraints(
+                          minWidth: constraints.maxWidth,
+                          maxWidth: constraints.maxWidth,
+                        ),
+                        itemBuilder: (context) => [
+                          PopupMenuItem(value: 0, child: Text(t.calendar.repeat_none)),
+                          PopupMenuItem(value: 1, child: Text(t.calendar.repeat_daily)),
+                          PopupMenuItem(value: 2, child: Text(t.calendar.repeat_weekly)),
+                          PopupMenuItem(value: 3, child: Text(t.calendar.repeat_interval)),
+                        ],
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          decoration: BoxDecoration(
+                            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(color: colorScheme.outlineVariant),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(frequencyLabel, style: const TextStyle(fontSize: 16)),
+                              Icon(Symbols.unfold_more, color: colorScheme.onSurfaceVariant),
+                            ],
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
           
           AnimatedSize(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOutCubic,
             alignment: Alignment.topCenter,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
+            child: Padding(
+              padding: const EdgeInsets.only(left: 40.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                 if (_repeatType == 2) ...[
                   const SizedBox(height: 16),
                   Text(t.calendar.lbl_choose_days, style: const TextStyle(fontWeight: FontWeight.bold)),
@@ -1433,7 +1449,108 @@ class _RecurrenceConfigPageState extends State<_RecurrenceConfigPage> {
                 ]
               ],
             ),
+            ),
           ),
+          const SizedBox(height: 16),
+          InkWell(
+            onTap: _saving ? null : () async {
+              final time = await showGymTimePicker(
+                context: context,
+                initialTime: _time ?? const TimeOfDay(hour: 18, minute: 0),
+              );
+              
+              if (time != null && mounted) {
+                setState(() => _time = time);
+              }
+            },
+            child: Padding(
+              padding: const EdgeInsets.symmetric(vertical: 12.0),
+              child: Row(
+                children: [
+                  Icon(Symbols.schedule, color: colorScheme.onSurfaceVariant),
+                  const SizedBox(width: 16),
+                  Expanded(child: Text(_time?.formatGym(context) ?? MaterialLocalizations.of(context).timePickerInputHelpText, style: const TextStyle(fontSize: 16))),
+                  if (_time == null)
+                    SizedBox(width: 48, child: Align(alignment: Alignment.centerRight, child: Icon(Symbols.add, color: colorScheme.onSurfaceVariant)))
+                  else
+                    IconButton(
+                      tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
+                      onPressed: _saving ? null : () => setState(() { _time = null; _reminder = false; }),
+                      icon: Icon(Symbols.close, color: colorScheme.onSurfaceVariant),
+                      padding: EdgeInsets.zero,
+                      alignment: Alignment.centerRight,
+                    ),
+                ],
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          if (NotificationCopy.available) ...[
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 4.0),
+              child: Row(
+                children: [
+                  Icon(Symbols.notifications, color: colorScheme.onSurfaceVariant),
+                  const SizedBox(width: 16),
+                  Expanded(child: Text(NotificationCopy.text('notifications.lbl_remind_this_workout')!, style: const TextStyle(fontSize: 16))),
+                  Switch.adaptive(
+                    value: _reminder,
+                    onChanged: _time == null || _saving ? null : (value) async {
+                      if (value && !(await NotificationCoordinator.instance?.setEnabled(true) ?? false)) return;
+                      if (value) await NotificationCoordinator.instance?.gateway.requestWorkoutTimingPermission();
+                      if (mounted) setState(() => _reminder = value);
+                    },
+                  ),
+                ],
+              ),
+            ),
+            if (_reminder) Padding(
+              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0, left: 40.0, right: 0.0),
+              child: LayoutBuilder(
+                builder: (context, constraints) {
+                  return Theme(
+                    data: Theme.of(context).copyWith(
+                      splashColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
+                    ),
+                    child: PopupMenuButton<int>(
+                      initialValue: _lead,
+                      onSelected: _saving ? null : (n) => setState(() => _lead = n),
+                      offset: const Offset(0, 56), 
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.3)),
+                      ),
+                      color: colorScheme.surface,
+                      constraints: BoxConstraints(
+                        minWidth: constraints.maxWidth,
+                        maxWidth: constraints.maxWidth,
+                      ),
+                      itemBuilder: (context) => [15,30,60].map((n) => PopupMenuItem<int>(
+                        value: n,
+                        child: Text(NotificationCopy.text('notifications.fmt_minutes_before', {'minutes':'$n'})!),
+                      )).toList(),
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                        decoration: BoxDecoration(
+                          color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: colorScheme.outlineVariant),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(NotificationCopy.text('notifications.fmt_minutes_before', {'minutes':'$_lead'})!, style: const TextStyle(fontSize: 16)),
+                            Icon(Symbols.unfold_more, color: colorScheme.onSurfaceVariant),
+                          ],
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ],
 
           const SizedBox(height: 24),
           Text(t.calendar.title_color, style: const TextStyle(fontWeight: FontWeight.bold)),

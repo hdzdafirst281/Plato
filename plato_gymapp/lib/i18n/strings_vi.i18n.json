@@ -101,6 +101,11 @@
     "lbl_week": "Tuần"
   },
   "common": {
+    "am": "SA",
+    "pm": "CH",
+    "err_invalid_hour_am": "Số giờ phải từ 0-11",
+    "err_invalid_hour_pm": "Số giờ phải từ 1-12",
+    "err_invalid_minute": "Số phút phải từ 0-59",
     "about_us": "Về chúng tôi",
     "accept": "Cho phép",
     "add": "Thêm",
@@ -538,6 +543,9 @@
     "msg_copy_empty": "Hôm qua bạn chưa nhập liệu cho bữa này.",
     "title_copy_meal": "Sao chép bữa ăn",
     "msg_copy_success": "Đã sao chép bữa ăn hôm qua!",
+    "btn_undo_copy": "Hoàn tác",
+    "title_undo_copy": "Hoàn tác bữa ăn",
+    "msg_undo_copy_confirm": "Bạn vừa sao chép thực đơn của bữa ăn này. Bạn có muốn hoàn tác và xoá các món vừa được thêm vào không?",
     "lbl_cust_foods": "Món ăn do bạn tạo",
     "msg_cust_macro_pace_hidden": "Do bạn đang dùng mục tiêu Dinh dưỡng tùy chỉnh, phần lựa chọn tốc độ đã được ẩn. Timeline dự kiến sẽ tự động thay đổi tương ứng với mục tiêu cân nặng mới và lượng Calo bạn thiết lập.",
     "title_cust_macros": "Tùy chỉnh Dinh dưỡng",

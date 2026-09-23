@@ -284,7 +284,7 @@ class NutritionCubit extends Cubit<NutritionState> {
     }
   }
 
-  Future<bool> copyMealFromYesterday(MealType targetMeal) async {
+  Future<List<String>> copyMealFromYesterday(MealType targetMeal) async {
     final yesterdayDateId = DateFormat(
       'yyyy-MM-dd',
     ).format(DateTime.now().subtract(const Duration(days: 1)));
@@ -309,7 +309,7 @@ class NutritionCubit extends Cubit<NutritionState> {
           break;
       }
 
-      if (pastFoods.isEmpty) return false;
+      if (pastFoods.isEmpty) return [];
 
       final newFoods = pastFoods
           .map(
@@ -338,10 +338,20 @@ class NutritionCubit extends Cubit<NutritionState> {
 
       emit(state.copyWith(nutritionToday: updatedDaily));
       await _saveTodayNutrition(updatedDaily);
-      return true;
+      return newFoods.map((f) => f.id).toList();
     } catch (e) {
       debugPrint("❌ Lỗi copy dữ liệu bữa ăn hôm qua: $e");
-      return false;
+      return [];
     }
+  }
+
+  void undoCopyMeal(List<String> idsToRemove, MealType targetMeal) {
+    final updatedDaily = _updateMealsList(
+      state.nutritionToday,
+      targetMeal,
+      (list) => list.where((f) => !idsToRemove.contains(f.id)).toList(),
+    );
+    emit(state.copyWith(nutritionToday: updatedDaily));
+    _saveTodayNutrition(updatedDaily);
   }
 }

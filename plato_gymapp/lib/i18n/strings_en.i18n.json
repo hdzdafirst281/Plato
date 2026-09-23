@@ -101,6 +101,11 @@
     "lbl_week": "Week"
   },
   "common": {
+    "am": "AM",
+    "pm": "PM",
+    "err_invalid_hour_am": "Hours must be 0-11",
+    "err_invalid_hour_pm": "Hours must be 1-12",
+    "err_invalid_minute": "Minutes must be 0-59",
     "about_us": "About Us",
     "accept": "Allow",
     "add": "Add",
@@ -538,6 +543,9 @@
     "msg_copy_empty": "You haven't entered any food for this meal yesterday.",
     "title_copy_meal": "Copy Meal",
     "msg_copy_success": "Successfully copied yesterday's meal!",
+    "btn_undo_copy": "Undo",
+    "title_undo_copy": "Undo Meal",
+    "msg_undo_copy_confirm": "You have just copied this meal. Do you want to undo and remove the recently added foods?",
     "lbl_cust_foods": "Custom Foods",
     "msg_cust_macro_pace_hidden": "Because you are using a custom Nutrition goal, the pace selection has been hidden. The expected timeline will automatically adjust corresponding to your new weight goal and Calories set.",
     "title_cust_macros": "Custom Nutrition",

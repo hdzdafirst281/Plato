@@ -4,9 +4,9 @@
 /// To regenerate, run: `dart run slang`
 ///
 /// Locales: 2
-/// Strings: 3212 (1606 per locale)
+/// Strings: 3228 (1614 per locale)
 ///
-/// Built on 2026-09-19 at 13:50 UTC
+/// Built on 2026-09-23 at 07:50 UTC
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -293,6 +293,11 @@ class _StringsCommonEn {
 	final Translations _root; // ignore: unused_field
 
 	// Translations
+	String get am => 'AM';
+	String get pm => 'PM';
+	String get err_invalid_hour_am => 'Hours must be 0-11';
+	String get err_invalid_hour_pm => 'Hours must be 1-12';
+	String get err_invalid_minute => 'Minutes must be 0-59';
 	String get about_us => 'About Us';
 	String get accept => 'Allow';
 	String get add => 'Add';
@@ -779,6 +784,9 @@ class _StringsNutritionEn {
 	String get msg_copy_empty => 'You haven\'t entered any food for this meal yesterday.';
 	String get title_copy_meal => 'Copy Meal';
 	String get msg_copy_success => 'Successfully copied yesterday\'s meal!';
+	String get btn_undo_copy => 'Undo';
+	String get title_undo_copy => 'Undo Meal';
+	String get msg_undo_copy_confirm => 'You have just copied this meal. Do you want to undo and remove the recently added foods?';
 	String get lbl_cust_foods => 'Custom Foods';
 	String get msg_cust_macro_pace_hidden => 'Because you are using a custom Nutrition goal, the pace selection has been hidden. The expected timeline will automatically adjust corresponding to your new weight goal and Calories set.';
 	String get title_cust_macros => 'Custom Nutrition';
@@ -2137,6 +2145,11 @@ class _StringsCommonVi extends _StringsCommonEn {
 	@override final _StringsVi _root; // ignore: unused_field
 
 	// Translations
+	@override String get am => 'SA';
+	@override String get pm => 'CH';
+	@override String get err_invalid_hour_am => 'Số giờ phải từ 0-11';
+	@override String get err_invalid_hour_pm => 'Số giờ phải từ 1-12';
+	@override String get err_invalid_minute => 'Số phút phải từ 0-59';
 	@override String get about_us => 'Về chúng tôi';
 	@override String get accept => 'Cho phép';
 	@override String get add => 'Thêm';
@@ -2623,6 +2636,9 @@ class _StringsNutritionVi extends _StringsNutritionEn {
 	@override String get msg_copy_empty => 'Hôm qua bạn chưa nhập liệu cho bữa này.';
 	@override String get title_copy_meal => 'Sao chép bữa ăn';
 	@override String get msg_copy_success => 'Đã sao chép bữa ăn hôm qua!';
+	@override String get btn_undo_copy => 'Hoàn tác';
+	@override String get title_undo_copy => 'Hoàn tác bữa ăn';
+	@override String get msg_undo_copy_confirm => 'Bạn vừa sao chép thực đơn của bữa ăn này. Bạn có muốn hoàn tác và xoá các món vừa được thêm vào không?';
 	@override String get lbl_cust_foods => 'Món ăn do bạn tạo';
 	@override String get msg_cust_macro_pace_hidden => 'Do bạn đang dùng mục tiêu Dinh dưỡng tùy chỉnh, phần lựa chọn tốc độ đã được ẩn. Timeline dự kiến sẽ tự động thay đổi tương ứng với mục tiêu cân nặng mới và lượng Calo bạn thiết lập.';
 	@override String get title_cust_macros => 'Tùy chỉnh Dinh dưỡng';
@@ -3913,6 +3929,11 @@ extension on Translations {
 			case 'calendar.view_multi_year': return 'Multi-Year';
 			case 'calendar.view_year': return 'Year';
 			case 'calendar.lbl_week': return 'Week';
+			case 'common.am': return 'AM';
+			case 'common.pm': return 'PM';
+			case 'common.err_invalid_hour_am': return 'Hours must be 0-11';
+			case 'common.err_invalid_hour_pm': return 'Hours must be 1-12';
+			case 'common.err_invalid_minute': return 'Minutes must be 0-59';
 			case 'common.about_us': return 'About Us';
 			case 'common.accept': return 'Allow';
 			case 'common.add': return 'Add';
@@ -4336,6 +4357,9 @@ extension on Translations {
 			case 'nutrition.msg_copy_empty': return 'You haven\'t entered any food for this meal yesterday.';
 			case 'nutrition.title_copy_meal': return 'Copy Meal';
 			case 'nutrition.msg_copy_success': return 'Successfully copied yesterday\'s meal!';
+			case 'nutrition.btn_undo_copy': return 'Undo';
+			case 'nutrition.title_undo_copy': return 'Undo Meal';
+			case 'nutrition.msg_undo_copy_confirm': return 'You have just copied this meal. Do you want to undo and remove the recently added foods?';
 			case 'nutrition.lbl_cust_foods': return 'Custom Foods';
 			case 'nutrition.msg_cust_macro_pace_hidden': return 'Because you are using a custom Nutrition goal, the pace selection has been hidden. The expected timeline will automatically adjust corresponding to your new weight goal and Calories set.';
 			case 'nutrition.title_cust_macros': return 'Custom Nutrition';
@@ -5527,6 +5551,11 @@ extension on _StringsVi {
 			case 'calendar.view_multi_year': return 'Nhiều Năm';
 			case 'calendar.view_year': return 'Năm';
 			case 'calendar.lbl_week': return 'Tuần';
+			case 'common.am': return 'SA';
+			case 'common.pm': return 'CH';
+			case 'common.err_invalid_hour_am': return 'Số giờ phải từ 0-11';
+			case 'common.err_invalid_hour_pm': return 'Số giờ phải từ 1-12';
+			case 'common.err_invalid_minute': return 'Số phút phải từ 0-59';
 			case 'common.about_us': return 'Về chúng tôi';
 			case 'common.accept': return 'Cho phép';
 			case 'common.add': return 'Thêm';
@@ -5950,6 +5979,9 @@ extension on _StringsVi {
 			case 'nutrition.msg_copy_empty': return 'Hôm qua bạn chưa nhập liệu cho bữa này.';
 			case 'nutrition.title_copy_meal': return 'Sao chép bữa ăn';
 			case 'nutrition.msg_copy_success': return 'Đã sao chép bữa ăn hôm qua!';
+			case 'nutrition.btn_undo_copy': return 'Hoàn tác';
+			case 'nutrition.title_undo_copy': return 'Hoàn tác bữa ăn';
+			case 'nutrition.msg_undo_copy_confirm': return 'Bạn vừa sao chép thực đơn của bữa ăn này. Bạn có muốn hoàn tác và xoá các món vừa được thêm vào không?';
 			case 'nutrition.lbl_cust_foods': return 'Món ăn do bạn tạo';
 			case 'nutrition.msg_cust_macro_pace_hidden': return 'Do bạn đang dùng mục tiêu Dinh dưỡng tùy chỉnh, phần lựa chọn tốc độ đã được ẩn. Timeline dự kiến sẽ tự động thay đổi tương ứng với mục tiêu cân nặng mới và lượng Calo bạn thiết lập.';
 			case 'nutrition.title_cust_macros': return 'Tùy chỉnh Dinh dưỡng';
