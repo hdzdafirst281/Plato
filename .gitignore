@@ -70,3 +70,11 @@ app.*.symbols
 .svn/
 .swiftpm/
 migrate_working_dir/
+
+# AI Agent files
+.agents/
+**/.agents/
+rules/
+**/rules/
+rules.md
+**/rules.md
