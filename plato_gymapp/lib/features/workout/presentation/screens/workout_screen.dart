@@ -35,6 +35,7 @@ import '../bloc/workout_cubit.dart';
 import '../bloc/editor_cubit.dart';
 import '../bloc/active_session_cubit.dart';
 import '../components/workout_components.dart';
+import '../components/workout_section_header.dart';
 
 class WorkoutScreen extends StatefulWidget {
   const WorkoutScreen({super.key});
@@ -600,7 +601,6 @@ class _WorkoutScreenState extends State<WorkoutScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        const RecoveryRecommendations(),
         buttonsLayout
             .animate()
             .fade(duration: 400.ms)
@@ -623,9 +623,16 @@ class _WorkoutScreenState extends State<WorkoutScreen>
                 (WorkoutCubit cubit) => cubit.state.recoveryUIDataList,
               );
               return recoveryData.isNotEmpty
-                  ? RecoveryBarChart(
-                      recoveryDataList: recoveryData,
-                    ).animate().fade(duration: 500.ms)
+                  ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        RecoveryBarChart(
+                          recoveryDataList: recoveryData,
+                        ).animate().fade(duration: 500.ms),
+                        const SizedBox(height: 24),
+                        const RecoveryRecommendations(),
+                      ],
+                    )
                   : Center(
                       child: Padding(
                         padding: const EdgeInsets.symmetric(vertical: 32),
@@ -921,64 +928,42 @@ class _GlobalFolderHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isTablet = ResponsiveBreakpoints.of(context).largerThan(MOBILE);
-    return Padding(
-      padding: const EdgeInsets.only(left: 4, right: 4, top: 8, bottom: 12),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text(
-                t.workout.lbl_default_folder.trim(),
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.onSurface,
-                ),
-              ),
-              const SizedBox(width: 12),
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 10,
-                  vertical: 2,
-                ),
-                decoration: BoxDecoration(
-                  color: colorScheme.onSurface.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  '$folderCount',
-                  style: TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                    color: colorScheme.onSurfaceVariant,
-                  ),
-                ),
-              ),
-            ],
+    return WorkoutSectionHeader(
+      title: t.workout.lbl_default_folder.trim(),
+      padding: const EdgeInsets.only(left: 4, right: 4, bottom: 12),
+      titleSuffix: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 2),
+        decoration: BoxDecoration(
+          color: colorScheme.onSurface.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Text(
+          '$folderCount',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            color: colorScheme.onSurfaceVariant,
           ),
-          GymTourTarget(
-            isActive:
-                !context.read<TourCubit>().state.hasSeenWorkout ||
-                forceShowTour,
-            tourKey: TourKeys.workoutFolderAddBtn,
-            title: t.tour.workout_folder_add_btn_title.trim(),
-            description: t.tour.workout_folder_smart_empty_desc.trim(),
-            tooltipPosition: isTablet ? null : TooltipPosition.top,
-            borderRadius: 24.0,
-            targetPadding: const EdgeInsets.all(4),
-            child: IconButton(
-              icon: Icon(
-                Symbols.create_new_folder,
-                color: colorScheme.primary,
-                size: 28,
-              ),
-              onPressed: onAddFolder,
-              tooltip: t.workout.btn_create_empty_folder,
-            ),
+        ),
+      ),
+      trailing: GymTourTarget(
+        isActive:
+            !context.read<TourCubit>().state.hasSeenWorkout || forceShowTour,
+        tourKey: TourKeys.workoutFolderAddBtn,
+        title: t.tour.workout_folder_add_btn_title.trim(),
+        description: t.tour.workout_folder_smart_empty_desc.trim(),
+        tooltipPosition: isTablet ? null : TooltipPosition.top,
+        borderRadius: 24.0,
+        targetPadding: const EdgeInsets.all(4),
+        child: IconButton(
+          icon: Icon(
+            Symbols.create_new_folder,
+            color: colorScheme.primary,
+            size: 28,
           ),
-        ],
+          onPressed: onAddFolder,
+          tooltip: t.workout.btn_create_empty_folder,
+        ),
       ),
     );
   }
@@ -1077,7 +1062,10 @@ class _FolderHeader extends StatelessWidget {
                       'assets/svg/icons/reorder.svg',
                       width: 24,
                       height: 24,
-                      colorFilter: ColorFilter.mode(colorScheme.onSurface, BlendMode.srcIn),
+                      colorFilter: ColorFilter.mode(
+                        colorScheme.onSurface,
+                        BlendMode.srcIn,
+                      ),
                     ),
                     const SizedBox(width: 8),
                     Flexible(
@@ -1115,7 +1103,10 @@ class _FolderHeader extends StatelessWidget {
                       'assets/svg/icons/delete_trashcan.svg',
                       width: 24,
                       height: 24,
-                      colorFilter: ColorFilter.mode(colorScheme.error, BlendMode.srcIn),
+                      colorFilter: ColorFilter.mode(
+                        colorScheme.error,
+                        BlendMode.srcIn,
+                      ),
                     ),
                     const SizedBox(width: 8),
                     Flexible(
@@ -1667,7 +1658,10 @@ class _RoutineCardState extends State<_RoutineCard> {
                 'assets/svg/icons/reorder.svg',
                 width: 24,
                 height: 24,
-                colorFilter: ColorFilter.mode(colorScheme.onSurface, BlendMode.srcIn),
+                colorFilter: ColorFilter.mode(
+                  colorScheme.onSurface,
+                  BlendMode.srcIn,
+                ),
               ),
               const SizedBox(width: 8),
               Flexible(
@@ -1706,7 +1700,10 @@ class _RoutineCardState extends State<_RoutineCard> {
                 'assets/svg/icons/copy.svg',
                 width: 24,
                 height: 24,
-                colorFilter: ColorFilter.mode(colorScheme.onSurface, BlendMode.srcIn),
+                colorFilter: ColorFilter.mode(
+                  colorScheme.onSurface,
+                  BlendMode.srcIn,
+                ),
               ),
               const SizedBox(width: 8),
               Flexible(
@@ -1728,7 +1725,10 @@ class _RoutineCardState extends State<_RoutineCard> {
                 'assets/svg/icons/delete_trashcan.svg',
                 width: 24,
                 height: 24,
-                colorFilter: ColorFilter.mode(colorScheme.error, BlendMode.srcIn),
+                colorFilter: ColorFilter.mode(
+                  colorScheme.error,
+                  BlendMode.srcIn,
+                ),
               ),
               const SizedBox(width: 8),
               Flexible(
@@ -2193,15 +2193,20 @@ class _AutoScrollRoutineRowState extends State<_AutoScrollRoutineRow> {
                                   .read<WorkoutCubit>()
                                   .duplicateRoutine(routine.id)
                                   .catchError((error) {
-                                if (error.toString().contains("MAX_ROUTINES_REACHED")) {
-                                  GymSnackbar.show(
-                                    context,
-                                    message: t.workout.msg_rate_limit_routine,
-                                    icon: Symbols.error,
-                                    accentColor: Theme.of(context).colorScheme.error,
-                                  );
-                                }
-                              });
+                                    if (error.toString().contains(
+                                      "MAX_ROUTINES_REACHED",
+                                    )) {
+                                      GymSnackbar.show(
+                                        context,
+                                        message:
+                                            t.workout.msg_rate_limit_routine,
+                                        icon: Symbols.error,
+                                        accentColor: Theme.of(
+                                          context,
+                                        ).colorScheme.error,
+                                      );
+                                    }
+                                  });
                             },
                             onDelete: () => widget.onRequestDelete(routine.id),
                             onDialogReorderRoutine:

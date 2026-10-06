@@ -103,11 +103,20 @@ class NotificationStore {
   Future<void> write(String key, Map<String, dynamic> value) => db
       .notificationDao
       .put(NotificationRecordEntity(id: key, valueJson: jsonEncode(value)));
-  Future<Map<String, Map<String, dynamic>>> all(String prefix) async => {
-    for (final record in await db.notificationDao.getAll())
-      if (record.id.startsWith(prefix))
-        record.id: jsonDecode(record.valueJson) as Map<String, dynamic>,
-  };
+  Future<Map<String, Map<String, dynamic>>> all(String prefix) async {
+    final rows = await (db.database as sqlite.Database).query(
+      'notification_records_local',
+      columns: ['id', 'valueJson'],
+      where: 'id LIKE ?',
+      whereArgs: ['$prefix%'],
+    );
+    return {
+      for (final row in rows)
+        row['id'] as String:
+            jsonDecode(row['valueJson'] as String) as Map<String, dynamic>,
+    };
+  }
+
   Future<void> writeBatch(Map<String, Map<String, dynamic>> records) async {
     await (db.database as sqlite.Database).transaction((txn) async {
       for (final entry in records.entries) {
@@ -121,4 +130,18 @@ class NotificationStore {
   }
 
   Future<void> remove(String key) => db.notificationDao.remove(key);
+
+  Future<void> removeBatch(Iterable<String> keys) async {
+    final values = keys.toList();
+    if (values.isEmpty) return;
+    await (db.database as sqlite.Database).transaction((txn) async {
+      for (final key in values) {
+        await txn.delete(
+          'notification_records_local',
+          where: 'id = ?',
+          whereArgs: [key],
+        );
+      }
+    });
+  }
 }

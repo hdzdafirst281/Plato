@@ -7,16 +7,17 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:timezone/timezone.dart' as tz;
 import 'package:plato_gymapp/core/database/app_database.dart';
 import 'package:plato_gymapp/core/database/entities.dart';
-import 'package:plato_gymapp/core/database/enums.dart';
+import 'package:plato_gymapp/core/utils/workout_permission_helper.dart';
+import 'package:plato_gymapp/core/worker/background_workout_service.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
 import 'package:plato_gymapp/i18n/translation_helper.dart';
 import 'package:plato_gymapp/features/auth/domain/repositories/auth_repository.dart';
 import 'package:plato_gymapp/features/workout/data/repositories/workout_repository.dart';
 import 'package:plato_gymapp/features/workout/data/models/workout_models.dart';
-import 'package:plato_gymapp/features/workout/domain/muscle_recovery_calculator.dart';
 import 'package:plato_gymapp/features/workout/domain/streak_calculator.dart';
 import 'package:plato_gymapp/features/gamification/domain/rank_calculator.dart';
 import '../data/notification_copy.dart';
+import '../data/notification_preferences.dart';
 import '../data/notification_store.dart';
 import '../data/local_notification_gateway.dart';
 import '../domain/notification_policy.dart';
@@ -25,6 +26,7 @@ import '../domain/reminder_planner.dart';
 class NotificationCoordinator extends ChangeNotifier
     with WidgetsBindingObserver {
   static NotificationCoordinator? instance;
+  static const _lastAppOpenedAtKey = 'notification_last_app_opened_at';
   final AppDatabase db;
   final SharedPreferences prefs;
   final WorkoutRepository workouts;
@@ -35,8 +37,9 @@ class NotificationCoordinator extends ChangeNotifier
   final int horizonDays;
   final bool backgroundRefresh;
   late final store = NotificationStore(db);
+  late final preferencesStore = NotificationPreferencesStore(prefs);
   final List<StreamSubscription<dynamic>> _subscriptions = [];
-  Timer? _timer;
+  Timer? _reconcileDebounce;
   bool _initialized = false;
   Future<void> _work = Future.value();
   bool _disposed = false;
@@ -48,6 +51,7 @@ class NotificationCoordinator extends ChangeNotifier
   String visibleRoute = '';
   bool foreground = false;
   String? _scope;
+  NotificationPreferences _preferences = NotificationPreferences.defaults;
   NotificationCoordinator(
     this.db,
     this.prefs,
@@ -72,33 +76,102 @@ class NotificationCoordinator extends ChangeNotifier
     return task;
   }
 
-  String get scope => prefs.getString('notification_scope') ?? 'local';
-  bool get enabled => prefs.getBool('notification_enabled') ?? true;
-  bool get waterEnabled => prefs.getBool('notification_water') ?? false;
+  String get scope {
+    final userId = auth.currentUserId?.trim();
+    if (userId != null && userId.isNotEmpty) return 'user_$userId';
+    return prefs.getString('notification_scope') ?? 'local';
+  }
+
+  NotificationPreferences get preferences => _preferences;
+  bool get enabled => _preferences.masterEnabled;
+  bool get waterEnabled => _preferences.hydrationEnabled;
+  bool get recoveryEnabled => _preferences.recoveryEnabled;
+  bool get streakEnabled => _preferences.streakEnabled;
+  bool get rankEnabled => _preferences.rankEnabled;
+  int get enabledCategoryCount => _preferences.enabledCategoryCount;
   double get waterTarget => prefs.getDouble('saved_water_target') ?? 2.5;
-  int get dailyLimit => (prefs.getInt('notification_limit') ?? 3).clamp(1, 4);
   String get timezone => gateway.zoneId;
+
+  Future<bool> hasWorkoutReminderCapacity(
+    Iterable<DateTime> dates, {
+    String? excludingScheduleId,
+    required int timeOfDayMinutes,
+    required int leadMinutes,
+  }) async {
+    final requestedDays = dates.map((date) {
+      final start = DateTime(
+        date.year,
+        date.month,
+        date.day,
+        timeOfDayMinutes ~/ 60,
+        timeOfDayMinutes % 60,
+      );
+      return NotificationPolicy.dayKey(
+        start.subtract(Duration(minutes: leadMinutes)),
+      );
+    }).toSet();
+    if (requestedDays.isEmpty) return true;
+    final now = await clock();
+    final counts = <String, int>{};
+    for (final record in (await store.all('schedule:')).values) {
+      final atValue = record['at'];
+      if (atValue is! int ||
+          (record['state'] != 'scheduled' && record['state'] != 'pending')) {
+        continue;
+      }
+      // Workout reminders are counted from the schedule table below. Counting
+      // their ledger rows here as well would reject capacity too early.
+      if (record['kind'] == ReminderKind.workout.name) continue;
+      final at = DateTime.fromMillisecondsSinceEpoch(atValue);
+      final day = NotificationPolicy.dayKey(at);
+      if (requestedDays.contains(day) && at.isAfter(now)) {
+        counts[day] = (counts[day] ?? 0) + 1;
+      }
+    }
+    for (final schedule in await db.workoutDao.getAllScheduledWorkouts()) {
+      if (schedule.id == excludingScheduleId ||
+          schedule.isDeleted ||
+          schedule.isCompleted ||
+          !schedule.reminderEnabled ||
+          schedule.timeOfDayMinutes == null) {
+        continue;
+      }
+      final reminderAt = scheduleTime(
+        schedule,
+      ).subtract(Duration(minutes: schedule.reminderMinutesBefore));
+      final day = NotificationPolicy.dayKey(reminderAt);
+      if (requestedDays.contains(day) && reminderAt.isAfter(now)) {
+        counts[day] = (counts[day] ?? 0) + 1;
+      }
+    }
+    return requestedDays.every(
+      (day) => (counts[day] ?? 0) < NotificationPolicy.maxPerDay,
+    );
+  }
 
   Future<void> initialize() async {
     instance = this;
     _initialized = true;
     WidgetsBinding.instance.addObserver(this);
-    if (!prefs.containsKey('notification_scope')) {
+    if (auth.currentUserId != null && auth.currentUserId!.trim().isNotEmpty) {
+      await prefs.setString('notification_scope', 'user_${auth.currentUserId}');
+    } else if (!prefs.containsKey('notification_scope')) {
       await prefs.setString(
         'notification_scope',
         '${DateTime.now().microsecondsSinceEpoch}',
       );
     }
     _scope = scope;
+    _preferences = await preferencesStore.load(scope);
+    await _recordAppOpened();
     _subscriptions.add(
       workouts.workoutHistoryStream.listen((_) => requestReconcile()),
     );
     _subscriptions.add(
       workouts.scheduledWorkoutsStream.listen((_) => requestReconcile()),
     );
-    _timer = Timer.periodic(
-      const Duration(minutes: 1),
-      (_) => requestReconcile(),
+    _subscriptions.add(
+      workouts.routinesStream.listen((_) => requestReconcile()),
     );
     // Persist OS requests before initialization returns, not after a Dart timer.
     try {
@@ -110,32 +183,60 @@ class NotificationCoordinator extends ChangeNotifier
 
   void requestReconcile() {
     if (!_initialized || _disposed || _suspended) return;
-    // Start immediately: a timer may never run after the app is backgrounded.
-    unawaited(
-      reconcileNow().catchError((Object error) {
-        debugPrint('Notification reconciliation failed: $error');
-      }),
-    );
+    // Database streams can emit in short bursts. Coalesce those emissions so
+    // recovery history is replayed once instead of once per table mutation.
+    _reconcileDebounce?.cancel();
+    _reconcileDebounce = Timer(const Duration(milliseconds: 300), () {
+      _reconcileDebounce = null;
+      unawaited(
+        reconcileNow().catchError((Object error) {
+          debugPrint('Notification reconciliation failed: $error');
+        }),
+      );
+    });
+  }
+
+  Future<bool> _ensureNotificationPermission() async {
+    if (await permissionGranted()) return true;
+    return (await Permission.notification.request()).isGranted;
   }
 
   Future<bool> setEnabled(bool value) async {
-    if (value && !(await Permission.notification.request()).isGranted)
-      return false;
-    await prefs.setBool('notification_enabled', value);
-    if (!value) {
-      await _work;
-      await store.withDeliveryLock(gateway.clearOwned);
-    }
-    await reconcileNow();
+    if (value && !await _ensureNotificationPermission()) return false;
+    final previous = _preferences;
+    _preferences = _preferences.withMasterEnabled(value);
     notifyListeners();
+    try {
+      await preferencesStore.save(scope, _preferences);
+    } catch (_) {
+      _preferences = previous;
+      notifyListeners();
+      rethrow;
+    }
+    requestReconcile();
     return true;
   }
 
   Future<bool> setWaterEnabled(bool value) async {
-    if (value && !await setEnabled(true)) return false;
-    await prefs.setBool('notification_water', value);
-    await reconcileNow();
+    return setPreference(NotificationPreferenceKind.hydration, value);
+  }
+
+  Future<bool> setPreference(
+    NotificationPreferenceKind kind,
+    bool value,
+  ) async {
+    if (value && !await _ensureNotificationPermission()) return false;
+    final previous = _preferences;
+    _preferences = _preferences.withPreference(kind, value);
     notifyListeners();
+    try {
+      await preferencesStore.save(scope, _preferences);
+    } catch (_) {
+      _preferences = previous;
+      notifyListeners();
+      rethrow;
+    }
+    requestReconcile();
     return true;
   }
 
@@ -146,34 +247,95 @@ class NotificationCoordinator extends ChangeNotifier
     notifyListeners();
   }
 
-  Future<void> setLimit(int value) async {
-    await prefs.setInt('notification_limit', value.clamp(1, 4));
-    await reconcileNow();
-    notifyListeners();
+  Future<int> upcomingWorkoutReminderCount() async {
+    final now = await clock();
+    final schedules = await db.workoutDao.getAllScheduledWorkouts();
+    return schedules.where((schedule) {
+      if (schedule.isDeleted ||
+          schedule.isCompleted ||
+          !schedule.reminderEnabled ||
+          schedule.timeOfDayMinutes == null) {
+        return false;
+      }
+      return scheduleTime(schedule)
+          .subtract(Duration(minutes: schedule.reminderMinutesBefore))
+          .isAfter(now);
+    }).length;
   }
 
-  Future<void> setQuietHours(
-    int start,
-    int end, {
-    int startMinute = 0,
-    int endMinute = 0,
+  Future<Map<String, dynamic>> diagnostics() async {
+    await prefs.reload();
+    final plan = await store.read('diagnostic:last_plan');
+    List<dynamic> pending = const [];
+    List<dynamic> active = const [];
+    try {
+      pending = await gateway.pending();
+      active = await gateway.active();
+    } catch (_) {
+      // Some platforms do not expose active notifications.
+    }
+    return {
+      'lastPlan': plan,
+      'lastReconciledAt': prefs.getInt('notification_last_reconciled_at'),
+      'lastBackgroundAt': prefs.getInt(
+        'notification_last_background_refresh_at',
+      ),
+      'durationMs': prefs.getInt('notification_last_reconcile_duration_ms'),
+      'pendingCount': pending.length,
+      'activeCount': active.length,
+      'backgroundError': prefs.getString('notification_background_error'),
+      'timezone': timezone,
+      'permissionGranted': await permissionGranted(),
+    };
+  }
+
+  Future<bool> showDiagnosticTestNow() async {
+    if (!await permissionGranted()) return false;
+    await gateway.showTestNow();
+    return true;
+  }
+
+  Future<bool> scheduleDiagnosticTest() async {
+    if (!await permissionGranted()) return false;
+    await gateway.updateTimezone();
+    await gateway.scheduleTest(scope);
+    return true;
+  }
+
+  Future<void> recordExternalInteraction(
+    String notificationKey, {
+    String? actionId,
   }) async {
-    await prefs.setInt('notification_quiet_start', start);
-    await prefs.setInt('notification_quiet_end', end);
-    await prefs.setInt('notification_quiet_start_minute', startMinute);
-    await prefs.setInt('notification_quiet_end_minute', endMinute);
-    await reconcileNow();
-    notifyListeners();
+    final key = 'schedule:$notificationKey';
+    final record = await store.read(key);
+    if (record == null) return;
+    final now = DateTime.now().millisecondsSinceEpoch;
+    await store.write(key, {
+      ...record,
+      'tappedAt': now,
+      if (actionId != null && actionId.isNotEmpty) 'actionId': actionId,
+    });
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     foreground = state == AppLifecycleState.resumed;
+    if (!foreground) return;
     unawaited(
-      reconcileNow().catchError((Object error) {
+      _recordAppOpenedAndReconcile().catchError((Object error) {
         debugPrint('Notification lifecycle reconciliation failed: $error');
       }),
     );
+  }
+
+  Future<void> _recordAppOpened() async {
+    final now = await clock();
+    await prefs.setInt(_lastAppOpenedAtKey, now.millisecondsSinceEpoch);
+  }
+
+  Future<void> _recordAppOpenedAndReconcile() async {
+    await _recordAppOpened();
+    await reconcileNow();
   }
 
   DateTime scheduleTime(ScheduledWorkoutEntity s) {
@@ -194,24 +356,89 @@ class NotificationCoordinator extends ChangeNotifier
   }
 
   Future<void> _reconcile() async {
+    final stopwatch = Stopwatch()..start();
     if (_disposed || _suspended) return;
-    if (_scope != null && _scope != scope) return;
     await prefs.reload();
+    if (_scope != scope) {
+      _scope = scope;
+      await prefs.setString('notification_scope', scope);
+    }
+    _preferences = await preferencesStore.load(scope);
     if (prefs.getBool('notification_resetting') == true) return;
     final capturedScope = scope;
     final now = await clock();
+    final lastAppOpenedAt = DateTime.fromMillisecondsSinceEpoch(
+      prefs.getInt(_lastAppOpenedAtKey) ?? now.millisecondsSinceEpoch,
+    );
     final history = await workouts.workoutHistoryStream.first;
     if (!backgroundRefresh) await _rankEvents(history, now);
-    if (!enabled || !await permissionGranted() || !NotificationCopy.available) {
+    final hasPermission = await permissionGranted();
+    if (!hasPermission &&
+        prefs.getBool(WorkoutPermissionHelper.isBackgroundWorkoutEnabledKey) ==
+            true) {
+      await prefs.setBool(
+        WorkoutPermissionHelper.isBackgroundWorkoutEnabledKey,
+        false,
+      );
+      if (!backgroundRefresh) BackgroundWorkoutService().stopService();
+    }
+    if (!hasPermission &&
+        (_preferences.masterEnabled || _preferences.hasEnabledCategory)) {
+      _preferences = _preferences.withMasterEnabled(false);
+      await preferencesStore.save(scope, _preferences);
+      notifyListeners();
+    }
+    if (!enabled || !hasPermission || !NotificationCopy.available) {
       await gateway.clearOwned();
+      await store.write('diagnostic:last_plan', {
+        'at': now.millisecondsSinceEpoch,
+        'selected': const [],
+        'suppressed': [
+          {
+            'reason': !hasPermission
+                ? 'systemPermissionDenied'
+                : !enabled
+                ? 'masterDisabled'
+                : 'copyUnavailable',
+          },
+        ],
+      });
+      await _recordReconcileMetrics(stopwatch, 0);
       return;
     }
     await gateway.updateTimezone();
-    final schedules = await db.workoutDao.getAllScheduledWorkouts();
     final day = NotificationPolicy.dayKey(now);
-    final nutrition = await db.nutritionDao.getDailyNutritionByDate(day);
+    final schedulesFuture = db.workoutDao.getAllScheduledWorkouts();
+    final routinesFuture = workouts.routinesStream.first;
+    final storedFuture = store.all('schedule:');
+    final nutritionFuture = db.nutritionDao.getDailyNutritionByDate(day);
+    final nutritionHistoryFuture = db.nutritionDao.getAllNutritionHistory();
+    final schedules = await schedulesFuture;
+    final routines = await routinesFuture;
+    final stored = await storedFuture;
+    String? lastDeliveredRecoverySignature;
+    final elapsedScheduledRecoveries =
+        stored.entries.where((entry) {
+          final value = entry.value;
+          final metadata = value['metadata'];
+          return metadata is Map &&
+              metadata['recoverySignature'] is String &&
+              (metadata['recoverySignature'] as String).isNotEmpty &&
+              (value['at'] as int) <= now.millisecondsSinceEpoch &&
+              (value['state'] == 'scheduled' || value['state'] == 'pending');
+        }).toList()..sort(
+          (a, b) => (b.value['at'] as int).compareTo(a.value['at'] as int),
+        );
+    if (elapsedScheduledRecoveries.isNotEmpty) {
+      final metadata = elapsedScheduledRecoveries.first.value['metadata'];
+      if (metadata is Map) {
+        lastDeliveredRecoverySignature =
+            metadata['recoverySignature'] as String?;
+      }
+    }
+    final nutrition = await nutritionFuture;
     final waterByDay = {
-      for (final entry in await db.nutritionDao.getAllNutritionHistory())
+      for (final entry in await nutritionHistoryFuture)
         entry.dateId: entry.waterConsumedLiters,
     };
     final candidates = ReminderPlanner.build(
@@ -220,29 +447,45 @@ class NotificationCoordinator extends ChangeNotifier
       now: now,
       schedules: schedules.where((s) => s.id != activeScheduleId).toList(),
       history: history,
+      routinesById: {for (final routine in routines) routine.id: routine},
       profile: auth.getProfile(),
       water: nutrition?.waterConsumedLiters ?? 0,
       target: waterTarget,
       waterEnabled: waterEnabled,
+      recoveryEnabled: recoveryEnabled,
+      streakEnabled: streakEnabled,
+      rankEnabled: rankEnabled,
       scheduledTime: scheduleTime,
       routineName: (name) => t.translateDynamic(name),
+      muscleName: (muscle) =>
+          t.translateDynamic('muscles.${muscle.name.toLowerCase()}'),
+      compactMuscleNames: (names) {
+        if (names.length <= 3) return names.join(', ');
+        return NotificationCopy.text('notifications.fmt_more_muscles', {
+              'muscles': names.take(2).join(', '),
+              'count': '${names.length - 2}',
+            }) ??
+            names.take(3).join(', ');
+      },
       activeWorkout: activeWorkout,
-      inactivityEnabled:
-          prefs.getBool('notification_inactivity_experiment') ?? false,
+      lastAppOpenedAt: lastAppOpenedAt,
+      lastDeliveredRecoverySignature: lastDeliveredRecoverySignature,
     );
-    if (!activeWorkout)
-      candidates.addAll(await _recoveryCandidates(history, schedules, now));
-    final stored = await store.all('schedule:');
     final committed = <ReminderCandidate>[];
     for (final entry in stored.entries) {
       final value = entry.value;
       final at = DateTime.fromMillisecondsSinceEpoch(value['at'] as int);
       if (!at.isAfter(now) &&
           (value['state'] == 'scheduled' || value['state'] == 'pending')) {
+        final matchingKinds = ReminderKind.values.where(
+          (kind) => kind.name == value['kind'],
+        );
+        // Ignore obsolete reminder kinds left in ledgers from older builds.
+        if (matchingKinds.isEmpty) continue;
         committed.add(
           ReminderCandidate(
             key: entry.key.substring(9),
-            kind: ReminderKind.values.byName(value['kind'] as String),
+            kind: matchingKinds.first,
             at: at,
             titleKey: '',
             bodyKey: '',
@@ -253,17 +496,74 @@ class NotificationCoordinator extends ChangeNotifier
     }
     // Viewing a screen must not delete reminders needed after the app closes.
     // Darwin foreground presentation is suppressed by the notification gateway.
-    final selected = NotificationPolicy.select(
-      candidates,
+    final plan = NotificationPolicy.plan(
+      _pinNearTermCandidates(candidates, stored, now),
       now: now,
       committed: committed,
-      dailyLimit: dailyLimit,
-      quietStart: prefs.getInt('notification_quiet_start') ?? 22,
-      quietEnd: prefs.getInt('notification_quiet_end') ?? 8,
-      quietStartMinute: prefs.getInt('notification_quiet_start_minute') ?? 0,
-      quietEndMinute: prefs.getInt('notification_quiet_end_minute') ?? 0,
     );
+    final selected = plan.selected;
+    final contextualSuppressions = <Map<String, dynamic>>[
+      if (!waterEnabled)
+        {'kind': ReminderKind.hydration.name, 'reason': 'categoryDisabled'},
+      if (!recoveryEnabled)
+        {'kind': ReminderKind.recovery.name, 'reason': 'categoryDisabled'},
+      if (!streakEnabled)
+        {'kind': ReminderKind.streak.name, 'reason': 'categoryDisabled'},
+      if (!rankEnabled)
+        {'kind': ReminderKind.rank.name, 'reason': 'categoryDisabled'},
+      if (waterEnabled && (nutrition?.waterConsumedLiters ?? 0) >= waterTarget)
+        {'kind': ReminderKind.hydration.name, 'reason': 'goalReached'},
+      if (activeWorkout)
+        {'kind': ReminderKind.recovery.name, 'reason': 'activeWorkout'},
+      if (lastDeliveredRecoverySignature != null &&
+          lastDeliveredRecoverySignature.startsWith('allReady:'))
+        {'kind': ReminderKind.recovery.name, 'reason': 'recoveryUnchanged'},
+      for (final workout in selected)
+        if (workout.kind == ReminderKind.workout &&
+            (workout.metadata['recoverySignature'] ?? '').isNotEmpty &&
+            !selected.any(
+              (item) =>
+                  item.kind == ReminderKind.recovery &&
+                  item.metadata['targetDay'] == workout.metadata['targetDay'],
+            ))
+          {
+            'key': workout.key,
+            'kind': ReminderKind.recovery.name,
+            'reason': 'mergedWorkout',
+          },
+    ];
+    await store.write('diagnostic:last_plan', {
+      'at': now.millisecondsSinceEpoch,
+      'selected': [
+        for (final candidate in selected)
+          {
+            'key': candidate.key,
+            'kind': candidate.kind.name,
+            'at': candidate.at.millisecondsSinceEpoch,
+          },
+      ],
+      'moved': [
+        for (final decision in plan.moved)
+          {
+            'key': decision.original.key,
+            'kind': decision.original.kind.name,
+            'from': decision.original.at.millisecondsSinceEpoch,
+            'to': decision.selected.at.millisecondsSinceEpoch,
+          },
+      ],
+      'suppressed': [
+        ...contextualSuppressions,
+        for (final decision in plan.suppressed)
+          {
+            'key': decision.candidate.key,
+            'kind': decision.candidate.kind.name,
+            'at': decision.candidate.at.millisecondsSinceEpoch,
+            'reason': decision.reason.name,
+          },
+      ],
+    });
     final pending = await gateway.pending();
+    await _observeDueAndActive(stored, now);
     final desiredKeys = selected.map((c) => 'schedule:${c.key}').toSet();
     for (final entry in stored.entries) {
       final value = entry.value;
@@ -284,16 +584,20 @@ class NotificationCoordinator extends ChangeNotifier
                 s.reminderEnabled &&
                 s.id != activeScheduleId,
           );
+      final obsoleteKind = !ReminderKind.values.any(
+        (kind) => kind.name == value['kind'],
+      );
       // Inexact OS delivery may still be pending after its requested time.
       // Invalidate stale content too, while retaining its consumed budget slot.
       final pendingInvalid =
           (invalidWater || invalidWorkout) &&
           pending.any((p) => p.id == value['id']);
-      if ((!desiredKeys.contains(entry.key) && at.isAfter(now)) ||
+      if (obsoleteKind ||
+          (!desiredKeys.contains(entry.key) && at.isAfter(now)) ||
           pendingInvalid) {
         await store.renewDeliveryLock();
         await gateway.cancel(value['id'] as int);
-        if (at.isAfter(now)) {
+        if (obsoleteKind || at.isAfter(now)) {
           await store.write(entry.key, {...value, 'state': 'cancelled'});
         }
       }
@@ -316,9 +620,9 @@ class NotificationCoordinator extends ChangeNotifier
         scope,
         candidate.at.millisecondsSinceEpoch,
         LocaleSettings.currentLocale.languageCode,
-        candidate.kind == ReminderKind.workout && gateway.exactWorkoutTiming,
         candidate.bodyKey,
         candidate.arguments,
+        candidate.metadata,
       ]);
       final id = previous?['id'] as int? ?? nextId++;
       if (previous?['fingerprint'] == fingerprint &&
@@ -330,6 +634,7 @@ class NotificationCoordinator extends ChangeNotifier
         'id': id,
         'at': candidate.at.millisecondsSinceEpoch,
         'kind': candidate.kind.name,
+        'metadata': candidate.metadata,
         'fingerprint': fingerprint,
         'state': 'pending',
       };
@@ -339,82 +644,120 @@ class NotificationCoordinator extends ChangeNotifier
       }
     }
     await prefs.setInt('notification_next_id', nextId);
-    await prefs.setInt(
-      'notification_last_reconciled_at',
-      now.millisecondsSinceEpoch,
-    );
-    await prefs.setInt('notification_pending_count', selected.length);
+    await _recordReconcileMetrics(stopwatch, (await gateway.pending()).length);
+    await _pruneLedger(now);
     notifyListeners();
   }
 
-  Future<List<ReminderCandidate>> _recoveryCandidates(
-    List<WorkoutSession> history,
-    List<ScheduledWorkoutEntity> schedules,
+  Future<void> _observeDueAndActive(
+    Map<String, Map<String, dynamic>> stored,
     DateTime now,
   ) async {
-    final valid = history.where(StreakCalculator.qualifies).toList();
-    if (valid.isEmpty) return [];
-    final crossing = <(MuscleGroup, DateTime)>[];
-    for (final muscle in MuscleGroup.values) {
-      final status = MuscleRecoveryCalculator.getRecoveryStatus(
-        muscle,
-        valid,
-        at: now,
-      );
-      if (status.lastTrainedDate == 0 ||
-          status.initialFatigue <= 20 ||
-          status.recoveryRate <= 0)
-        continue;
-      final hours = log(status.initialFatigue / 20) / status.recoveryRate;
-      final at = DateTime.fromMillisecondsSinceEpoch(
-        status.lastTrainedDate + (hours * 3600000).ceil(),
-      );
-      if (at.isAfter(now) && at.isBefore(now.add(const Duration(days: 14))))
-        crossing.add((muscle, at));
+    final writes = <String, Map<String, dynamic>>{};
+    Set<int> activeIds = const {};
+    try {
+      activeIds = (await gateway.active())
+          .map((item) => item.id)
+          .whereType<int>()
+          .toSet();
+    } catch (_) {
+      // Best-effort metric: iOS and some Android versions may not expose it.
     }
-    crossing.sort((a, b) => a.$2.compareTo(b.$2));
-    final routines = await workouts.routinesStream.first;
-    final result = <ReminderCandidate>[];
-    while (crossing.isNotEmpty) {
-      final first = crossing.removeAt(0);
-      final group = [
-        first,
-        ...crossing.where(
-          (e) => e.$2.difference(first.$2) <= const Duration(hours: 3),
-        ),
+    for (final entry in stored.entries) {
+      final value = entry.value;
+      final at = value['at'];
+      if (at is! int || value['state'] != 'scheduled') continue;
+      final next = <String, dynamic>{...value};
+      var changed = false;
+      if (at <= now.millisecondsSinceEpoch && value['dueAt'] == null) {
+        next['dueAt'] = now.millisecondsSinceEpoch;
+        changed = true;
+      }
+      if (activeIds.contains(value['id']) &&
+          value['activeObservedAt'] == null) {
+        next['activeObservedAt'] = now.millisecondsSinceEpoch;
+        changed = true;
+      }
+      if (changed) writes[entry.key] = next;
+    }
+    if (writes.isNotEmpty) await store.writeBatch(writes);
+  }
+
+  Future<void> _recordReconcileMetrics(Stopwatch stopwatch, int pending) async {
+    stopwatch.stop();
+    await prefs.setInt(
+      'notification_last_reconciled_at',
+      DateTime.now().millisecondsSinceEpoch,
+    );
+    await prefs.setInt(
+      'notification_last_reconcile_duration_ms',
+      stopwatch.elapsedMilliseconds,
+    );
+    await prefs.setInt('notification_pending_count', pending);
+  }
+
+  Future<void> _pruneLedger(DateTime now) async {
+    final scheduleCutoff = now.subtract(const Duration(days: 90));
+    final expired = <String>[];
+    for (final entry in (await store.all('schedule:')).entries) {
+      final at = entry.value['at'];
+      if (at is int &&
+          DateTime.fromMillisecondsSinceEpoch(at).isBefore(scheduleCutoff)) {
+        expired.add(entry.key);
+      }
+    }
+    final eventCutoff = now.subtract(const Duration(days: 30));
+    for (final entry in (await store.all('event:')).entries) {
+      final at = entry.value['at'];
+      if (at is int &&
+          DateTime.fromMillisecondsSinceEpoch(at).isBefore(eventCutoff)) {
+        expired.add(entry.key);
+      }
+    }
+    await store.removeBatch(expired);
+  }
+
+  List<ReminderCandidate> _pinNearTermCandidates(
+    List<ReminderCandidate> candidates,
+    Map<String, Map<String, dynamic>> stored,
+    DateTime now,
+  ) {
+    final freezeUntil = now.add(const Duration(hours: 24));
+    return candidates.map((candidate) {
+      if (candidate.kind == ReminderKind.workout) return candidate;
+      final previous = stored['schedule:${candidate.key}'];
+      final atValue = previous?['at'];
+      if (previous?['state'] != 'scheduled' || atValue is! int) {
+        return candidate;
+      }
+      final previousAt = DateTime.fromMillisecondsSinceEpoch(atValue);
+      if (!previousAt.isAfter(now) || previousAt.isAfter(freezeUntil)) {
+        return candidate;
+      }
+      final options = <ReminderCandidate>[
+        candidate,
+        ...candidate.alternatives.map(candidate.atOption),
       ];
-      crossing.removeWhere((e) => group.contains(e));
-      final at = group.last.$2;
-      if (!routines.any(
-        (r) => r.exercises.any(
-          (e) => group.any((g) => g.$1 == e.exercise.primaryMuscle),
-        ),
-      ))
-        continue;
-      if (schedules.any(
-        (s) =>
-            !s.isCompleted &&
-            NotificationPolicy.dayKey(scheduleTime(s)) ==
-                NotificationPolicy.dayKey(at),
-      ))
-        continue;
-      final names = group
-          .map((g) => t.translateDynamic('muscles.${g.$1.name.toLowerCase()}'))
-          .join(', ');
-      final last = valid.map((w) => w.startTime).reduce(max);
-      result.add(
-        ReminderCandidate(
-          key: 'recovery:$last:${group.map((g) => g.$1.name).join(',')}',
-          kind: ReminderKind.recovery,
-          at: at,
-          titleKey: 'notifications.title_recovery_ready',
-          bodyKey: 'notifications.body_recovery_ready',
-          arguments: {'muscles': names},
-          route: '/workout?recovery=1',
-        ),
+      final match = options.indexWhere(
+        (option) =>
+            option.at.millisecondsSinceEpoch ==
+            previousAt.millisecondsSinceEpoch,
       );
-    }
-    return result;
+      if (match < 0) return candidate;
+      final pinned = options[match];
+      return pinned.copyWith(
+        alternatives: [
+          for (var i = 0; i < options.length; i++)
+            if (i != match)
+              ReminderDeliveryOption(
+                at: options[i].at,
+                titleKey: options[i].titleKey,
+                bodyKey: options[i].bodyKey,
+                arguments: options[i].arguments,
+              ),
+        ],
+      );
+    }).toList();
   }
 
   Future<void> recordWorkout(
@@ -622,7 +965,7 @@ class NotificationCoordinator extends ChangeNotifier
       ],
       'at': now.millisecondsSinceEpoch,
       'shown': false,
-      'cardOnly': !promoted,
+      'cardOnly': true,
       'rankId': latest.rankId,
       'route': '/social/rank_screen',
     };
@@ -646,6 +989,7 @@ class NotificationCoordinator extends ChangeNotifier
       '${DateTime.now().microsecondsSinceEpoch}',
     );
     _scope = scope;
+    _preferences = await preferencesStore.load(scope);
     activeWorkout = false;
     activeScheduleId = null;
     levelHandledThrough = 0;
@@ -660,7 +1004,7 @@ class NotificationCoordinator extends ChangeNotifier
   @override
   void dispose() {
     _disposed = true;
-    _timer?.cancel();
+    _reconcileDebounce?.cancel();
     for (final sub in _subscriptions) {
       sub.cancel();
     }

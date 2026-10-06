@@ -4,61 +4,138 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
+class _QueuedTopNotification {
+  final VoidCallback run;
+  final Completer<bool> completer;
+  const _QueuedTopNotification(this.run, this.completer);
+}
+
 class GymTopNotification {
   static bool _showing = false;
   static OverlayEntry? _currentEntry;
+  static Completer<bool>? _currentCompleter;
+  static final Queue<_QueuedTopNotification> _queue =
+      Queue<_QueuedTopNotification>();
+  static final List<Completer<void>> _idleWaiters = [];
+
   static bool get isShowing => _showing;
-  static void clear() {
-    _queue.clear();
-    final entry = _currentEntry;
-    _currentEntry = null;
-    entry?.remove();
-    entry?.dispose();
-    _showing = false;
-  }
-  static final Queue<VoidCallback> _queue = Queue<VoidCallback>();
-  static void _next() {
-    _showing = false;
-    if (_queue.isNotEmpty) _queue.removeFirst()();
+
+  static Future<void> get whenIdle {
+    if (!_showing && _queue.isEmpty) return Future.value();
+    final completer = Completer<void>();
+    _idleWaiters.add(completer);
+    return completer.future;
   }
 
-  static void show(
+  static void clear() {
+    final entry = _currentEntry;
+    _currentEntry = null;
+    if (entry?.mounted == true) entry!.remove();
+    entry?.dispose();
+    if (_currentCompleter?.isCompleted == false) {
+      _currentCompleter!.complete(false);
+    }
+    _currentCompleter = null;
+    for (final queued in _queue) {
+      if (!queued.completer.isCompleted) queued.completer.complete(false);
+    }
+    _queue.clear();
+    _showing = false;
+    _completeIdleWaiters();
+  }
+
+  static void _next() {
+    _showing = false;
+    _currentCompleter = null;
+    if (_queue.isNotEmpty) {
+      _queue.removeFirst().run();
+    } else {
+      _completeIdleWaiters();
+    }
+  }
+
+  static void _completeIdleWaiters() {
+    for (final waiter in _idleWaiters) {
+      if (!waiter.isCompleted) waiter.complete();
+    }
+    _idleWaiters.clear();
+  }
+
+  /// Completes with true after the banner was actually inserted and dismissed.
+  static Future<bool> show(
     BuildContext context, {
-    String message = '', 
-    TextSpan? richMessage, 
+    String message = '',
+    TextSpan? richMessage,
     Widget? customBody,
     IconData? icon,
     Color? accentColor,
-    Duration duration = const Duration(seconds: 3),
+    Duration duration = const Duration(seconds: 4),
+    String? semanticLabel,
+    bool haptic = true,
+    VoidCallback? onPresented,
+    String? actionLabel,
+    VoidCallback? onAction,
+  }) {
+    final completer = Completer<bool>();
+    late VoidCallback run;
+    run = () => _showNow(
+      context,
+      message: message,
+      richMessage: richMessage,
+      customBody: customBody,
+      icon: icon,
+      accentColor: accentColor,
+      duration: duration,
+      semanticLabel: semanticLabel,
+      haptic: haptic,
+      onPresented: onPresented,
+      actionLabel: actionLabel,
+      onAction: onAction,
+      completer: completer,
+    );
+    if (_showing) {
+      _queue.add(_QueuedTopNotification(run, completer));
+    } else {
+      run();
+    }
+    return completer.future;
+  }
+
+  static void _showNow(
+    BuildContext context, {
+    required String message,
+    required TextSpan? richMessage,
+    required Widget? customBody,
+    required IconData? icon,
+    required Color? accentColor,
+    required Duration duration,
+    required String? semanticLabel,
+    required bool haptic,
+    required VoidCallback? onPresented,
+    required String? actionLabel,
+    required VoidCallback? onAction,
+    required Completer<bool> completer,
   }) {
     if (!context.mounted) {
-      if (!_showing) _next();
-      return;
-    }
-    if (_showing) {
-      _queue.add(() => show(context, message: message, richMessage: richMessage,
-        customBody: customBody, icon: icon, accentColor: accentColor, duration: duration));
+      completer.complete(false);
+      _next();
       return;
     }
     _showing = true;
-    // 1. Dùng maybeOf để tìm Overlay ở các Widget cha một cách an toàn (không crash)
+    _currentCompleter = completer;
     OverlayState? overlay = Overlay.maybeOf(context, rootOverlay: true);
-    
-    // 2. Nếu không thấy (vì context truyền vào chính là Navigator của GoRouter),
-    // chúng ta sẽ lấy Overlay từ State của chính Navigator đó.
-    if (overlay == null && context is StatefulElement && context.state is NavigatorState) {
+    if (overlay == null &&
+        context is StatefulElement &&
+        context.state is NavigatorState) {
       overlay = (context.state as NavigatorState).overlay;
     }
-
-    // 3. Chốt chặn an toàn cuối cùng
     if (overlay == null) {
-      debugPrint("🚨 GymTopNotification: No Overlay found. Cannot show notification.");
+      completer.complete(false);
       _next();
       return;
     }
 
     late OverlayEntry entry;
-
     entry = OverlayEntry(
       builder: (context) => _TopNotificationOverlay(
         message: message,
@@ -67,18 +144,24 @@ class GymTopNotification {
         icon: icon,
         accentColor: accentColor,
         duration: duration,
+        semanticLabel: semanticLabel,
+        haptic: haptic,
+        actionLabel: actionLabel,
+        onAction: onAction,
         onDismissed: () {
-          if (entry.mounted) {
-            entry.remove();
-            entry.dispose();
+          if (entry.mounted) entry.remove();
+          entry.dispose();
+          if (_currentEntry == entry) {
+            _currentEntry = null;
+            if (!completer.isCompleted) completer.complete(true);
+            _next();
           }
-          if (_currentEntry == entry) { _currentEntry = null; _next(); }
         },
       ),
     );
-
     _currentEntry = entry;
     overlay.insert(entry);
+    onPresented?.call();
   }
 }
 
@@ -89,6 +172,10 @@ class _TopNotificationOverlay extends StatefulWidget {
   final IconData? icon;
   final Color? accentColor;
   final Duration duration;
+  final String? semanticLabel;
+  final bool haptic;
+  final String? actionLabel;
+  final VoidCallback? onAction;
   final VoidCallback onDismissed;
 
   const _TopNotificationOverlay({
@@ -98,58 +185,62 @@ class _TopNotificationOverlay extends StatefulWidget {
     required this.icon,
     required this.accentColor,
     required this.duration,
+    required this.semanticLabel,
+    required this.haptic,
+    required this.actionLabel,
+    required this.onAction,
     required this.onDismissed,
   });
 
   @override
-  State<_TopNotificationOverlay> createState() => _TopNotificationOverlayState();
+  State<_TopNotificationOverlay> createState() =>
+      _TopNotificationOverlayState();
 }
 
-class _TopNotificationOverlayState extends State<_TopNotificationOverlay> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<Offset> _offsetAnimation;
-  late Animation<double> _scaleAnimation;
+class _TopNotificationOverlayState extends State<_TopNotificationOverlay>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<Offset> _offsetAnimation;
+  late final Animation<double> _scaleAnimation;
   Timer? _timer;
+  bool _dismissing = false;
+  late final bool _reduceMotion;
 
   @override
   void initState() {
     super.initState();
+    _reduceMotion =
+        PlatformDispatcher.instance.accessibilityFeatures.disableAnimations;
     _controller = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 600),
+      duration: _reduceMotion
+          ? Duration.zero
+          : const Duration(milliseconds: 350),
     );
-    
     _offsetAnimation = Tween<Offset>(
-      begin: const Offset(0.0, -1.5),
+      begin: const Offset(0, -1.2),
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.elasticOut));
-
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
     _scaleAnimation = Tween<double>(
-      begin: 0.85,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.elasticOut));
-
-    _playEnterAnimation();
+      begin: .96,
+      end: 1,
+    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+    _controller.forward();
+    if (widget.haptic && !_reduceMotion) {
+      HapticFeedback.lightImpact();
+    }
     _timer = Timer(widget.duration, _dismiss);
   }
 
-  void _playEnterAnimation() {
-    _controller.forward();
-    
-    Future.delayed(const Duration(milliseconds: 150), () {
-      if (mounted) {
-        HapticFeedback.heavyImpact();
-      }
-    });
-  }
-
   void _dismiss() {
+    if (_dismissing) return;
+    _dismissing = true;
     _timer?.cancel();
-    if (mounted) {
-      _controller.reverse(from: 1.0).then((_) {
-        widget.onDismissed();
-      });
+    if (!mounted || _reduceMotion) {
+      widget.onDismissed();
+      return;
     }
+    _controller.reverse().whenComplete(widget.onDismissed);
   }
 
   @override
@@ -161,13 +252,10 @@ class _TopNotificationOverlayState extends State<_TopNotificationOverlay> with S
 
   @override
   Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    
-    // Nền mờ ảo: Lấy màu nền cơ bản nhưng tăng độ trong suốt
-    final Color glassColor = colorScheme.surface.withValues(alpha: 0.85);
-
+    final colors = Theme.of(context).colorScheme;
+    final accent = widget.accentColor ?? colors.primary;
     return Positioned(
-      top: MediaQuery.of(context).padding.top + 8,
+      top: MediaQuery.paddingOf(context).top + 8,
       left: 16,
       right: 16,
       child: Align(
@@ -178,87 +266,116 @@ class _TopNotificationOverlayState extends State<_TopNotificationOverlay> with S
             position: _offsetAnimation,
             child: ScaleTransition(
               scale: _scaleAnimation,
-              child: GestureDetector(
-                behavior: HitTestBehavior.deferToChild,
-                onVerticalDragUpdate: (details) {
-                  if (details.primaryDelta! < -2) {
-                    _dismiss();
-                  }
-                },
-                child: Container(
-                  constraints: const BoxConstraints(minWidth: 260, maxWidth: 400),
-                  // Đặt Shadow ở lớp ngoài cùng
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(40),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.2),
-                        blurRadius: 16,
-                        offset: const Offset(0, 8),
-                      ),
-                    ],
-                  ),
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(40),
-                    child: BackdropFilter(
-                      filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12), // Hiệu ứng làm mờ background
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        decoration: BoxDecoration(
-                          color: glassColor,
-                          borderRadius: BorderRadius.circular(40),
-                          // Viền màu nhấn siêu mỏng, giúp tách biệt với background
-                          border: Border.all(
-                            color: (widget.accentColor ?? colorScheme.primary).withValues(alpha: 0.4),
-                            width: 1.2,
-                          ),
+              child: Semantics(
+                container: true,
+                liveRegion: true,
+                excludeSemantics: widget.semanticLabel != null,
+                label: widget.semanticLabel,
+                onDismiss: _dismiss,
+                child: GestureDetector(
+                  onVerticalDragUpdate: (details) {
+                    if ((details.primaryDelta ?? 0) < -2) _dismiss();
+                  },
+                  child: Container(
+                    constraints: const BoxConstraints(
+                      minWidth: 260,
+                      maxWidth: 440,
+                    ),
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(28),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withValues(alpha: .2),
+                          blurRadius: 16,
+                          offset: const Offset(0, 8),
                         ),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          crossAxisAlignment: CrossAxisAlignment.center,
-                          children: [
-                            // NẾU CÓ ICON THÌ MỚI HIỂN THỊ
-                            if (widget.icon != null && widget.accentColor != null) ...[
-                              Container(
-                                padding: const EdgeInsets.all(6),
-                                decoration: BoxDecoration(
-                                  color: widget.accentColor!.withValues(alpha: 0.15),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Icon(widget.icon, color: widget.accentColor, size: 20),
-                              ),
-                              const SizedBox(width: 12),
-                            ],
-                            
-                            Flexible(
-                              child: widget.customBody ?? (widget.richMessage != null
-                                  ? RichText(
-                                      text: TextSpan(
-                                        style: TextStyle(
-                                          color: colorScheme.onSurface,
-                                          fontSize: 14,
-                                          fontWeight: FontWeight.w700,
-                                          letterSpacing: 0.2,
-                                          fontFamily: Theme.of(context).textTheme.bodyMedium?.fontFamily,
-                                        ),
-                                        children: [widget.richMessage!],
-                                      ),
-                                      textAlign: TextAlign.left,
-                                    )
-                                  : Text(
-                                      widget.message,
-                                      style: TextStyle(
-                                        color: colorScheme.onSurface,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.w700,
-                                        letterSpacing: 0.2,
-                                      ),
-                                      textAlign: TextAlign.left,
-                                    )),
+                      ],
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(28),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
+                        child: Container(
+                          padding: const EdgeInsets.fromLTRB(16, 10, 8, 10),
+                          decoration: BoxDecoration(
+                            color: colors.surface.withValues(alpha: .9),
+                            borderRadius: BorderRadius.circular(28),
+                            border: Border.all(
+                              color: accent.withValues(alpha: .4),
+                              width: 1.2,
                             ),
-                            if (widget.icon != null) const SizedBox(width: 4), 
-                          ],
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  if (widget.icon != null) ...[
+                                    Container(
+                                      padding: const EdgeInsets.all(6),
+                                      decoration: BoxDecoration(
+                                        color: accent.withValues(alpha: .15),
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Icon(
+                                        widget.icon,
+                                        color: accent,
+                                        size: 20,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 12),
+                                  ],
+                                  Expanded(
+                                    child:
+                                        widget.customBody ??
+                                        (widget.richMessage != null
+                                            ? RichText(
+                                                text: TextSpan(
+                                                  style: TextStyle(
+                                                    color: colors.onSurface,
+                                                    fontSize: 14,
+                                                    fontWeight: FontWeight.w700,
+                                                  ),
+                                                  children: [
+                                                    widget.richMessage!,
+                                                  ],
+                                                ),
+                                              )
+                                            : Text(
+                                                widget.message,
+                                                style: TextStyle(
+                                                  color: colors.onSurface,
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              )),
+                                  ),
+                                  IconButton(
+                                    tooltip: MaterialLocalizations.of(
+                                      context,
+                                    ).closeButtonTooltip,
+                                    onPressed: _dismiss,
+                                    icon: const Icon(Icons.close, size: 20),
+                                    visualDensity: VisualDensity.compact,
+                                  ),
+                                ],
+                              ),
+                              if (widget.actionLabel != null &&
+                                  widget.onAction != null)
+                                Align(
+                                  alignment: Alignment.centerRight,
+                                  child: TextButton(
+                                    onPressed: () {
+                                      widget.onAction!();
+                                      _dismiss();
+                                    },
+                                    child: Text(widget.actionLabel!),
+                                  ),
+                                ),
+                            ],
+                          ),
                         ),
                       ),
                     ),

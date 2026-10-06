@@ -28,6 +28,10 @@ Future<void> main() async {
   const id = 99999; // Outside production's owned ID range.
   await gateway.cancel(id);
   if (const bool.fromEnvironment('PROBE_CLEANUP')) {
+    await SyncManager.initialize();
+    await Workmanager().cancelByUniqueName(
+      '${NotificationBackgroundWorker.taskName}.probe',
+    );
     runApp(
       const MaterialApp(
         home: Scaffold(body: Text('Notification probe cleared')),
@@ -67,7 +71,7 @@ Future<void> main() async {
   );
   final pending = await gateway.pending();
   debugPrint(
-    'PROBE_READY id=$id at=$at timezone=${gateway.zoneId} exact=${gateway.exactWorkoutTiming} pending=${pending.any((p) => p.id == id)}',
+    'PROBE_READY id=$id at=$at timezone=${gateway.zoneId} mode=inexactAllowWhileIdle pending=${pending.any((p) => p.id == id)}',
   );
   runApp(
     MaterialApp(

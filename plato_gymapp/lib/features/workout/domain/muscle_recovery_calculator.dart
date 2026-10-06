@@ -23,14 +23,29 @@ class MuscleRecoveryStatus {
 }
 
 class MuscleRecoveryCalculator {
-  static MuscleRecoveryStatus getRecoveryStatus(MuscleGroup targetMuscle, List<WorkoutSession> history, {DateTime? at}) {
+  static MuscleRecoveryStatus getRecoveryStatus(
+    MuscleGroup targetMuscle,
+    List<WorkoutSession> history, {
+    DateTime? at,
+    bool historyIsSorted = false,
+  }) {
     if (history.isEmpty) {
-      return MuscleRecoveryStatus(targetMuscle, 0, 999, 100, RecoveryState.FRESH, 0, 0);
+      return MuscleRecoveryStatus(
+        targetMuscle,
+        0,
+        999,
+        100,
+        RecoveryState.FRESH,
+        0,
+        0,
+      );
     }
 
     // Sắp xếp tăng dần theo thời gian (Từ quá khứ -> Hiện tại)
-    final sortedHistory = List<WorkoutSession>.from(history)
-      ..sort((a, b) => a.startTime.compareTo(b.startTime));
+    final sortedHistory = historyIsSorted
+        ? history
+        : (List<WorkoutSession>.from(history)
+            ..sort((a, b) => a.startTime.compareTo(b.startTime)));
 
     // Bộ nhớ tạm cho EMA (Exponential Moving Average)
     Map<String, double> exerciseCapacities = {};
@@ -65,15 +80,17 @@ class MuscleRecoveryCalculator {
         // Phân bổ RL vào Nhóm Cơ Chính (Primary = 100%) - FIX LỖI TYPE
         MuscleGroup? primary = we.exercise.primaryMuscle;
         if (primary != null) {
-          sessionMuscleLoads[primary] = (sessionMuscleLoads[primary] ?? 0.0) + (rlEx * 1.0);
+          sessionMuscleLoads[primary] =
+              (sessionMuscleLoads[primary] ?? 0.0) + (rlEx * 1.0);
         }
 
         // Phân bổ RL vào Nhóm Cơ Phụ (Secondary = 33.3%)
         if (we.exercise.secondaryMuscles != null) {
           for (var sec in we.exercise.secondaryMuscles!) {
             // Check null an toàn cho các phần tử trong list enum
-            sessionMuscleLoads[sec] = (sessionMuscleLoads[sec] ?? 0.0) + (rlEx * (1.0 / 3.0));
-                    }
+            sessionMuscleLoads[sec] =
+                (sessionMuscleLoads[sec] ?? 0.0) + (rlEx * (1.0 / 3.0));
+          }
         }
       }
 
@@ -86,7 +103,7 @@ class MuscleRecoveryCalculator {
       // ---------------------------------------------------------
       // GIAI ĐOẠN 3: PHÂN BỔ RPE & TÍNH MỆT MỎI (F_new)
       // ---------------------------------------------------------
-      
+
       // Tìm nhóm cơ bị cày ải nặng nhất (Max MSL) để làm chuẩn RPE
       double mslMax = sessionMuscleLoads.values.reduce(max);
       double impactFactor = mslTarget / mslMax;
@@ -97,7 +114,8 @@ class MuscleRecoveryCalculator {
       // Suy giảm mệt mỏi cũ từ buổi trước (Decay)
       if (lastTrainedTime > 0 && previousLambda > 0.0) {
         final hoursBetween = (session.startTime - lastTrainedTime) / 3600000.0;
-        cumulativeFatigue = cumulativeFatigue * exp(-previousLambda * hoursBetween);
+        cumulativeFatigue =
+            cumulativeFatigue * exp(-previousLambda * hoursBetween);
       }
 
       // Khởi tạo Capacity Nhóm Cơ (MC) nếu là buổi đầu tiên
@@ -108,7 +126,8 @@ class MuscleRecoveryCalculator {
       // Sinh mệt mỏi mới (F_new) dựa trên MSL và MC
       double fNew = 0.0;
       if (targetMuscleCapacity > 0) {
-        fNew = (mslTarget / targetMuscleCapacity) * (effectiveRpe / 10.0) * 100.0;
+        fNew =
+            (mslTarget / targetMuscleCapacity) * (effectiveRpe / 10.0) * 100.0;
       }
       cumulativeFatigue += fNew;
 
@@ -121,12 +140,22 @@ class MuscleRecoveryCalculator {
       // Tính Lambda phục hồi cho chặng tiếp theo
       lastTrainedTime = session.startTime;
       final lambdaRange = _getLambdaRange(targetMuscle);
-      previousLambda = lambdaRange.$1 + ((10.0 - effectiveRpe) / 9.0) * (lambdaRange.$2 - lambdaRange.$1);
+      previousLambda =
+          lambdaRange.$1 +
+          ((10.0 - effectiveRpe) / 9.0) * (lambdaRange.$2 - lambdaRange.$1);
     }
 
     // Nếu sau khi loop mà targetMuscle chưa từng được tập
     if (lastTrainedTime == 0) {
-      return MuscleRecoveryStatus(targetMuscle, 0, 999, 100, RecoveryState.FRESH, 0, 0);
+      return MuscleRecoveryStatus(
+        targetMuscle,
+        0,
+        999,
+        100,
+        RecoveryState.FRESH,
+        0,
+        0,
+      );
     }
 
     // ---------------------------------------------------------
@@ -136,7 +165,8 @@ class MuscleRecoveryCalculator {
     final exactHoursPassed = max(0.0, (now - lastTrainedTime) / 3600000.0);
 
     // Tính mệt mỏi hiện hành (Current Fatigue)
-    final currentFatigue = cumulativeFatigue * exp(-previousLambda * exactHoursPassed);
+    final currentFatigue =
+        cumulativeFatigue * exp(-previousLambda * exactHoursPassed);
 
     // Recovery Percentage
     final trueRecovery = 100.0 - currentFatigue;
@@ -166,7 +196,10 @@ class MuscleRecoveryCalculator {
 
   /// Tính toán Tải Trọng Bài Tập (Load_ex)
   /// Xử lý an toàn bodyweight fallback và đa loại hình tập
-  static double _calculateStandardizedLoad(WorkoutExercise we, {double userBodyWeight = 65.0}) {
+  static double _calculateStandardizedLoad(
+    WorkoutExercise we, {
+    double userBodyWeight = 65.0,
+  }) {
     final completedSets = we.sets.where((s) => s.isCompleted).toList();
     if (completedSets.isEmpty) return 0.0;
 
@@ -180,25 +213,39 @@ class MuscleRecoveryCalculator {
       case ExerciseType.REPS_ONLY:
         return completedSets.fold(0.0, (sum, set) => sum + set.reps.toDouble());
       case ExerciseType.TIME_ONLY:
-        return completedSets.fold(0.0, (sum, set) => sum + set.durationTimeSeconds.toDouble());
+        return completedSets.fold(
+          0.0,
+          (sum, set) => sum + set.durationTimeSeconds.toDouble(),
+        );
       case ExerciseType.CARDIO_DISTANCE:
         return completedSets.fold(0.0, (sum, set) => sum + set.distanceInKm);
       case ExerciseType.CARDIO_STEPS:
-        return completedSets.fold(0.0, (sum, set) => sum + set.steps.toDouble());
-      
+        return completedSets.fold(
+          0.0,
+          (sum, set) => sum + set.steps.toDouble(),
+        );
     }
   }
 
   /// Dải hằng số phục hồi theo độ lớn nhóm cơ
   static (double, double) _getLambdaRange(MuscleGroup muscle) {
     switch (muscle) {
-      case MuscleGroup.LATS: case MuscleGroup.LOWER_BACK: case MuscleGroup.UPPER_BACK:
-      case MuscleGroup.TRAPS: case MuscleGroup.QUADS: case MuscleGroup.HAMSTRINGS:
-      case MuscleGroup.GLUTES: case MuscleGroup.ADDUCTORS: case MuscleGroup.ABDUCTORS:
+      case MuscleGroup.LATS:
+      case MuscleGroup.LOWER_BACK:
+      case MuscleGroup.UPPER_BACK:
+      case MuscleGroup.TRAPS:
+      case MuscleGroup.QUADS:
+      case MuscleGroup.HAMSTRINGS:
+      case MuscleGroup.GLUTES:
+      case MuscleGroup.ADDUCTORS:
+      case MuscleGroup.ABDUCTORS:
       case MuscleGroup.FULL_BODY:
         return (0.031, 0.041);
-      case MuscleGroup.UPPER_CHEST: case MuscleGroup.MIDDLE_CHEST: case MuscleGroup.LOWER_CHEST:
-      case MuscleGroup.ABS: case MuscleGroup.OBLIQUES:
+      case MuscleGroup.UPPER_CHEST:
+      case MuscleGroup.MIDDLE_CHEST:
+      case MuscleGroup.LOWER_CHEST:
+      case MuscleGroup.ABS:
+      case MuscleGroup.OBLIQUES:
         return (0.050, 0.062);
       default:
         return (0.050, 0.062);

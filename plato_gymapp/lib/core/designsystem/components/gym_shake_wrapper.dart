@@ -6,11 +6,13 @@ import 'package:flutter_animate/flutter_animate.dart';
 /// khi trạng thái lỗi `hasError` chuyển từ false sang true.
 class GymShakeWrapper extends StatefulWidget {
   final bool hasError;
+  final Key? shakeKey;
   final Widget child;
 
   const GymShakeWrapper({
     super.key,
     required this.hasError,
+    this.shakeKey,
     required this.child,
   });
 
@@ -36,8 +38,9 @@ class _GymShakeWrapperState extends State<GymShakeWrapper> with SingleTickerProv
   @override
   void didUpdateWidget(covariant GymShakeWrapper oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.hasError && !oldWidget.hasError) {
-      // Khi có lỗi mới xuất hiện
+    if ((widget.hasError && !oldWidget.hasError) || 
+        (widget.hasError && widget.shakeKey != null && widget.shakeKey != oldWidget.shakeKey)) {
+      // Khi có lỗi mới xuất hiện hoặc key thay đổi
       HapticFeedback.heavyImpact();
       _controller.forward(from: 0);
     }

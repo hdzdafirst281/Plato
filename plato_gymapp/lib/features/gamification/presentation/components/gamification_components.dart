@@ -236,7 +236,7 @@ class _UserProfileHeader extends StatelessWidget {
                     Expanded(
                       child: Row(
                         children: [
-                          Flexible(child: Text(displayName, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900, letterSpacing: -0.5), maxLines: 1, overflow: TextOverflow.ellipsis)),
+                          Flexible(child: AutoSizeText(displayName, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900, letterSpacing: -0.5), maxLines: 1, minFontSize: 16, overflow: TextOverflow.ellipsis)),
                           const SizedBox(width: 8),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),

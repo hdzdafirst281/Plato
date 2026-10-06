@@ -1,5 +1,6 @@
 import 'dart:math' as math; 
 import 'package:flutter/material.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart'; 
 import 'package:plato_gymapp/i18n/strings.g.dart';

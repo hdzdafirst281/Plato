@@ -171,7 +171,7 @@ class _GymTextFieldState extends State<GymTextField> {
         decoration: InputDecoration(
           labelText: widget.labelText,
           floatingLabelBehavior: FloatingLabelBehavior.auto,
-  
+
           error: (widget.errorText != null && widget.errorText!.isNotEmpty)
               ? Text.rich(
                   TextSpan(
@@ -194,41 +194,43 @@ class _GymTextFieldState extends State<GymTextField> {
                   style: TextStyle(color: colorScheme.error, fontSize: 12),
                 )
               : null,
-        errorMaxLines: 3,
+          errorMaxLines: 3,
 
-        suffixText: widget.unitText,
-        suffixStyle: TextStyle(
-          color: colorScheme.onSurfaceVariant,
-          fontSize: 13,
-          fontWeight: FontWeight.normal,
-        ),
-        filled: true,
-        fillColor: colorScheme.surface, // Đã đổi nền thành surface theo yêu cầu
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+          suffixText: widget.unitText,
+          suffixStyle: TextStyle(
+            color: colorScheme.onSurfaceVariant,
+            fontSize: 13,
+            fontWeight: FontWeight.normal,
+          ),
+          filled: true,
+          fillColor:
+              colorScheme.surface, // Đã đổi nền thành surface theo yêu cầu
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(
+              color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+            ),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: colorScheme.primary, width: 2),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: colorScheme.error, width: 1.5),
+          ),
+          focusedErrorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: BorderSide(color: colorScheme.error, width: 2),
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 16,
           ),
         ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: colorScheme.primary, width: 2),
-        ),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: colorScheme.error, width: 1.5),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-          borderSide: BorderSide(color: colorScheme.error, width: 2),
-        ),
-        contentPadding: const EdgeInsets.symmetric(
-          horizontal: 16,
-          vertical: 16,
-        ),
+        onChanged: widget.onChanged,
       ),
-      onChanged: widget.onChanged,
-    ));
+    );
   }
 }
 
@@ -276,7 +278,6 @@ class UniversalFoodStepper extends StatelessWidget {
         return t.nutrition.lbl_unit_serving;
       case FoodUnit.OZ:
         return t.nutrition.lbl_unit_oz;
-      
     }
   }
 
@@ -1441,12 +1442,49 @@ class WaterTrackerCard extends StatelessWidget {
                           ? CrossAxisAlignment.center
                           : CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          t.nutrition.title_water_tracker,
-                          style: TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                            color: accentBlue.withValues(alpha: 0.8),
+                        FittedBox(
+                          fit: BoxFit.scaleDown,
+                          alignment: Alignment.centerLeft,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              Text(
+                                isGoalReached
+                                    ? t.notifications.title_hydration_completed
+                                    : t.nutrition.title_water_tracker,
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                  color: accentBlue.withValues(alpha: 0.8),
+                                ),
+                              ),
+                              const SizedBox(width: 6),
+                              if (isGoalReached)
+                                Icon(
+                                  Symbols.check_circle,
+                                  size: 16,
+                                  color: accentBlue,
+                                  fill: 1,
+                                )
+                              else if (NotificationCoordinator.instance != null)
+                                ListenableBuilder(
+                                  listenable: NotificationCoordinator.instance!,
+                                  builder: (context, _) {
+                                    final service =
+                                        NotificationCoordinator.instance!;
+                                    return Icon(
+                                      service.waterEnabled
+                                          ? Symbols.notifications_active
+                                          : Symbols.notifications_off,
+                                      size: 16,
+                                      color: service.waterEnabled
+                                          ? accentBlue
+                                          : emptyIconColor,
+                                    );
+                                  },
+                                ),
+                            ],
                           ),
                         ),
                         const SizedBox(height: 4),
@@ -1479,20 +1517,6 @@ class WaterTrackerCard extends StatelessWidget {
                                   color: accentBlue.withValues(alpha: 0.8),
                                 ),
                               ),
-                              if (NotificationCoordinator.instance != null) ...[
-                                const SizedBox(width: 8),
-                                ListenableBuilder(
-                                  listenable: NotificationCoordinator.instance!,
-                                  builder: (context, _) {
-                                    final service = NotificationCoordinator.instance!;
-                                    return Icon(
-                                      service.waterEnabled ? Symbols.notifications_active : Symbols.notifications_off,
-                                      size: 16,
-                                      color: service.waterEnabled ? accentBlue : emptyIconColor,
-                                    );
-                                  },
-                                ),
-                              ],
                             ],
                           ),
                         ),
@@ -2224,7 +2248,8 @@ Future<void> showWaterSettingsDialog(
   );
   String? errorMsg;
   final colorScheme = Theme.of(context).colorScheme;
-  bool localWaterEnabled = NotificationCoordinator.instance?.waterEnabled ?? false;
+  bool localWaterEnabled =
+      NotificationCoordinator.instance?.waterEnabled ?? false;
 
   await GymDialog.showCustom(
     context: context,
@@ -2318,15 +2343,17 @@ Future<void> showWaterSettingsDialog(
             if (NotificationCoordinator.instance != null)
               SwitchListTile.adaptive(
                 title: Text(
-                  NotificationCopy.text('notifications.lbl_hydration_at_16') ?? '',
+                  NotificationCopy.text('notifications.lbl_hydration_at_16') ??
+                      '',
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 subtitle: Text(
                   NotificationCopy.text(
-                    NotificationCoordinator.instance!.enabled
-                        ? 'notifications.desc_hydration_reminder'
-                        : 'notifications.msg_category_disabled',
-                  ) ?? '',
+                        NotificationCoordinator.instance!.enabled
+                            ? 'notifications.desc_hydration_reminder'
+                            : 'notifications.msg_category_disabled',
+                      ) ??
+                      '',
                 ),
                 contentPadding: EdgeInsets.zero,
                 value: localWaterEnabled,
@@ -2382,12 +2409,17 @@ Future<void> showWaterSettingsDialog(
                       return;
                     }
 
-                    if (localWaterEnabled != NotificationCoordinator.instance?.waterEnabled) {
-                      NotificationCoordinator.instance?.setWaterEnabled(localWaterEnabled).then((success) {
-                        if (localWaterEnabled && !success && context.mounted) {
-                          openAppSettings();
-                        }
-                      });
+                    if (localWaterEnabled !=
+                        NotificationCoordinator.instance?.waterEnabled) {
+                      NotificationCoordinator.instance
+                          ?.setWaterEnabled(localWaterEnabled)
+                          .then((success) {
+                            if (localWaterEnabled &&
+                                !success &&
+                                context.mounted) {
+                              openAppSettings();
+                            }
+                          });
                     }
 
                     onConfirm(currVal, targetVal);
@@ -2876,9 +2908,7 @@ class _UpdateGoalDialogState extends State<UpdateGoalDialog> {
                 ),
                 onPressed: _validateAndConfirm,
                 child: Text(
-                  _showWarning
-                      ? t.common.save_anyway
-                      : t.common.confirm,
+                  _showWarning ? t.common.save_anyway : t.common.confirm,
                   style: const TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 16,
@@ -3102,7 +3132,9 @@ Future<void> showGoalReviewDialog(
   await GymDialog.showCustom(
     context: context,
     titleWidget: Text(
-      isMet ? t.nutrition.title_review_success : t.nutrition.title_review_expired,
+      isMet
+          ? t.nutrition.title_review_success
+          : t.nutrition.title_review_expired,
       style: TextStyle(
         color: isMet
             ? Theme.of(context).gymColors.success
@@ -3117,9 +3149,7 @@ Future<void> showGoalReviewDialog(
         if (isMet) ...[
           BMIVisualizer(bmiValue: bmi, title: t.nutrition.bmi_target),
           const SizedBox(height: 16),
-          Text(
-            t.nutrition.fmt_review_congrats(arg1: _formatDouble(currentWt)),
-          ),
+          Text(t.nutrition.fmt_review_congrats(arg1: _formatDouble(currentWt))),
           const SizedBox(height: 16),
           Text(
             t.nutrition.fmt_review_bmi_suggestion(arg1: _formatDouble(bmi)),

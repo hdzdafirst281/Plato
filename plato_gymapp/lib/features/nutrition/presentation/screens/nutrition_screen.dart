@@ -27,10 +27,10 @@ import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/database/enums.dart';
 import '../../../../core/database/entities.dart';
 
-import '../../../profile/presentation/bloc/profile_cubit.dart'; 
+import '../../../profile/presentation/bloc/profile_cubit.dart';
 import '../bloc/nutrition_cubit.dart';
-import '../components/nutrition_components.dart'; 
-import '../../domain/nutrition_safety_helper.dart'; 
+import '../components/nutrition_components.dart';
+import '../../domain/nutrition_safety_helper.dart';
 import '../../domain/nutrition_constants.dart';
 
 class NutritionScreen extends StatefulWidget {
@@ -66,10 +66,15 @@ class _NutritionScreenState extends State<NutritionScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final target = _waterFocusKey.currentContext;
       if (mounted && target != null) {
-        Scrollable.ensureVisible(target, duration: const Duration(milliseconds: 300), alignment: .1);
+        Scrollable.ensureVisible(
+          target,
+          duration: const Duration(milliseconds: 300),
+          alignment: .1,
+        );
       }
     });
   }
+
   @override
   void didUpdateWidget(covariant NutritionScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
@@ -82,12 +87,12 @@ class _NutritionScreenState extends State<NutritionScreen> {
     if (_tourDelayTimer?.isActive ?? false) {
       _tourDelayTimer?.cancel();
     }
-    
+
     // [CRITIC DEBUG FIX 1]: Mở khóa an toàn
     if (AppRouter.isTourActive.value) {
       AppRouter.forceAbortTour();
     }
-    
+
     globalActiveTabIndex.removeListener(_checkAndTriggerTour);
     globalIsTabSwiping.removeListener(_checkAndTriggerTour);
     super.dispose();
@@ -96,47 +101,50 @@ class _NutritionScreenState extends State<NutritionScreen> {
   // Logic Trigger
   void _checkAndTriggerTour() {
     if (!mounted || AppRouter.isTourActive.value) return;
-    
+
     final tourCubit = context.read<TourCubit>();
     if (tourCubit.state.hasSeenNutrition && !forceShowTour) return;
-    
-    if (globalActiveTabIndex.value == 1 && !globalIsTabSwiping.value) {
-        // [EARLY LOCK]: Khóa UI ngay lập tức
-        AppRouter.isTourActive.value = true; 
 
-        _tourDelayTimer?.cancel();
-        _tourDelayTimer = Timer(const Duration(milliseconds: 600), () {
-          if (!mounted) {
-            AppRouter.isTourActive.value = false;
-            return;
-          }
-          _startTourSafely(tourCubit);
-        });
+    if (globalActiveTabIndex.value == 1 && !globalIsTabSwiping.value) {
+      // [EARLY LOCK]: Khóa UI ngay lập tức
+      AppRouter.isTourActive.value = true;
+
+      _tourDelayTimer?.cancel();
+      _tourDelayTimer = Timer(const Duration(milliseconds: 600), () {
+        if (!mounted) {
+          AppRouter.isTourActive.value = false;
+          return;
+        }
+        _startTourSafely(tourCubit);
+      });
     }
   }
 
   void _startTourSafely(TourCubit tourCubit) {
     if (!mounted) {
-       AppRouter.isTourActive.value = false;
-       return;
+      AppRouter.isTourActive.value = false;
+      return;
     }
-    
+
     // ĐÃ XÓA: AppRouter.setAutoScroll(false); -> Đây là nguyên nhân khiến app tịt scroll
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted) return;
-      
-      AppRouter.startTour(context, [
-        TourKeys.nutritionHistoryBtn,
-        TourKeys.nutritionDashboard,
-        TourKeys.nutritionWaterTracker,
-        TourKeys.nutritionWeightGoal,
-        TourKeys.nutritionMealSection,
-      ], 
-      onCompleted: () {
-        // ĐÃ XÓA: AppRouter.setAutoScroll(true);
-        tourCubit.completeNutritionTour();
-      });
+
+      AppRouter.startTour(
+        context,
+        [
+          TourKeys.nutritionHistoryBtn,
+          TourKeys.nutritionDashboard,
+          TourKeys.nutritionWaterTracker,
+          TourKeys.nutritionWeightGoal,
+          TourKeys.nutritionMealSection,
+        ],
+        onCompleted: () {
+          // ĐÃ XÓA: AppRouter.setAutoScroll(true);
+          tourCubit.completeNutritionTour();
+        },
+      );
     });
   }
 
@@ -162,48 +170,66 @@ class _NutritionScreenState extends State<NutritionScreen> {
     final dailyData = nutritionState.nutritionToday;
     final isTablet = ResponsiveBreakpoints.of(context).largerThan(MOBILE);
 
-    int animIndex = 0; 
-    
-    final mealWidgets = [MealType.BREAKFAST, MealType.LUNCH, MealType.DINNER, MealType.SNACK]
-        .asMap()
-        .entries
-        .map((entry) {
-      final index = entry.key;
-      final mealType = entry.value;
+    int animIndex = 0;
 
-      final titleKey = (mealType == MealType.BREAKFAST) ? t.nutrition.name_meal_breakfast :
-                       (mealType == MealType.LUNCH) ? t.nutrition.name_meal_lunch :
-                       (mealType == MealType.DINNER) ? t.nutrition.name_meal_dinner : t.nutrition.name_meal_snack;
-      final icon = (mealType == MealType.BREAKFAST) ? Symbols.breakfast_dining :
-                   (mealType == MealType.LUNCH) ? Symbols.meal_lunch :
-                   (mealType == MealType.DINNER) ? Symbols.meal_dinner : Symbols.fastfood;
+    final mealWidgets =
+        [
+          MealType.BREAKFAST,
+          MealType.LUNCH,
+          MealType.DINNER,
+          MealType.SNACK,
+        ].asMap().entries.map((entry) {
+          final index = entry.key;
+          final mealType = entry.value;
 
-      Widget cardWidget = _MealSectionCard(
-        title: titleKey, icon: icon, mealType: mealType,
-        consumedFoods: dailyData.getMealsForType(mealType),
-        nutritionCubit: context.read<NutritionCubit>(),
-      );
+          final titleKey = (mealType == MealType.BREAKFAST)
+              ? t.nutrition.name_meal_breakfast
+              : (mealType == MealType.LUNCH)
+              ? t.nutrition.name_meal_lunch
+              : (mealType == MealType.DINNER)
+              ? t.nutrition.name_meal_dinner
+              : t.nutrition.name_meal_snack;
+          final icon = (mealType == MealType.BREAKFAST)
+              ? Symbols.breakfast_dining
+              : (mealType == MealType.LUNCH)
+              ? Symbols.meal_lunch
+              : (mealType == MealType.DINNER)
+              ? Symbols.meal_dinner
+              : Symbols.fastfood;
 
-      // [ĐIỂM QUAN TRỌNG]: Chỉ bọc TourTarget cho thẻ đầu tiên (Bữa sáng)
-      if (index == 0) {
-        cardWidget = GymTourTarget(
-          isActive: !context.read<TourCubit>().state.hasSeenNutrition || forceShowTour,
-          tourKey: TourKeys.nutritionMealSection,
-          title: t.tour.nutrition_meal_title,
-          description: t.tour.nutrition_meal_desc,
-          tooltipPosition: isTablet ? TooltipPosition.left : null,
-          borderRadius: 24.0,
-          targetPadding: EdgeInsets.zero,
-          child: cardWidget,
-        );
-      }
+          Widget cardWidget = _MealSectionCard(
+            title: titleKey,
+            icon: icon,
+            mealType: mealType,
+            consumedFoods: dailyData.getMealsForType(mealType),
+            nutritionCubit: context.read<NutritionCubit>(),
+          );
 
-      return Padding(
-        padding: const EdgeInsets.only(bottom: 20),
-        child: cardWidget,
-      ).animate(delay: (animIndex++ * 100).ms).fade(duration: 400.ms, curve: Curves.easeOutCubic).slideY(begin: 0.1, end: 0);
-    }).toList();
-    
+          // [ĐIỂM QUAN TRỌNG]: Chỉ bọc TourTarget cho thẻ đầu tiên (Bữa sáng)
+          if (index == 0) {
+            cardWidget = GymTourTarget(
+              isActive:
+                  !context.read<TourCubit>().state.hasSeenNutrition ||
+                  forceShowTour,
+              tourKey: TourKeys.nutritionMealSection,
+              title: t.tour.nutrition_meal_title,
+              description: t.tour.nutrition_meal_desc,
+              tooltipPosition: isTablet ? TooltipPosition.left : null,
+              borderRadius: 24.0,
+              targetPadding: EdgeInsets.zero,
+              child: cardWidget,
+            );
+          }
+
+          return Padding(
+                padding: const EdgeInsets.only(bottom: 20),
+                child: cardWidget,
+              )
+              .animate(delay: (animIndex++ * 100).ms)
+              .fade(duration: 400.ms, curve: Curves.easeOutCubic)
+              .slideY(begin: 0.1, end: 0);
+        }).toList();
+
     // Tối ưu Padding cho NARROW_MOBILE
     final horizontalPadding = ResponsiveValue<double>(
       context,
@@ -217,7 +243,8 @@ class _NutritionScreenState extends State<NutritionScreen> {
       final isTablet = ResponsiveBreakpoints.of(context).largerThan(MOBILE);
 
       final dashboardWidget = GymTourTarget(
-        isActive: !context.read<TourCubit>().state.hasSeenNutrition || forceShowTour,
+        isActive:
+            !context.read<TourCubit>().state.hasSeenNutrition || forceShowTour,
         tourKey: TourKeys.nutritionDashboard,
         title: t.tour.nutrition_dash_title,
         description: t.tour.nutrition_dash_desc,
@@ -229,16 +256,22 @@ class _NutritionScreenState extends State<NutritionScreen> {
           targetMacros: profile.targetMacros,
           isCustomMacros: profile.isCustomMacros,
           onEditMacros: (newCustomMacros) {
-            context.read<ProfileCubit>().updateCustomTargetMacros(newCustomMacros);
+            context.read<ProfileCubit>().updateCustomTargetMacros(
+              newCustomMacros,
+            );
           },
           onRevertSystem: () {
             final targetWt = profile.targetGoalWeightKg ?? profile.weightInKg;
             int days = 30;
             if (profile.weeklyGoalRate != null && profile.weeklyGoalRate! > 0) {
-              days = ((targetWt - profile.weightInKg).abs() / profile.weeklyGoalRate! * 7).toInt();
+              days =
+                  ((targetWt - profile.weightInKg).abs() /
+                          profile.weeklyGoalRate! *
+                          7)
+                      .toInt();
             }
             if (days <= 0) days = 30;
-            
+
             context.read<ProfileCubit>().updateGoalParameters(targetWt, days);
           },
         ),
@@ -246,7 +279,8 @@ class _NutritionScreenState extends State<NutritionScreen> {
 
       final waterWidget = GymTourTarget(
         key: _waterFocusKey,
-        isActive: !context.read<TourCubit>().state.hasSeenNutrition || forceShowTour,
+        isActive:
+            !context.read<TourCubit>().state.hasSeenNutrition || forceShowTour,
         tourKey: TourKeys.nutritionWaterTracker,
         title: t.tour.nutrition_water_title,
         description: t.tour.nutrition_water_desc,
@@ -266,7 +300,7 @@ class _NutritionScreenState extends State<NutritionScreen> {
                 onConfirm: (newCurrent, newTarget) {
                   setState(() => _waterTargetLiters = newTarget);
                   _saveWaterTarget(newTarget);
-                  
+
                   final diff = newCurrent - dailyData.waterConsumedLiters;
                   if (diff != 0) {
                     context.read<NutritionCubit>().addWater(diff);
@@ -274,45 +308,54 @@ class _NutritionScreenState extends State<NutritionScreen> {
                 },
               );
             },
-            child: WaterTrackerCard(
-              currentLiters: dailyData.waterConsumedLiters,
-              targetLiters: _waterTargetLiters,
-              onTapCard: () {
-                showWaterSettingsDialog(
-                  context,
-                  currentWater: dailyData.waterConsumedLiters,
-                  targetWater: _waterTargetLiters,
-                  onDismiss: () {},
-                  onConfirm: (newCurrent, newTarget) {
-                    setState(() => _waterTargetLiters = newTarget);
-                    _saveWaterTarget(newTarget);
-                    
-                    final diff = newCurrent - dailyData.waterConsumedLiters;
-                    if (diff != 0) {
-                      context.read<NutritionCubit>().addWater(diff);
+            child: Stack(
+              children: [
+                WaterTrackerCard(
+                  currentLiters: dailyData.waterConsumedLiters,
+                  targetLiters: _waterTargetLiters,
+                  onTapCard: () {
+                    showWaterSettingsDialog(
+                      context,
+                      currentWater: dailyData.waterConsumedLiters,
+                      targetWater: _waterTargetLiters,
+                      onDismiss: () {},
+                      onConfirm: (newCurrent, newTarget) {
+                        setState(() => _waterTargetLiters = newTarget);
+                        _saveWaterTarget(newTarget);
+
+                        final diff = newCurrent - dailyData.waterConsumedLiters;
+                        if (diff != 0) {
+                          context.read<NutritionCubit>().addWater(diff);
+                        }
+                      },
+                    );
+                  },
+                  onAddWater: () {
+                    if (dailyData.waterConsumedLiters < 10) {
+                      context.read<NutritionCubit>().addWater(0.25);
+                    } else {
+                      GymDialog.showInfo(
+                        context: context,
+                        icon: Symbols.water_drop,
+                        iconColor: Theme.of(context).colorScheme.primary,
+                        title: t.nutrition.title_water_limit,
+                        message: t.nutrition.err_water_current,
+                        buttonText: t.common.confirm,
+                      );
                     }
                   },
-                );
-              },
-              onAddWater: () {
-                if (dailyData.waterConsumedLiters < 10) {
-                  context.read<NutritionCubit>().addWater(0.25);
-                } else {
-                  GymDialog.showInfo(
-                    context: context,
-                    icon: Symbols.water_drop,
-                    iconColor: Theme.of(context).colorScheme.primary,
-                    title: t.nutrition.title_water_limit,
-                    message: t.nutrition.err_water_current,
-                    buttonText: t.common.confirm,
-                  );
-                }
-              },
-              onRemoveWater: () {
-                if (dailyData.waterConsumedLiters > 0) {
-                  context.read<NutritionCubit>().addWater(-0.25);
-                }
-              },
+                  onRemoveWater: () {
+                    if (dailyData.waterConsumedLiters > 0) {
+                      context.read<NutritionCubit>().addWater(-0.25);
+                    }
+                  },
+                ),
+                if (dailyData.waterConsumedLiters >= _waterTargetLiters)
+                  NotificationEventMarker(
+                    eventKey:
+                        'event:hydration_completed:${NotificationPolicy.dayKey(DateTime.now())}',
+                  ),
+              ],
             ),
           ),
         ),
@@ -323,66 +366,87 @@ class _NutritionScreenState extends State<NutritionScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (isTablet) ...[
-            dashboardWidget.animate(delay: 0.ms).fade(duration: 400.ms, curve: Curves.easeOutCubic).slideY(begin: 0.1, end: 0),
+            dashboardWidget
+                .animate(delay: 0.ms)
+                .fade(duration: 400.ms, curve: Curves.easeOutCubic)
+                .slideY(begin: 0.1, end: 0),
             const SizedBox(height: 16),
-            waterWidget.animate(delay: 50.ms).fade(duration: 400.ms, curve: Curves.easeOutCubic).slideY(begin: 0.1, end: 0),
+            waterWidget
+                .animate(delay: 50.ms)
+                .fade(duration: 400.ms, curve: Curves.easeOutCubic)
+                .slideY(begin: 0.1, end: 0),
           ] else ...[
             IntrinsicHeight(
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Expanded(child: dashboardWidget),
-                  const SizedBox(width: 16),
-                  Expanded(child: waterWidget),
-                ],
-              ),
-            ).animate(delay: 0.ms).fade(duration: 400.ms, curve: Curves.easeOutCubic).slideY(begin: 0.1, end: 0),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Expanded(child: dashboardWidget),
+                      const SizedBox(width: 16),
+                      Expanded(child: waterWidget),
+                    ],
+                  ),
+                )
+                .animate(delay: 0.ms)
+                .fade(duration: 400.ms, curve: Curves.easeOutCubic)
+                .slideY(begin: 0.1, end: 0),
           ],
-          
-          InlineAchievementFeedback(eventKey: 'event:hydration_completed:${NotificationPolicy.dayKey(DateTime.now())}'),
+
           const SizedBox(height: 24),
 
           GymTourTarget(
-            isActive: !context.read<TourCubit>().state.hasSeenNutrition || forceShowTour,
-            tourKey: TourKeys.nutritionWeightGoal,
-            title: t.tour.nutrition_wt_title,
-            description: t.tour.nutrition_wt_desc,
-            tooltipPosition: isTablet ? TooltipPosition.right : null,
-            borderRadius: 24.0,
-            targetPadding: EdgeInsets.zero,
-            child: WeightGoalChartCard(
-              profile: profile,
-              onUpdateWeight: () {
-                showUpdateWeightDialog(
-                  context,
-                  currentWeight: profile.weightInKg,
-                  onDismiss: () {},
-                  onConfirm: (val) {
-                    context.read<ProfileCubit>().updateCurrentWeight(val);
-                  }
-                );
-              },
-              onEditGoal: () {
-                Navigator.of(context, rootNavigator: true).push(
-                  MaterialPageRoute(
-                    fullscreenDialog: true,
-                    builder: (navContext) => UpdateGoalDialog(
-                      profile: profile,
-                      onDismiss: () => Navigator.of(navContext, rootNavigator: true).pop(),
-                      onConfirm: (wt, days) {
-                        if (profile.isCustomMacros) {
-                           context.read<ProfileCubit>().updateTargetWeightKeepCustomMacros(wt);
-                        } else {
-                           context.read<ProfileCubit>().updateGoalParameters(wt, days);
-                        }
-                        Navigator.of(navContext, rootNavigator: true).pop();
+                isActive:
+                    !context.read<TourCubit>().state.hasSeenNutrition ||
+                    forceShowTour,
+                tourKey: TourKeys.nutritionWeightGoal,
+                title: t.tour.nutrition_wt_title,
+                description: t.tour.nutrition_wt_desc,
+                tooltipPosition: isTablet ? TooltipPosition.right : null,
+                borderRadius: 24.0,
+                targetPadding: EdgeInsets.zero,
+                child: WeightGoalChartCard(
+                  profile: profile,
+                  onUpdateWeight: () {
+                    showUpdateWeightDialog(
+                      context,
+                      currentWeight: profile.weightInKg,
+                      onDismiss: () {},
+                      onConfirm: (val) {
+                        context.read<ProfileCubit>().updateCurrentWeight(val);
                       },
-                    ),
-                  ),
-                );
-              },
-            ),
-          ).animate().fade(duration: 400.ms, curve: Curves.easeOutCubic).slideY(begin: 0.1, end: 0)
+                    );
+                  },
+                  onEditGoal: () {
+                    Navigator.of(context, rootNavigator: true).push(
+                      MaterialPageRoute(
+                        fullscreenDialog: true,
+                        builder: (navContext) => UpdateGoalDialog(
+                          profile: profile,
+                          onDismiss: () => Navigator.of(
+                            navContext,
+                            rootNavigator: true,
+                          ).pop(),
+                          onConfirm: (wt, days) {
+                            if (profile.isCustomMacros) {
+                              context
+                                  .read<ProfileCubit>()
+                                  .updateTargetWeightKeepCustomMacros(wt);
+                            } else {
+                              context.read<ProfileCubit>().updateGoalParameters(
+                                wt,
+                                days,
+                              );
+                            }
+                            Navigator.of(navContext, rootNavigator: true).pop();
+                          },
+                        ),
+                      ),
+                    );
+                  },
+                ),
+              )
+              .animate()
+              .fade(duration: 400.ms, curve: Curves.easeOutCubic)
+              .slideY(begin: 0.1, end: 0),
         ],
       );
     }
@@ -390,14 +454,18 @@ class _NutritionScreenState extends State<NutritionScreen> {
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: AppBar(
-        toolbarHeight: 56, 
+        toolbarHeight: 56,
         backgroundColor: colorScheme.surface,
         elevation: 0,
         scrolledUnderElevation: 0,
         automaticallyImplyLeading: false,
         title: Text(
           t.nutrition.title_main,
-          style: TextStyle(fontWeight: FontWeight.w900, fontSize: 25, color: colorScheme.onSurface),
+          style: TextStyle(
+            fontWeight: FontWeight.w900,
+            fontSize: 25,
+            color: colorScheme.onSurface,
+          ),
         ),
         actions: [
           IconButton(
@@ -406,68 +474,80 @@ class _NutritionScreenState extends State<NutritionScreen> {
               context.push('/nutrition/history');
             },
             icon: GymTourTarget(
-              isActive: !context.read<TourCubit>().state.hasSeenNutrition || forceShowTour,
+              isActive:
+                  !context.read<TourCubit>().state.hasSeenNutrition ||
+                  forceShowTour,
               tourKey: TourKeys.nutritionHistoryBtn,
               title: t.nutrition.title_history,
               description: t.tour.nutrition_history_desc,
               // FIX LỖI TRÀN VIỀN: Ép thành hình tròn khít
-              customShapeBorder: const CircleBorder(), 
+              customShapeBorder: const CircleBorder(),
               // Thu hẹp padding tối đa để hộp tọa độ không lồi ra ngoài mép phải màn hình
               targetPadding: EdgeInsets.zero,
-              child: Icon(Symbols.history, color: colorScheme.primary, size: 24),
+              child: Icon(
+                Symbols.history,
+                color: colorScheme.primary,
+                size: 24,
+              ),
             ),
           ),
-          const SizedBox(width: 16), 
+          const SizedBox(width: 16),
         ],
       ),
       body: SafeArea(
-        child: isTablet 
-          ? Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1200),
-                child: Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Cột 1: Dashboard & Water (Cuộn độc lập)
-                      Expanded(
-                        flex: 1, 
-                        child: SingleChildScrollView(
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          child: buildDashboards(),
-                        ),
-                      ),
-                      const SizedBox(width: 32),
-                      // Cột 2: Bữa ăn (Cuộn độc lập)
-                      Expanded(
-                        flex: 1, 
-                        child: SingleChildScrollView(
-                          physics: const AlwaysScrollableScrollPhysics(),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: mealWidgets,
+        child: isTablet
+            ? Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1200),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 16,
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Cột 1: Dashboard & Water (Cuộn độc lập)
+                        Expanded(
+                          flex: 1,
+                          child: SingleChildScrollView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            child: buildDashboards(),
                           ),
                         ),
-                      ),
-                    ],
+                        const SizedBox(width: 32),
+                        // Cột 2: Bữa ăn (Cuộn độc lập)
+                        Expanded(
+                          flex: 1,
+                          child: SingleChildScrollView(
+                            physics: const AlwaysScrollableScrollPhysics(),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.stretch,
+                              children: mealWidgets,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
+              )
+            : SingleChildScrollView(
+                physics: const AlwaysScrollableScrollPhysics(),
+                padding: EdgeInsets.symmetric(
+                  horizontal: horizontalPadding,
+                  vertical: 16,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    buildDashboards(),
+                    const SizedBox(height: 24),
+                    ...mealWidgets,
+                    const SizedBox(height: 80),
+                  ],
+                ),
               ),
-            )
-          : SingleChildScrollView(
-              physics: const AlwaysScrollableScrollPhysics(),
-              padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  buildDashboards(),
-                  const SizedBox(height: 24),
-                  ...mealWidgets,
-                  const SizedBox(height: 80), 
-                ],
-              ),
-            ),
       ),
     );
   }
@@ -480,7 +560,13 @@ class _MealSectionCard extends StatefulWidget {
   final List<FoodResult> consumedFoods;
   final NutritionCubit nutritionCubit;
 
-  const _MealSectionCard({required this.title, required this.icon, required this.mealType, required this.consumedFoods, required this.nutritionCubit});
+  const _MealSectionCard({
+    required this.title,
+    required this.icon,
+    required this.mealType,
+    required this.consumedFoods,
+    required this.nutritionCubit,
+  });
 
   @override
   State<_MealSectionCard> createState() => _MealSectionCardState();
@@ -492,10 +578,22 @@ class _MealSectionCardState extends State<_MealSectionCard> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final totalCal = widget.consumedFoods.fold(0, (sum, f) => sum + f.calculatedTotalCalories);
-    final totalP = widget.consumedFoods.fold(0, (sum, f) => sum + f.calculatedTotalProtein);
-    final totalC = widget.consumedFoods.fold(0, (sum, f) => sum + f.calculatedTotalCarbs);
-    final totalF = widget.consumedFoods.fold(0, (sum, f) => sum + f.calculatedTotalFat);
+    final totalCal = widget.consumedFoods.fold(
+      0,
+      (sum, f) => sum + f.calculatedTotalCalories,
+    );
+    final totalP = widget.consumedFoods.fold(
+      0,
+      (sum, f) => sum + f.calculatedTotalProtein,
+    );
+    final totalC = widget.consumedFoods.fold(
+      0,
+      (sum, f) => sum + f.calculatedTotalCarbs,
+    );
+    final totalF = widget.consumedFoods.fold(
+      0,
+      (sum, f) => sum + f.calculatedTotalFat,
+    );
 
     final cardPadding = ResponsiveValue<double>(
       context,
@@ -510,14 +608,16 @@ class _MealSectionCardState extends State<_MealSectionCard> {
       decoration: BoxDecoration(
         color: colorScheme.surface,
         borderRadius: BorderRadius.circular(24),
-        border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.2)),
+        border: Border.all(
+          color: colorScheme.outlineVariant.withValues(alpha: 0.2),
+        ),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.1),
             blurRadius: 10,
             offset: const Offset(0, 4),
-          )
-        ]
+          ),
+        ],
       ),
       child: Column(
         children: [
@@ -530,17 +630,27 @@ class _MealSectionCardState extends State<_MealSectionCard> {
                   children: [
                     Container(
                       padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(color: colorScheme.primary.withValues(alpha: 0.15), shape: BoxShape.circle),
-                      child: Icon(widget.icon, color: colorScheme.primary, size: 20),
+                      decoration: BoxDecoration(
+                        color: colorScheme.primary.withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                      ),
+                      child: Icon(
+                        widget.icon,
+                        color: colorScheme.primary,
+                        size: 20,
+                      ),
                     ),
                     const SizedBox(width: 10),
-                    
+
                     // NÂNG CẤP: Hệ tư tưởng 3 cấp độ thông minh theo đặc tính chuỗi văn bản
                     Flexible(
                       child: widget.title.trim().contains(' ')
                           ? Text(
                               widget.title,
-                              style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 17,
+                              ),
                               maxLines: 2,
                               softWrap: true,
                               overflow: TextOverflow.ellipsis,
@@ -550,33 +660,54 @@ class _MealSectionCardState extends State<_MealSectionCard> {
                               alignment: Alignment.centerLeft,
                               child: Text(
                                 widget.title,
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 17,
+                                ),
                               ),
                             ),
                     ),
                     IconButton(
                       icon: _copiedIds.isNotEmpty
-                          ? Icon(Symbols.undo, size: 20, color: colorScheme.primary)
+                          ? Icon(
+                              Symbols.undo,
+                              size: 20,
+                              color: colorScheme.primary,
+                            )
                           : SvgPicture.asset(
                               'assets/svg/icons/copy.svg',
                               width: 18,
                               height: 18,
-                              colorFilter: ColorFilter.mode(colorScheme.primary, BlendMode.srcIn),
+                              colorFilter: ColorFilter.mode(
+                                colorScheme.primary,
+                                BlendMode.srcIn,
+                              ),
                             ),
-                      tooltip: _copiedIds.isNotEmpty ? t.translateDynamic('nutrition.btn_undo_copy') : t.nutrition.btn_main_copy_yesterday,
+                      tooltip: _copiedIds.isNotEmpty
+                          ? t.translateDynamic('nutrition.btn_undo_copy')
+                          : t.nutrition.btn_main_copy_yesterday,
                       onPressed: () async {
                         if (_copiedIds.isNotEmpty) {
                           // Undo logic
                           final confirm = await GymDialog.showConfirm(
                             context: context,
-                            title: t.translateDynamic('nutrition.title_undo_copy'),
-                            message: t.translateDynamic('nutrition.msg_undo_copy_confirm'),
-                            confirmText: t.translateDynamic('nutrition.btn_undo_copy'),
+                            title: t.translateDynamic(
+                              'nutrition.title_undo_copy',
+                            ),
+                            message: t.translateDynamic(
+                              'nutrition.msg_undo_copy_confirm',
+                            ),
+                            confirmText: t.translateDynamic(
+                              'nutrition.btn_undo_copy',
+                            ),
                             cancelText: t.common.cancel,
                             isDestructive: true,
                           );
                           if (confirm == true) {
-                            widget.nutritionCubit.undoCopyMeal(_copiedIds, widget.mealType);
+                            widget.nutritionCubit.undoCopyMeal(
+                              _copiedIds,
+                              widget.mealType,
+                            );
                             if (mounted) {
                               setState(() {
                                 _copiedIds = [];
@@ -585,7 +716,8 @@ class _MealSectionCardState extends State<_MealSectionCard> {
                           }
                         } else {
                           // Copy logic
-                          final copiedIds = await widget.nutritionCubit.copyMealFromYesterday(widget.mealType);
+                          final copiedIds = await widget.nutritionCubit
+                              .copyMealFromYesterday(widget.mealType);
                           if (context.mounted) {
                             if (copiedIds.isNotEmpty) {
                               setState(() {
@@ -626,28 +758,34 @@ class _MealSectionCardState extends State<_MealSectionCard> {
                     FittedBox(
                       fit: BoxFit.scaleDown,
                       child: Text(
-                        t.nutrition.fmt_kcal(arg1: totalCal.toString()), 
-                        style: TextStyle(fontWeight: FontWeight.w900, color: colorScheme.primary, fontSize: 16)
+                        t.nutrition.fmt_kcal(arg1: totalCal.toString()),
+                        style: TextStyle(
+                          fontWeight: FontWeight.w900,
+                          color: colorScheme.primary,
+                          fontSize: 16,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 4),
                     FittedBox(
                       fit: BoxFit.scaleDown,
-                      child: MacroText(protein: totalP, carbs: totalC, fat: totalF),
+                      child: MacroText(
+                        protein: totalP,
+                        carbs: totalC,
+                        fat: totalF,
+                      ),
                     ),
                   ],
-                )
+                ),
             ],
           ),
-          
-
 
           if (widget.consumedFoods.isEmpty)
             Container(
               width: double.infinity,
               decoration: BoxDecoration(
-                color: colorScheme.onSurface.withValues(alpha: 0.05), 
-                borderRadius: BorderRadius.circular(12)
+                color: colorScheme.onSurface.withValues(alpha: 0.05),
+                borderRadius: BorderRadius.circular(12),
               ),
               child: Material(
                 color: Colors.transparent,
@@ -663,8 +801,11 @@ class _MealSectionCardState extends State<_MealSectionCard> {
                         const SizedBox(width: 8),
                         Flexible(
                           child: Text(
-                            t.nutrition.btn_meal_add_food, 
-                            style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold),
+                            t.nutrition.btn_meal_add_food,
+                            style: TextStyle(
+                              color: colorScheme.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
                             softWrap: true,
                             textAlign: TextAlign.center,
                           ),
@@ -676,15 +817,26 @@ class _MealSectionCardState extends State<_MealSectionCard> {
               ),
             )
           else ...[
-            ...widget.consumedFoods.map((food) => _FoodItemRow(food: food, mealType: widget.mealType, nutritionCubit: widget.nutritionCubit)),
+            ...widget.consumedFoods.map(
+              (food) => _FoodItemRow(
+                food: food,
+                mealType: widget.mealType,
+                nutritionCubit: widget.nutritionCubit,
+              ),
+            ),
             const SizedBox(height: 12),
             TextButton.icon(
               onPressed: () => _openFoodSearch(context),
               icon: const Icon(Symbols.add_circle_outline),
-              label: Text(t.nutrition.btn_meal_add_more, style: const TextStyle(fontWeight: FontWeight.bold)),
-              style: TextButton.styleFrom(minimumSize: const Size(double.infinity, 44)),
-            )
-          ]
+              label: Text(
+                t.nutrition.btn_meal_add_more,
+                style: const TextStyle(fontWeight: FontWeight.bold),
+              ),
+              style: TextButton.styleFrom(
+                minimumSize: const Size(double.infinity, 44),
+              ),
+            ),
+          ],
         ],
       ),
     );
@@ -700,7 +852,11 @@ class _FoodItemRow extends StatefulWidget {
   final MealType mealType;
   final NutritionCubit nutritionCubit;
 
-  const _FoodItemRow({required this.food, required this.mealType, required this.nutritionCubit});
+  const _FoodItemRow({
+    required this.food,
+    required this.mealType,
+    required this.nutritionCubit,
+  });
 
   @override
   State<_FoodItemRow> createState() => _FoodItemRowState();
@@ -713,36 +869,60 @@ class _FoodItemRowState extends State<_FoodItemRow> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final userProfile = context.read<ProfileCubit>().state.userProfile;
-    
+
     final String localizedName = t.translateDynamic(widget.food.foodName);
-    final String avatarLetter = localizedName.isNotEmpty ? localizedName[0].toUpperCase() : '?';
-    
-    final bool isScale = widget.food.measurementUnit == FoodUnit.GRAM || widget.food.measurementUnit == FoodUnit.ML;
-    final double displayAmount = isScale ? widget.food.consumedAmount * 100 : widget.food.consumedAmount;
-    
+    final String avatarLetter = localizedName.isNotEmpty
+        ? localizedName[0].toUpperCase()
+        : '?';
+
+    final bool isScale =
+        widget.food.measurementUnit == FoodUnit.GRAM ||
+        widget.food.measurementUnit == FoodUnit.ML;
+    final double displayAmount = isScale
+        ? widget.food.consumedAmount * 100
+        : widget.food.consumedAmount;
+
     String amountStr;
     if (displayAmount % 1 == 0) {
       amountStr = displayAmount.toInt().toString();
     } else {
       amountStr = displayAmount.toStringAsFixed(1);
       if (amountStr.contains('.')) {
-        amountStr = amountStr.replaceAll(RegExp(r'0*$'), '').replaceAll(RegExp(r'\.$'), '');
+        amountStr = amountStr
+            .replaceAll(RegExp(r'0*$'), '')
+            .replaceAll(RegExp(r'\.$'), '');
       }
     }
 
     String unitName;
     switch (widget.food.measurementUnit) {
-      case FoodUnit.GRAM: unitName = t.nutrition.lbl_unit_gram; break;
-      case FoodUnit.ML: unitName = t.nutrition.lbl_unit_ml; break;
-      case FoodUnit.QUANTITY: unitName = t.nutrition.lbl_unit_quantity; break;
-      case FoodUnit.SERVING: unitName = t.nutrition.lbl_unit_serving; break;
-      case FoodUnit.OZ: unitName = t.nutrition.lbl_unit_oz; break;
+      case FoodUnit.GRAM:
+        unitName = t.nutrition.lbl_unit_gram;
+        break;
+      case FoodUnit.ML:
+        unitName = t.nutrition.lbl_unit_ml;
+        break;
+      case FoodUnit.QUANTITY:
+        unitName = t.nutrition.lbl_unit_quantity;
+        break;
+      case FoodUnit.SERVING:
+        unitName = t.nutrition.lbl_unit_serving;
+        break;
+      case FoodUnit.OZ:
+        unitName = t.nutrition.lbl_unit_oz;
+        break;
     }
 
     final String unitLabel = '$amountStr $unitName';
-    
-    final violatedAllergens = NutritionSafetyHelper.getViolatedAllergens(widget.food, userProfile);
-    final matchedDiets = NutritionSafetyHelper.getMatchedDiets(widget.food, userProfile);
+
+    final violatedAllergens = NutritionSafetyHelper.getViolatedAllergens(
+      widget.food,
+      userProfile,
+    );
+    final matchedDiets = NutritionSafetyHelper.getMatchedDiets(
+      widget.food,
+      userProfile,
+    );
     final isRecommended = matchedDiets.isNotEmpty && violatedAllergens.isEmpty;
     final isViolating = violatedAllergens.isNotEmpty;
 
@@ -781,12 +961,14 @@ class _FoodItemRowState extends State<_FoodItemRow> {
                     )
                   else
                     const SizedBox(width: 16),
-                    
+
                   Container(
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: colorScheme.primaryContainer.withValues(alpha: 0.5),
+                      color: colorScheme.primaryContainer.withValues(
+                        alpha: 0.5,
+                      ),
                       shape: BoxShape.circle,
                     ),
                     alignment: Alignment.center,
@@ -801,59 +983,86 @@ class _FoodItemRowState extends State<_FoodItemRow> {
                   ),
                   const SizedBox(width: 8),
                   Icon(
-                    _isExpanded ? Symbols.expand_less : Symbols.expand_more, 
-                    color: colorScheme.onSurfaceVariant, 
-                    size: 20
+                    _isExpanded ? Symbols.expand_less : Symbols.expand_more,
+                    color: colorScheme.onSurfaceVariant,
+                    size: 20,
                   ),
                   const SizedBox(width: 4),
-                  
+
                   Expanded(
                     child: Text(
-                      localizedName, 
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15), 
-                      maxLines: 2, 
+                      localizedName,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                      maxLines: 2,
                       softWrap: true,
-                      overflow: TextOverflow.ellipsis
+                      overflow: TextOverflow.ellipsis,
                     ),
                   ),
-                  
+
                   // Trailing section
                   Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
                         "${widget.food.calculatedTotalCalories} kcal",
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 13, color: colorScheme.primary),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13,
+                          color: colorScheme.primary,
+                        ),
                       ),
                       const SizedBox(width: 4),
                       PopupMenuButton<String>(
-                        icon: Icon(Symbols.more_vert, color: colorScheme.onSurfaceVariant, size: 20),
+                        icon: Icon(
+                          Symbols.more_vert,
+                          color: colorScheme.onSurfaceVariant,
+                          size: 20,
+                        ),
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
                         position: PopupMenuPosition.under,
                         onSelected: (value) {
                           if (value == 'edit') {
                             showModalBottomSheet(
                               context: context,
                               isScrollControlled: true,
-                              backgroundColor: colorScheme.surface, 
+                              backgroundColor: colorScheme.surface,
                               shape: RoundedRectangleBorder(
-                                borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-                                side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.3)), 
+                                borderRadius: const BorderRadius.vertical(
+                                  top: Radius.circular(24),
+                                ),
+                                side: BorderSide(
+                                  color: colorScheme.outline.withValues(
+                                    alpha: 0.3,
+                                  ),
+                                ),
                               ),
                               builder: (ctx) => FoodBottomSheet(
                                 food: widget.food,
                                 onSave: (updatedLogEntry, newBlueprint) {
                                   if (newBlueprint != null) {
-                                    widget.nutritionCubit.saveCustomFoodBlueprint(newBlueprint);
+                                    widget.nutritionCubit
+                                        .saveCustomFoodBlueprint(newBlueprint);
                                   }
-                                  widget.nutritionCubit.updateFoodEntry(widget.food.id, widget.mealType, updatedLogEntry);
+                                  widget.nutritionCubit.updateFoodEntry(
+                                    widget.food.id,
+                                    widget.mealType,
+                                    updatedLogEntry,
+                                  );
                                 },
-                              )
+                              ),
                             );
                           } else if (value == 'delete') {
-                            widget.nutritionCubit.removeFoodFromLog(widget.food.id, widget.mealType);
+                            widget.nutritionCubit.removeFoodFromLog(
+                              widget.food.id,
+                              widget.mealType,
+                            );
                           }
                         },
                         itemBuilder: (context) => [
@@ -861,9 +1070,14 @@ class _FoodItemRowState extends State<_FoodItemRow> {
                             value: 'edit',
                             child: Row(
                               children: [
-                                Icon(Symbols.edit, size: 20, color: colorScheme.primary, fill: 1.0),
+                                Icon(
+                                  Symbols.edit,
+                                  size: 20,
+                                  color: colorScheme.primary,
+                                  fill: 1.0,
+                                ),
                                 const SizedBox(width: 12),
-                                Text(t.common.edit), 
+                                Text(t.common.edit),
                               ],
                             ),
                           ),
@@ -875,24 +1089,32 @@ class _FoodItemRowState extends State<_FoodItemRow> {
                                   'assets/svg/icons/delete_trashcan.svg',
                                   width: 20,
                                   height: 20,
-                                  colorFilter: ColorFilter.mode(colorScheme.error, BlendMode.srcIn),
+                                  colorFilter: ColorFilter.mode(
+                                    colorScheme.error,
+                                    BlendMode.srcIn,
+                                  ),
                                 ),
                                 const SizedBox(width: 12),
-                                Text(t.common.delete, style: TextStyle(color: colorScheme.error)),
+                                Text(
+                                  t.common.delete,
+                                  style: TextStyle(color: colorScheme.error),
+                                ),
                               ],
                             ),
                           ),
                         ],
-                      )
+                      ),
                     ],
                   ),
                 ],
               ),
-              
+
               // Expanded Section
               AnimatedCrossFade(
                 duration: const Duration(milliseconds: 200),
-                crossFadeState: _isExpanded ? CrossFadeState.showSecond : CrossFadeState.showFirst,
+                crossFadeState: _isExpanded
+                    ? CrossFadeState.showSecond
+                    : CrossFadeState.showFirst,
                 firstChild: const SizedBox(width: double.infinity, height: 0),
                 secondChild: Padding(
                   padding: const EdgeInsets.only(left: 52, top: 4, right: 8),
@@ -902,41 +1124,67 @@ class _FoodItemRowState extends State<_FoodItemRow> {
                       FittedBox(
                         fit: BoxFit.scaleDown,
                         child: MacroText(
-                          calories: widget.food.calculatedTotalCalories, 
-                          protein: widget.food.calculatedTotalProtein, 
-                          carbs: widget.food.calculatedTotalCarbs, 
+                          calories: widget.food.calculatedTotalCalories,
+                          protein: widget.food.calculatedTotalProtein,
+                          carbs: widget.food.calculatedTotalCarbs,
                           fat: widget.food.calculatedTotalFat,
                           unitSuffix: ' / $unitLabel',
                         ),
                       ),
-                      if (widget.food.ingredients != null && widget.food.ingredients!.isNotEmpty) ...[
+                      if (widget.food.ingredients != null &&
+                          widget.food.ingredients!.isNotEmpty) ...[
                         const SizedBox(height: 8),
                         SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: Row(
                             children: [
-                              Icon(Symbols.restaurant_menu, size: 14, color: colorScheme.onSurfaceVariant),
+                              Icon(
+                                Symbols.restaurant_menu,
+                                size: 14,
+                                color: colorScheme.onSurfaceVariant,
+                              ),
                               const SizedBox(width: 8),
                               ...widget.food.ingredients!.map((ingId) {
-                                final ingDef = NutritionConstants.knownIngredients.cast<IngredientDef?>().firstWhere((e) => e?.id == ingId, orElse: () => null);
-                                if (ingDef == null) return const SizedBox.shrink();
-                                
-                                final isViolatingIngredient = ingDef.allergenTags.any((t) => userProfile.dietaryRestrictions.contains("nutrition.$t"));
+                                final ingDef = NutritionConstants
+                                    .knownIngredients
+                                    .cast<IngredientDef?>()
+                                    .firstWhere(
+                                      (e) => e?.id == ingId,
+                                      orElse: () => null,
+                                    );
+                                if (ingDef == null)
+                                  return const SizedBox.shrink();
+
+                                final isViolatingIngredient = ingDef
+                                    .allergenTags
+                                    .any(
+                                      (t) => userProfile.dietaryRestrictions
+                                          .contains("nutrition.$t"),
+                                    );
 
                                 return Container(
                                   margin: const EdgeInsets.only(right: 6),
-                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 4,
+                                  ),
                                   decoration: BoxDecoration(
-                                    color: isViolatingIngredient ? colorScheme.errorContainer : colorScheme.surfaceContainerHighest,
+                                    color: isViolatingIngredient
+                                        ? colorScheme.errorContainer
+                                        : colorScheme.surfaceContainerHighest,
                                     borderRadius: BorderRadius.circular(8),
                                   ),
                                   child: Text(
-                                    t.translateDynamic(ingDef.nameKey), 
+                                    t.translateDynamic(ingDef.nameKey),
                                     style: TextStyle(
-                                      fontSize: 11, 
-                                      color: isViolatingIngredient ? colorScheme.error : colorScheme.onSurfaceVariant,
-                                      fontWeight: isViolatingIngredient ? FontWeight.bold : FontWeight.normal
-                                    )
+                                      fontSize: 11,
+                                      color: isViolatingIngredient
+                                          ? colorScheme.error
+                                          : colorScheme.onSurfaceVariant,
+                                      fontWeight: isViolatingIngredient
+                                          ? FontWeight.bold
+                                          : FontWeight.normal,
+                                    ),
                                   ),
                                 );
                               }),
@@ -950,12 +1198,20 @@ class _FoodItemRowState extends State<_FoodItemRow> {
                           child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Icon(Symbols.warning, color: colorScheme.error, size: 14),
+                              Icon(
+                                Symbols.warning,
+                                color: colorScheme.error,
+                                size: 14,
+                              ),
                               const SizedBox(width: 6),
                               Expanded(
                                 child: Text(
                                   "${t.nutrition.warn_allergy}: ${violatedAllergens.map((e) => t.translateDynamic(e)).join(', ')}",
-                                  style: TextStyle(color: colorScheme.error, fontSize: 11, fontWeight: FontWeight.bold),
+                                  style: TextStyle(
+                                    color: colorScheme.error,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                             ],
@@ -1001,7 +1257,7 @@ class _FoodBottomSheetState extends State<FoodBottomSheet> {
   @override
   void initState() {
     super.initState();
-    _name = t.translateDynamic(widget.food.foodName); 
+    _name = t.translateDynamic(widget.food.foodName);
     _cal = widget.food.baseCalories.toString();
     _pro = widget.food.baseProtein.toString();
     _carb = widget.food.baseCarbs.toString();
@@ -1017,12 +1273,17 @@ class _FoodBottomSheetState extends State<FoodBottomSheet> {
 
   void _validateEdit() {
     setState(() {
-      if (_name.trim().isEmpty) { _nameError = null; }
-      else if (!RegExp(r'[a-zA-ZÀ-ỹ]').hasMatch(_name) || _name.length > 50) { _nameError = t.nutrition.err_food_name; } 
-      else { _nameError = null; }
+      if (_name.trim().isEmpty) {
+        _nameError = null;
+      } else if (!RegExp(r'[a-zA-ZÀ-ỹ]').hasMatch(_name) || _name.length > 50) {
+        _nameError = t.nutrition.err_food_name;
+      } else {
+        _nameError = null;
+      }
 
-      if (_cal.trim().isEmpty) { _calError = null; }
-      else {
+      if (_cal.trim().isEmpty) {
+        _calError = null;
+      } else {
         final cal = int.tryParse(_cal.trim()) ?? -1;
         if (cal < 1 || cal > 10000) {
           _calError = t.nutrition.err_food_cal;
@@ -1031,8 +1292,9 @@ class _FoodBottomSheetState extends State<FoodBottomSheet> {
         }
       }
 
-      if (_pro.trim().isEmpty) { _proError = null; }
-      else {
+      if (_pro.trim().isEmpty) {
+        _proError = null;
+      } else {
         final p = int.tryParse(_pro.trim()) ?? -1;
         if (p < 0 || p > 500) {
           _proError = t.nutrition.err_food_pcf;
@@ -1041,8 +1303,9 @@ class _FoodBottomSheetState extends State<FoodBottomSheet> {
         }
       }
 
-      if (_carb.trim().isEmpty) { _carbError = null; }
-      else {
+      if (_carb.trim().isEmpty) {
+        _carbError = null;
+      } else {
         final c = int.tryParse(_carb.trim()) ?? -1;
         if (c < 0 || c > 500) {
           _carbError = t.nutrition.err_food_pcf;
@@ -1051,8 +1314,9 @@ class _FoodBottomSheetState extends State<FoodBottomSheet> {
         }
       }
 
-      if (_fat.trim().isEmpty) { _fatError = null; }
-      else {
+      if (_fat.trim().isEmpty) {
+        _fatError = null;
+      } else {
         final f = int.tryParse(_fat.trim()) ?? -1;
         if (f < 0 || f > 500) {
           _fatError = t.nutrition.err_food_pcf;
@@ -1064,8 +1328,17 @@ class _FoodBottomSheetState extends State<FoodBottomSheet> {
   }
 
   bool _isEditValid() {
-    if (_name.trim().isEmpty || _cal.trim().isEmpty || _pro.trim().isEmpty || _carb.trim().isEmpty || _fat.trim().isEmpty) return false;
-    return _nameError == null && _calError == null && _proError == null && _carbError == null && _fatError == null;
+    if (_name.trim().isEmpty ||
+        _cal.trim().isEmpty ||
+        _pro.trim().isEmpty ||
+        _carb.trim().isEmpty ||
+        _fat.trim().isEmpty)
+      return false;
+    return _nameError == null &&
+        _calError == null &&
+        _proError == null &&
+        _carbError == null &&
+        _fatError == null;
   }
 
   String? _validatePortion(double qty) {
@@ -1082,34 +1355,45 @@ class _FoodBottomSheetState extends State<FoodBottomSheet> {
   }
 
   void _submit() {
-    final bool isNameUnchanged = _name.trim() == t.translateDynamic(widget.food.foodName);
-    final String finalFoodName = isNameUnchanged ? widget.food.foodName : _name.trim();
+    final bool isNameUnchanged =
+        _name.trim() == t.translateDynamic(widget.food.foodName);
+    final String finalFoodName = isNameUnchanged
+        ? widget.food.foodName
+        : _name.trim();
 
-    bool isBlueprintChanged = !isNameUnchanged ||
-                              _cal.trim() != widget.food.baseCalories.toString() ||
-                              _pro.trim() != widget.food.baseProtein.toString() ||
-                              _carb.trim() != widget.food.baseCarbs.toString() ||
-                              _fat.trim() != widget.food.baseFat.toString();
+    bool isBlueprintChanged =
+        !isNameUnchanged ||
+        _cal.trim() != widget.food.baseCalories.toString() ||
+        _pro.trim() != widget.food.baseProtein.toString() ||
+        _carb.trim() != widget.food.baseCarbs.toString() ||
+        _fat.trim() != widget.food.baseFat.toString();
 
     final selectedIngIds = _selectedIngredients.map((e) => e.id).toList();
-    final autoAllergens = _selectedIngredients.expand((e) => e.allergenTags).toSet().toList();
-    final autoDiets = _selectedIngredients.expand((e) => e.dietTags).toSet().toList();
+    final autoAllergens = _selectedIngredients
+        .expand((e) => e.allergenTags)
+        .toSet()
+        .toList();
+    final autoDiets = _selectedIngredients
+        .expand((e) => e.dietTags)
+        .toSet()
+        .toList();
 
     // Check if ingredients changed
     final originalIngs = widget.food.ingredients ?? [];
-    if (selectedIngIds.length != originalIngs.length || !selectedIngIds.every((e) => originalIngs.contains(e))) {
+    if (selectedIngIds.length != originalIngs.length ||
+        !selectedIngIds.every((e) => originalIngs.contains(e))) {
       isBlueprintChanged = true;
     }
 
     final updatedLogEntry = FoodResult(
-      id: widget.food.id, 
-      foodName: finalFoodName, 
+      id: widget.food.id,
+      foodName: finalFoodName,
       baseCalories: int.tryParse(_cal.trim()) ?? 0,
       baseProtein: int.tryParse(_pro.trim()) ?? 0,
       baseCarbs: int.tryParse(_carb.trim()) ?? 0,
       baseFat: int.tryParse(_fat.trim()) ?? 0,
       measurementUnit: widget.food.measurementUnit,
-      consumedAmount: _consumedAmount, 
+      consumedAmount: _consumedAmount,
       assignedMealType: widget.food.assignedMealType,
       ingredients: selectedIngIds,
       allergenTags: autoAllergens,
@@ -1119,14 +1403,16 @@ class _FoodBottomSheetState extends State<FoodBottomSheet> {
     FoodResult? newBlueprint;
     if (isBlueprintChanged) {
       newBlueprint = FoodResult(
-        id: widget.food.id.startsWith('custom_') ? widget.food.id : "custom_${DateTime.now().millisecondsSinceEpoch}", 
+        id: widget.food.id.startsWith('custom_')
+            ? widget.food.id
+            : "custom_${DateTime.now().millisecondsSinceEpoch}",
         foodName: finalFoodName,
         baseCalories: int.tryParse(_cal.trim()) ?? 0,
         baseProtein: int.tryParse(_pro.trim()) ?? 0,
         baseCarbs: int.tryParse(_carb.trim()) ?? 0,
         baseFat: int.tryParse(_fat.trim()) ?? 0,
         measurementUnit: widget.food.measurementUnit,
-        consumedAmount: 1.0, 
+        consumedAmount: 1.0,
         assignedMealType: widget.food.assignedMealType,
         ingredients: selectedIngIds,
         allergenTags: autoAllergens,
@@ -1148,48 +1434,116 @@ class _FoodBottomSheetState extends State<FoodBottomSheet> {
         bottom: MediaQuery.of(context).viewInsets.bottom,
       ),
       child: SingleChildScrollView(
-        padding: const EdgeInsets.only(left: 24, right: 24, top: 32, bottom: 24),
+        padding: const EdgeInsets.only(
+          left: 24,
+          right: 24,
+          top: 32,
+          bottom: 24,
+        ),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(t.nutrition.title_edit_food, style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 20)),
+            Text(
+              t.nutrition.title_edit_food,
+              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 20),
+            ),
             const SizedBox(height: 24),
-            
+
             GymTextField(
               initialValue: _name,
               labelText: t.nutrition.lbl_quick_food_name,
               errorText: _nameError,
               isNumber: false,
-              onChanged: (v) { _name = v; _validateEdit(); },
+              onChanged: (v) {
+                _name = v;
+                _validateEdit();
+              },
             ),
             const SizedBox(height: 16),
-            
+
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(child: GymTextField(initialValue: _cal, labelText: t.nutrition.lbl_dash_calories, unitText: 'kcal', isInteger: true, errorText: _calError, onChanged: (v) { _cal = v; _validateEdit(); })),
+                Expanded(
+                  child: GymTextField(
+                    initialValue: _cal,
+                    labelText: t.nutrition.lbl_dash_calories,
+                    unitText: 'kcal',
+                    isInteger: true,
+                    errorText: _calError,
+                    onChanged: (v) {
+                      _cal = v;
+                      _validateEdit();
+                    },
+                  ),
+                ),
                 const SizedBox(width: 16),
-                Expanded(child: GymTextField(initialValue: _pro, labelText: t.onboarding.lbl_macro_protein, unitText: 'g', isInteger: true, errorText: _proError, onChanged: (v) { _pro = v; _validateEdit(); })),
+                Expanded(
+                  child: GymTextField(
+                    initialValue: _pro,
+                    labelText: t.onboarding.lbl_macro_protein,
+                    unitText: 'g',
+                    isInteger: true,
+                    errorText: _proError,
+                    onChanged: (v) {
+                      _pro = v;
+                      _validateEdit();
+                    },
+                  ),
+                ),
               ],
             ),
             const SizedBox(height: 16),
-            
+
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(child: GymTextField(initialValue: _carb, labelText: t.onboarding.lbl_macro_carbs, unitText: 'g', isInteger: true, errorText: _carbError, onChanged: (v) { _carb = v; _validateEdit(); })),
+                Expanded(
+                  child: GymTextField(
+                    initialValue: _carb,
+                    labelText: t.onboarding.lbl_macro_carbs,
+                    unitText: 'g',
+                    isInteger: true,
+                    errorText: _carbError,
+                    onChanged: (v) {
+                      _carb = v;
+                      _validateEdit();
+                    },
+                  ),
+                ),
                 const SizedBox(width: 16),
-                Expanded(child: GymTextField(initialValue: _fat, labelText: t.onboarding.lbl_macro_fat, unitText: 'g', isInteger: true, errorText: _fatError, onChanged: (v) { _fat = v; _validateEdit(); })),
+                Expanded(
+                  child: GymTextField(
+                    initialValue: _fat,
+                    labelText: t.onboarding.lbl_macro_fat,
+                    unitText: 'g',
+                    isInteger: true,
+                    errorText: _fatError,
+                    onChanged: (v) {
+                      _fat = v;
+                      _validateEdit();
+                    },
+                  ),
+                ),
               ],
             ),
-            
-            const Padding(padding: EdgeInsets.symmetric(vertical: 20), child: Divider()),
+
+            const Padding(
+              padding: EdgeInsets.symmetric(vertical: 20),
+              child: Divider(),
+            ),
 
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text(t.nutrition.lbl_quick_portion, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                Text(
+                  t.nutrition.lbl_quick_portion,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
                 UniversalFoodStepper(
                   consumedAmount: _consumedAmount,
                   unit: widget.food.measurementUnit,
@@ -1221,16 +1575,32 @@ class _FoodBottomSheetState extends State<FoodBottomSheet> {
             ),
 
             const SizedBox(height: 16),
-            Text(t.nutrition.lbl_ingredients, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, color: colorScheme.onSurface)),
+            Text(
+              t.nutrition.lbl_ingredients,
+              style: TextStyle(
+                fontWeight: FontWeight.w600,
+                fontSize: 14,
+                color: colorScheme.onSurface,
+              ),
+            ),
             const SizedBox(height: 8),
             if (_selectedIngredients.isNotEmpty) ...[
               Wrap(
-                spacing: 8, runSpacing: 8,
-                children: _selectedIngredients.map((ing) => Chip(
-                  label: Text(t.translateDynamic(ing.nameKey), style: const TextStyle(fontSize: 12)),
-                  onDeleted: () => setState(() => _selectedIngredients.remove(ing)),
-                  deleteIcon: const Icon(Symbols.close, size: 16),
-                )).toList(),
+                spacing: 8,
+                runSpacing: 8,
+                children: _selectedIngredients
+                    .map(
+                      (ing) => Chip(
+                        label: Text(
+                          t.translateDynamic(ing.nameKey),
+                          style: const TextStyle(fontSize: 12),
+                        ),
+                        onDeleted: () =>
+                            setState(() => _selectedIngredients.remove(ing)),
+                        deleteIcon: const Icon(Symbols.close, size: 16),
+                      ),
+                    )
+                    .toList(),
               ),
               const SizedBox(height: 12),
             ],
@@ -1240,12 +1610,17 @@ class _FoodBottomSheetState extends State<FoodBottomSheet> {
                   return const Iterable<IngredientDef>.empty();
                 }
                 final query = textEditingValue.text.toLowerCase();
-                return NutritionConstants.knownIngredients.where((IngredientDef option) {
-                  final trName = t.translateDynamic(option.nameKey).toLowerCase();
+                return NutritionConstants.knownIngredients.where((
+                  IngredientDef option,
+                ) {
+                  final trName = t
+                      .translateDynamic(option.nameKey)
+                      .toLowerCase();
                   return trName.contains(query);
                 });
               },
-              displayStringForOption: (IngredientDef option) => t.translateDynamic(option.nameKey),
+              displayStringForOption: (IngredientDef option) =>
+                  t.translateDynamic(option.nameKey),
               onSelected: (IngredientDef selection) {
                 if (!_selectedIngredients.contains(selection)) {
                   setState(() {
@@ -1253,41 +1628,74 @@ class _FoodBottomSheetState extends State<FoodBottomSheet> {
                   });
                 }
               },
-              fieldViewBuilder: (context, controller, focusNode, onEditingComplete) {
-                return TextField(
-                  controller: controller,
-                  focusNode: focusNode,
-                  decoration: InputDecoration(
-                    hintText: t.nutrition.hint_search_ingredient,
-                    hintStyle: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant),
-                    isDense: true,
-                    filled: true,
-                    fillColor: colorScheme.surface,
-                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colorScheme.onSurfaceVariant)),
-                    enabledBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colorScheme.onSurfaceVariant.withValues(alpha: 0.5))),
-                    focusedBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide(color: colorScheme.primary, width: 2)),
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  ),
-                  onEditingComplete: () {
-                    controller.clear();
-                    onEditingComplete();
+              fieldViewBuilder:
+                  (context, controller, focusNode, onEditingComplete) {
+                    return TextField(
+                      controller: controller,
+                      focusNode: focusNode,
+                      decoration: InputDecoration(
+                        hintText: t.nutrition.hint_search_ingredient,
+                        hintStyle: TextStyle(
+                          fontSize: 13,
+                          color: colorScheme.onSurfaceVariant,
+                        ),
+                        isDense: true,
+                        filled: true,
+                        fillColor: colorScheme.surface,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: colorScheme.onSurfaceVariant,
+                          ),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: colorScheme.onSurfaceVariant.withValues(
+                              alpha: 0.5,
+                            ),
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: BorderSide(
+                            color: colorScheme.primary,
+                            width: 2,
+                          ),
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                      ),
+                      onEditingComplete: () {
+                        controller.clear();
+                        onEditingComplete();
+                      },
+                    );
                   },
-                );
-              },
             ),
-            
+
             const SizedBox(height: 32),
             ElevatedButton(
               style: ElevatedButton.styleFrom(
-                backgroundColor: colorScheme.primary, 
-                foregroundColor: colorScheme.onPrimary, 
-                minimumSize: const Size(double.infinity, 56), 
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)), 
+                backgroundColor: colorScheme.primary,
+                foregroundColor: colorScheme.onPrimary,
+                minimumSize: const Size(double.infinity, 56),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
                 elevation: 4,
-                disabledBackgroundColor: colorScheme.surfaceContainerHighest
+                disabledBackgroundColor: colorScheme.surfaceContainerHighest,
               ),
               onPressed: _isEditValid() ? _submit : null,
-              child: Text(t.common.save, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+              child: Text(
+                t.common.save,
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
             ),
           ],
         ),

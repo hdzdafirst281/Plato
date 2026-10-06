@@ -1,8 +1,8 @@
 import 'dart:async';
 import '../../../notifications/application/notification_coordinator.dart';
 import '../../../notifications/data/notification_copy.dart';
+import '../../../notifications/domain/notification_policy.dart';
 import '../../../workout/presentation/bloc/active_session_cubit.dart';
-import '../../../workout/presentation/components/workout_components.dart';
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
@@ -27,7 +27,8 @@ import 'package:plato_gymapp/core/designsystem/components/gym_time_picker.dart';
 
 import 'package:plato_gymapp/core/navigation/app_routes.dart';
 import 'package:plato_gymapp/core/utils/tour_keys.dart';
-import 'package:plato_gymapp/features/profile/domain/profile_chart_utils.dart' as profile_chart_utils;
+import 'package:plato_gymapp/features/profile/domain/profile_chart_utils.dart'
+    as profile_chart_utils;
 import 'package:plato_gymapp/features/workout/presentation/bloc/editor_cubit.dart';
 
 import 'package:plato_gymapp/features/workout/data/models/workout_models.dart';
@@ -47,10 +48,10 @@ class CalendarScreen extends StatefulWidget {
 class _CalendarScreenState extends State<CalendarScreen> {
   bool _openedInitialSchedule = false;
   CalendarViewMode _viewMode = CalendarViewMode.MONTH;
-  
+
   late PageController _monthPageController;
   late PageController _yearPageController;
-  
+
   // Xử lý ẩn lịch sử quá khứ
   int _earliestMonthOffset = 0;
   int _initialMonthPage = 0;
@@ -61,7 +62,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
   Timer? _tourDelayTimer;
   final bool forceShowTour = false; // [DEBUG FLAG]
-  
+
   DateTime? _selectedTabletDate;
   List<dynamic>? _selectedTabletSessions;
   ShowCaseWidgetState? _showcaseState;
@@ -85,7 +86,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
   @override
   void didUpdateWidget(covariant CalendarScreen oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (oldWidget.initialScheduleId != widget.initialScheduleId) _openedInitialSchedule = false;
+    if (oldWidget.initialScheduleId != widget.initialScheduleId)
+      _openedInitialSchedule = false;
   }
 
   @override
@@ -102,15 +104,17 @@ class _CalendarScreenState extends State<CalendarScreen> {
     if (_tourDelayTimer?.isActive ?? false) {
       _tourDelayTimer?.cancel();
     }
-    
+
     // [CRITIC DEBUG FIX 1]: Force clear cờ khóa App nếu màn hình bị pop ngang bằng nút back vật lý.
     if (AppRouter.isTourActive.value) {
       AppRouter.forceAbortTour();
     }
-    
-    // ignore: deprecated_member_use
-    try { _showcaseState?.dismiss(); } catch (_) {}
-    
+
+    try {
+      // ignore: deprecated_member_use
+      _showcaseState?.dismiss();
+    } catch (_) {}
+
     _monthPageController.dispose();
     _yearPageController.dispose();
     super.dispose();
@@ -121,9 +125,9 @@ class _CalendarScreenState extends State<CalendarScreen> {
     if (!mounted || AppRouter.isTourActive.value) return;
     final tourCubit = context.read<TourCubit>();
     if (tourCubit.state.hasSeenCalendar && !forceShowTour) return;
-    
+
     AppRouter.isTourActive.value = true;
-    
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _tourDelayTimer = Timer(const Duration(milliseconds: 600), () {
         if (!mounted) {
@@ -140,13 +144,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
       AppRouter.isTourActive.value = false;
       return;
     }
-    AppRouter.startTour(context, [
-      TourKeys.calendarViewToggleBtn,
-      TourKeys.calendarDayCell,
-    ], 
-    onCompleted: () {
-      tourCubit.completeCalendarTour();
-    });
+    AppRouter.startTour(
+      context,
+      [TourKeys.calendarViewToggleBtn, TourKeys.calendarDayCell],
+      onCompleted: () {
+        tourCubit.completeCalendarTour();
+      },
+    );
   }
 
   // THÊM BIẾN QUẢN LÝ NĂM CÓ DỮ LIỆU
@@ -155,29 +159,38 @@ class _CalendarScreenState extends State<CalendarScreen> {
   void _initPagination() {
     final statsState = context.read<StatsCubit>().state;
     final workoutState = context.read<WorkoutCubit>().state;
-    
+
     // Gọi update để cache sẵn _activeYears
-    _updateMappedItemsIfChanged(statsState.workouts, workoutState.scheduledWorkoutsList);
+    _updateMappedItemsIfChanged(
+      statsState.workouts,
+      workoutState.scheduledWorkoutsList,
+    );
     if (!_openedInitialSchedule && widget.initialScheduleId != null) {
-      final schedule = workoutState.scheduledWorkoutsList.where((s) => s.id == widget.initialScheduleId).firstOrNull;
+      final schedule = workoutState.scheduledWorkoutsList
+          .where((s) => s.id == widget.initialScheduleId)
+          .firstOrNull;
       if (schedule != null) {
         _openedInitialSchedule = true;
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!mounted) return;
-          final date = DateTime.fromMillisecondsSinceEpoch(schedule.targetDateMillis);
+          final date = DateTime.fromMillisecondsSinceEpoch(
+            schedule.targetDateMillis,
+          );
           _showDayWorkoutsSheet(context, date, [schedule]);
         });
       }
     }
-
 
     final pastWorkouts = statsState.workouts;
     final now = DateTime.now();
 
     if (pastWorkouts.isNotEmpty) {
       final minMillis = pastWorkouts.map((w) => w.startTime).reduce(math.min);
-      final earliestDate = DateTime.fromMillisecondsSinceEpoch(minMillis).toLocal();
-      _earliestMonthOffset = (earliestDate.year - now.year) * 12 + earliestDate.month - now.month;
+      final earliestDate = DateTime.fromMillisecondsSinceEpoch(
+        minMillis,
+      ).toLocal();
+      _earliestMonthOffset =
+          (earliestDate.year - now.year) * 12 + earliestDate.month - now.month;
       _earliestYearOffset = earliestDate.year - now.year;
     } else {
       _earliestMonthOffset = 0;
@@ -197,31 +210,46 @@ class _CalendarScreenState extends State<CalendarScreen> {
   }
 
   // [PERF FIX]: Giới hạn tạo Map tương lai 3 năm và cập nhật mảng năm (active years)
-  void _updateMappedItemsIfChanged(List<WorkoutSession> past, List<ScheduledWorkout> future) {
+  void _updateMappedItemsIfChanged(
+    List<WorkoutSession> past,
+    List<ScheduledWorkout> future,
+  ) {
     if (_lastPastWorkouts == past && _lastFutureWorkouts == future) return;
 
     final mappedItems = <DateTime, List<dynamic>>{};
     final now = DateTime.now();
     final todayMidnight = DateTime(now.year, now.month, now.day);
-    
+
     // Giới hạn tương lai tối đa 3 năm để chặn vòng lặp vô hạn
     final maxFutureDate = DateTime(now.year + 3, now.month, now.day);
     Set<int> yearsSet = {now.year}; // Luôn hiển thị ít nhất năm hiện tại
 
     for (var w in past) {
-      final localDate = DateTime.fromMillisecondsSinceEpoch(w.startTime).toLocal();
-      final midnightKey = DateTime(localDate.year, localDate.month, localDate.day);
+      final localDate = DateTime.fromMillisecondsSinceEpoch(
+        w.startTime,
+      ).toLocal();
+      final midnightKey = DateTime(
+        localDate.year,
+        localDate.month,
+        localDate.day,
+      );
       mappedItems.putIfAbsent(midnightKey, () => []).add(w);
       yearsSet.add(localDate.year);
     }
-    
+
     for (var s in future) {
-      final localDate = DateTime.fromMillisecondsSinceEpoch(s.targetDateMillis).toLocal();
-      final midnightKey = DateTime(localDate.year, localDate.month, localDate.day);
-      
+      final localDate = DateTime.fromMillisecondsSinceEpoch(
+        s.targetDateMillis,
+      ).toLocal();
+      final midnightKey = DateTime(
+        localDate.year,
+        localDate.month,
+        localDate.day,
+      );
+
       if (midnightKey.isBefore(todayMidnight)) continue;
-      if (midnightKey.isAfter(maxFutureDate)) continue; 
-      
+      if (midnightKey.isAfter(maxFutureDate)) continue;
+
       mappedItems.putIfAbsent(midnightKey, () => []).add(s);
       yearsSet.add(localDate.year);
     }
@@ -229,7 +257,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
     _mappedItemsCache = mappedItems;
     _lastPastWorkouts = past;
     _lastFutureWorkouts = future;
-    
+
     _activeYears = yearsSet.toList()..sort();
   }
 
@@ -255,26 +283,46 @@ class _CalendarScreenState extends State<CalendarScreen> {
   void _onArrowPressed(bool isNext) {
     if (_viewMode == CalendarViewMode.MONTH) {
       if (isNext) {
-        _monthPageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOutCubic);
+        _monthPageController.nextPage(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOutCubic,
+        );
       } else if (_currentMonthIndex > 0) {
-        _monthPageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOutCubic);
+        _monthPageController.previousPage(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOutCubic,
+        );
       }
     } else if (_viewMode == CalendarViewMode.YEAR) {
       if (isNext) {
-        _yearPageController.nextPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOutCubic);
+        _yearPageController.nextPage(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOutCubic,
+        );
       } else if (!isNext && _currentYearIndex > 0) {
-        _yearPageController.previousPage(duration: const Duration(milliseconds: 300), curve: Curves.easeInOutCubic);
+        _yearPageController.previousPage(
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeInOutCubic,
+        );
       }
     }
   }
 
   void _onTodayPressed() {
     if (_viewMode == CalendarViewMode.MONTH) {
-      _monthPageController.animateToPage(_initialMonthPage, duration: const Duration(milliseconds: 400), curve: Curves.easeInOutCubic);
+      _monthPageController.animateToPage(
+        _initialMonthPage,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOutCubic,
+      );
     } else if (_viewMode == CalendarViewMode.YEAR) {
-      _yearPageController.animateToPage(_initialYearPage, duration: const Duration(milliseconds: 400), curve: Curves.easeInOutCubic);
+      _yearPageController.animateToPage(
+        _initialYearPage,
+        duration: const Duration(milliseconds: 400),
+        curve: Curves.easeInOutCubic,
+      );
     } else {
-      // Đối với Multi-Year, ta có thể dùng ScrollController nếu cần, 
+      // Đối với Multi-Year, ta có thể dùng ScrollController nếu cần,
       // nhưng mặc định danh sách xếp ngược từ mới nhất xuống.
     }
   }
@@ -282,38 +330,54 @@ class _CalendarScreenState extends State<CalendarScreen> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    
+
     final statsState = context.watch<StatsCubit>().state;
     final workoutState = context.watch<WorkoutCubit>().state;
-    
-    _updateMappedItemsIfChanged(statsState.workouts, workoutState.scheduledWorkoutsList);
+
+    _updateMappedItemsIfChanged(
+      statsState.workouts,
+      workoutState.scheduledWorkoutsList,
+    );
     if (!_openedInitialSchedule && widget.initialScheduleId != null) {
-      final schedule = workoutState.scheduledWorkoutsList.where((s) => s.id == widget.initialScheduleId).firstOrNull;
+      final schedule = workoutState.scheduledWorkoutsList
+          .where((s) => s.id == widget.initialScheduleId)
+          .firstOrNull;
       if (schedule != null) {
         _openedInitialSchedule = true;
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!mounted) return;
-          final date = DateTime.fromMillisecondsSinceEpoch(schedule.targetDateMillis);
+          final date = DateTime.fromMillisecondsSinceEpoch(
+            schedule.targetDateMillis,
+          );
           _showDayWorkoutsSheet(context, date, [schedule]);
         });
       }
     }
 
-
     if (isDesktopMode(context) && _selectedTabletDate != null) {
-      final key = DateTime(_selectedTabletDate!.year, _selectedTabletDate!.month, _selectedTabletDate!.day);
+      final key = DateTime(
+        _selectedTabletDate!.year,
+        _selectedTabletDate!.month,
+        _selectedTabletDate!.day,
+      );
       _selectedTabletSessions = _mappedItemsCache[key] ?? [];
     }
 
-    final currentLangCode = TranslationProvider.of(context).flutterLocale.languageCode;
+    final currentLangCode = TranslationProvider.of(
+      context,
+    ).flutterLocale.languageCode;
     String titleLabel;
     if (_viewMode == CalendarViewMode.MONTH) {
       titleLabel = DateFormat("MMMM yyyy", currentLangCode).format(_activeDate);
     } else {
-      titleLabel = t.stats.fmt_cal_year_title(arg1: _activeDate.year.toString());
+      titleLabel = t.stats.fmt_cal_year_title(
+        arg1: _activeDate.year.toString(),
+      );
     }
 
-    final isLeftArrowActive = _viewMode == CalendarViewMode.MONTH ? _currentMonthIndex > 0 : _currentYearIndex > 0;
+    final isLeftArrowActive = _viewMode == CalendarViewMode.MONTH
+        ? _currentMonthIndex > 0
+        : _currentYearIndex > 0;
 
     // Label cho App Bar
     final String viewModeLabel = switch (_viewMode) {
@@ -329,25 +393,28 @@ class _CalendarScreenState extends State<CalendarScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         leading: IconButton(
-          icon: Icon(Symbols.arrow_back, color: colorScheme.onSurface), 
+          icon: Icon(Symbols.arrow_back, color: colorScheme.onSurface),
           onPressed: () {
             // ignore: deprecated_member_use
             _showcaseState?.dismiss(); // Tắt guide tour trước khi pop
             context.pop();
-          }
+          },
         ),
         titleSpacing: 0,
         centerTitle: true,
         // [UI/UX FIX]: Thay thế Row bằng Center để hấp thụ constraint từ AppBar.
         title: Row(
-          mainAxisSize: MainAxisSize.min, // Quan trọng: Ép Row co lại nhỏ nhất có thể
+          mainAxisSize:
+              MainAxisSize.min, // Quan trọng: Ép Row co lại nhỏ nhất có thể
           children: [
             GymTourTarget(
-              isActive: !context.read<TourCubit>().state.hasSeenCalendar || forceShowTour,
+              isActive:
+                  !context.read<TourCubit>().state.hasSeenCalendar ||
+                  forceShowTour,
               tourKey: TourKeys.calendarViewToggleBtn,
               title: t.tour.cal_toggle_title,
               description: t.tour.cal_toggle_desc,
-              borderRadius: 12.0, 
+              borderRadius: 12.0,
               targetPadding: EdgeInsets.zero,
               child: Theme(
                 data: Theme.of(context).copyWith(
@@ -365,28 +432,41 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   color: colorScheme.surface,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.3)),
+                    side: BorderSide(
+                      color: colorScheme.outline.withValues(alpha: 0.3),
+                    ),
                   ),
-                  itemBuilder: (BuildContext context) => <PopupMenuEntry<CalendarViewMode>>[
-                    PopupMenuItem<CalendarViewMode>(
-                      value: CalendarViewMode.MONTH,
-                      child: Text(t.calendar.view_month),
-                    ),
-                    PopupMenuItem<CalendarViewMode>(
-                      value: CalendarViewMode.YEAR,
-                      child: Text(t.calendar.view_year),
-                    ),
-                    PopupMenuItem<CalendarViewMode>(
-                      value: CalendarViewMode.MULTI_YEAR,
-                      child: Text(t.calendar.view_multi_year),
-                    ),
-                  ],
+                  itemBuilder: (BuildContext context) =>
+                      <PopupMenuEntry<CalendarViewMode>>[
+                        PopupMenuItem<CalendarViewMode>(
+                          value: CalendarViewMode.MONTH,
+                          child: Text(t.calendar.view_month),
+                        ),
+                        PopupMenuItem<CalendarViewMode>(
+                          value: CalendarViewMode.YEAR,
+                          child: Text(t.calendar.view_year),
+                        ),
+                        PopupMenuItem<CalendarViewMode>(
+                          value: CalendarViewMode.MULTI_YEAR,
+                          child: Text(t.calendar.view_multi_year),
+                        ),
+                      ],
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 8.0, vertical: 4.0),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 8.0,
+                      vertical: 4.0,
+                    ),
                     child: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text(viewModeLabel, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: colorScheme.onSurface)),
+                        Text(
+                          viewModeLabel,
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: colorScheme.onSurface,
+                          ),
+                        ),
                         const SizedBox(width: 4),
                         Icon(Symbols.expand_more, color: colorScheme.onSurface),
                       ],
@@ -400,7 +480,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
         actions: [
           TextButton(
             onPressed: _onTodayPressed,
-            child: Text(t.stats.btn_cal_today, style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.primary)),
+            child: Text(
+              t.stats.btn_cal_today,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: colorScheme.primary,
+              ),
+            ),
           ),
           const SizedBox(width: 8),
         ],
@@ -408,13 +494,15 @@ class _CalendarScreenState extends State<CalendarScreen> {
       body: SafeArea(
         child: LayoutBuilder(
           builder: (context, constraints) {
-            final isDesktop = ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET);
-            
+            final isDesktop = ResponsiveBreakpoints.of(
+              context,
+            ).largerOrEqualTo(TABLET);
+
             final double cellWidth = (constraints.maxWidth - 32) / 7;
-            const double childAspectRatio = 0.45; 
+            const double childAspectRatio = 0.45;
             final double cellHeight = cellWidth / childAspectRatio;
             final double calculatedGridHeight = cellHeight * 6 + 56;
-            
+
             Widget calendarContent = SingleChildScrollView(
               physics: const BouncingScrollPhysics(),
               child: Column(
@@ -423,48 +511,76 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     padding: const EdgeInsets.all(16),
                     child: Builder(
                       builder: (context) {
-                        final isDark = Theme.of(context).brightness == Brightness.dark;
+                        final isDark =
+                            Theme.of(context).brightness == Brightness.dark;
                         final gymColors = Theme.of(context).gymColors;
-                        
+
                         int currentStreak = statsState.weeklyStreak;
                         List<Color> streakColors;
                         if (currentStreak == 0) {
-                          streakColors = [gymColors.fireBreakColor, gymColors.fireBreakColor];
+                          streakColors = [
+                            gymColors.fireBreakColor,
+                            gymColors.fireBreakColor,
+                          ];
                         } else if (currentStreak < 50) {
-                          streakColors = [gymColors.streakGradientStart, gymColors.streakGradientEnd];
+                          streakColors = [
+                            gymColors.streakGradientStart,
+                            gymColors.streakGradientEnd,
+                          ];
                         } else if (currentStreak < 100) {
-                          streakColors = [gymColors.fire2Start, gymColors.fire2End];
+                          streakColors = [
+                            gymColors.fire2Start,
+                            gymColors.fire2End,
+                          ];
                         } else {
-                          streakColors = [gymColors.fire3Start, gymColors.fire3End];
+                          streakColors = [
+                            gymColors.fire3Start,
+                            gymColors.fire3End,
+                          ];
                         }
 
                         return Row(
                           children: [
                             Expanded(
                               child: _CompactStatCard(
-                                customIcon: StreakIcon(streak: currentStreak, size: 24),
+                                customIcon: StreakIcon(
+                                  streak: currentStreak,
+                                  size: 24,
+                                ),
                                 gradientColors: streakColors,
                                 title: t.stats.lbl_cal_streak_title,
                                 value: "$currentStreak",
-                                iconBackgroundColor: Colors.white.withValues(alpha: 0.4),
+                                iconBackgroundColor: Colors.white.withValues(
+                                  alpha: 0.4,
+                                ),
                               ),
                             ),
                             const SizedBox(width: 16),
                             Expanded(
                               child: _CompactStatCard(
                                 icon: Symbols.bedtime,
-                                gradientColors: isDark ? const [restGradientStartDark, restGradientEndDark] : const [restGradientStartLight, restGradientEndLight],
+                                gradientColors: isDark
+                                    ? const [
+                                        restGradientStartDark,
+                                        restGradientEndDark,
+                                      ]
+                                    : const [
+                                        restGradientStartLight,
+                                        restGradientEndLight,
+                                      ],
                                 title: t.stats.lbl_cal_rest_title,
                                 value: "${statsState.restDays}",
-                                iconBackgroundColor: Colors.white.withValues(alpha: 0.4),
+                                iconBackgroundColor: Colors.white.withValues(
+                                  alpha: 0.4,
+                                ),
                               ),
                             ),
                           ],
                         );
-                      }
+                      },
                     ),
                   ),
-                  
+
                   // Chỉ hiển thị mũi tên ở Month và Year
                   if (_viewMode != CalendarViewMode.MULTI_YEAR)
                     Padding(
@@ -473,75 +589,106 @@ class _CalendarScreenState extends State<CalendarScreen> {
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           IconButton(
-                            icon: Icon(Symbols.arrow_left, color: isLeftArrowActive ? null : colorScheme.onSurface.withValues(alpha: 0.38)), 
-                            onPressed: isLeftArrowActive ? () => _onArrowPressed(false) : null
+                            icon: Icon(
+                              Symbols.arrow_left,
+                              color: isLeftArrowActive
+                                  ? null
+                                  : colorScheme.onSurface.withValues(
+                                      alpha: 0.38,
+                                    ),
+                            ),
+                            onPressed: isLeftArrowActive
+                                ? () => _onArrowPressed(false)
+                                : null,
                           ),
                           AnimatedSwitcher(
                             duration: const Duration(milliseconds: 200),
-                            child: Text(titleLabel.toUpperCase(), key: ValueKey(titleLabel), style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                            child: Text(
+                              titleLabel.toUpperCase(),
+                              key: ValueKey(titleLabel),
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
                           ),
                           IconButton(
-                            icon: const Icon(Symbols.arrow_right), 
+                            icon: const Icon(Symbols.arrow_right),
                             onPressed: () => _onArrowPressed(true),
                           ),
                         ],
                       ),
                     ),
-                  
+
                   const SizedBox(height: 8),
 
                   AnimatedSwitcher(
                     duration: const Duration(milliseconds: 300),
-                    child: _viewMode == CalendarViewMode.MONTH 
-                      ? SizedBox(
-                          height: calculatedGridHeight,
-                          child: PageView.builder(
-                            key: const ValueKey("month_view"),
-                            controller: _monthPageController,
-                            onPageChanged: (idx) => setState(() => _currentMonthIndex = idx),
-                            itemBuilder: (context, index) {
-                              final offset = index + _earliestMonthOffset;
-                              final date = DateTime(DateTime.now().year, DateTime.now().month + offset, 1);
-                              return _MonthCalendarGrid(
-                                activeDate: date, 
-                                mappedItems: _mappedItemsCache,
-                                isDesktop: isDesktop,
-                                childAspectRatio: childAspectRatio,
-                                forceShowTour: forceShowTour,
-                                onDaySelected: (d, sessions, {bool startTour = false}) {
-                                  if (isDesktop) {
-                                    setState(() {
-                                      _selectedTabletDate = d;
-                                      _selectedTabletSessions = sessions;
-                                    });
-                                  } else {
-                                    _showDayWorkoutsSheet(context, d, sessions);
-                                  }
-                                },
-                              );
-                            },
-                          ),
-                        )
-                      : (_viewMode == CalendarViewMode.YEAR 
-                          ? SizedBox(
-                              height: 600,
-                              child: PageView.builder(
-                                key: const ValueKey("year_view"),
-                                controller: _yearPageController,
-                                onPageChanged: (idx) => setState(() => _currentYearIndex = idx),
-                                itemBuilder: (context, index) {
-                                  final offset = index + _earliestYearOffset;
-                                  final year = DateTime.now().year + offset;
-                                  return _YearHeatmapView(year: year, mappedItems: _mappedItemsCache);
-                                },
-                              ),
-                            )
-                          : _MultiYearHeatmapView(
-                            activeYears: _activeYears, 
-                            mappedItems: _mappedItemsCache, 
-                            pastWorkouts: statsState.workouts, // Thêm dòng này
+                    child: _viewMode == CalendarViewMode.MONTH
+                        ? SizedBox(
+                            height: calculatedGridHeight,
+                            child: PageView.builder(
+                              key: const ValueKey("month_view"),
+                              controller: _monthPageController,
+                              onPageChanged: (idx) =>
+                                  setState(() => _currentMonthIndex = idx),
+                              itemBuilder: (context, index) {
+                                final offset = index + _earliestMonthOffset;
+                                final date = DateTime(
+                                  DateTime.now().year,
+                                  DateTime.now().month + offset,
+                                  1,
+                                );
+                                return _MonthCalendarGrid(
+                                  activeDate: date,
+                                  mappedItems: _mappedItemsCache,
+                                  isDesktop: isDesktop,
+                                  childAspectRatio: childAspectRatio,
+                                  forceShowTour: forceShowTour,
+                                  onDaySelected:
+                                      (d, sessions, {bool startTour = false}) {
+                                        if (isDesktop) {
+                                          setState(() {
+                                            _selectedTabletDate = d;
+                                            _selectedTabletSessions = sessions;
+                                          });
+                                        } else {
+                                          _showDayWorkoutsSheet(
+                                            context,
+                                            d,
+                                            sessions,
+                                          );
+                                        }
+                                      },
+                                );
+                              },
+                            ),
                           )
-                        ),
+                        : (_viewMode == CalendarViewMode.YEAR
+                              ? SizedBox(
+                                  height: 600,
+                                  child: PageView.builder(
+                                    key: const ValueKey("year_view"),
+                                    controller: _yearPageController,
+                                    onPageChanged: (idx) =>
+                                        setState(() => _currentYearIndex = idx),
+                                    itemBuilder: (context, index) {
+                                      final offset =
+                                          index + _earliestYearOffset;
+                                      final year = DateTime.now().year + offset;
+                                      return _YearHeatmapView(
+                                        year: year,
+                                        mappedItems: _mappedItemsCache,
+                                      );
+                                    },
+                                  ),
+                                )
+                              : _MultiYearHeatmapView(
+                                  activeYears: _activeYears,
+                                  mappedItems: _mappedItemsCache,
+                                  pastWorkouts:
+                                      statsState.workouts, // Thêm dòng này
+                                )),
                   ),
                   const SizedBox(height: 32),
                 ],
@@ -557,19 +704,39 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     children: [
                       Expanded(flex: 6, child: calendarContent),
                       Expanded(
-                        flex: 4, 
+                        flex: 4,
                         child: Container(
-                          margin: const EdgeInsets.only(top: 16, right: 16, bottom: 16),
+                          margin: const EdgeInsets.only(
+                            top: 16,
+                            right: 16,
+                            bottom: 16,
+                          ),
                           decoration: BoxDecoration(
-                            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.2),
+                            color: colorScheme.surfaceContainerHighest
+                                .withValues(alpha: 0.2),
                             borderRadius: BorderRadius.circular(16),
-                            border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.3))
+                            border: Border.all(
+                              color: colorScheme.outlineVariant.withValues(
+                                alpha: 0.3,
+                              ),
+                            ),
                           ),
                           child: _selectedTabletDate != null
-                              ? _buildDayDetailsInline(context, _selectedTabletDate!, _selectedTabletSessions ?? [])
-                              : Center(child: Text(t.calendar.select_day_prompt, style: TextStyle(color: colorScheme.onSurfaceVariant))),
-                        )
-                      )
+                              ? _buildDayDetailsInline(
+                                  context,
+                                  _selectedTabletDate!,
+                                  _selectedTabletSessions ?? [],
+                                )
+                              : Center(
+                                  child: Text(
+                                    t.calendar.select_day_prompt,
+                                    style: TextStyle(
+                                      color: colorScheme.onSurfaceVariant,
+                                    ),
+                                  ),
+                                ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -583,13 +750,17 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
-  void _showDayWorkoutsSheet(BuildContext context, DateTime date, List<dynamic> initialSessions) {
+  void _showDayWorkoutsSheet(
+    BuildContext context,
+    DateTime date,
+    List<dynamic> initialSessions,
+  ) {
     // Cache cubits before showing bottom sheet to prevent deactivated context crashes on tablet resize
     final workoutCubit = context.read<WorkoutCubit>();
     final statsCubit = context.read<StatsCubit>();
     final editorCubit = context.read<EditorCubit>();
     final activeSessionCubit = context.read<ActiveSessionCubit>();
-    
+
     showModalBottomSheet(
       context: context,
       backgroundColor: Theme.of(context).colorScheme.surface,
@@ -598,11 +769,18 @@ class _CalendarScreenState extends State<CalendarScreen> {
       elevation: 4,
       shape: RoundedRectangleBorder(
         borderRadius: const BorderRadius.vertical(top: Radius.circular(24)),
-        side: BorderSide(color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3))
+        side: BorderSide(
+          color: Theme.of(context).colorScheme.outline.withValues(alpha: 0.3),
+        ),
       ),
       builder: (ctx) => SafeArea(
         child: Padding(
-          padding: const EdgeInsets.only(top: 24, left: 16, right: 16, bottom: 24),
+          padding: const EdgeInsets.only(
+            top: 24,
+            left: 16,
+            right: 16,
+            bottom: 24,
+          ),
           child: MultiBlocProvider(
             providers: [
               BlocProvider.value(value: workoutCubit),
@@ -615,14 +793,27 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 // Tận dụng dữ liệu Cache đã có sẵn
                 bool sameDay(int millis) {
                   final d = DateTime.fromMillisecondsSinceEpoch(millis);
-                  return d.year == date.year && d.month == date.month && d.day == date.day;
+                  return d.year == date.year &&
+                      d.month == date.month &&
+                      d.day == date.day;
                 }
+
                 final liveSessions = <dynamic>[
-                  ...workoutState.scheduledWorkoutsList.where((s) => sameDay(s.targetDateMillis)),
-                  ...statsCubit.state.workouts.where((w) => sameDay(w.startTime)),
+                  ...workoutState.scheduledWorkoutsList.where(
+                    (s) => sameDay(s.targetDateMillis),
+                  ),
+                  ...statsCubit.state.workouts.where(
+                    (w) => sameDay(w.startTime),
+                  ),
                 ];
                 // Use builderCtx instead of parentContext to avoid ancestor lookup crash
-                return _buildDayDetailsInline(builderCtx, date, liveSessions, isModal: true, modalContext: ctx);
+                return _buildDayDetailsInline(
+                  builderCtx,
+                  date,
+                  liveSessions,
+                  isModal: true,
+                  modalContext: ctx,
+                );
               },
             ),
           ),
@@ -631,35 +822,51 @@ class _CalendarScreenState extends State<CalendarScreen> {
     );
   }
 
-  void _handleDeleteScheduledWorkout(BuildContext parentContext, ScheduledWorkout s, bool isModal, {BuildContext? modalContext}) async {
+  void _handleDeleteScheduledWorkout(
+    BuildContext parentContext,
+    ScheduledWorkout s,
+    bool isModal, {
+    BuildContext? modalContext,
+  }) async {
     final cubit = parentContext.read<WorkoutCubit>();
     final allScheduled = cubit.state.scheduledWorkoutsList;
-    
-    final sameRoutineInstances = allScheduled.where((w) => s.recurrenceGroupId == null ? w.id == s.id : w.recurrenceGroupId == s.recurrenceGroupId).toList();
+
+    final sameRoutineInstances = allScheduled
+        .where(
+          (w) => s.recurrenceGroupId == null
+              ? w.id == s.id
+              : w.recurrenceGroupId == s.recurrenceGroupId,
+        )
+        .toList();
 
     if (sameRoutineInstances.length > 1) {
       GymDialog.showCustom(
         context: parentContext,
-        titleWidget: Text(t.calendar.title_delete, style: const TextStyle(fontWeight: FontWeight.bold)),
-        content: Text(t.calendar.msg_delete_recurring), 
+        titleWidget: Text(
+          t.calendar.title_delete,
+          style: const TextStyle(fontWeight: FontWeight.bold),
+        ),
+        content: Text(t.calendar.msg_delete_recurring),
         actions: [
           TextButton(
             onPressed: () {
               cubit.removeScheduledWorkout(s.id);
               Navigator.of(parentContext, rootNavigator: true).pop();
             },
-            child: Text(t.calendar.opt_delete_one)
+            child: Text(t.calendar.opt_delete_one),
           ),
           FilledButton(
-            style: FilledButton.styleFrom(backgroundColor: Theme.of(parentContext).colorScheme.error),
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(parentContext).colorScheme.error,
+            ),
             onPressed: () {
               for (var instance in sameRoutineInstances) {
                 cubit.removeScheduledWorkout(instance.id);
               }
               Navigator.of(parentContext, rootNavigator: true).pop();
             },
-            child: Text(t.calendar.opt_delete_all)
-          )
+            child: Text(t.calendar.opt_delete_all),
+          ),
         ],
       );
     } else {
@@ -676,26 +883,44 @@ class _CalendarScreenState extends State<CalendarScreen> {
     }
   }
 
-  Widget _buildDayDetailsInline(BuildContext parentContext, DateTime date, List<dynamic> items, {bool isModal = false, BuildContext? modalContext}) {
+  Widget _buildDayDetailsInline(
+    BuildContext parentContext,
+    DateTime date,
+    List<dynamic> items, {
+    bool isModal = false,
+    BuildContext? modalContext,
+  }) {
     final colorScheme = Theme.of(parentContext).colorScheme;
-    final dateStr = DateFormat("dd MMMM yyyy", TranslationProvider.of(parentContext).flutterLocale.languageCode).format(date);
-    
+    final dateStr = DateFormat(
+      "dd MMMM yyyy",
+      TranslationProvider.of(parentContext).flutterLocale.languageCode,
+    ).format(date);
+
     final pastSessions = items.whereType<WorkoutSession>().toList();
     final futureSessions = items.whereType<ScheduledWorkout>().toList();
-    
-    final routinesList = parentContext.read<WorkoutCubit>().state.userCustomRoutinesList;
+
+    final routinesList = parentContext
+        .read<WorkoutCubit>()
+        .state
+        .userCustomRoutinesList;
     futureSessions.sort((a, b) {
-      final byTime = (a.timeOfDayMinutes ?? 1440).compareTo(b.timeOfDayMinutes ?? 1440);
+      final byTime = (a.timeOfDayMinutes ?? 1440).compareTo(
+        b.timeOfDayMinutes ?? 1440,
+      );
       if (byTime != 0) return byTime;
-      final nameA = routinesList.where((r) => r.id == a.routineId).firstOrNull?.name ?? a.routineName;
-      final nameB = routinesList.where((r) => r.id == b.routineId).firstOrNull?.name ?? b.routineName;
+      final nameA =
+          routinesList.where((r) => r.id == a.routineId).firstOrNull?.name ??
+          a.routineName;
+      final nameB =
+          routinesList.where((r) => r.id == b.routineId).firstOrNull?.name ??
+          b.routineName;
       return nameA.compareTo(nameB);
     });
 
     final now = DateTime.now();
     final todayMidnight = DateTime(now.year, now.month, now.day);
     final isPastDate = date.isBefore(todayMidnight);
-    
+
     final bool isTooLong = items.length >= 5;
 
     return SingleChildScrollView(
@@ -712,9 +937,21 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(t.calendar.title_day_dtl, style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold)),
+                    Text(
+                      t.calendar.title_day_dtl,
+                      style: TextStyle(
+                        color: colorScheme.primary,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
                     const SizedBox(height: 4),
-                    Text(dateStr, style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900)),
+                    Text(
+                      dateStr,
+                      style: const TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
                   ],
                 ),
               ),
@@ -726,46 +963,73 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         FilledButton.icon(
-                          onPressed: () => _openScheduleFlow(parentContext, date),
+                          onPressed: () =>
+                              _openScheduleFlow(parentContext, date),
                           icon: const Icon(Symbols.add),
                           label: Text(t.calendar.btn_confirm),
                           style: FilledButton.styleFrom(
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
                           ),
                         ),
                       ],
-                    )
+                    ),
                 ],
-              )
+              ),
             ],
           ),
           const SizedBox(height: 24),
 
           if (items.isEmpty)
-             Container(
-               width: double.infinity,
-               padding: const EdgeInsets.symmetric(vertical: 40),
-               decoration: BoxDecoration(
-                 color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-                 borderRadius: BorderRadius.circular(16),
-                 border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
-               ),
-               child: Column(
-                 children: [
-                   Icon(Symbols.event_busy, size: 48, color: colorScheme.outline),
-                   const SizedBox(height: 16),
-                   Text(t.calendar.msg_empty, style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 16)),
-                 ],
-               ),
-             ).animate().fade().scale(begin: const Offset(0.95, 0.95)),
-          
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.symmetric(vertical: 40),
+              decoration: BoxDecoration(
+                color: colorScheme.surfaceContainerHighest.withValues(
+                  alpha: 0.3,
+                ),
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(
+                  color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+                ),
+              ),
+              child: Column(
+                children: [
+                  Icon(
+                    Symbols.event_busy,
+                    size: 48,
+                    color: colorScheme.outline,
+                  ),
+                  const SizedBox(height: 16),
+                  Text(
+                    t.calendar.msg_empty,
+                    style: TextStyle(
+                      color: colorScheme.onSurfaceVariant,
+                      fontSize: 16,
+                    ),
+                  ),
+                ],
+              ),
+            ).animate().fade().scale(begin: const Offset(0.95, 0.95)),
+
           if (futureSessions.isNotEmpty) ...[
-             Text(t.calendar.section_upcoming, style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.primary)),
-             const SizedBox(height: 12),
-             ...futureSessions.map((s) {
-              final cardColor = s.colorHex != null ? _hexToColor(s.colorHex!) : colorScheme.primary;
-              
-              final routine = routinesList.where((r) => r.id == s.routineId).firstOrNull;
+            Text(
+              t.calendar.section_upcoming,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: colorScheme.primary,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ...futureSessions.map((s) {
+              final cardColor = s.colorHex != null
+                  ? _hexToColor(s.colorHex!)
+                  : colorScheme.primary;
+
+              final routine = routinesList
+                  .where((r) => r.id == s.routineId)
+                  .firstOrNull;
               final displayRoutineName = routine?.name ?? s.routineName;
 
               return Container(
@@ -781,8 +1045,13 @@ class _CalendarScreenState extends State<CalendarScreen> {
                     borderRadius: BorderRadius.circular(16),
                     onTap: () {
                       if (routine != null) {
-                        parentContext.read<EditorCubit>().setRoutineToEdit(routine);
-                        parentContext.push('/workout/${AppRoutes.createRoutine}', extra: true);
+                        parentContext.read<EditorCubit>().setRoutineToEdit(
+                          routine,
+                        );
+                        parentContext.push(
+                          '/workout/${AppRoutes.createRoutine}',
+                          extra: true,
+                        );
                       }
                     },
                     child: Padding(
@@ -790,9 +1059,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
                       child: Row(
                         children: [
                           Container(
-                            width: 48, height: 48,
+                            width: 48,
+                            height: 48,
                             decoration: BoxDecoration(
-                              color: colorScheme.surface, 
+                              color: colorScheme.surface,
                               shape: BoxShape.circle,
                             ),
                             child: Icon(Symbols.schedule, color: cardColor),
@@ -802,30 +1072,50 @@ class _CalendarScreenState extends State<CalendarScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text("${t.calendar.title_planned} ${t.translateDynamic(displayRoutineName)}", 
-                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: colorScheme.onSurface), maxLines: 1, overflow: TextOverflow.ellipsis),
+                                Text(
+                                  t.translateDynamic(displayRoutineName),
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    color: colorScheme.onSurface,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                                 const SizedBox(height: 4),
-                                Text(s.isCompleted ? t.common.done : s.timeOfDayMinutes == null ? t.calendar.lbl_upcoming : TimeOfDay(hour: s.timeOfDayMinutes! ~/ 60, minute: s.timeOfDayMinutes! % 60).formatGym(parentContext), style: TextStyle(fontSize: 12, color: cardColor, fontWeight: FontWeight.bold)),
+                                Text(
+                                  s.isCompleted
+                                      ? t.common.done
+                                      : s.timeOfDayMinutes == null
+                                      ? t.calendar.lbl_upcoming
+                                      : TimeOfDay(
+                                          hour: s.timeOfDayMinutes! ~/ 60,
+                                          minute: s.timeOfDayMinutes! % 60,
+                                        ).formatGym(parentContext),
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: cardColor,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
-                          if (routine != null && !s.isCompleted) IconButton(
-                            tooltip: t.workout.btn_start_routine,
-                            icon: const Icon(Symbols.play_arrow),
-                            onPressed: () => handleStartWorkoutConflict(
-                              context: parentContext, activeSessionCubit: parentContext.read<ActiveSessionCubit>(),
-                              onConfirmStart: () async {
-                                await parentContext.read<ActiveSessionCubit>().startRoutine(routine, scheduledWorkoutId: s.id);
-                                if (modalContext != null && modalContext.mounted) Navigator.pop(modalContext);
-                                AppRouter.expandWorkoutScreenNotifier.value = true;
-                              }),
-                          ),
+
                           IconButton(
-                            icon: Icon(Symbols.edit_calendar, color: colorScheme.primary),
+                            icon: Icon(
+                              Symbols.edit_calendar,
+                              color: colorScheme.primary,
+                            ),
                             tooltip: t.common.edit,
                             onPressed: () {
                               if (routine != null) {
-                                _openScheduleFlow(parentContext, date, existingSchedule: s, initialRoutine: routine);
+                                _openScheduleFlow(
+                                  parentContext,
+                                  date,
+                                  existingSchedule: s,
+                                  initialRoutine: routine,
+                                );
                               }
                             },
                           ),
@@ -834,11 +1124,19 @@ class _CalendarScreenState extends State<CalendarScreen> {
                               'assets/svg/icons/delete_trashcan.svg',
                               width: 24,
                               height: 24,
-                              colorFilter: ColorFilter.mode(colorScheme.error, BlendMode.srcIn),
+                              colorFilter: ColorFilter.mode(
+                                colorScheme.error,
+                                BlendMode.srcIn,
+                              ),
                             ),
                             tooltip: t.common.delete,
-                            onPressed: () => _handleDeleteScheduledWorkout(parentContext, s, isModal, modalContext: modalContext),
-                          )
+                            onPressed: () => _handleDeleteScheduledWorkout(
+                              parentContext,
+                              s,
+                              isModal,
+                              modalContext: modalContext,
+                            ),
+                          ),
                         ],
                       ),
                     ),
@@ -850,17 +1148,25 @@ class _CalendarScreenState extends State<CalendarScreen> {
           ],
 
           if (pastSessions.isNotEmpty) ...[
-             Text(t.rank.tab_history, style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.primary)),
-             const SizedBox(height: 12),
-             ...pastSessions.map((s) {
+            Text(
+              t.rank.tab_history,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: colorScheme.primary,
+              ),
+            ),
+            const SizedBox(height: 12),
+            ...pastSessions.map((s) {
               final rpeColor = _getRpeColor(parentContext, s.rpe);
               final durationStr = _formatDuration(s.totalDurationSeconds);
-              final exercisesCountStr = t.workout.fmt_dtl_exercises_count(arg1: s.exercises.length.toString());
-              
+              final exercisesCountStr = t.workout.fmt_dtl_exercises_count(
+                arg1: s.exercises.length.toString(),
+              );
+
               return Container(
                 margin: const EdgeInsets.only(bottom: 16),
                 decoration: BoxDecoration(
-                  color: rpeColor.withValues(alpha: 0.15), 
+                  color: rpeColor.withValues(alpha: 0.15),
                   borderRadius: BorderRadius.circular(16),
                   border: Border.all(color: rpeColor, width: 1.5),
                 ),
@@ -869,15 +1175,19 @@ class _CalendarScreenState extends State<CalendarScreen> {
                   child: InkWell(
                     borderRadius: BorderRadius.circular(16),
                     onTap: () {
-                      parentContext.push('/workout/workout_detail/${s.id}'); 
+                      parentContext.push('/workout/workout_detail/${s.id}');
                     },
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Row(
                         children: [
                           Container(
-                            width: 48, height: 48,
-                            decoration: BoxDecoration(color: colorScheme.surface, shape: BoxShape.circle),
+                            width: 48,
+                            height: 48,
+                            decoration: BoxDecoration(
+                              color: colorScheme.surface,
+                              shape: BoxShape.circle,
+                            ),
                             child: Icon(Symbols.done_all, color: rpeColor),
                           ),
                           const SizedBox(width: 16),
@@ -885,9 +1195,25 @@ class _CalendarScreenState extends State<CalendarScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(t.translateDynamic(s.name), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: colorScheme.onSurface), maxLines: 1, overflow: TextOverflow.ellipsis),
+                                Text(
+                                  t.translateDynamic(s.name),
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    color: colorScheme.onSurface,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                                 const SizedBox(height: 4),
-                                Text('$exercisesCountStr • $durationStr', style: TextStyle(fontSize: 12, color: rpeColor, fontWeight: FontWeight.bold)),
+                                Text(
+                                  '$exercisesCountStr • $durationStr',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: rpeColor,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
                               ],
                             ),
                           ),
@@ -898,7 +1224,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
                 ),
               ).animate().fade().slideY(begin: 0.1, end: 0);
             }),
-             const SizedBox(height: 8),
+            const SizedBox(height: 8),
           ],
 
           if (isModal && isTooLong) ...[
@@ -908,15 +1234,26 @@ class _CalendarScreenState extends State<CalendarScreen> {
               child: FilledButton.icon(
                 icon: const Icon(Symbols.close),
                 label: Text(
-                  t.common.close, 
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)
+                  t.common.close,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
                 ),
                 style: ButtonStyle(
                   backgroundColor: WidgetStatePropertyAll(colorScheme.surface),
-                  foregroundColor: WidgetStatePropertyAll(colorScheme.error), 
-                  overlayColor: WidgetStatePropertyAll(colorScheme.error.withValues(alpha: 0.15)), 
-                  padding: const WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: 16)),
-                  shape: WidgetStatePropertyAll(RoundedRectangleBorder(borderRadius: BorderRadius.circular(16))),
+                  foregroundColor: WidgetStatePropertyAll(colorScheme.error),
+                  overlayColor: WidgetStatePropertyAll(
+                    colorScheme.error.withValues(alpha: 0.15),
+                  ),
+                  padding: const WidgetStatePropertyAll(
+                    EdgeInsets.symmetric(vertical: 16),
+                  ),
+                  shape: WidgetStatePropertyAll(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                  ),
                 ),
                 onPressed: () {
                   if (modalContext != null) Navigator.pop(modalContext);
@@ -924,13 +1261,18 @@ class _CalendarScreenState extends State<CalendarScreen> {
               ),
             ),
             const SizedBox(height: 8),
-          ]
+          ],
         ],
       ),
     );
   }
-  
-  void _openScheduleFlow(BuildContext parentContext, DateTime targetDate, {ScheduledWorkout? existingSchedule, WorkoutSession? initialRoutine}) {
+
+  void _openScheduleFlow(
+    BuildContext parentContext,
+    DateTime targetDate, {
+    ScheduledWorkout? existingSchedule,
+    WorkoutSession? initialRoutine,
+  }) {
     showDialog(
       context: parentContext,
       useRootNavigator: true,
@@ -942,17 +1284,26 @@ class _CalendarScreenState extends State<CalendarScreen> {
             final isCurrent = ModalRoute.of(innerCtx)?.isCurrent ?? true;
             return MediaQuery(
               data: MediaQuery.of(innerCtx).copyWith(
-                viewInsets: isCurrent ? MediaQuery.viewInsetsOf(innerCtx) : EdgeInsets.zero,
+                viewInsets: isCurrent
+                    ? MediaQuery.viewInsetsOf(innerCtx)
+                    : EdgeInsets.zero,
               ),
               child: SafeArea(
                 child: Dialog(
                   backgroundColor: Theme.of(parentContext).colorScheme.surface,
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(24),
-                    side: BorderSide(color: Theme.of(parentContext).colorScheme.outline.withValues(alpha: 0.3)),
+                    side: BorderSide(
+                      color: Theme.of(
+                        parentContext,
+                      ).colorScheme.outline.withValues(alpha: 0.3),
+                    ),
                   ),
                   clipBehavior: Clip.antiAlias,
-                  insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                  insetPadding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 24,
+                  ),
                   child: BlocProvider.value(
                     value: parentContext.read<WorkoutCubit>(),
                     child: _ScheduleDialogContent(
@@ -969,9 +1320,10 @@ class _CalendarScreenState extends State<CalendarScreen> {
       },
     );
   }
-  
+
   // Áp dụng chuẩn ResponsiveBreakpoints thay cho biến hardcode
-  bool isDesktopMode(BuildContext context) => ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET);
+  bool isDesktopMode(BuildContext context) =>
+      ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET);
 }
 
 class _ScheduleDialogContent extends StatefulWidget {
@@ -1004,36 +1356,160 @@ class _ScheduleDialogContentState extends State<_ScheduleDialogContent> {
 
   void _goBack() {
     if (widget.existingSchedule != null) {
-      Navigator.pop(context); 
+      Navigator.pop(context);
     } else {
       setState(() => _selectedRoutine = null);
     }
   }
 
-  Future<void> _handleConfirm(int repeatType, int occurrences, List<int> weekdays, int intervalDays,
-      String colorHex, DateTime date, int? minutes, bool reminder, int lead) async {
+  Future<void> _handleConfirm(
+    int repeatType,
+    int occurrences,
+    List<int> weekdays,
+    int intervalDays,
+    String colorHex,
+    DateTime date,
+    int? minutes,
+    bool reminder,
+    int lead,
+  ) async {
     final cubit = context.read<WorkoutCubit>();
     final service = NotificationCoordinator.instance;
     try {
-      if (minutes != null && service != null) await service.gateway.updateTimezone();
+      if (minutes != null && service != null)
+        await service.gateway.updateTimezone();
+      if (reminder && service != null) {
+        final dates = _plannedDates(
+          date,
+          repeatType,
+          occurrences,
+          weekdays,
+          intervalDays,
+        );
+        if (!await service.hasWorkoutReminderCapacity(
+          dates,
+          excludingScheduleId: widget.existingSchedule?.id,
+          timeOfDayMinutes: minutes ?? 8 * 60,
+          leadMinutes: lead,
+        )) {
+          throw const _WorkoutReminderLimitException();
+        }
+      }
       if (widget.existingSchedule != null) {
-        await cubit.updateScheduledWorkout(widget.existingSchedule!, date: date,
-          timeOfDayMinutes: minutes, reminderEnabled: reminder, reminderMinutesBefore: lead,
-          timeZoneId: service?.timezone, colorHex: colorHex);
+        if (repeatType != 0) {
+          await cubit.removeScheduledWorkout(widget.existingSchedule!.id);
+          await cubit.scheduleRoutine(
+            _selectedRoutine!.id,
+            _selectedRoutine!.name,
+            date,
+            repeatType: repeatType,
+            selectedWeekdays: weekdays,
+            occurrences: occurrences,
+            intervalDays: intervalDays,
+            colorHex: colorHex,
+            timeOfDayMinutes: minutes,
+            timeZoneId: service?.timezone,
+            reminderEnabled: reminder,
+            reminderMinutesBefore: lead,
+          );
+        } else {
+          await cubit.updateScheduledWorkout(
+            widget.existingSchedule!,
+            date: date,
+            timeOfDayMinutes: minutes,
+            reminderEnabled: reminder,
+            reminderMinutesBefore: lead,
+            timeZoneId: service?.timezone,
+            colorHex: colorHex,
+          );
+        }
       } else {
-        await cubit.scheduleRoutine(_selectedRoutine!.id, _selectedRoutine!.name, date,
-          repeatType: repeatType, selectedWeekdays: weekdays, occurrences: occurrences,
-          intervalDays: intervalDays, colorHex: colorHex, timeOfDayMinutes: minutes,
-          timeZoneId: service?.timezone, reminderEnabled: reminder, reminderMinutesBefore: lead);
+        await cubit.scheduleRoutine(
+          _selectedRoutine!.id,
+          _selectedRoutine!.name,
+          date,
+          repeatType: repeatType,
+          selectedWeekdays: weekdays,
+          occurrences: occurrences,
+          intervalDays: intervalDays,
+          colorHex: colorHex,
+          timeOfDayMinutes: minutes,
+          timeZoneId: service?.timezone,
+          reminderEnabled: reminder,
+          reminderMinutesBefore: lead,
+        );
       }
       if (!mounted) return;
       final rootContext = Navigator.of(context, rootNavigator: true).context;
       Navigator.pop(context);
       if (rootContext.mounted) _showSuccessDialog(rootContext);
+    } on _WorkoutReminderLimitException {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              NotificationCopy.text(
+                    'notifications.msg_workout_reminder_daily_limit',
+                    {'count': '${NotificationPolicy.maxPerDay}'},
+                  ) ??
+                  '',
+            ),
+          ),
+        );
+      }
+      rethrow;
     } catch (error) {
-      if (mounted) ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(NotificationCopy.text('notifications.msg_schedule_save_failed') ?? t.workout.title_unsaved_changes)));
+      if (mounted)
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              NotificationCopy.text('notifications.msg_schedule_save_failed') ??
+                  t.workout.title_unsaved_changes,
+            ),
+          ),
+        );
       rethrow;
     }
+  }
+
+  List<DateTime> _plannedDates(
+    DateTime start,
+    int repeatType,
+    int occurrences,
+    List<int> weekdays,
+    int intervalDays,
+  ) {
+    final base = DateTime(start.year, start.month, start.day);
+    if (repeatType == 0) return [base];
+    if (repeatType == 1) {
+      return [
+        for (var i = 0; i < occurrences; i++)
+          DateTime(base.year, base.month, base.day + i),
+      ];
+    }
+    if (repeatType == 3) {
+      final interval = math.max(1, intervalDays);
+      return [
+        for (var i = 0; i < occurrences; i++)
+          DateTime(base.year, base.month, base.day + i * interval),
+      ];
+    }
+    final result = <DateTime>[];
+    var cursor = base;
+    var weeks = 0;
+    while (weeks < occurrences && cursor.difference(base).inDays <= 730) {
+      var added = false;
+      for (var offset = 0; offset < 7; offset++) {
+        final date = DateTime(cursor.year, cursor.month, cursor.day + offset);
+        if (!date.isBefore(base) && weekdays.contains(date.weekday)) {
+          result.add(date);
+          added = true;
+        }
+      }
+      if (added) weeks++;
+      cursor = DateTime(cursor.year, cursor.month, cursor.day + 7);
+    }
+    return result;
   }
 
   void _showSuccessDialog(BuildContext validContext) {
@@ -1050,19 +1526,19 @@ class _ScheduleDialogContentState extends State<_ScheduleDialogContent> {
     return ConstrainedBox(
       constraints: BoxConstraints(
         maxWidth: 600,
-        maxHeight: MediaQuery.of(context).size.height * 0.85, 
+        maxHeight: MediaQuery.of(context).size.height * 0.85,
       ),
       child: AnimatedSize(
         duration: const Duration(milliseconds: 300),
         curve: Curves.easeInOutCubic,
-        alignment: Alignment.topCenter, 
+        alignment: Alignment.topCenter,
         child: AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           switchInCurve: Curves.easeIn,
           switchOutCurve: Curves.easeOut,
           layoutBuilder: (currentChild, previousChildren) {
             return Stack(
-              alignment: Alignment.topCenter, 
+              alignment: Alignment.topCenter,
               children: <Widget>[
                 ...previousChildren,
                 // ignore: use_null_aware_elements
@@ -1099,7 +1575,10 @@ class _RoutinePickerPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final routines = context.watch<WorkoutCubit>().state.userCustomRoutinesList;
-    final futureWorkouts = context.watch<WorkoutCubit>().state.scheduledWorkoutsList;
+    final futureWorkouts = context
+        .watch<WorkoutCubit>()
+        .state
+        .scheduledWorkoutsList;
 
     return SingleChildScrollView(
       child: Column(
@@ -1107,81 +1586,118 @@ class _RoutinePickerPage extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Padding(
-            padding: const EdgeInsets.only(left: 24, right: 16, top: 16, bottom: 8),
+            padding: const EdgeInsets.only(
+              left: 24,
+              right: 16,
+              top: 16,
+              bottom: 8,
+            ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
                   child: Text(
-                    t.calendar.title_select_routine, 
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Theme.of(context).colorScheme.primary)
-                  )
+                    t.calendar.title_select_routine,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                      color: Theme.of(context).colorScheme.primary,
+                    ),
+                  ),
                 ),
                 IconButton(
-                  icon: const Icon(Symbols.close), 
-                  onPressed: () => Navigator.pop(context)
+                  icon: const Icon(Symbols.close),
+                  onPressed: () => Navigator.pop(context),
                 ),
               ],
             ),
           ),
-          if (routines.isEmpty) 
-            Padding(padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16), child: Text(t.calendar.msg_no_routines))
+          if (routines.isEmpty)
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+              child: Text(t.calendar.msg_no_routines),
+            )
           else
             ListView.separated(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               padding: const EdgeInsets.only(left: 16, right: 16, bottom: 32),
               itemCount: routines.length,
-              separatorBuilder: (_, _) => const SizedBox(height: 12), 
+              separatorBuilder: (_, _) => const SizedBox(height: 12),
               itemBuilder: (c, i) {
                 final r = routines[i];
                 String? lastColor;
                 try {
-                   final lastScheduled = futureWorkouts.lastWhere((w) => w.routineId == r.id && w.colorHex != null);
-                   lastColor = lastScheduled.colorHex;
+                  final lastScheduled = futureWorkouts.lastWhere(
+                    (w) => w.routineId == r.id && w.colorHex != null,
+                  );
+                  lastColor = lastScheduled.colorHex;
                 } catch (_) {}
-                final Color circleColor = lastColor != null ? _hexToColor(lastColor) : Theme.of(context).colorScheme.primary;
+                final Color circleColor = lastColor != null
+                    ? _hexToColor(lastColor)
+                    : Theme.of(context).colorScheme.primary;
 
                 return Container(
-                  decoration: BoxDecoration(
-                    color: Theme.of(context).colorScheme.surface,
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: Theme.of(context).colorScheme.outlineVariant.withValues(alpha: 0.5), 
-                      width: 1.5,
-                    ),
-                  ),
-                  child: Material(
-                    color: Colors.transparent,
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(16),
-                      onTap: () => onRoutineSelected(r),
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                        child: Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(10),
-                              decoration: BoxDecoration(color: circleColor.withValues(alpha: 0.15), shape: BoxShape.circle),
-                              child: Icon(Symbols.exercise, color: circleColor, size: 20)
-                            ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: Text(
-                                t.translateDynamic(r.name), 
-                                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)
-                              ),
-                            ),
-                            Icon(
-                              Symbols.chevron_right, 
-                              color: Theme.of(context).colorScheme.onSurfaceVariant.withValues(alpha: 0.5)
-                            ),
-                          ],
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.outlineVariant.withValues(alpha: 0.5),
+                          width: 1.5,
                         ),
                       ),
-                    ),
-                  ),
-                ).animate().fade(delay: (50 * i).ms).slideX(begin: 0.05, end: 0);
+                      child: Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(16),
+                          onTap: () => onRoutineSelected(r),
+                          child: Padding(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 12,
+                            ),
+                            child: Row(
+                              children: [
+                                Container(
+                                  padding: const EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                    color: circleColor.withValues(alpha: 0.15),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Icon(
+                                    Symbols.exercise,
+                                    color: circleColor,
+                                    size: 20,
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Text(
+                                    t.translateDynamic(r.name),
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                                Icon(
+                                  Symbols.chevron_right,
+                                  color: Theme.of(context)
+                                      .colorScheme
+                                      .onSurfaceVariant
+                                      .withValues(alpha: 0.5),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                    )
+                    .animate()
+                    .fade(delay: (50 * i).ms)
+                    .slideX(begin: 0.05, end: 0);
               },
             ),
         ],
@@ -1196,16 +1712,26 @@ class _RecurrenceConfigPage extends StatefulWidget {
   final String? initialColorHex;
   final VoidCallback onBack;
   final ScheduledWorkout? existingSchedule;
-  final Future<void> Function(int repeatType, int occurrences, List<int> weekdays, int intervalDays,
-    String colorHex, DateTime date, int? minutes, bool reminder, int lead) onConfirm;
+  final Future<void> Function(
+    int repeatType,
+    int occurrences,
+    List<int> weekdays,
+    int intervalDays,
+    String colorHex,
+    DateTime date,
+    int? minutes,
+    bool reminder,
+    int lead,
+  )
+  onConfirm;
 
   const _RecurrenceConfigPage({
-    required this.routine, 
-    required this.targetDate, 
+    required this.routine,
+    required this.targetDate,
     this.initialColorHex,
     this.existingSchedule,
     required this.onBack,
-    required this.onConfirm
+    required this.onConfirm,
   });
 
   @override
@@ -1218,16 +1744,25 @@ class _RecurrenceConfigPageState extends State<_RecurrenceConfigPage> {
   bool _reminder = false;
   int _lead = 30;
   bool _saving = false;
-  int _repeatType = 0; 
+  int _repeatType = 0;
   final List<int> _selectedWeekdays = [];
   bool _isInfinite = true;
   late String _selectedColorHex;
 
-  final TextEditingController _occurrencesController = TextEditingController(text: "10");
-  final TextEditingController _intervalDaysController = TextEditingController(text: "2");
+  final TextEditingController _occurrencesController = TextEditingController(
+    text: "10",
+  );
+  final TextEditingController _intervalDaysController = TextEditingController(
+    text: "2",
+  );
 
   final List<String> _presetColors = [
-    "#1976D2", "#388E3C", "#D32F2F", "#FBC02D", "#7B1FA2", "#E64A19", 
+    "#1976D2",
+    "#388E3C",
+    "#D32F2F",
+    "#FBC02D",
+    "#7B1FA2",
+    "#E64A19",
   ];
 
   @override
@@ -1239,11 +1774,12 @@ class _RecurrenceConfigPageState extends State<_RecurrenceConfigPage> {
     final existing = widget.existingSchedule;
     if (existing != null) {
       final minutes = existing.timeOfDayMinutes;
-      _time = minutes == null ? null : TimeOfDay(hour: minutes ~/ 60, minute: minutes % 60);
+      _time = minutes == null
+          ? null
+          : TimeOfDay(hour: minutes ~/ 60, minute: minutes % 60);
       _reminder = existing.reminderEnabled;
       _lead = existing.reminderMinutesBefore;
     }
-
   }
 
   @override
@@ -1265,47 +1801,93 @@ class _RecurrenceConfigPageState extends State<_RecurrenceConfigPage> {
     };
 
     return SingleChildScrollView(
-      padding: const EdgeInsets.only(left: 24.0, right: 16.0, top: 16.0, bottom: 24.0),
+      padding: const EdgeInsets.only(
+        left: 24.0,
+        right: 16.0,
+        top: 16.0,
+        bottom: 24.0,
+      ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           Row(
             children: [
-              IconButton(icon: const Icon(Symbols.arrow_back), onPressed: widget.onBack, padding: EdgeInsets.zero, alignment: Alignment.centerLeft),
+              IconButton(
+                icon: const Icon(Symbols.arrow_back),
+                onPressed: widget.onBack,
+                padding: EdgeInsets.zero,
+                alignment: Alignment.centerLeft,
+              ),
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  t.translateDynamic(widget.routine.name), 
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                  maxLines: 1, overflow: TextOverflow.ellipsis,
+                  t.translateDynamic(widget.routine.name),
+                  style: const TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.bold,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-              IconButton(icon: Icon(Symbols.close, color: colorScheme.error), onPressed: () => Navigator.pop(context), padding: EdgeInsets.zero, alignment: Alignment.centerRight),
+              IconButton(
+                icon: Icon(Symbols.close, color: colorScheme.error),
+                onPressed: () => Navigator.pop(context),
+                padding: EdgeInsets.zero,
+                alignment: Alignment.centerRight,
+              ),
             ],
           ),
           const SizedBox(height: 16),
-          
+
           InkWell(
-            onTap: _saving ? null : () async {
-              final date = await showDatePicker(context: context, initialDate: _date,
-                firstDate: DateTime(2020), lastDate: DateTime(DateTime.now().year + 5));
-              if (date != null && mounted) setState(() => _date = date);
-            },
+            onTap: _saving
+                ? null
+                : () async {
+                    final date = await showDatePicker(
+                      context: context,
+                      initialDate: _date,
+                      firstDate: DateTime(2020),
+                      lastDate: DateTime(DateTime.now().year + 5),
+                    );
+                    if (date != null && mounted) setState(() => _date = date);
+                  },
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 12.0),
               child: Row(
                 children: [
-                  Icon(Symbols.calendar_month, color: colorScheme.onSurfaceVariant),
+                  Icon(
+                    Symbols.calendar_month,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                   const SizedBox(width: 16),
-                  Expanded(child: Text(DateFormat.yMMMd(TranslationProvider.of(context).flutterLocale.languageCode).format(_date), style: const TextStyle(fontSize: 16))),
-                  SizedBox(width: 48, child: Align(alignment: Alignment.centerRight, child: Icon(Symbols.edit, color: colorScheme.onSurfaceVariant))),
+                  Expanded(
+                    child: Text(
+                      DateFormat.yMMMd(
+                        TranslationProvider.of(
+                          context,
+                        ).flutterLocale.languageCode,
+                      ).format(_date),
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 48,
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Icon(
+                        Symbols.edit,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
           const SizedBox(height: 16),
-          if (widget.existingSchedule == null) Column(
+          Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const SizedBox(height: 8),
@@ -1314,7 +1896,10 @@ class _RecurrenceConfigPageState extends State<_RecurrenceConfigPage> {
                   Icon(Symbols.repeat, color: colorScheme.onSurfaceVariant),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: Text(t.calendar.lbl_frequency, style: const TextStyle(fontSize: 16)),
+                    child: Text(
+                      t.calendar.lbl_frequency,
+                      style: const TextStyle(fontSize: 16),
+                    ),
                   ),
                 ],
               ),
@@ -1331,10 +1916,12 @@ class _RecurrenceConfigPageState extends State<_RecurrenceConfigPage> {
                       child: PopupMenuButton<int>(
                         initialValue: _repeatType,
                         onSelected: (val) => setState(() => _repeatType = val),
-                        offset: const Offset(0, 56), 
+                        offset: const Offset(0, 56),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
-                          side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.3)),
+                          side: BorderSide(
+                            color: colorScheme.outline.withValues(alpha: 0.3),
+                          ),
                         ),
                         color: colorScheme.surface,
                         constraints: BoxConstraints(
@@ -1342,23 +1929,47 @@ class _RecurrenceConfigPageState extends State<_RecurrenceConfigPage> {
                           maxWidth: constraints.maxWidth,
                         ),
                         itemBuilder: (context) => [
-                          PopupMenuItem(value: 0, child: Text(t.calendar.repeat_none)),
-                          PopupMenuItem(value: 1, child: Text(t.calendar.repeat_daily)),
-                          PopupMenuItem(value: 2, child: Text(t.calendar.repeat_weekly)),
-                          PopupMenuItem(value: 3, child: Text(t.calendar.repeat_interval)),
+                          PopupMenuItem(
+                            value: 0,
+                            child: Text(t.calendar.repeat_none),
+                          ),
+                          PopupMenuItem(
+                            value: 1,
+                            child: Text(t.calendar.repeat_daily),
+                          ),
+                          PopupMenuItem(
+                            value: 2,
+                            child: Text(t.calendar.repeat_weekly),
+                          ),
+                          PopupMenuItem(
+                            value: 3,
+                            child: Text(t.calendar.repeat_interval),
+                          ),
                         ],
                         child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
                           decoration: BoxDecoration(
-                            color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                            color: colorScheme.surfaceContainerHighest
+                                .withValues(alpha: 0.3),
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: colorScheme.outlineVariant),
+                            border: Border.all(
+                              color: colorScheme.outlineVariant,
+                            ),
                           ),
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text(frequencyLabel, style: const TextStyle(fontSize: 16)),
-                              Icon(Symbols.unfold_more, color: colorScheme.onSurfaceVariant),
+                              Text(
+                                frequencyLabel,
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                              Icon(
+                                Symbols.unfold_more,
+                                color: colorScheme.onSurfaceVariant,
+                              ),
                             ],
                           ),
                         ),
@@ -1369,7 +1980,7 @@ class _RecurrenceConfigPageState extends State<_RecurrenceConfigPage> {
               ),
             ],
           ),
-          
+
           AnimatedSize(
             duration: const Duration(milliseconds: 300),
             curve: Curves.easeInOutCubic,
@@ -1379,107 +1990,160 @@ class _RecurrenceConfigPageState extends State<_RecurrenceConfigPage> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                if (_repeatType == 2) ...[
-                  const SizedBox(height: 16),
-                  Text(t.calendar.lbl_choose_days, style: const TextStyle(fontWeight: FontWeight.bold)),
-                  const SizedBox(height: 8),
-                  Wrap(
-                    spacing: 8, runSpacing: 8,
-                    children: [1, 2, 3, 4, 5, 6, 7].map((day) {
-                      final label = day == 7 ? "CN" : "T${day+1}";
-                      final isSelected = _selectedWeekdays.contains(day);
-                      return FilterChip(
-                        label: Text(label),
-                        selected: isSelected,
-                        selectedColor: colorScheme.primaryContainer,
-                        checkmarkColor: colorScheme.onPrimaryContainer,
-                        onSelected: (selected) {
-                          setState(() {
-                            if (selected) {
-                              _selectedWeekdays.add(day);
-                            } else if (_selectedWeekdays.length > 1) {
-                              _selectedWeekdays.remove(day);
-                            }
-                          });
-                        },
-                      ).animate(target: isSelected ? 1 : 0).scale(begin: const Offset(1, 1), end: const Offset(1.05, 1.05));
-                    }).toList(),
-                  ),
-                ],
-
-                if (_repeatType == 3) ...[
-                  const SizedBox(height: 16),
-                  Padding(
-                    padding: const EdgeInsets.only(right: 8.0),
-                    child: TextFormField(
-                      controller: _intervalDaysController,
-                      keyboardType: TextInputType.number,
-                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                      decoration: InputDecoration(
-                        labelText: t.calendar.lbl_interval_days,
-                        suffixText: t.calendar.suffix_days,
-                        border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                      ),
+                  if (_repeatType == 2) ...[
+                    const SizedBox(height: 16),
+                    Text(
+                      t.calendar.lbl_choose_days,
+                      style: const TextStyle(fontWeight: FontWeight.bold),
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: [1, 2, 3, 4, 5, 6, 7].map((day) {
+                        final label = day == 7 ? "CN" : "T${day + 1}";
+                        final isSelected = _selectedWeekdays.contains(day);
+                        return FilterChip(
+                              label: Text(label),
+                              selected: isSelected,
+                              selectedColor: colorScheme.primaryContainer,
+                              checkmarkColor: colorScheme.onPrimaryContainer,
+                              onSelected: (selected) {
+                                setState(() {
+                                  if (selected) {
+                                    _selectedWeekdays.add(day);
+                                  } else if (_selectedWeekdays.length > 1) {
+                                    _selectedWeekdays.remove(day);
+                                  }
+                                });
+                              },
+                            )
+                            .animate(target: isSelected ? 1 : 0)
+                            .scale(
+                              begin: const Offset(1, 1),
+                              end: const Offset(1.05, 1.05),
+                            );
+                      }).toList(),
+                    ),
+                  ],
 
-                if (_repeatType != 0) ...[
-                  const SizedBox(height: 16),
-                  CheckboxListTile(
-                    title: Text(t.calendar.lbl_infinite, style: const TextStyle(fontWeight: FontWeight.bold)),
-                    value: _isInfinite,
-                    contentPadding: EdgeInsets.zero,
-                    onChanged: (val) => setState(() => _isInfinite = val ?? true),
-                  ),
-                  if (!_isInfinite)
+                  if (_repeatType == 3) ...[
+                    const SizedBox(height: 16),
                     Padding(
                       padding: const EdgeInsets.only(right: 8.0),
                       child: TextFormField(
-                        controller: _occurrencesController,
+                        controller: _intervalDaysController,
                         keyboardType: TextInputType.number,
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
                         decoration: InputDecoration(
-                          labelText: t.calendar.lbl_occurrences,
-                          suffixText: t.calendar.suffix_times,
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                          labelText: t.calendar.lbl_interval_days,
+                          suffixText: t.calendar.suffix_days,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(12),
+                          ),
                         ),
-                      ).animate().fade().slideY(begin: -0.1, end: 0),
+                      ),
                     ),
-                ]
-              ],
-            ),
+                  ],
+
+                  if (_repeatType != 0) ...[
+                    const SizedBox(height: 16),
+                    CheckboxListTile(
+                      title: Text(
+                        t.calendar.lbl_infinite,
+                        style: const TextStyle(fontWeight: FontWeight.bold),
+                      ),
+                      value: _isInfinite,
+                      contentPadding: EdgeInsets.zero,
+                      onChanged: (val) =>
+                          setState(() => _isInfinite = val ?? true),
+                    ),
+                    if (!_isInfinite)
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: TextFormField(
+                          controller: _occurrencesController,
+                          keyboardType: TextInputType.number,
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
+                          decoration: InputDecoration(
+                            labelText: t.calendar.lbl_occurrences,
+                            suffixText: t.calendar.suffix_times,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                        ).animate().fade().slideY(begin: -0.1, end: 0),
+                      ),
+                  ],
+                ],
+              ),
             ),
           ),
           const SizedBox(height: 16),
           InkWell(
-            onTap: _saving ? null : () async {
-              final time = await showGymTimePicker(
-                context: context,
-                initialTime: _time ?? const TimeOfDay(hour: 18, minute: 0),
-              );
-              
-              if (time != null && mounted) {
-                setState(() => _time = time);
-              }
-            },
+            onTap: _saving
+                ? null
+                : () async {
+                    final time = await showGymTimePicker(
+                      context: context,
+                      initialTime:
+                          _time ?? const TimeOfDay(hour: 18, minute: 0),
+                      builder: (context, child) {
+                        return MediaQuery(
+                          data: MediaQuery.of(
+                            context,
+                          ).copyWith(alwaysUse24HourFormat: false),
+                          child: child!,
+                        );
+                      },
+                    );
+
+                    if (time != null && mounted) {
+                      setState(() => _time = time);
+                    }
+                  },
             child: Padding(
               padding: const EdgeInsets.symmetric(vertical: 12.0),
               child: Row(
                 children: [
                   Icon(Symbols.schedule, color: colorScheme.onSurfaceVariant),
                   const SizedBox(width: 16),
-                  Expanded(child: Text(_time?.formatGym(context) ?? MaterialLocalizations.of(context).timePickerInputHelpText, style: const TextStyle(fontSize: 16))),
-                  if (_time == null)
-                    SizedBox(width: 48, child: Align(alignment: Alignment.centerRight, child: Icon(Symbols.add, color: colorScheme.onSurfaceVariant)))
-                  else
-                    IconButton(
-                      tooltip: MaterialLocalizations.of(context).deleteButtonTooltip,
-                      onPressed: _saving ? null : () => setState(() { _time = null; _reminder = false; }),
-                      icon: Icon(Symbols.close, color: colorScheme.onSurfaceVariant),
-                      padding: EdgeInsets.zero,
-                      alignment: Alignment.centerRight,
+                  Expanded(
+                    child: Text(
+                      _time?.formatGym(context) ??
+                          MaterialLocalizations.of(
+                            context,
+                          ).timePickerInputHelpText,
+                      style: const TextStyle(fontSize: 16),
                     ),
+                  ),
+                  SizedBox(
+                    width: 48,
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: _time == null
+                          ? Icon(
+                              Symbols.add,
+                              color: colorScheme.onSurfaceVariant,
+                            )
+                          : GestureDetector(
+                              onTap: _saving
+                                  ? null
+                                  : () => setState(() {
+                                      _time = null;
+                                      _reminder = false;
+                                    }),
+                              child: Icon(
+                                Symbols.close,
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                            ),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -1490,102 +2154,180 @@ class _RecurrenceConfigPageState extends State<_RecurrenceConfigPage> {
               padding: const EdgeInsets.symmetric(vertical: 4.0),
               child: Row(
                 children: [
-                  Icon(Symbols.notifications, color: colorScheme.onSurfaceVariant),
+                  Icon(
+                    Symbols.notifications,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
                   const SizedBox(width: 16),
-                  Expanded(child: Text(NotificationCopy.text('notifications.lbl_remind_this_workout')!, style: const TextStyle(fontSize: 16))),
+                  Expanded(
+                    child: Text(
+                      NotificationCopy.text(
+                        'notifications.lbl_remind_this_workout',
+                      )!,
+                      style: const TextStyle(fontSize: 16),
+                    ),
+                  ),
                   Switch.adaptive(
                     value: _reminder,
-                    onChanged: _time == null || _saving ? null : (value) async {
-                      if (value && !(await NotificationCoordinator.instance?.setEnabled(true) ?? false)) return;
-                      if (value) await NotificationCoordinator.instance?.gateway.requestWorkoutTimingPermission();
-                      if (mounted) setState(() => _reminder = value);
-                    },
+                    onChanged: _saving
+                        ? null
+                        : (value) async {
+                            if (value) {
+                              if (_time == null) {
+                                final time = await showGymTimePicker(
+                                  context: context,
+                                  initialTime: const TimeOfDay(
+                                    hour: 18,
+                                    minute: 0,
+                                  ),
+                                  builder: (context, child) {
+                                    return MediaQuery(
+                                      data: MediaQuery.of(
+                                        context,
+                                      ).copyWith(alwaysUse24HourFormat: false),
+                                      child: child!,
+                                    );
+                                  },
+                                );
+                                if (time == null) return;
+                                _time = time;
+                              }
+                              if (!(await NotificationCoordinator.instance
+                                      ?.setEnabled(true) ??
+                                  false))
+                                return;
+                            }
+                            if (mounted) setState(() => _reminder = value);
+                          },
                   ),
                 ],
               ),
             ),
-            if (_reminder) Padding(
-              padding: const EdgeInsets.only(top: 8.0, bottom: 8.0, left: 40.0, right: 0.0),
-              child: LayoutBuilder(
-                builder: (context, constraints) {
-                  return Theme(
-                    data: Theme.of(context).copyWith(
-                      splashColor: Colors.transparent,
-                      highlightColor: Colors.transparent,
-                    ),
-                    child: PopupMenuButton<int>(
-                      initialValue: _lead,
-                      onSelected: _saving ? null : (n) => setState(() => _lead = n),
-                      offset: const Offset(0, 56), 
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.3)),
+            if (_reminder)
+              Padding(
+                padding: const EdgeInsets.only(
+                  top: 8.0,
+                  bottom: 8.0,
+                  left: 40.0,
+                  right: 0.0,
+                ),
+                child: LayoutBuilder(
+                  builder: (context, constraints) {
+                    return Theme(
+                      data: Theme.of(context).copyWith(
+                        splashColor: Colors.transparent,
+                        highlightColor: Colors.transparent,
                       ),
-                      color: colorScheme.surface,
-                      constraints: BoxConstraints(
-                        minWidth: constraints.maxWidth,
-                        maxWidth: constraints.maxWidth,
-                      ),
-                      itemBuilder: (context) => [15,30,60].map((n) => PopupMenuItem<int>(
-                        value: n,
-                        child: Text(NotificationCopy.text('notifications.fmt_minutes_before', {'minutes':'$n'})!),
-                      )).toList(),
-                      child: Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                        decoration: BoxDecoration(
-                          color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+                      child: PopupMenuButton<int>(
+                        initialValue: _lead,
+                        onSelected: _saving
+                            ? null
+                            : (n) => setState(() => _lead = n),
+                        offset: const Offset(0, 56),
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: colorScheme.outlineVariant),
+                          side: BorderSide(
+                            color: colorScheme.outline.withValues(alpha: 0.3),
+                          ),
                         ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text(NotificationCopy.text('notifications.fmt_minutes_before', {'minutes':'$_lead'})!, style: const TextStyle(fontSize: 16)),
-                            Icon(Symbols.unfold_more, color: colorScheme.onSurfaceVariant),
-                          ],
+                        color: colorScheme.surface,
+                        constraints: BoxConstraints(
+                          minWidth: constraints.maxWidth,
+                          maxWidth: constraints.maxWidth,
+                        ),
+                        itemBuilder: (context) => [15, 30, 60]
+                            .map(
+                              (n) => PopupMenuItem<int>(
+                                value: n,
+                                child: Text(
+                                  NotificationCopy.text(
+                                    'notifications.fmt_minutes_before',
+                                    {'minutes': '$n'},
+                                  )!,
+                                ),
+                              ),
+                            )
+                            .toList(),
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 14,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colorScheme.surfaceContainerHighest
+                                .withValues(alpha: 0.3),
+                            borderRadius: BorderRadius.circular(12),
+                            border: Border.all(
+                              color: colorScheme.outlineVariant,
+                            ),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                NotificationCopy.text(
+                                  'notifications.fmt_minutes_before',
+                                  {'minutes': '$_lead'},
+                                )!,
+                                style: const TextStyle(fontSize: 16),
+                              ),
+                              Icon(
+                                Symbols.unfold_more,
+                                color: colorScheme.onSurfaceVariant,
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ),
-                  );
-                },
+                    );
+                  },
+                ),
               ),
-            ),
           ],
 
           const SizedBox(height: 24),
-          Text(t.calendar.title_color, style: const TextStyle(fontWeight: FontWeight.bold)),
+          Text(
+            t.calendar.title_color,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
           const SizedBox(height: 12),
           Padding(
-            padding: const EdgeInsets.only(right: 8.0), 
+            padding: const EdgeInsets.only(right: 8.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: _presetColors.map((hex) {
                 final isSelected = _selectedColorHex == hex;
-                
+
                 return AnimatedContainer(
                   duration: const Duration(milliseconds: 200),
-                  width: isSelected ? 42 : 36, 
+                  width: isSelected ? 42 : 36,
                   height: isSelected ? 42 : 36,
                   decoration: BoxDecoration(
                     color: _hexToColor(hex),
                     shape: BoxShape.circle,
-                    border: isSelected ? Border.all(color: colorScheme.onSurface, width: 3) : null,
+                    border: isSelected
+                        ? Border.all(color: colorScheme.onSurface, width: 3)
+                        : null,
                   ),
                   child: Material(
                     color: Colors.transparent,
                     child: InkWell(
                       customBorder: const CircleBorder(),
                       onTap: () => setState(() => _selectedColorHex = hex),
-                      child: isSelected 
-                          ? const Icon(Symbols.check, color: Colors.white, size: 20).animate().scale() 
-                          : const SizedBox(), 
+                      child: isSelected
+                          ? const Icon(
+                              Symbols.check,
+                              color: Colors.white,
+                              size: 20,
+                            ).animate().scale()
+                          : const SizedBox(),
                     ),
                   ),
                 );
               }).toList(),
             ),
           ),
-          
+
           const SizedBox(height: 32),
           Padding(
             padding: const EdgeInsets.only(right: 8.0),
@@ -1598,25 +2340,46 @@ class _RecurrenceConfigPageState extends State<_RecurrenceConfigPage> {
                   if (_isInfinite) {
                     if (_repeatType == 1) {
                       occ = 365 * 3;
-                    } else if (_repeatType == 2) occ = 104 * 3; 
-                    else if (_repeatType == 3) occ = (365 * 3) ~/ (int.tryParse(_intervalDaysController.text) ?? 1).clamp(1, 1095);
+                    } else if (_repeatType == 2)
+                      occ = 104 * 3;
+                    else if (_repeatType == 3)
+                      occ =
+                          (365 * 3) ~/
+                          (int.tryParse(_intervalDaysController.text) ?? 1)
+                              .clamp(1, 1095);
                   } else {
                     occ = int.tryParse(_occurrencesController.text) ?? 1;
                   }
-                  
+
                   int inter = int.tryParse(_intervalDaysController.text) ?? 1;
                   if (_saving) return;
                   setState(() => _saving = true);
-                  widget.onConfirm(_repeatType, occ.clamp(1,999), _selectedWeekdays, inter.clamp(1,730),
-                    _selectedColorHex, _date, _time == null ? null : _time!.hour * 60 + _time!.minute,
-                    _reminder, _lead).catchError((Object error) {
-                      if (mounted) setState(() => _saving = false);
-                    });
+                  widget
+                      .onConfirm(
+                        _repeatType,
+                        occ.clamp(1, 999),
+                        _selectedWeekdays,
+                        inter.clamp(1, 730),
+                        _selectedColorHex,
+                        _date,
+                        _time == null ? null : _time!.hour * 60 + _time!.minute,
+                        _reminder,
+                        _lead,
+                      )
+                      .catchError((Object error) {
+                        if (mounted) setState(() => _saving = false);
+                      });
                 },
-                child: Text(t.calendar.btn_confirm, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                child: Text(
+                  t.calendar.btn_confirm,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );
@@ -1634,26 +2397,26 @@ Color _getRpeColor(BuildContext context, int? rpe) {
   final colorScheme = Theme.of(context).colorScheme;
   final gymColors = Theme.of(context).gymColors;
 
-  if (rpe == null) return colorScheme.primary; 
-  if (rpe <= 4) return gymColors.success; 
-  if (rpe <= 7) return gymColors.warning; 
-  
-  return colorScheme.error; 
+  if (rpe == null) return colorScheme.primary;
+  if (rpe <= 4) return gymColors.success;
+  if (rpe <= 7) return gymColors.warning;
+
+  return colorScheme.error;
 }
 
 class _CompactStatCard extends StatelessWidget {
   final IconData? icon;
   final Widget? customIcon;
-  final List<Color> gradientColors; 
+  final List<Color> gradientColors;
   final String title;
   final String value;
   final Color? iconBackgroundColor;
-  
+
   const _CompactStatCard({
-    this.icon, 
+    this.icon,
     this.customIcon,
-    required this.gradientColors, 
-    required this.title, 
+    required this.gradientColors,
+    required this.title,
     required this.value,
     this.iconBackgroundColor,
   });
@@ -1667,13 +2430,13 @@ class _CompactStatCard extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(16), 
+        borderRadius: BorderRadius.circular(16),
         boxShadow: [
           BoxShadow(
             color: gradientColors.last.withValues(alpha: 0.3),
             blurRadius: 5,
             offset: const Offset(0, 3),
-          )
+          ),
         ],
       ),
       child: Padding(
@@ -1683,18 +2446,21 @@ class _CompactStatCard extends StatelessWidget {
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: iconBackgroundColor ?? Colors.white.withValues(alpha: 0.25), 
+                color:
+                    iconBackgroundColor ?? Colors.white.withValues(alpha: 0.25),
                 shape: BoxShape.circle,
               ),
-              child: customIcon ?? ShaderMask(
-                blendMode: BlendMode.srcIn,
-                shaderCallback: (bounds) => LinearGradient(
-                  colors: gradientColors,
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
-                ).createShader(bounds),
-                child: Icon(icon, color: Colors.white, size: 24, fill: 1.0),
-              ),
+              child:
+                  customIcon ??
+                  ShaderMask(
+                    blendMode: BlendMode.srcIn,
+                    shaderCallback: (bounds) => LinearGradient(
+                      colors: gradientColors,
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ).createShader(bounds),
+                    child: Icon(icon, color: Colors.white, size: 24, fill: 1.0),
+                  ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -1702,10 +2468,14 @@ class _CompactStatCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    title, 
-                    style: const TextStyle(fontSize: 12, color: Colors.white70, fontWeight: FontWeight.w600), 
-                    maxLines: 1, 
-                    overflow: TextOverflow.ellipsis
+                    title,
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: Colors.white70,
+                      fontWeight: FontWeight.w600,
+                    ),
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 2),
                   // Bọc bảo vệ Scale Down Cấp độ 3 cho text hiển thị con số
@@ -1713,13 +2483,18 @@ class _CompactStatCard extends StatelessWidget {
                     fit: BoxFit.scaleDown,
                     alignment: Alignment.centerLeft,
                     child: Text(
-                      value, 
-                      style: const TextStyle(fontFeatures: [FontFeature.tabularFigures()], fontWeight: FontWeight.bold, fontSize: 18, color: Colors.white)
+                      value,
+                      style: const TextStyle(
+                        fontFeatures: [FontFeature.tabularFigures()],
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
                     ),
                   ),
                 ],
               ),
-            )
+            ),
           ],
         ),
       ),
@@ -1759,15 +2534,16 @@ class _MonthCalendarGrid extends StatelessWidget {
   final bool isDesktop;
   final double childAspectRatio;
   final bool forceShowTour;
-  final void Function(DateTime date, List<dynamic> items, {bool startTour}) onDaySelected;
+  final void Function(DateTime date, List<dynamic> items, {bool startTour})
+  onDaySelected;
 
   const _MonthCalendarGrid({
-    required this.activeDate, 
-    required this.mappedItems, 
-    required this.isDesktop, 
+    required this.activeDate,
+    required this.mappedItems,
+    required this.isDesktop,
     required this.childAspectRatio,
     this.forceShowTour = false,
-    required this.onDaySelected
+    required this.onDaySelected,
   });
 
   @override
@@ -1775,48 +2551,71 @@ class _MonthCalendarGrid extends StatelessWidget {
     final isTablet = ResponsiveBreakpoints.of(context).largerThan(MOBILE);
     final firstDayOfMonth = DateTime(activeDate.year, activeDate.month, 1);
     final lastDayOfMonth = DateTime(activeDate.year, activeDate.month + 1, 0);
-    final emptyLeadingDays = firstDayOfMonth.weekday - 1; 
-    
+    final emptyLeadingDays = firstDayOfMonth.weekday - 1;
+
     final List<DateTime?> grid = List.generate(emptyLeadingDays, (_) => null);
     for (int i = 1; i <= lastDayOfMonth.day; i++) {
       grid.add(DateTime(activeDate.year, activeDate.month, i));
     }
-    
+
     while (grid.length % 7 != 0) {
       grid.add(null);
     }
 
     final colorScheme = Theme.of(context).colorScheme;
-    final weekdays = [t.common.day_mon, t.common.day_tue, t.common.day_wed, t.common.day_thu, t.common.day_fri, t.common.day_sat, t.common.day_sun];
+    final weekdays = [
+      t.common.day_mon,
+      t.common.day_tue,
+      t.common.day_wed,
+      t.common.day_thu,
+      t.common.day_fri,
+      t.common.day_sat,
+      t.common.day_sun,
+    ];
 
     final now = DateTime.now();
     final todayMidnight = DateTime(now.year, now.month, now.day);
-    final routinesList = context.read<WorkoutCubit>().state.userCustomRoutinesList;
+    final routinesList = context
+        .read<WorkoutCubit>()
+        .state
+        .userCustomRoutinesList;
 
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Column(
         children: [
           Row(
-            children: weekdays.map((d) => 
-              Expanded(child: Text(d, textAlign: TextAlign.center, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: colorScheme.onSurfaceVariant)))
-            ).toList(),
+            children: weekdays
+                .map(
+                  (d) => Expanded(
+                    child: Text(
+                      d,
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                        color: colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ),
+                )
+                .toList(),
           ),
           const SizedBox(height: 8),
-          
+
           GridView.builder(
             shrinkWrap: true,
             physics: const NeverScrollableScrollPhysics(),
             itemCount: grid.length,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 7, 
-              childAspectRatio: childAspectRatio, 
-              crossAxisSpacing: 6, 
+              crossAxisCount: 7,
+              childAspectRatio: childAspectRatio,
+              crossAxisSpacing: 6,
               mainAxisSpacing: 6,
             ),
             itemBuilder: (context, index) {
               final date = grid[index];
-              
+
               if (date == null) {
                 return const SizedBox.shrink();
               }
@@ -1827,30 +2626,50 @@ class _MonthCalendarGrid extends StatelessWidget {
               final isEmptyPastDate = isPastDate && items.isEmpty;
 
               final pastSessions = items.whereType<WorkoutSession>().toList();
-              final futureSessions = items.whereType<ScheduledWorkout>().toList();
+              final futureSessionsRaw = items
+                  .whereType<ScheduledWorkout>()
+                  .toList();
+              final indexedFutureSessions = futureSessionsRaw
+                  .asMap()
+                  .entries
+                  .toList();
+              indexedFutureSessions.sort((a, b) {
+                final byTime = (a.value.timeOfDayMinutes ?? 1440).compareTo(
+                  b.value.timeOfDayMinutes ?? 1440,
+                );
+                if (byTime != 0) return byTime;
+                return a.key.compareTo(b.key);
+              });
+              final futureSessions = indexedFutureSessions
+                  .map((e) => e.value)
+                  .toList();
 
               Widget cellWidget = Container(
                 decoration: BoxDecoration(
                   color: colorScheme.surfaceContainerHighest,
-                  borderRadius: BorderRadius.circular(12), 
-                  border: isToday 
-                      ? Border.all(color: colorScheme.primary, width: 2) 
-                      : Border.all(color: Colors.transparent, width: 2), 
+                  borderRadius: BorderRadius.circular(12),
+                  border: isToday
+                      ? Border.all(color: colorScheme.primary, width: 2)
+                      : Border.all(color: Colors.transparent, width: 2),
                 ),
                 child: Material(
                   color: Colors.transparent,
                   child: InkWell(
                     borderRadius: BorderRadius.circular(12),
-                    onTap: isEmptyPastDate ? null : () => onDaySelected(date, items, startTour: false),
+                    onTap: isEmptyPastDate
+                        ? null
+                        : () => onDaySelected(date, items, startTour: false),
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
                         if (isEmptyPastDate)
                           ClipRRect(
-                            borderRadius: BorderRadius.circular(10), 
+                            borderRadius: BorderRadius.circular(10),
                             child: CustomPaint(
                               painter: _StripedPatternPainter(
-                                color: colorScheme.onSurface.withValues(alpha: 0.2),
+                                color: colorScheme.onSurface.withValues(
+                                  alpha: 0.2,
+                                ),
                               ),
                             ),
                           ),
@@ -1864,51 +2683,85 @@ class _MonthCalendarGrid extends StatelessWidget {
                               child: FittedBox(
                                 fit: BoxFit.scaleDown,
                                 child: Text(
-                                  date.day.toString(), 
+                                  date.day.toString(),
                                   style: TextStyle(
-                                    fontSize: 12, 
-                                    fontWeight: isToday ? FontWeight.bold : FontWeight.normal, 
-                                    color: isToday 
-                                        ? colorScheme.primary 
-                                        : (isEmptyPastDate ? colorScheme.onSurface.withValues(alpha: 0.38) : colorScheme.onSurface)
-                                  )
+                                    fontSize: 12,
+                                    fontWeight: isToday
+                                        ? FontWeight.bold
+                                        : FontWeight.normal,
+                                    color: isToday
+                                        ? colorScheme.primary
+                                        : (isEmptyPastDate
+                                              ? colorScheme.onSurface
+                                                    .withValues(alpha: 0.38)
+                                              : colorScheme.onSurface),
+                                  ),
                                 ),
                               ),
                             ),
-                            
+
                             if (futureSessions.isNotEmpty)
                               Padding(
-                                padding: const EdgeInsets.only(left: 2, right: 0),
+                                padding: const EdgeInsets.only(
+                                  left: 2,
+                                  right: 0,
+                                ),
                                 child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
                                   children: [
                                     ...futureSessions.take(2).map((s) {
-                                      final routine = routinesList.where((r) => r.id == s.routineId).firstOrNull;
-                                      final realRoutineName = routine?.name ?? s.routineName;
-                                      final cardColor = s.colorHex != null ? _hexToColor(s.colorHex!) : colorScheme.primary;
-                                      
+                                      final routine = routinesList
+                                          .where((r) => r.id == s.routineId)
+                                          .firstOrNull;
+                                      final realRoutineName =
+                                          routine?.name ?? s.routineName;
+                                      final cardColor = s.colorHex != null
+                                          ? _hexToColor(s.colorHex!)
+                                          : colorScheme.primary;
+
                                       return Container(
-                                        margin: const EdgeInsets.only(bottom: 2),
-                                        padding: const EdgeInsets.only(left: 4, top: 2, bottom: 2, right: 0),
+                                        margin: const EdgeInsets.only(
+                                          bottom: 2,
+                                        ),
+                                        padding: const EdgeInsets.only(
+                                          left: 4,
+                                          top: 2,
+                                          bottom: 2,
+                                          right: 0,
+                                        ),
                                         decoration: BoxDecoration(
-                                          color: cardColor, 
-                                          borderRadius: const BorderRadius.horizontal(left: Radius.circular(4))
+                                          color: cardColor,
+                                          borderRadius:
+                                              const BorderRadius.horizontal(
+                                                left: Radius.circular(4),
+                                              ),
                                         ),
                                         child: Text(
-                                          t.translateDynamic(realRoutineName), 
-                                          style: const TextStyle(fontSize: 8, color: Colors.white, fontWeight: FontWeight.bold), 
-                                          maxLines: 1, 
+                                          t.translateDynamic(realRoutineName),
+                                          style: const TextStyle(
+                                            fontSize: 8,
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                          maxLines: 1,
                                           softWrap: false,
-                                          overflow: TextOverflow.clip, 
+                                          overflow: TextOverflow.clip,
                                         ),
                                       );
                                     }),
-                                    
+
                                     if (futureSessions.length > 2)
                                       Container(
                                         alignment: Alignment.center,
-                                        padding: const EdgeInsets.only(right: 4),
-                                        child: Icon(Symbols.more_horiz, size: 12, color: colorScheme.onSurfaceVariant),
+                                        padding: const EdgeInsets.only(
+                                          right: 4,
+                                        ),
+                                        child: Icon(
+                                          Symbols.more_horiz,
+                                          size: 12,
+                                          color: colorScheme.onSurfaceVariant,
+                                        ),
                                       ),
                                   ],
                                 ),
@@ -1923,23 +2776,31 @@ class _MonthCalendarGrid extends StatelessWidget {
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
                                     Row(
-                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
                                       children: pastSessions.take(4).map((s) {
                                         return Container(
-                                          margin: const EdgeInsets.symmetric(horizontal: 1.5),
-                                          width: 6, height: 6,
+                                          margin: const EdgeInsets.symmetric(
+                                            horizontal: 1.5,
+                                          ),
+                                          width: 6,
+                                          height: 6,
                                           decoration: BoxDecoration(
-                                            color: _getRpeColor(context, s.rpe), 
-                                            shape: BoxShape.circle
+                                            color: _getRpeColor(context, s.rpe),
+                                            shape: BoxShape.circle,
                                           ),
                                         );
                                       }).toList(),
                                     ),
                                     if (pastSessions.length > 4)
-                                      const Center( 
+                                      const Center(
                                         child: Padding(
                                           padding: EdgeInsets.only(top: 2),
-                                          child: Icon(Symbols.more_horiz, size: 12, color: Colors.grey), 
+                                          child: Icon(
+                                            Symbols.more_horiz,
+                                            size: 12,
+                                            color: Colors.grey,
+                                          ),
                                         ),
                                       ),
                                   ],
@@ -1955,18 +2816,20 @@ class _MonthCalendarGrid extends StatelessWidget {
 
               if (isToday) {
                 cellWidget = GymTourTarget(
-                  isActive: !context.read<TourCubit>().state.hasSeenCalendar || forceShowTour,
+                  isActive:
+                      !context.read<TourCubit>().state.hasSeenCalendar ||
+                      forceShowTour,
                   tourKey: TourKeys.calendarDayCell,
                   title: t.tour.cal_day_title,
                   description: t.tour.cal_day_desc,
-                  tooltipPosition: isTablet ?  null : TooltipPosition.top,
+                  tooltipPosition: isTablet ? null : TooltipPosition.top,
                   targetPadding: EdgeInsets.zero,
                   child: cellWidget,
                 );
               }
               return cellWidget;
             },
-          )
+          ),
         ],
       ),
     );
@@ -1986,10 +2849,19 @@ class _YearHeatmapView extends StatelessWidget {
       child: GridView.builder(
         shrinkWrap: true,
         physics: const NeverScrollableScrollPhysics(),
-        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 3, mainAxisSpacing: 24, crossAxisSpacing: 24, childAspectRatio: 0.85),
+        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+          crossAxisCount: 3,
+          mainAxisSpacing: 24,
+          crossAxisSpacing: 24,
+          childAspectRatio: 0.85,
+        ),
         itemCount: 12,
         itemBuilder: (context, index) {
-          return _MonthHeatmapItem(year: year, month: index + 1, mappedItems: mappedItems);
+          return _MonthHeatmapItem(
+            year: year,
+            month: index + 1,
+            mappedItems: mappedItems,
+          );
         },
       ),
     );
@@ -1999,14 +2871,18 @@ class _YearHeatmapView extends StatelessWidget {
 class _MonthHeatmapItem extends StatelessWidget {
   final int year, month;
   final Map<DateTime, List<dynamic>> mappedItems;
-  const _MonthHeatmapItem({required this.year, required this.month, required this.mappedItems});
+  const _MonthHeatmapItem({
+    required this.year,
+    required this.month,
+    required this.mappedItems,
+  });
 
   @override
   Widget build(BuildContext context) {
     final firstDay = DateTime(year, month, 1);
     final lastDay = DateTime(year, month + 1, 0);
     final emptyLeadingDays = firstDay.weekday - 1;
-    
+
     final List<DateTime?> grid = List.generate(emptyLeadingDays, (_) => null);
     for (int i = 1; i <= lastDay.day; i++) {
       grid.add(DateTime(year, month, i));
@@ -2019,27 +2895,43 @@ class _MonthHeatmapItem extends StatelessWidget {
 
     return Column(
       children: [
-        Text(DateFormat("MMMM", TranslationProvider.of(context).flutterLocale.languageCode).format(firstDay), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 12, color: colorScheme.onSurface)),
+        Text(
+          DateFormat(
+            "MMMM",
+            TranslationProvider.of(context).flutterLocale.languageCode,
+          ).format(firstDay),
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 12,
+            color: colorScheme.onSurface,
+          ),
+        ),
         const SizedBox(height: 8),
         Expanded(
           child: GridView.builder(
             physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(crossAxisCount: 7, mainAxisSpacing: 4, crossAxisSpacing: 4),
+            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 7,
+              mainAxisSpacing: 4,
+              crossAxisSpacing: 4,
+            ),
             itemCount: grid.length,
             itemBuilder: (context, index) {
               final date = grid[index];
               if (date == null) return const SizedBox();
-              
+
               final items = mappedItems[date] ?? [];
-              
+
               // Chỉ hiển thị dữ liệu quá khứ cho Year View
               final pastSessions = items.whereType<WorkoutSession>().toList();
-              
+
               Color cellColor = colorScheme.surfaceContainerHighest;
 
               if (pastSessions.isNotEmpty) {
-                 final maxRpe = pastSessions.map((s) => s.rpe ?? 0).reduce(math.max);
-                 cellColor = _getRpeColor(context, maxRpe > 0 ? maxRpe : null);
+                final maxRpe = pastSessions
+                    .map((s) => s.rpe ?? 0)
+                    .reduce(math.max);
+                cellColor = _getRpeColor(context, maxRpe > 0 ? maxRpe : null);
               }
 
               return Container(
@@ -2050,7 +2942,7 @@ class _MonthHeatmapItem extends StatelessWidget {
               );
             },
           ),
-        )
+        ),
       ],
     );
   }
@@ -2062,15 +2954,15 @@ class _MultiYearHeatmapView extends StatelessWidget {
   final List<WorkoutSession> pastWorkouts;
 
   const _MultiYearHeatmapView({
-    required this.activeYears, 
-    required this.mappedItems, 
+    required this.activeYears,
+    required this.mappedItems,
     required this.pastWorkouts,
   });
 
   @override
   Widget build(BuildContext context) {
     if (activeYears.isEmpty) return const SizedBox();
-    
+
     final colorScheme = Theme.of(context).colorScheme;
     final gymColors = Theme.of(context).gymColors;
 
@@ -2079,14 +2971,20 @@ class _MultiYearHeatmapView extends StatelessWidget {
 
     // 2. GIAO DIỆN
     final reversedYears = activeYears.reversed.toList();
-    final yearRangeText = activeYears.length > 1 
-        ? "${activeYears.first} - ${activeYears.last}" 
+    final yearRangeText = activeYears.length > 1
+        ? "${activeYears.first} - ${activeYears.last}"
         : "${activeYears.first}";
 
     // CHUẨN HÓA TEXT NGẮN GỌN THEO KEY JSON MỚI
-    final globalWorkoutLabel = t.calendar.global_workouts(count: stats.totalWorkouts.toString());
-    final globalMaxDaysLabel = t.calendar.global_max_days(days: stats.maxDaysStreak.toString());
-    final globalMaxWeeksLabel = t.calendar.global_max_weeks(weeks: stats.maxWeeksStreak.toString());
+    final globalWorkoutLabel = t.calendar.global_workouts(
+      count: stats.totalWorkouts.toString(),
+    );
+    final globalMaxDaysLabel = t.calendar.global_max_days(
+      days: stats.maxDaysStreak.toString(),
+    );
+    final globalMaxWeeksLabel = t.calendar.global_max_weeks(
+      weeks: stats.maxWeeksStreak.toString(),
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -2099,22 +2997,44 @@ class _MultiYearHeatmapView extends StatelessWidget {
             decoration: BoxDecoration(
               color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
               borderRadius: BorderRadius.circular(16),
-              border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
+              border: Border.all(
+                color: colorScheme.outlineVariant.withValues(alpha: 0.5),
+              ),
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(yearRangeText, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 24, color: colorScheme.primary)),
+                Text(
+                  yearRangeText,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 24,
+                    color: colorScheme.primary,
+                  ),
+                ),
                 const SizedBox(height: 12),
-                
+
                 // [CRITIC DEBUG FIX]: Cấp độ 2 (Expanded + Ngắt dòng) cho text để chặn overflow thiết bị cực nhỏ
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Symbols.exercise, size: 18, color: colorScheme.primary),
+                    Icon(
+                      Symbols.exercise,
+                      size: 18,
+                      color: colorScheme.primary,
+                    ),
                     const SizedBox(width: 6),
                     Expanded(
-                      child: Text(globalWorkoutLabel, style: TextStyle(fontSize: 13, color: colorScheme.onSurface, fontWeight: FontWeight.bold), maxLines: 2, overflow: TextOverflow.ellipsis),
+                      child: Text(
+                        globalWorkoutLabel,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: colorScheme.onSurface,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
@@ -2125,7 +3045,16 @@ class _MultiYearHeatmapView extends StatelessWidget {
                     StreakIcon(streak: stats.maxDaysStreak, size: 18),
                     const SizedBox(width: 6),
                     Expanded(
-                      child: Text(globalMaxDaysLabel, style: TextStyle(fontSize: 13, color: colorScheme.onSurface, fontWeight: FontWeight.bold), maxLines: 2, overflow: TextOverflow.ellipsis),
+                      child: Text(
+                        globalMaxDaysLabel,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: colorScheme.onSurface,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
@@ -2133,10 +3062,23 @@ class _MultiYearHeatmapView extends StatelessWidget {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Icon(Symbols.emoji_events, size: 18, color: gymColors.rankGold),
+                    Icon(
+                      Symbols.emoji_events,
+                      size: 18,
+                      color: gymColors.rankGold,
+                    ),
                     const SizedBox(width: 6),
                     Expanded(
-                      child: Text(globalMaxWeeksLabel, style: TextStyle(fontSize: 13, color: colorScheme.onSurface, fontWeight: FontWeight.bold), maxLines: 2, overflow: TextOverflow.ellipsis),
+                      child: Text(
+                        globalMaxWeeksLabel,
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: colorScheme.onSurface,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ],
                 ),
@@ -2152,7 +3094,7 @@ class _MultiYearHeatmapView extends StatelessWidget {
           itemCount: reversedYears.length,
           itemBuilder: (context, index) {
             return _HevyYearHeatmap(
-              year: reversedYears[index], 
+              year: reversedYears[index],
               mappedItems: mappedItems,
               pastWorkouts: pastWorkouts,
             );
@@ -2169,8 +3111,8 @@ class _HevyYearHeatmap extends StatelessWidget {
   final List<WorkoutSession> pastWorkouts;
 
   const _HevyYearHeatmap({
-    required this.year, 
-    required this.mappedItems, 
+    required this.year,
+    required this.mappedItems,
     required this.pastWorkouts,
   });
 
@@ -2178,23 +3120,34 @@ class _HevyYearHeatmap extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final gymColors = Theme.of(context).gymColors;
-    final currentLangCode = TranslationProvider.of(context).flutterLocale.languageCode;
-    
+    final currentLangCode = TranslationProvider.of(
+      context,
+    ).flutterLocale.languageCode;
+
     // 1. SỬ DỤNG HELPER CHO NĂM CỤ THỂ
-    final stats = profile_chart_utils.calculateHeatmapStats(pastWorkouts, targetYear: year);
+    final stats = profile_chart_utils.calculateHeatmapStats(
+      pastWorkouts,
+      targetYear: year,
+    );
 
     final firstDay = DateTime(year, 1, 1);
     final lastDay = DateTime(year, 12, 31);
-    final emptyLeadingDays = firstDay.weekday - 1; 
+    final emptyLeadingDays = firstDay.weekday - 1;
     final daysInYear = lastDay.difference(firstDay).inDays + 1;
-    
-    final numCols = ((emptyLeadingDays + daysInYear) / 7).ceil(); 
-    final totalCells = numCols * 7; 
+
+    final numCols = ((emptyLeadingDays + daysInYear) / 7).ceil();
+    final totalCells = numCols * 7;
 
     // CHUẨN HÓA TEXT THEO KEY JSON CHUNG
-    final workoutLabel = t.calendar.max_workouts(count: stats.totalWorkouts.toString());
-    final daysStreakLabel = t.calendar.max_days(days: stats.maxDaysStreak.toString());
-    final weeksStreakLabel = t.calendar.max_weeks(weeks: stats.maxWeeksStreak.toString());
+    final workoutLabel = t.calendar.max_workouts(
+      count: stats.totalWorkouts.toString(),
+    );
+    final daysStreakLabel = t.calendar.max_days(
+      days: stats.maxDaysStreak.toString(),
+    );
+    final weeksStreakLabel = t.calendar.max_weeks(
+      weeks: stats.maxWeeksStreak.toString(),
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -2204,25 +3157,43 @@ class _HevyYearHeatmap extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             // [CRITIC DEBUG FIX 2]: Đưa về center để Năm và 3 Label thống kê nằm trên một đường thẳng.
-            crossAxisAlignment: CrossAxisAlignment.center, 
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text(year.toString(), style: TextStyle(fontWeight: FontWeight.w800, fontSize: 20, color: colorScheme.primary)),
+              Text(
+                year.toString(),
+                style: TextStyle(
+                  fontWeight: FontWeight.w800,
+                  fontSize: 20,
+                  color: colorScheme.primary,
+                ),
+              ),
               const SizedBox(width: 8),
               // 2. DÀN NGANG UI BẰNG WRAP CHO TỪNG NĂM
               Expanded(
                 child: Wrap(
                   alignment: WrapAlignment.end,
                   // [CRITIC DEBUG FIX 2]: Canh giữa các item bên trong Wrap để icon và text không bị lệch trục Y
-                  crossAxisAlignment: WrapCrossAlignment.center, 
-                  spacing: 12, 
-                  runSpacing: 4, 
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 12,
+                  runSpacing: 4,
                   children: [
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Symbols.exercise, size: 14, color: colorScheme.primary),
+                        Icon(
+                          Symbols.exercise,
+                          size: 14,
+                          color: colorScheme.primary,
+                        ),
                         const SizedBox(width: 4),
-                        Text(workoutLabel, style: TextStyle(fontSize: 11, color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold)),
+                        Text(
+                          workoutLabel,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ],
                     ),
                     Row(
@@ -2230,27 +3201,45 @@ class _HevyYearHeatmap extends StatelessWidget {
                       children: [
                         StreakIcon(streak: stats.maxDaysStreak, size: 14),
                         const SizedBox(width: 4),
-                        Text(daysStreakLabel, style: TextStyle(fontSize: 11, color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold)),
+                        Text(
+                          daysStreakLabel,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ],
                     ),
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        Icon(Symbols.emoji_events, size: 14, color: gymColors.rankGold),
+                        Icon(
+                          Symbols.emoji_events,
+                          size: 14,
+                          color: gymColors.rankGold,
+                        ),
                         const SizedBox(width: 4),
-                        Text(weeksStreakLabel, style: TextStyle(fontSize: 11, color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.bold)),
+                        Text(
+                          weeksStreakLabel,
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ],
-                    )
+                    ),
                   ],
                 ),
-              )
+              ),
             ],
           ),
         ),
-        
+
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
-          // [CRITIC DEBUG FIX 1]: Xóa mainAxisAlignment, dùng Expanded chia đều cứng 12 cột, 
+          // [CRITIC DEBUG FIX 1]: Xóa mainAxisAlignment, dùng Expanded chia đều cứng 12 cột,
           // bọc FittedBox (Cấp độ 3) để chống tràn chữ hoàn toàn trên màn nhỏ.
           child: Row(
             children: List.generate(12, (index) {
@@ -2262,8 +3251,12 @@ class _HevyYearHeatmap extends StatelessWidget {
                     fit: BoxFit.scaleDown,
                     alignment: Alignment.center,
                     child: Text(
-                      DateFormat("MMM", currentLangCode).format(monthDate), 
-                      style: TextStyle(fontSize: 10, color: colorScheme.onSurfaceVariant, fontWeight: FontWeight.w500)
+                      DateFormat("MMM", currentLangCode).format(monthDate),
+                      style: TextStyle(
+                        fontSize: 10,
+                        color: colorScheme.onSurfaceVariant,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ),
                 ),
@@ -2272,38 +3265,48 @@ class _HevyYearHeatmap extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 4),
-        
+
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 16),
           child: LayoutBuilder(
             builder: (context, constraints) {
               final availableWidth = constraints.maxWidth;
               const spacing = 2.0;
-              final cellSize = (availableWidth - (numCols - 1) * spacing) / numCols;
-              
+              final cellSize =
+                  (availableWidth - (numCols - 1) * spacing) / numCols;
+
               return SizedBox(
                 height: (cellSize * 7) + (spacing * 6) + 0.5,
                 child: Wrap(
                   direction: Axis.vertical,
-                  spacing: spacing, 
-                  runSpacing: spacing, 
+                  spacing: spacing,
+                  runSpacing: spacing,
                   children: List.generate(totalCells, (index) {
-                    
-                    bool isOutOfRange = index < emptyLeadingDays || index >= emptyLeadingDays + daysInYear;
-                    Color cellColor = colorScheme.surfaceContainerHighest.withValues(alpha: 0.5);
+                    bool isOutOfRange =
+                        index < emptyLeadingDays ||
+                        index >= emptyLeadingDays + daysInYear;
+                    Color cellColor = colorScheme.surfaceContainerHighest
+                        .withValues(alpha: 0.5);
 
                     if (!isOutOfRange) {
                       final dayOffset = index - emptyLeadingDays;
                       final date = firstDay.add(Duration(days: dayOffset));
                       final items = mappedItems[date] ?? [];
-                      final pastSessions = items.whereType<WorkoutSession>().toList();
-                      
+                      final pastSessions = items
+                          .whereType<WorkoutSession>()
+                          .toList();
+
                       if (pastSessions.isNotEmpty) {
-                        final maxRpe = pastSessions.map((s) => s.rpe ?? 0).reduce(math.max);
-                        cellColor = _getRpeColor(context, maxRpe > 0 ? maxRpe : null);
+                        final maxRpe = pastSessions
+                            .map((s) => s.rpe ?? 0)
+                            .reduce(math.max);
+                        cellColor = _getRpeColor(
+                          context,
+                          maxRpe > 0 ? maxRpe : null,
+                        );
                       }
                     }
-                    
+
                     return Container(
                       width: cellSize,
                       height: cellSize,
@@ -2315,11 +3318,15 @@ class _HevyYearHeatmap extends StatelessWidget {
                   }),
                 ),
               );
-            }
+            },
           ),
         ),
-        const SizedBox(height: 32), 
+        const SizedBox(height: 32),
       ],
     );
   }
+}
+
+class _WorkoutReminderLimitException implements Exception {
+  const _WorkoutReminderLimitException();
 }

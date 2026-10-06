@@ -101,13 +101,18 @@ class AuthCubit extends Cubit<AuthState> {
     return isSuccess;
   }
 
+  String? _lastRequestedEmail;
+
   // 2. YÊU CẦU LIÊN KẾT / ĐỔI EMAIL
   Future<bool> requestLink(String email) async {
     emit(state.copyWith(isLoading: true, currentFlow: AuthFlowType.link, authMessage: null));
-    final exists = await _authRepo.checkEmailExists(email);
-    if (exists) {
-      emit(state.copyWith(isLoading: false, authMessage: 'auth.err_email_in_use'));
-      return false;
+    
+    if (email != _lastRequestedEmail) {
+      final exists = await _authRepo.checkEmailExists(email);
+      if (exists) {
+        emit(state.copyWith(isLoading: false, authMessage: 'auth.err_email_in_use'));
+        return false;
+      }
     }
 
     bool isSuccess;
@@ -115,6 +120,10 @@ class AuthCubit extends Cubit<AuthState> {
       isSuccess = await _authRepo.updateUserEmail(email); 
     } else {
       isSuccess = await _authRepo.requestLinkOtp(email); 
+    }
+    
+    if (isSuccess) {
+      _lastRequestedEmail = email;
     }
     
     emit(state.copyWith(isLoading: false, authMessage: isSuccess ? 'auth.msg_otp_sent_success' : 'auth.msg_otp_sent_err'));

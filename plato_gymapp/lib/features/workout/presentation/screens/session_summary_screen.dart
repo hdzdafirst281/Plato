@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
 import 'package:plato_gymapp/i18n/translation_helper.dart';
 import 'package:go_router/go_router.dart';
@@ -11,9 +10,14 @@ import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_shimmer.dart';
 
 import '../../../../core/database/enums.dart';
+import 'dart:math' as math;
 import '../../data/models/workout_models.dart';
 import '../bloc/workout_cubit.dart';
 import '../../domain/training_load_manager.dart'; 
+import '../../../profile/presentation/bloc/profile_cubit.dart';
+import '../../../profile/presentation/components/bodymap/body_map_geometry.dart';
+import '../../../profile/presentation/components/bodymap/body_map_repository.dart';
+import '../../../profile/presentation/components/bodymap/body_map_painter.dart';
 
 class SessionSummaryScreen extends StatefulWidget {
   final String? workoutId; 
@@ -210,16 +214,36 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
               children: [
                 ConstrainedBox(
                   constraints: const BoxConstraints(maxWidth: 600),
-                  child: ElevatedButton.icon(
-                    icon: const Icon(Symbols.home, fill: 1.0),
-                    label: Text(t.workout.btn_ssn_sum_home, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: colorScheme.primary, 
-                      foregroundColor: colorScheme.onPrimary, 
-                      minimumSize: const Size(double.infinity, 56),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                    ),
-                    onPressed: _targetSession == null ? null : _handleGoHome,
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: ElevatedButton.icon(
+                          icon: const Icon(Symbols.home, fill: 1.0),
+                          label: Text(t.workout.btn_ssn_sum_home, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: colorScheme.primary, 
+                            foregroundColor: colorScheme.onPrimary, 
+                            minimumSize: const Size(0, 56),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+                          ),
+                          onPressed: _targetSession == null ? null : _handleGoHome,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Container(
+                        width: 56,
+                        height: 56,
+                        decoration: BoxDecoration(
+                          color: colorScheme.surfaceContainerHighest,
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        child: IconButton(
+                          icon: const Icon(Symbols.share, fill: 1.0),
+                          color: colorScheme.onSurface,
+                          onPressed: () {},
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
@@ -229,6 +253,7 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
 
         if (_targetSession == null || debugForceLoading) {
           return Scaffold(
+            extendBody: true,
             backgroundColor: colorScheme.surface,
             bottomNavigationBar: bottomNav,
             body: const _SessionSummaryShimmer(),
@@ -246,67 +271,145 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
             
         final currentRpe = _rpeValue ?? 5.0;
 
+        final isTablet = MediaQuery.of(context).size.width >= 800;
+
         return PopScope(
           canPop: _allowPop, 
           onPopInvokedWithResult: (didPop, result) {
-            // Nếu đã pop thành công (nhờ lệnh router.pop() ở trên), thoát ngay để tránh vòng lặp
             if (didPop) return; 
-            
-            // Nếu người dùng bấm Back vật lý, ép chạy luồng an toàn
             _handleGoHome();
           },
           child: Scaffold(
+            extendBody: true,
             backgroundColor: colorScheme.surface,
-            bottomNavigationBar: bottomNav,
+            bottomNavigationBar: isTablet ? null : bottomNav,
             body: Stack(
               children: [
                 SafeArea(
+                  bottom: false,
                   child: Center(
-                    child: ConstrainedBox(
-                      constraints: const BoxConstraints(maxWidth: 600),
-                      child: ListView(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
-                        children: [
-                          _buildTrophyIcon(),
-                          const SizedBox(height: 24),
-                          
-                          Text(t.workout.title_ssn_sum_complete, textAlign: TextAlign.center, style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.w900, fontSize: 28)),
-                          const SizedBox(height: 4),
-                          Text(sessionName, textAlign: TextAlign.center, style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 16)),
-                          const SizedBox(height: 40),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final isTablet = constraints.maxWidth >= 800;
+                        
+                        final headerRow = Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            Text(t.workout.title_ssn_sum_complete, style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.w900, fontSize: 24)),
+                            const SizedBox(width: 16),
+                            Expanded(
+                              child: Text(
+                                sessionName, 
+                                textAlign: TextAlign.right, 
+                                style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 16, fontWeight: FontWeight.bold),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        );
+                        
+                        final heatmapCard = _buildHeatmapAndStatsCard(
+                          context,
+                          colorScheme,
+                          safeDuration: safeDuration,
+                          safeVolume: safeVolume,
+                          safeXp: safeXp,
+                          session: _targetSession!,
+                        );
+                        
+                        final rpeCard = _buildRpeCard(colorScheme, currentRpe);
+                        
+                        final acwrCard = FutureBuilder<LoadAnalysis>(
+                          future: _loadAnalysisFuture,
+                          builder: (context, snapshot) {
+                            if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
+                              return _buildAcwrCard(colorScheme, snapshot.data!);
+                            }
+                            return const SizedBox.shrink(); 
+                          },
+                        );
 
-                          AnimatedOpacity(
-                            opacity: _isRouteTransitionCompleted ? 1.0 : 0.0,
-                            duration: const Duration(milliseconds: 300),
-                            child: Column(
+                        if (isTablet) {
+                          return ConstrainedBox(
+                            constraints: const BoxConstraints(maxWidth: 1000),
+                            child: Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Row(
-                                  children: [
-                                    Expanded(child: _SummaryStatCard(label: t.common.time, value: _formatDuration(safeDuration))),
-                                    const SizedBox(width: 12),
-                                    Expanded(child: _SummaryStatCard(label: t.stats.lbl_metric_volume, value: t.onboarding.fmt_kg(arg1: safeVolume.toInt().toString()))),
-                                    const SizedBox(width: 12),
-                                    Expanded(child: _SummaryStatCard(label: t.workout.lbl_ssn_sum_stat_xp, value: "+$safeXp", highlight: true, colorScheme: colorScheme)),
-                                  ],
+                                Expanded(
+                                  flex: 5,
+                                  child: ListView(
+                                    padding: const EdgeInsets.only(left: 24, right: 12, top: 32, bottom: 32),
+                                    children: [
+                                      headerRow,
+                                      const SizedBox(height: 24),
+                                      AnimatedOpacity(
+                                        opacity: _isRouteTransitionCompleted ? 1.0 : 0.0,
+                                        duration: const Duration(milliseconds: 300),
+                                        child: heatmapCard,
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                                const SizedBox(height: 32),
-                                _buildRpeCard(colorScheme, currentRpe),
-                                const SizedBox(height: 24),
-
-                                FutureBuilder<LoadAnalysis>(
-                                  future: _loadAnalysisFuture,
-                                  builder: (context, snapshot) {
-                                    if (snapshot.connectionState == ConnectionState.done && snapshot.hasData) {
-                                      return _buildAcwrCard(colorScheme, snapshot.data!);
-                                    }
-                                    return const SizedBox.shrink(); 
-                                  },
+                                Expanded(
+                                  flex: 5,
+                                  child: Stack(
+                                    children: [
+                                      ListView(
+                                        padding: const EdgeInsets.only(left: 12, right: 24, top: 32, bottom: 120),
+                                        children: [
+                                          AnimatedOpacity(
+                                            opacity: _isRouteTransitionCompleted ? 1.0 : 0.0,
+                                            duration: const Duration(milliseconds: 300),
+                                            child: Column(
+                                              children: [
+                                                rpeCard,
+                                                const SizedBox(height: 24),
+                                                acwrCard,
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      Positioned(
+                                        bottom: 0,
+                                        left: 0,
+                                        right: 0,
+                                        child: bottomNav,
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ],
                             ),
-                          )
-                        ],
-                      ),
+                          );
+                        }
+
+                        return ConstrainedBox(
+                          constraints: const BoxConstraints(maxWidth: 600),
+                          child: ListView(
+                            padding: const EdgeInsets.only(left: 16, right: 16, top: 32, bottom: 120),
+                            children: [
+                              headerRow,
+                              const SizedBox(height: 24),
+                              AnimatedOpacity(
+                                opacity: _isRouteTransitionCompleted ? 1.0 : 0.0,
+                                duration: const Duration(milliseconds: 300),
+                                child: Column(
+                                  children: [
+                                    heatmapCard,
+                                    const SizedBox(height: 32),
+                                    rpeCard,
+                                    const SizedBox(height: 24),
+                                    acwrCard,
+                                  ],
+                                ),
+                              )
+                            ],
+                          ),
+                        );
+                      }
                     ),
                   ),
                 ),
@@ -329,18 +432,6 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
     );
   }
 
-  Widget _buildTrophyIcon() {
-    return Center(
-      child: Container(
-        width: 100, height: 100,
-        decoration: BoxDecoration(color: Theme.of(context).gymColors.success.withValues(alpha: 0.15), shape: BoxShape.circle, border: Border.all(color: Theme.of(context).gymColors.success.withValues(alpha: 0.5), width: 4)),
-        child: Center(
-          child: SvgPicture.asset('assets/svg/icons/trophy.svg', width: 56, height: 56, colorFilter: ColorFilter.mode(Theme.of(context).gymColors.success, BlendMode.srcIn)),
-        ),
-      ),
-    );
-  }
-
   Widget _buildRpeCard(ColorScheme colorScheme, double currentRpe) {
     return Card(
       color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
@@ -350,50 +441,68 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
       ),
       elevation: 0,
       child: Padding(
-        padding: const EdgeInsets.all(24),
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
         child: Column(
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(t.workout.title_ssn_sum_rpe_card, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
-                      const SizedBox(height: 4),
-                      Text(t.workout.desc_ssn_sum_rpe_slider, style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant)),
-                    ],
-                  ),
+                  child: Text(t.workout.title_ssn_sum_rpe_card, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
                 ),
                 const SizedBox(width: 16),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                   decoration: BoxDecoration(color: _getRpeColor(context, currentRpe.toInt()).withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)),
-                  child: Text("${currentRpe.toInt()}/10", style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: _getRpeColor(context, currentRpe.toInt()))),
+                  child: Text("${currentRpe.toInt()}/10", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: _getRpeColor(context, currentRpe.toInt()))),
                 ),
               ],
             ),
-            const SizedBox(height: 24),
-            SliderTheme(
-              data: SliderTheme.of(context).copyWith(
-                trackHeight: 8,
-                thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 12),
-                overlayShape: const RoundSliderOverlayShape(overlayRadius: 24),
-              ),
-              child: Slider(
-                value: currentRpe.clamp(1.0, 10.0),
-                min: 1, max: 10, divisions: 9,
-                activeColor: _getRpeColor(context, currentRpe.toInt()),
-                inactiveColor: colorScheme.outlineVariant.withValues(alpha: 0.3),
-                onChanged: (v) => setState(() => _rpeValue = v),
-                onChangeEnd: (v) {
-                  if (_targetSession != null) {
-                    context.read<WorkoutCubit>().updateSessionRpe(_targetSession!.id, v.toInt());
-                  }
-                },
-              ),
+            const SizedBox(height: 16),
+            LayoutBuilder(
+              builder: (context, constraints) {
+                return GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onPanUpdate: (details) {
+                    final dx = details.localPosition.dx;
+                    final width = constraints.maxWidth;
+                    int newValue = ((dx / width) * 10).ceil().clamp(1, 10);
+                    setState(() => _rpeValue = newValue.toDouble());
+                  },
+                  onPanEnd: (details) {
+                    if (_targetSession != null) {
+                      context.read<WorkoutCubit>().updateSessionRpe(_targetSession!.id, _rpeValue!.toInt());
+                    }
+                  },
+                  onTapDown: (details) {
+                    final dx = details.localPosition.dx;
+                    final width = constraints.maxWidth;
+                    int newValue = ((dx / width) * 10).ceil().clamp(1, 10);
+                    setState(() => _rpeValue = newValue.toDouble());
+                    if (_targetSession != null) {
+                      context.read<WorkoutCubit>().updateSessionRpe(_targetSession!.id, newValue);
+                    }
+                  },
+                  child: Row(
+                    children: List.generate(10, (index) {
+                      final value = index + 1;
+                      final isActive = value <= currentRpe;
+                      return Expanded(
+                        child: Container(
+                          height: 12,
+                          margin: const EdgeInsets.symmetric(horizontal: 2),
+                          decoration: BoxDecoration(
+                            color: isActive ? _getRpeColor(context, value) : colorScheme.outlineVariant.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(4),
+                          ),
+                        ),
+                      );
+                    }),
+                  ),
+                );
+              }
             ),
+            const SizedBox(height: 12),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -508,36 +617,207 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
       ),
     );
   }
+  Widget _buildHeatmapAndStatsCard(
+    BuildContext context, 
+    ColorScheme colorScheme, {
+    required int safeDuration,
+    required double safeVolume,
+    required int safeXp,
+    required WorkoutSession session,
+  }) {
+    final gender = context.read<ProfileCubit>().state.userProfile.gender;
+    
+    final Map<MuscleGroup, double> muscleScores = {};
+    for (var workoutEx in session.exercises) {
+      int completedSets = workoutEx.sets.where((s) => s.isCompleted).length;
+      if (completedSets == 0) continue;
+
+      final primary = workoutEx.exercise.primaryMuscle;
+      if (primary != null) {
+        muscleScores[primary] = (muscleScores[primary] ?? 0) + completedSets;
+      }
+
+      final secondaries = workoutEx.exercise.secondaryMuscles ?? [];
+      for (var secondary in secondaries) {
+        muscleScores[secondary] = (muscleScores[secondary] ?? 0) + (completedSets * 0.5);
+      }
+    }
+
+    final Map<MuscleGroup, double> intensityStats = {};
+    for (var entry in muscleScores.entries) {
+      final score = entry.value;
+      if (score >= 6) {
+        intensityStats[entry.key] = 0.7; // High
+      } else if (score >= 3) {
+        intensityStats[entry.key] = 0.4; // Medium
+      } else {
+        intensityStats[entry.key] = 0.2; // Low
+      }
+    }
+
+    return Container(
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.5)),
+      ),
+      padding: const EdgeInsets.fromLTRB(24, 16, 24, 16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(t.stats.title_card_body_heatmap, style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.bold, fontSize: 18)),
+          const SizedBox(height: 8),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              SizedBox(
+                width: 130,
+                height: 240,
+                child: _StaticBodymap(gender: gender, front: true, muscleIntensities: intensityStats),
+              ),
+              SizedBox(
+                width: 130,
+                height: 240,
+                child: _StaticBodymap(gender: gender, front: false, muscleIntensities: intensityStats),
+              ),
+            ],
+          ),
+          const SizedBox(height: 12),
+          Center(
+            child: Wrap(
+              alignment: WrapAlignment.center,
+              spacing: 12,
+              runSpacing: 6,
+              children: [
+                _buildLegendItem(context, Theme.of(context).gymColors.heatmapUnused, t.stats.lbl_heatmap_legend_unused),
+                _buildLegendItem(context, Theme.of(context).gymColors.heatmapLow, t.stats.lbl_heatmap_legend_low),
+                _buildLegendItem(context, Theme.of(context).gymColors.heatmapMed, t.stats.lbl_heatmap_legend_medium),
+                _buildLegendItem(context, Theme.of(context).gymColors.heatmapHigh, t.stats.lbl_heatmap_legend_high),
+              ],
+            ),
+          ),
+          const SizedBox(height: 16),
+          Divider(color: colorScheme.outlineVariant.withValues(alpha: 0.5), height: 1),
+          const SizedBox(height: 16),
+          IntrinsicHeight(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded(child: _buildStatItem(label: t.profile.btn_menu_exercises, value: session.exercises.length.toString(), colorScheme: colorScheme)),
+                VerticalDivider(color: colorScheme.outlineVariant.withValues(alpha: 0.5), width: 1, thickness: 1),
+                Expanded(child: _buildStatItem(label: t.common.time, value: _formatDuration(safeDuration), colorScheme: colorScheme)),
+                VerticalDivider(color: colorScheme.outlineVariant.withValues(alpha: 0.5), width: 1, thickness: 1),
+                Expanded(child: _buildStatItem(label: t.workout.lbl_ssn_sum_stat_xp, value: "+$safeXp", highlight: true, colorScheme: colorScheme)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildLegendItem(BuildContext context, Color color, String text) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(
+          width: 10,
+          height: 10,
+          decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+        ),
+        const SizedBox(width: 6),
+        Text(
+          text,
+          style: TextStyle(
+            fontSize: 11,
+            color: Theme.of(context).colorScheme.onSurfaceVariant,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildStatItem({required String label, required String value, required ColorScheme colorScheme, bool highlight = false}) {
+    final color = highlight ? Theme.of(context).gymColors.goldRank : colorScheme.onSurface;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Text(value, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: color)),
+        const SizedBox(height: 4),
+        Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: highlight ? Theme.of(context).gymColors.goldRank : colorScheme.onSurfaceVariant), textAlign: TextAlign.center),
+      ],
+    );
+  }
 }
 
-class _SummaryStatCard extends StatelessWidget {
-  final String label;
-  final String value;
-  final bool highlight;
-  final ColorScheme? colorScheme;
+class _StaticBodymap extends StatefulWidget {
+  final Gender gender;
+  final bool front;
+  final Map<MuscleGroup, double> muscleIntensities;
 
-  const _SummaryStatCard({required this.label, required this.value, this.highlight = false, this.colorScheme});
+  const _StaticBodymap({
+    required this.gender,
+    required this.front,
+    required this.muscleIntensities,
+  });
+
+  @override
+  State<_StaticBodymap> createState() => _StaticBodymapState();
+}
+
+class _StaticBodymapState extends State<_StaticBodymap> {
+  late BodyMapGeometry _geometry;
+  late List<MuscleRenderData> _muscles;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadGeometry();
+  }
+
+  void _loadGeometry() {
+    _geometry = BodyMapRepository.resolve(widget.gender, front: widget.front);
+    _muscles = _geometry.muscles.entries
+        .map((e) => MuscleRenderData(e.key, e.value, e.value.getBounds()))
+        .toList();
+  }
 
   @override
   Widget build(BuildContext context) {
-    final cScheme = colorScheme ?? Theme.of(context).colorScheme;
-    final color = highlight ? Theme.of(context).gymColors.goldRank : cScheme.onSurface;
-    final bgColor = highlight ? Theme.of(context).gymColors.goldRank.withValues(alpha: 0.15) : cScheme.surfaceContainerHighest.withValues(alpha: 0.3);
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final canvasWidth = constraints.maxWidth;
+        final canvasHeight = constraints.maxHeight;
 
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 8),
-      decoration: BoxDecoration(
-        color: bgColor, 
-        borderRadius: BorderRadius.circular(16), 
-        border: Border.all(color: highlight ? Theme.of(context).gymColors.goldRank.withValues(alpha: 0.5) : cScheme.outlineVariant.withValues(alpha: 0.5))
-      ),
-      child: Column(
-        children: [
-          Text(value, style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20, color: color)),
-          const SizedBox(height: 8),
-          Text(label, style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: highlight ? Theme.of(context).gymColors.goldRank : cScheme.onSurfaceVariant), textAlign: TextAlign.center),
-        ],
-      ),
+        final scaleX = canvasWidth / BodyMapGeometry.viewport.width;
+        final scaleY = canvasHeight / BodyMapGeometry.viewport.height;
+        final finalDrawScale = math.min(scaleX, scaleY);
+
+        const targetBounds = BodyMapGeometry.viewport;
+        final canvasTranslateX = (canvasWidth / 2) - (targetBounds.center.dx * finalDrawScale);
+        final canvasTranslateY = (canvasHeight / 2) - (targetBounds.center.dy * finalDrawScale);
+
+        return CustomPaint(
+          painter: BodyMapPainter(
+            borderPath: _geometry.border,
+            hairBack: _geometry.hairBack,
+            hairFront: _geometry.hairFront,
+            skinPath: _geometry.skin,
+            muscles: _muscles,
+            intensities: widget.muscleIntensities,
+            mode: HeatmapMode.INTENSITY,
+            selected: null,
+            colorScheme: Theme.of(context).colorScheme,
+            gymColors: Theme.of(context).gymColors,
+            scale: finalDrawScale,
+            dx: canvasTranslateX,
+            dy: canvasTranslateY,
+            animationProgress: 1.0,
+          ),
+          size: Size.infinite,
+        );
+      }
     );
   }
 }
@@ -549,14 +829,16 @@ class _SessionSummaryShimmer extends StatelessWidget {
   Widget build(BuildContext context) {
     return GymShimmer(
       child: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 32),
+        padding: const EdgeInsets.only(left: 16, right: 16, top: 32, bottom: 120),
         children: [
-          const Center(child: GymShimmerCircle(radius: 50)),
+          const Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+               GymShimmerBlock(width: 150, height: 32, borderRadius: 8),
+               GymShimmerBlock(width: 100, height: 20, borderRadius: 4),
+            ],
+          ),
           const SizedBox(height: 24),
-          const Center(child: GymShimmerBlock(width: 250, height: 32, borderRadius: 8)),
-          const SizedBox(height: 8),
-          const Center(child: GymShimmerBlock(width: 150, height: 16, borderRadius: 4)),
-          const SizedBox(height: 40),
           const Row(
             children: [
               Expanded(child: GymShimmerBlock(height: 80, borderRadius: 16)),

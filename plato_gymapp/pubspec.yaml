@@ -55,6 +55,7 @@ dependencies:
   device_info_plus: ^13.2.0
   csv: ^6.0.0
   flutter_timezone: ^5.1.0
+  auto_size_text: ^3.0.0
 
 dev_dependencies:
   sqflite_common_ffi: ^2.4.0+3

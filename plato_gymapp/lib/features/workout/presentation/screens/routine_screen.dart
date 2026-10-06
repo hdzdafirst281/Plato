@@ -47,6 +47,7 @@ class _RoutineScreenState extends State<RoutineScreen>
     with SingleTickerProviderStateMixin {
   final _uuid = const Uuid();
   late TextEditingController _nameController;
+  late final WorkoutSession? _routeRoutine;
   List<WorkoutExercise> _routineExercises = [];
   bool _isSaving = false;
   bool _hasAttemptedSave = false;
@@ -76,6 +77,7 @@ class _RoutineScreenState extends State<RoutineScreen>
     _currentIsViewMode = widget.isViewMode;
 
     final draft = context.read<EditorCubit>().state.routineToEdit;
+    _routeRoutine = draft;
 
     _rawOriginalName = draft?.name ?? "";
     String initialName = _rawOriginalName;
@@ -410,7 +412,7 @@ class _RoutineScreenState extends State<RoutineScreen>
     }
 
     // 4. CHECK THAY Äá»”I: Náº¿u KHĂ”NG CĂ“ lá»—i, kiá»ƒm tra xem cĂ³ thay Ä‘á»•i nĂ o so vá»›i gá»‘c khĂ´ng
-    final draft = context.read<EditorCubit>().state.routineToEdit;
+    final draft = _routeRoutine;
     final isNewFromHistory = draft?.id.startsWith('NEW_FROM_HISTORY_') ?? false;
 
     // Náº¿u Ä‘ang Edit (khĂ´ng pháº£i táº¡o má»›i) vĂ  KHĂ”NG CĂ“ THAY Äá»”I -> ThoĂ¡t luĂ´n, khĂ´ng gá»i API, khĂ´ng dialog
@@ -492,7 +494,7 @@ class _RoutineScreenState extends State<RoutineScreen>
   }
 
   void _showDeleteRoutineConfirmDialog() async {
-    final draft = context.read<EditorCubit>().state.routineToEdit;
+    final draft = _routeRoutine;
     final confirmed = await GymDialog.showDestructive(
       context: context,
       title: t.workout.title_delete_confirm,
@@ -711,7 +713,10 @@ class _RoutineScreenState extends State<RoutineScreen>
                     'assets/svg/icons/delete_trashcan.svg',
                     width: 24,
                     height: 24,
-                    colorFilter: ColorFilter.mode(colorScheme.error, BlendMode.srcIn),
+                    colorFilter: ColorFilter.mode(
+                      colorScheme.error,
+                      BlendMode.srcIn,
+                    ),
                   ),
                   const SizedBox(width: 8),
                   Text(
@@ -744,7 +749,10 @@ class _RoutineScreenState extends State<RoutineScreen>
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final draft = context.watch<EditorCubit>().state.routineToEdit;
+    // Each pushed routine route owns a stable snapshot. The shared EditorCubit
+    // is temporarily changed while an alternative routine is open; watching it
+    // here would make the covered route render the wrong routine during pop.
+    final draft = _routeRoutine;
 
     final screenHeight = MediaQuery.of(context).size.height;
 
@@ -777,6 +785,16 @@ class _RoutineScreenState extends State<RoutineScreen>
 
     final isNewFromHistory = draft?.id.startsWith('NEW_FROM_HISTORY_') ?? false;
     final isEditing = draft != null && !isNewFromHistory;
+    final ownsDraft = context.select<WorkoutCubit, bool>(
+      (cubit) =>
+          draft != null &&
+          cubit.state.userCustomRoutinesList.any(
+            (routine) => routine.id == draft.id,
+          ),
+    );
+    final showRoutineRecovery = _currentIsViewMode && isEditing && ownsDraft;
+    final showMuscleSplit = _routineExercises.isNotEmpty;
+    final showRoutineInsights = showRoutineRecovery || showMuscleSplit;
 
     final isSaveEnabled =
         _nameController.text.trim().isNotEmpty &&
@@ -847,12 +865,11 @@ class _RoutineScreenState extends State<RoutineScreen>
                                             ),
                                           ),
                                           Text(
-                                            t.workout
-                                                .fmt_warn_recovery_percent(
-                                                  arg1: entry.value
-                                                      .toInt()
-                                                      .toString(),
-                                                ),
+                                            t.workout.fmt_warn_recovery_percent(
+                                              arg1: entry.value
+                                                  .toInt()
+                                                  .toString(),
+                                            ),
                                             style: TextStyle(
                                               fontWeight: FontWeight.w600,
                                               color:
@@ -979,6 +996,20 @@ class _RoutineScreenState extends State<RoutineScreen>
         },
       );
     }
+
+    final routineInsights = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        if (showRoutineRecovery)
+          RecoveryRecommendations(
+            key: ValueKey('routine-recovery-${draft.id}'),
+            routine: draft,
+          ),
+        if (showRoutineRecovery && showMuscleSplit) const SizedBox(height: 28),
+        if (showMuscleSplit) muscleSection,
+      ],
+    );
 
     Widget nameWidget = AnimatedSize(
       duration: const Duration(milliseconds: 300),
@@ -1223,12 +1254,12 @@ class _RoutineScreenState extends State<RoutineScreen>
                                           CrossAxisAlignment.start,
                                       children: [
                                         nameWidget,
-                                        if (sortedMuscles.isNotEmpty)
+                                        if (showRoutineInsights)
                                           Padding(
                                             padding: const EdgeInsets.only(
                                               bottom: 24,
                                             ),
-                                            child: Column(mainAxisSize: MainAxisSize.min, children: [RecoveryRecommendations(routine: draft), muscleSection]),
+                                            child: routineInsights,
                                           ),
                                       ],
                                     ),
@@ -1253,13 +1284,12 @@ class _RoutineScreenState extends State<RoutineScreen>
                               Expanded(
                                 child: ReorderableListView.builder(
                                   scrollController: _scrollController,
-                                  header:
-                                      (!isTablet && sortedMuscles.isNotEmpty)
+                                  header: (!isTablet && showRoutineInsights)
                                       ? Padding(
                                           padding: const EdgeInsets.only(
                                             bottom: 24,
                                           ),
-                                          child: Column(mainAxisSize: MainAxisSize.min, children: [RecoveryRecommendations(routine: draft), muscleSection]),
+                                          child: routineInsights,
                                         )
                                       : null,
                                   cacheExtent: 9999,
@@ -1477,7 +1507,8 @@ class _RoutineScreenState extends State<RoutineScreen>
                                   fabBottomOffset: fabBottomOffset,
                                   isKeyboardOpen: isKeyboardOpen,
                                   cancelLabel: t.workout.btn_routine_delete,
-                                  cancelSvg: 'assets/svg/icons/delete_trashcan.svg',
+                                  cancelSvg:
+                                      'assets/svg/icons/delete_trashcan.svg',
                                   onAdd: _navigateToAddExercise,
                                   onReorder: () {
                                     HapticFeedback.heavyImpact();
@@ -1692,7 +1723,6 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
           return "-";
         }
         return t.workout.fmt_dtl_set_steps_time(arg1: st, arg2: timeStr);
-      
     }
   }
 
@@ -1822,8 +1852,9 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
 
   Widget _buildCompactHeader(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final displayName =
-        t.translateDynamic(widget.workoutExercise.exercise.name);
+    final displayName = t.translateDynamic(
+      widget.workoutExercise.exercise.name,
+    );
 
     return Container(
       decoration: BoxDecoration(
@@ -1862,7 +1893,10 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
               'assets/svg/icons/reorder.svg',
               width: 22,
               height: 22,
-              colorFilter: ColorFilter.mode(colorScheme.primary, BlendMode.srcIn),
+              colorFilter: ColorFilter.mode(
+                colorScheme.primary,
+                BlendMode.srcIn,
+              ),
             ),
           ),
         ],
@@ -1890,8 +1924,9 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
         widget.workoutExercise.exercise.id ==
         'd85332c1-01e4-4845-9d1d-bb814e36f7d2';
 
-    final displayName =
-        t.translateDynamic(widget.workoutExercise.exercise.name);
+    final displayName = t.translateDynamic(
+      widget.workoutExercise.exercise.name,
+    );
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -1977,7 +2012,10 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
                             'assets/svg/icons/reorder.svg',
                             width: 24,
                             height: 24,
-                            colorFilter: ColorFilter.mode(colorScheme.onSurface, BlendMode.srcIn),
+                            colorFilter: ColorFilter.mode(
+                              colorScheme.onSurface,
+                              BlendMode.srcIn,
+                            ),
                           ),
                           const SizedBox(width: 8),
                           Text(
@@ -2062,7 +2100,10 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
                             'assets/svg/icons/delete_trashcan.svg',
                             width: 24,
                             height: 24,
-                            colorFilter: ColorFilter.mode(colorScheme.error, BlendMode.srcIn),
+                            colorFilter: ColorFilter.mode(
+                              colorScheme.error,
+                              BlendMode.srcIn,
+                            ),
                           ),
                           const SizedBox(width: 8),
                           Text(
@@ -2632,7 +2673,8 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
                                                                 .err_time_zero;
                                                           }
                                                           if (isWarmupEx &&
-                                                              fillTime >= 3600) {
+                                                              fillTime >=
+                                                                  3600) {
                                                             return t
                                                                 .workout
                                                                 .err_warmup_time_max;

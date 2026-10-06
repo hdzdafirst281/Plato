@@ -12,6 +12,7 @@ import 'package:plato_gymapp/features/workout/data/models/workout_models.dart';
 import 'package:plato_gymapp/features/workout/data/repositories/workout_repository.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
 import 'notification_coordinator.dart';
+import '../data/local_notification_gateway.dart';
 
 /// Replenishes OS alarms; the OS, not this worker, delivers at the requested time.
 class NotificationBackgroundWorker {
@@ -48,17 +49,18 @@ class NotificationBackgroundWorker {
         authOptions: const AuthClientOptions(autoRefreshToken: false),
       );
       auth = AuthRepositoryImpl(client, prefs);
-      await LocaleSettings.setLocale(
+      LocaleSettings.setLocale(
         prefs.getString('app_lang') == 'vi' ? AppLocale.vi : AppLocale.en,
       );
       db = await AppDatabase.openNotificationBackgroundConnection();
       await FlutterLocalNotificationsPlugin().initialize(
-        settings: const InitializationSettings(
-          android: AndroidInitializationSettings('ic_stat_plato'),
+        settings: InitializationSettings(
+          android: const AndroidInitializationSettings('ic_stat_plato'),
           iOS: DarwinInitializationSettings(
             requestAlertPermission: false,
             requestBadgePermission: false,
             requestSoundPermission: false,
+            notificationCategories: LocalNotificationGateway.darwinCategories(),
           ),
         ),
       );

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart'; 
 import 'package:plato_gymapp/i18n/strings.g.dart';
@@ -15,6 +16,7 @@ import 'package:plato_gymapp/features/workout/presentation/bloc/workout_cubit.da
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import '../../../../core/designsystem/components/gym_snackbar.dart';
 import '../../../../core/designsystem/components/gym_top_bar.dart';
 import '../bloc/auth_cubit.dart';
 import '../../domain/repositories/auth_repository.dart';
@@ -22,8 +24,10 @@ import '../../../../core/navigation/app_routes.dart';
 
 class AuthOtpScreen extends StatefulWidget {
   final AuthFlowType flowType; 
+  final String? initialEmail;
+  final bool startAtOtpStep;
   
-  const AuthOtpScreen({super.key, required this.flowType});
+  const AuthOtpScreen({super.key, required this.flowType, this.initialEmail, this.startAtOtpStep = false});
 
   @override
   State<AuthOtpScreen> createState() => _AuthOtpScreenState();
@@ -53,7 +57,7 @@ class _AuthOtpScreenState extends State<AuthOtpScreen> {
   String get _screenDesc {
     switch(widget.flowType) {
       case AuthFlowType.login: return t.auth.desc_login_sync_screen;
-      case AuthFlowType.link: return t.auth.desc_link_email_screen;
+      case AuthFlowType.link: return ''; // Không còn dùng (bước 1 bị skip)
       case AuthFlowType.switchAccount: return t.auth.desc_switch_account_screen;
     }
   }
@@ -69,6 +73,12 @@ class _AuthOtpScreenState extends State<AuthOtpScreen> {
   @override
   void initState() {
     super.initState();
+    if (widget.initialEmail != null) {
+      _emailController.text = widget.initialEmail!;
+    }
+    if (widget.startAtOtpStep) {
+      _currentStep = 2;
+    }
     _checkExistingCooldown();
   }
 
@@ -120,15 +130,48 @@ class _AuthOtpScreenState extends State<AuthOtpScreen> {
 
   void _handleBack(bool isLoading) {
     if (_currentStep == 2 && !isLoading) {
-      setState(() { _currentStep = 1; _otpController.clear(); });
-      context.read<AuthCubit>().clearAuthMessage(); // [DỌN DẸP]
+      if (widget.startAtOtpStep) {
+        context.read<AuthCubit>().clearAuthMessage(); // [DỌN DẸP]
+        context.pop();
+      } else {
+        setState(() { _currentStep = 1; _otpController.clear(); });
+        context.read<AuthCubit>().clearAuthMessage(); // [DỌN DẸP]
+      }
     } else if (!isLoading) {
       context.read<AuthCubit>().clearAuthMessage(); // [DỌN DẸP]
       context.pop();
     }
   }
 
+  Future<bool> _hasInternetConnection() async {
+    try {
+      final result = await InternetAddress.lookup('google.com');
+      if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
+        return true;
+      }
+    } on SocketException catch (_) {
+      return false;
+    }
+    return false;
+  }
+
   Future<bool> _requestOtpAction(String email) async {
+    final hasInternet = await _hasInternetConnection();
+    if (!hasInternet) {
+      if (_currentStep == 1) {
+        setState(() => _emailErrorKey = 'auth.err_no_internet');
+        HapticFeedback.vibrate();
+      } else {
+        GymSnackbar.show(
+          context, 
+          message: t.translateDynamic('auth.err_no_internet'), 
+          icon: Symbols.wifi_off, 
+          accentColor: Theme.of(context).colorScheme.error,
+        );
+      }
+      return false;
+    }
+
     final cubit = context.read<AuthCubit>();
     switch (widget.flowType) {
       case AuthFlowType.login: return await cubit.requestLogin(email);

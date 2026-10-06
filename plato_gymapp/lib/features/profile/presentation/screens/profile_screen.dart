@@ -4,6 +4,7 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -160,7 +161,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       child: SvgPicture.asset(
                         'assets/svg/icons/delete_trashcan.svg',
-                        colorFilter: ColorFilter.mode(Theme.of(context).colorScheme.error, BlendMode.srcIn),
+                        colorFilter: ColorFilter.mode(
+                          Theme.of(context).colorScheme.error,
+                          BlendMode.srcIn,
+                        ),
                         width: 24,
                         height: 24,
                       ),
@@ -209,14 +213,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
       avatarImageWidget = Image.network(
         profile.avatarUrl!,
         fit: BoxFit.cover,
-        errorBuilder: (context, error, stackTrace) =>
-            Icon(Symbols.person, size: 56, color: colorScheme.onSurfaceVariant),
+        errorBuilder: (context, error, stackTrace) => Icon(
+          Symbols.person,
+          size: 56,
+          color: colorScheme.onSurfaceVariant,
+          fill: 1.0,
+        ),
       );
     } else {
       avatarImageWidget = Icon(
         Symbols.person,
         size: 56,
         color: colorScheme.onSurfaceVariant,
+        fill: 1.0,
       );
     }
 
@@ -228,8 +237,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         automaticallyImplyLeading: false,
-        centerTitle: true,
-        titleSpacing: 16,
+        centerTitle: false,
+        titleSpacing: 24,
         title: AnimatedSwitcher(
           duration: const Duration(milliseconds: 300),
           child: Image.asset(
@@ -242,11 +251,100 @@ class _ProfileScreenState extends State<ProfileScreen> {
           ),
         ),
         actions: [
+          PopupMenuButton<String>(
+            icon: Icon(Symbols.widgets, color: colorScheme.onSurface),
+            color: colorScheme.surfaceContainer,
+            elevation: 4,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(16),
+            ),
+            position: PopupMenuPosition.under,
+            offset: const Offset(16, 0),
+            onSelected: (value) {
+              switch (value) {
+                case 'stats':
+                  context.push('/profile/${AppRoutes.stats}');
+                  break;
+                case 'exercises':
+                  context.pushNamed('exercise_library');
+                  break;
+                case 'edit':
+                  context.push('/profile/${AppRoutes.profileSettings}');
+                  break;
+                case 'calendar':
+                  context.push('/profile/${AppRoutes.calendar}');
+                  break;
+              }
+            },
+            itemBuilder: (BuildContext context) => [
+              PopupMenuItem(
+                value: 'stats',
+                child: Row(
+                  children: [
+                    SvgPicture.asset(
+                      'assets/svg/icons/chart.svg',
+                      width: 24,
+                      height: 24,
+                      colorFilter: ColorFilter.mode(
+                        colorScheme.primary,
+                        BlendMode.srcIn,
+                      ),
+                    ),
+                    const SizedBox(width: 12),
+                    Text(
+                      t.profile.btn_menu_stats,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'exercises',
+                child: Row(
+                  children: [
+                    Icon(Symbols.list_alt, color: colorScheme.primary),
+                    const SizedBox(width: 12),
+                    Text(
+                      t.profile.btn_menu_exercises,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'edit',
+                child: Row(
+                  children: [
+                    Icon(Symbols.person_edit, color: colorScheme.primary),
+                    const SizedBox(width: 12),
+                    Text(
+                      t.profile.btn_menu_edit,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
+                value: 'calendar',
+                child: Row(
+                  children: [
+                    Icon(Symbols.calendar_month, color: colorScheme.primary),
+                    const SizedBox(width: 12),
+                    Text(
+                      t.profile.btn_menu_cal,
+                      style: const TextStyle(fontWeight: FontWeight.w600),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
           IconButton(
             tooltip: t.common.open_settings,
             icon: Icon(Symbols.settings, color: colorScheme.onSurface),
             onPressed: () => context.push('/profile/${AppRoutes.settings}'),
           ),
+          const SizedBox(width: 4),
         ],
       ),
       body: SafeArea(
@@ -269,7 +367,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Expanded(
-                          flex: 4,
+                          flex: 5,
                           child: RefreshIndicator(
                             onRefresh: _handleRefresh,
                             color: colorScheme.primary,
@@ -279,18 +377,11 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 parent: BouncingScrollPhysics(),
                               ),
                               children: [
-                                _buildIdentityAndHexagonRow(
+                                _buildProfileHeader(
                                   context,
                                   profile,
                                   hasAvatar,
                                   avatarImageWidget,
-                                  history,
-                                  isTablet: isTablet,
-                                ),
-                                const SizedBox(height: 24),
-                                _buildRankProgressCard(
-                                  context,
-                                  profile,
                                   history,
                                   isStatsLoading,
                                 ),
@@ -301,7 +392,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         ),
                         const SizedBox(width: 48),
                         Expanded(
-                          flex: 6,
+                          flex: 5,
                           child: RefreshIndicator(
                             onRefresh: _handleRefresh,
                             color: colorScheme.primary,
@@ -311,8 +402,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 parent: BouncingScrollPhysics(),
                               ),
                               children: [
-                                _buildMenuGrid(context),
-                                const SizedBox(height: 32),
+                                const SizedBox(height: 16),
                                 _buildHistoryHeader(context, history),
                                 const SizedBox(height: 16),
                                 _buildHistoryList(context, history),
@@ -341,23 +431,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       ),
                       child: Column(
                         children: [
-                          _buildIdentityAndHexagonRow(
+                          _buildProfileHeader(
                             context,
                             profile,
                             hasAvatar,
                             avatarImageWidget,
                             history,
-                            isTablet: isTablet,
-                          ),
-                          const SizedBox(height: 24),
-                          _buildRankProgressCard(
-                            context,
-                            profile,
-                            history,
                             isStatsLoading,
                           ),
-                          const SizedBox(height: 24),
-                          _buildMenuGrid(context),
                           const SizedBox(height: 32),
                           _buildHistoryHeader(context, history),
                           const SizedBox(height: 16),
@@ -376,85 +457,75 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildIdentityAndHexagonRow(
+  Widget _buildProfileHeader(
     BuildContext context,
     UserProfile profile,
     bool hasAvatar,
     Widget avatarImageWidget,
-    List<WorkoutSession> history, {
-    required bool isTablet,
-  }) {
+    List<WorkoutSession> history,
+    bool isStatsLoading,
+  ) {
     final colorScheme = Theme.of(context).colorScheme;
+    final isLight = Theme.of(context).brightness == Brightness.light;
 
     final double avatarSize = ResponsiveValue<double>(
       context,
-      defaultValue: 130,
-      conditionalValues: [Condition.smallerThan(name: MOBILE, value: 100)],
+      defaultValue: 90,
+      conditionalValues: [Condition.smallerThan(name: MOBILE, value: 70)],
     ).value;
 
-    Widget avatarSection = Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      crossAxisAlignment: CrossAxisAlignment.center,
-      children: [
-        Material(
-          color: Colors.transparent,
-          child: InkWell(
-            customBorder: const CircleBorder(),
-            onTap: () => _showAvatarOptions(context, hasAvatar),
-            child: Stack(
-              alignment: Alignment.bottomRight,
-              children: [
-                Container(
-                  width: avatarSize,
-                  height: avatarSize,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: colorScheme.surfaceContainerHighest.withValues(
-                      alpha: 0.5,
-                    ),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withValues(alpha: 0.1),
-                        offset: const Offset(0, 3),
-                        blurRadius: 8,
-                      ),
-                    ],
+    Widget avatarSection = Material(
+      color: Colors.transparent,
+      child: InkWell(
+        customBorder: const CircleBorder(),
+        onTap: () => _showAvatarOptions(context, hasAvatar),
+        child: Stack(
+          clipBehavior: Clip.none,
+          alignment: Alignment.bottomRight,
+          children: [
+            Container(
+              width: avatarSize,
+              height: avatarSize,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: colorScheme.surfaceContainerHighest,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    offset: const Offset(0, 3),
+                    blurRadius: 8,
                   ),
-                  child: ClipOval(child: avatarImageWidget),
-                ),
-                Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    color: colorScheme.primary,
-                    shape: BoxShape.circle,
-                    border: Border.all(color: colorScheme.surface, width: 3),
-                  ),
-                  child: Icon(
-                    Symbols.photo_camera,
-                    size: 16,
-                    color: colorScheme.onPrimary,
-                    fill: 1.0,
-                  ),
-                ),
-              ],
+                ],
+              ),
+              child: ClipOval(child: avatarImageWidget),
             ),
-          ),
+            Positioned(
+              bottom: 0, // moved slightly inward
+              right: 0, // moved slightly inward
+              child: Container(
+                padding: const EdgeInsets.all(5),
+                decoration: BoxDecoration(
+                  color: colorScheme.primary,
+                  shape: BoxShape.circle,
+                  border: Border.all(color: colorScheme.surface, width: 2),
+                ),
+                child: Icon(
+                  Symbols.edit,
+                  size: 13,
+                  color: colorScheme.onPrimary,
+                  fill: 1.0,
+                ),
+              ),
+            ),
+          ],
         ),
-        const SizedBox(height: 16),
-        Text(
-          profile.displayName,
-          style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 22),
-          maxLines: 2,
-          softWrap: true,
-          textAlign: TextAlign.center,
-        ),
-      ],
+      ),
     );
 
     Widget hexagonSection = Material(
       color: Colors.transparent,
       child: InkWell(
-        borderRadius: BorderRadius.circular(100),
+        borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
         onTap: () => context.push(
           '/profile/${AppRoutes.stats}',
           extra: StatsScreenType.HEXAGON_DETAIL,
@@ -466,267 +537,233 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
     );
 
-    if (isTablet) {
-      return Column(
-            children: [
-              avatarSection,
-              const SizedBox(height: 32),
-              hexagonSection,
-            ],
-          )
-          .animate()
-          .fade(duration: 400.ms, curve: Curves.easeOutCubic)
-          .slideY(begin: 0.1, end: 0);
-    }
-
-    return Row(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(flex: 1, child: avatarSection),
-            Expanded(flex: 1, child: hexagonSection),
-          ],
-        )
-        .animate()
-        .fade(duration: 400.ms, curve: Curves.easeOutCubic)
-        .slideY(begin: 0.1, end: 0);
-  }
-
-  Widget _buildRankProgressCard(
-    BuildContext context,
-    UserProfile profile,
-    List<WorkoutSession> history,
-    bool isLoading,
-  ) {
-    final colorScheme = Theme.of(context).colorScheme;
-
-    // 🚀 UX FIX: Hiển thị Skeleton nếu data chưa sẵn sàng để tránh giật số
-    if (isLoading) {
-      return Container(
-            height: 124, // Chiều cao xấp xỉ của card thật
-            decoration: BoxDecoration(
-              color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
-              borderRadius: BorderRadius.circular(20),
-              border: Border.all(
-                color: colorScheme.outlineVariant.withValues(alpha: 0.1),
-              ),
-            ),
-          )
-          .animate(onPlay: (controller) => controller.repeat())
-          .shimmer(
-            duration: 1200.ms,
-            color: colorScheme.surface.withValues(alpha: 0.5),
-          )
-          .fade(duration: 400.ms);
-    }
-
-    final rankInfo = RankConfig.getRankById(profile.activeRankId);
-    final isMaxRank = profile.activeRankId == RankConfig.hierarchy.last.id;
-
-    final int nowMillis = DateTime.now().millisecondsSinceEpoch;
-    final seasonResult = RankCalculator.calculateTrueRankAndSeasons(
-      history,
-      profile,
-      nowMillis,
-    );
-    final int seasonEndMillis = seasonResult.cycleEndTimeMillis;
-
-    return Container(
-          decoration: BoxDecoration(
-            color: colorScheme.surface,
-            borderRadius: BorderRadius.circular(20),
-            border: Border.all(
-              color: colorScheme.outlineVariant.withValues(alpha: 0.3),
-            ),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withValues(alpha: 0.05),
-                offset: const Offset(0, 3),
-                blurRadius: 8,
-              ),
-            ],
-          ),
-          child: Material(
-            color: Colors.transparent,
-            child: InkWell(
-              onTap: () => context.push('/social/${AppRoutes.rank}'),
-              borderRadius: BorderRadius.circular(20),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 20,
-                  vertical: 20,
+    Widget rankProgressContent;
+    if (isStatsLoading) {
+      rankProgressContent =
+          Container(
+                height: 96,
+                decoration: BoxDecoration(
+                  color: colorScheme.surfaceContainerHighest.withValues(
+                    alpha: 0.3,
+                  ),
+                  borderRadius: const BorderRadius.vertical(
+                    bottom: Radius.circular(20),
+                  ),
                 ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              )
+              .animate(onPlay: (controller) => controller.repeat())
+              .shimmer(
+                duration: 1200.ms,
+                color: colorScheme.surface.withValues(alpha: 0.5),
+              )
+              .fade(duration: 400.ms);
+    } else {
+      final rankInfo = RankConfig.getRankById(profile.activeRankId);
+      final isMaxRank = profile.activeRankId == RankConfig.hierarchy.last.id;
+      final int nowMillis = DateTime.now().millisecondsSinceEpoch;
+      final seasonResult = RankCalculator.calculateTrueRankAndSeasons(
+        history,
+        profile,
+        nowMillis,
+      );
+      final int seasonEndMillis = seasonResult.cycleEndTimeMillis;
+
+      rankProgressContent = Material(
+        color: isLight
+            ? colorScheme.surfaceContainerHighest
+            : colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+        borderRadius: const BorderRadius.vertical(bottom: Radius.circular(20)),
+        clipBehavior: Clip.antiAlias,
+        child: InkWell(
+          onTap: () => context.push('/social/${AppRoutes.rank}'),
+          child: Padding(
+            padding: const EdgeInsets.only(
+              left: 20,
+              right: 20,
+              top: 8,
+              bottom: 8,
+            ), // reduced padding
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
                   children: [
-                    Row(
-                      children: [
-                        RankBadge(rankId: profile.activeRankId),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.end,
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                t.rank.fmt_rp(
-                                  arg1: profile.currentRp.toString(),
-                                ),
-                                style: TextStyle(
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 16,
-                                  color: colorScheme.primary,
-                                ),
-                              ),
-                              const SizedBox(height: 2),
-                              // [UI/UX FIX]: Sử dụng GymCountdownText dùng chung
-                              GymCountdownText(
-                                key: ValueKey(seasonEndMillis),
-                                targetMillis: seasonEndMillis,
-                                style: const TextStyle(
-                                  fontSize: 13,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                                highlightColor: colorScheme.onSurfaceVariant,
-                                builder: (context, duration) {
-                                  final int diffMillis =
-                                      duration.inMilliseconds;
-
-                                  if (diffMillis <= 0) {
-                                    return Text(
-                                      t.rank.msg_season_ended,
-                                      style:
-                                          const TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w600,
-                                          ).copyWith(
-                                            color: colorScheme.onSurfaceVariant,
-                                          ),
-                                    );
-                                  }
-
-                                  const int oneDayMillis = 24 * 60 * 60 * 1000;
-                                  if (diffMillis >= oneDayMillis) {
-                                    final daysLeft = (diffMillis / oneDayMillis)
-                                        .ceil();
-                                    return Text(
-                                      t.nutrition.fmt_goal_days_left(
-                                        days: daysLeft.toString(),
-                                      ),
-                                      style:
-                                          const TextStyle(
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w600,
-                                          ).copyWith(
-                                            color: colorScheme.onSurfaceVariant,
-                                          ),
-                                    );
-                                  }
-
-                                  final hours = duration.inHours;
-                                  final minutes = duration.inMinutes.remainder(
-                                    60,
-                                  );
-                                  final seconds = duration.inSeconds.remainder(
-                                    60,
-                                  );
-
-                                  String timeText;
-                                  if (hours > 0) {
-                                    timeText = t.common.time_h_m_s(
-                                      h: hours.toString(),
-                                      m: minutes.toString(),
-                                      s: seconds.toString(),
-                                    );
-                                  } else if (minutes > 0) {
-                                    timeText = t.common.time_m_s(
-                                      m: minutes.toString(),
-                                      s: seconds.toString(),
-                                    );
-                                  } else {
-                                    timeText = t.common.time_s(
-                                      s: seconds.toString(),
-                                    );
-                                  }
-
-                                  return Text(
-                                    timeText,
-                                    style: const TextStyle(
-                                      fontSize: 13,
-                                      fontWeight: FontWeight.w600,
-                                    ).copyWith(color: colorScheme.error),
-                                  );
-                                },
-                              ),
-                            ],
+                    RankBadge(rankId: profile.activeRankId),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            t.rank.fmt_rp(arg1: profile.currentRp.toString()),
+                            style: TextStyle(
+                              fontWeight: FontWeight.w900,
+                              fontSize: 16,
+                              color: colorScheme.primary,
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
-                    _BMIStyleZoneBar(
-                      currentRank: rankInfo,
-                      points: profile.currentRp,
-                      isMaxRank: isMaxRank,
+                          const SizedBox(height: 2),
+                          GymCountdownText(
+                            key: ValueKey(seasonEndMillis),
+                            targetMillis: seasonEndMillis,
+                            style: const TextStyle(
+                              fontSize: 10, // reduced slightly
+                              fontWeight: FontWeight.w600,
+                            ),
+                            highlightColor: colorScheme.onSurfaceVariant,
+                            builder: (context, duration) {
+                              final int diffMillis = duration.inMilliseconds;
+                              if (diffMillis <= 0) {
+                                return Text(
+                                  t.rank.msg_season_ended,
+                                  style:
+                                      const TextStyle(
+                                        fontSize: 10, // reduced
+                                        fontWeight: FontWeight.w600,
+                                      ).copyWith(
+                                        color: colorScheme.onSurfaceVariant,
+                                      ),
+                                );
+                              }
+                              const int oneDayMillis = 24 * 60 * 60 * 1000;
+                              if (diffMillis >= oneDayMillis) {
+                                final daysLeft = (diffMillis / oneDayMillis)
+                                    .ceil();
+                                return Text(
+                                  t.nutrition.fmt_goal_days_left(
+                                    days: daysLeft.toString(),
+                                  ),
+                                  style:
+                                      const TextStyle(
+                                        fontSize: 10, // reduced
+                                        fontWeight: FontWeight.w600,
+                                      ).copyWith(
+                                        color: colorScheme.onSurfaceVariant,
+                                      ),
+                                );
+                              }
+                              final hours = duration.inHours;
+                              final minutes = duration.inMinutes.remainder(60);
+                              final seconds = duration.inSeconds.remainder(60);
+                              String timeText;
+                              if (hours > 0) {
+                                timeText = t.common.time_h_m_s(
+                                  h: hours.toString(),
+                                  m: minutes.toString(),
+                                  s: seconds.toString(),
+                                );
+                              } else if (minutes > 0) {
+                                timeText = t.common.time_m_s(
+                                  m: minutes.toString(),
+                                  s: seconds.toString(),
+                                );
+                              } else {
+                                timeText = t.common.time_s(
+                                  s: seconds.toString(),
+                                );
+                              }
+                              return Text(
+                                timeText,
+                                style: const TextStyle(
+                                  fontSize: 10, // reduced
+                                  fontWeight: FontWeight.w600,
+                                ).copyWith(color: colorScheme.error),
+                              );
+                            },
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                 ),
-              ),
+                const SizedBox(height: 6),
+                _BMIStyleZoneBar(
+                  currentRank: rankInfo,
+                  points: profile.currentRp,
+                  isMaxRank: isMaxRank,
+                ),
+              ],
             ),
           ),
-        )
-        .animate(delay: 50.ms)
-        .fade(duration: 400.ms, curve: Curves.easeOutCubic)
-        .slideY(begin: 0.1, end: 0);
-  }
+        ),
+      );
+    }
 
-  Widget _buildMenuGrid(BuildContext context) {
-    return Column(
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: _MenuButton(
-                    svgAsset: 'assets/svg/icons/chart.svg',
-                    title: t.profile.btn_menu_stats,
-                    onTap: () => context.push('/profile/${AppRoutes.stats}'),
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        // Main Card
+        Container(
+              margin: EdgeInsets.only(
+                top: avatarSize * 0.75,
+              ), // Pushed card down so only 1/4 overlaps
+              decoration: BoxDecoration(
+                color: isLight
+                    ? Colors.white
+                    : colorScheme.surfaceContainerLowest,
+                borderRadius: BorderRadius.circular(20),
+                border: Border.all(
+                  color: colorScheme.outlineVariant.withValues(
+                    alpha: isLight ? 0.8 : 0.6,
                   ),
                 ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _MenuButton(
-                    icon: Symbols.list_alt,
-                    title: t.profile.btn_menu_exercises,
-                    onTap: () => context.pushNamed('exercise_library'),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: isLight ? 0.15 : 0.3),
+                    offset: const Offset(0, 6),
+                    blurRadius: 16,
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: _MenuButton(
-                    icon: Symbols.person_edit,
-                    title: t.profile.btn_menu_edit,
-                    onTap: () =>
-                        context.push('/profile/${AppRoutes.profileSettings}'),
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  hexagonSection,
+                  Divider(
+                    height: 1,
+                    thickness: 1,
+                    color: colorScheme.outlineVariant.withValues(
+                      alpha: isLight ? 0.8 : 0.5,
+                    ),
                   ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: _MenuButton(
-                    icon: Symbols.calendar_month,
-                    title: t.profile.btn_menu_cal,
-                    onTap: () => context.push('/profile/${AppRoutes.calendar}'),
+                  rankProgressContent,
+                ],
+              ),
+            )
+            .animate(delay: 50.ms)
+            .fade(duration: 400.ms, curve: Curves.easeOutCubic)
+            .slideY(begin: 0.1, end: 0),
+
+        // Avatar and Username
+        Positioned(
+          top: 0,
+          left: 16, // Shifted slightly to the left
+          right: 16,
+          child: Row(
+            crossAxisAlignment:
+                CrossAxisAlignment.center, // Canh giữa theo chiều dọc
+            children: [
+              avatarSection,
+              const SizedBox(width: 16),
+              Expanded(
+                child: AutoSizeText(
+                  profile.displayName,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w900,
+                    fontSize: 24,
                   ),
+                  maxLines: 1,
+                  minFontSize: 18,
+                  overflow: TextOverflow.ellipsis,
+                  textAlign: TextAlign.left,
                 ),
-              ],
-            ),
-          ],
-        )
-        .animate(delay: 200.ms)
-        .fade(duration: 400.ms, curve: Curves.easeOutCubic)
-        .slideY(begin: 0.1, end: 0);
+              ),
+            ],
+          ).animate().fade(duration: 400.ms).slideY(begin: 0.1, end: 0),
+        ),
+      ],
+    );
   }
 
   Widget _buildHistoryHeader(
@@ -882,7 +919,7 @@ class _BMIStyleZoneBar extends StatelessWidget {
                 return CustomPaint(
                   size: Size(
                     width.isInfinite ? 350 : width,
-                    24,
+                    8,
                   ), // Fix infinite width crash during transitions
                   painter: _ZoneBarPainter(
                     currentRatio: value,
@@ -898,9 +935,9 @@ class _BMIStyleZoneBar extends StatelessWidget {
                 );
               },
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 4),
             SizedBox(
-              height: 24,
+              height: 16,
               child: Stack(
                 children: [
                   if (currentRank.id > 1)
@@ -910,7 +947,7 @@ class _BMIStyleZoneBar extends StatelessWidget {
                         "${currentRank.maintainPoints} RP",
                         style: TextStyle(
                           color: colorScheme.error,
-                          fontSize: 12,
+                          fontSize: 13,
                           fontWeight: FontWeight.bold,
                           fontFeatures: const [FontFeature.tabularFigures()],
                         ),
@@ -923,7 +960,7 @@ class _BMIStyleZoneBar extends StatelessWidget {
                         "${currentRank.promotePoints} RP",
                         style: TextStyle(
                           color: colorPromote,
-                          fontSize: 12,
+                          fontSize: 13,
                           fontWeight: FontWeight.bold,
                           fontFeatures: const [FontFeature.tabularFigures()],
                         ),
@@ -967,9 +1004,9 @@ class _ZoneBarPainter extends CustomPainter {
     final paint = Paint()..style = PaintingStyle.fill;
     final linePaint = Paint()
       ..color = Colors.white
-      ..strokeWidth = 4;
+      ..strokeWidth = 3;
 
-    const double h = 12.0;
+    const double h = 8.0;
     final double y = size.height / 2;
     final double top = y - h / 2;
     final double bottom = y + h / 2;
@@ -1079,9 +1116,9 @@ class _ZoneBarPainter extends CustomPainter {
     }
 
     paint.color = colorIndicator;
-    canvas.drawCircle(Offset(xCurrent, y), 10, paint);
+    canvas.drawCircle(Offset(xCurrent, y), 8, paint);
     paint.color = Colors.white;
-    canvas.drawCircle(Offset(xCurrent, y), 4, paint);
+    canvas.drawCircle(Offset(xCurrent, y), 3, paint);
   }
 
   @override
@@ -1424,7 +1461,7 @@ class RankBadge extends StatelessWidget {
 
     return Container(
       // [FIX] Tinh chỉnh lại padding cho cân đối với ảnh
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
       decoration: BoxDecoration(
         color: rankColor.withValues(alpha: 0.1), // Nền mờ nhẹ hơn để tôn ảnh
         borderRadius: BorderRadius.circular(50),
@@ -1447,8 +1484,8 @@ class RankBadge extends StatelessWidget {
           // [FIX] Thay thế Icon bằng Image.asset
           Image.asset(
             _getBadgeAssetPath(rankId),
-            width: 24, // Size nhỏ nhắn gọn gàng
-            height: 24,
+            width: 20, // Size nhỏ nhắn gọn gàng
+            height: 20,
             fit: BoxFit.contain,
           ),
           const SizedBox(width: 8),
@@ -1465,74 +1502,6 @@ class RankBadge extends StatelessWidget {
             ),
           ),
         ],
-      ),
-    );
-  }
-}
-
-class _MenuButton extends StatelessWidget {
-  final IconData? icon;
-  final String? svgAsset;
-  final String title;
-  final VoidCallback onTap;
-
-  const _MenuButton({
-    this.icon,
-    this.svgAsset,
-    required this.title,
-    required this.onTap,
-  }) : assert(icon != null || svgAsset != null);
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    return Container(
-      decoration: BoxDecoration(
-        color: colorScheme.surface,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(
-          color: colorScheme.outlineVariant.withValues(alpha: 0.2),
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            offset: const Offset(0, 3),
-            blurRadius: 8,
-          ),
-        ],
-      ),
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: onTap,
-          borderRadius: BorderRadius.circular(20),
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
-            child: Column(
-              children: [
-                svgAsset != null
-                    ? SvgPicture.asset(
-                        svgAsset!,
-                        colorFilter: ColorFilter.mode(colorScheme.primary, BlendMode.srcIn),
-                        width: 28,
-                        height: 28,
-                      )
-                    : Icon(icon, color: colorScheme.primary, size: 28),
-                const SizedBox(height: 8),
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.bold,
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 2,
-                  softWrap: true,
-                ),
-              ],
-            ),
-          ),
-        ),
       ),
     );
   }
@@ -1688,7 +1657,10 @@ class _HistoryCard extends StatelessWidget {
                           'assets/svg/icons/trophy.svg',
                           width: 18,
                           height: 18,
-                          colorFilter: ColorFilter.mode(Theme.of(context).gymColors.goldRank, BlendMode.srcIn),
+                          colorFilter: ColorFilter.mode(
+                            Theme.of(context).gymColors.goldRank,
+                            BlendMode.srcIn,
+                          ),
                         ),
                         const SizedBox(width: 8),
                         Text(
@@ -1725,9 +1697,7 @@ class _HistoryCard extends StatelessWidget {
                         children: [
                           Expanded(
                             child: Text(
-                              t
-                                      .translateDynamic(ex.exercise.name)
-                                      .toString(),
+                              t.translateDynamic(ex.exercise.name).toString(),
                               style: TextStyle(
                                 fontSize: 14,
                                 color: colorScheme.onSurface.withValues(

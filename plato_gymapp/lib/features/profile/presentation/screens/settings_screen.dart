@@ -21,6 +21,9 @@ import '../../../../core/navigation/app_routes.dart';
 import '../../../auth/presentation/bloc/auth_cubit.dart';
 import '../bloc/profile_cubit.dart';
 import '../../../notifications/presentation/screens/notification_settings_screen.dart';
+import '../../../notifications/presentation/screens/notification_diagnostics_screen.dart';
+import '../../../notifications/application/notification_coordinator.dart';
+import '../../../notifications/data/notification_copy.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -30,24 +33,51 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  int _versionTapCount = 0;
+  DateTime? _lastVersionTapAt;
+
+  String _notificationCountLabel(int count) =>
+      NotificationCopy.text('settings.fmt_notifications_enabled', {
+        'count': '$count',
+      }) ??
+      '$count ${t.settings.lbl_item_notification.toLowerCase()}';
+
   @override
   void initState() {
     super.initState();
   }
 
   void _sendSupportEmail() async {
-  final subjectText = t.settings.msg_intent_email_subject;
-  final Uri emailLaunchUri = Uri(
-    scheme: 'mailto',
-    path: 'support.plato@zenithas.vn',
-    // Sử dụng Uri.encodeComponent để mã hóa khoảng trắng thành '%20' thay vì '+'
-    query: 'subject=${Uri.encodeComponent(subjectText)}',
-  );
-  
-  if (!await launchUrl(emailLaunchUri)) {
-    debugPrint('Không thể mở ứng dụng Email');
+    final subjectText = t.settings.msg_intent_email_subject;
+    final Uri emailLaunchUri = Uri(
+      scheme: 'mailto',
+      path: 'support.plato@zenithas.vn',
+      // Sử dụng Uri.encodeComponent để mã hóa khoảng trắng thành '%20' thay vì '+'
+      query: 'subject=${Uri.encodeComponent(subjectText)}',
+    );
+
+    if (!await launchUrl(emailLaunchUri)) {
+      debugPrint('Không thể mở ứng dụng Email');
+    }
   }
-}
+
+  void _handleVersionTap() {
+    final now = DateTime.now();
+    if (_lastVersionTapAt == null ||
+        now.difference(_lastVersionTapAt!) > const Duration(seconds: 5)) {
+      _versionTapCount = 0;
+    }
+    _lastVersionTapAt = now;
+    _versionTapCount++;
+    if (_versionTapCount < 7) return;
+    _versionTapCount = 0;
+    _lastVersionTapAt = null;
+    Navigator.of(context, rootNavigator: false).push(
+      MaterialPageRoute<void>(
+        builder: (_) => const NotificationDiagnosticsScreen(),
+      ),
+    );
+  }
 
   void _launchSocialUrl(String webUrl, {String? nativeUrl}) async {
     if (webUrl.isEmpty) return;
@@ -67,7 +97,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     // 2. Thử mở Universal Link (ép mở app qua link https, không dùng trình duyệt)
     final Uri webUri = Uri.parse(webUrl);
     try {
-      if (await launchUrl(webUri, mode: LaunchMode.externalNonBrowserApplication)) {
+      if (await launchUrl(
+        webUri,
+        mode: LaunchMode.externalNonBrowserApplication,
+      )) {
         return; // Thành công mở qua app (Universal Link/App Link)
       }
     } catch (e) {
@@ -84,7 +117,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
     GymDialog.showCustom(
       context: context,
       useRootNavigator: false,
-      titleWidget: Text(t.settings.title_language_dialog, style: const TextStyle(fontWeight: FontWeight.bold)),
+      titleWidget: Text(
+        t.settings.title_language_dialog,
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
       content: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 400),
         child: Column(
@@ -93,20 +129,32 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ListTile(
               leading: const Icon(Symbols.language),
               title: const Text("Tiếng Việt"),
-              trailing: TranslationProvider.of(context).flutterLocale.languageCode == 'vi' ? const Icon(Symbols.check, color: Colors.blue) : null,
+              trailing:
+                  TranslationProvider.of(context).flutterLocale.languageCode ==
+                      'vi'
+                  ? const Icon(Symbols.check, color: Colors.blue)
+                  : null,
               onTap: () {
                 LocaleSettings.setLocaleRaw("vi");
-                SharedPreferences.getInstance().then((prefs) => prefs.setString('app_lang', 'vi'));
+                SharedPreferences.getInstance().then(
+                  (prefs) => prefs.setString('app_lang', 'vi'),
+                );
                 Navigator.of(context, rootNavigator: false).pop();
               },
             ),
             ListTile(
               leading: const Icon(Symbols.language),
               title: const Text("English"),
-              trailing: TranslationProvider.of(context).flutterLocale.languageCode == 'en' ? const Icon(Symbols.check, color: Colors.blue) : null,
+              trailing:
+                  TranslationProvider.of(context).flutterLocale.languageCode ==
+                      'en'
+                  ? const Icon(Symbols.check, color: Colors.blue)
+                  : null,
               onTap: () {
                 LocaleSettings.setLocaleRaw("en");
-                SharedPreferences.getInstance().then((prefs) => prefs.setString('app_lang', 'en'));
+                SharedPreferences.getInstance().then(
+                  (prefs) => prefs.setString('app_lang', 'en'),
+                );
                 Navigator.of(context, rootNavigator: false).pop();
               },
             ),
@@ -114,7 +162,13 @@ class _SettingsScreenState extends State<SettingsScreen> {
         ),
       ),
       actions: [
-        TextButton(onPressed: () => Navigator.of(context, rootNavigator: false).pop(), child: Text(t.common.close, style: const TextStyle(fontWeight: FontWeight.bold)))
+        TextButton(
+          onPressed: () => Navigator.of(context, rootNavigator: false).pop(),
+          child: Text(
+            t.common.close,
+            style: const TextStyle(fontWeight: FontWeight.bold),
+          ),
+        ),
       ],
     );
   }
@@ -128,16 +182,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
       cancelText: t.common.cancel,
       confirmText: t.common.logout,
     );
-    
+
     if (confirm == true && context.mounted) {
-      await context.read<AuthCubit>().logoutUser(); 
+      await context.read<AuthCubit>().logoutUser();
       if (context.mounted) {
         // 🚀 CRITIC FIX: Đồng bộ combo dọn RAM giống như màn Delete Account
         context.read<ProfileCubit>().refreshProfile();
         context.read<GamificationCubit>().resetGamification();
-        context.read<WorkoutCubit>().resetWorkoutState(); 
+        context.read<WorkoutCubit>().resetWorkoutState();
         context.read<StatsCubit>().clearStats();
-        
+
         GymSnackbar.show(
           context,
           message: t.profile.msg_logout_success,
@@ -151,19 +205,33 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final currentLang = TranslationProvider.of(context).flutterLocale.languageCode == 'vi' ? "Tiếng Việt" : "English";
+    final notificationService = NotificationCoordinator.instance;
+    final currentLang =
+        TranslationProvider.of(context).flutterLocale.languageCode == 'vi'
+        ? "Tiếng Việt"
+        : "English";
 
     // Tối ưu Responsive: Tự động nới lỏng padding trên màn hình Tablet/Desktop
     final itemPadding = ResponsiveValue<EdgeInsets>(
       context,
       defaultValue: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       conditionalValues: [
-        Condition.largerThan(name: MOBILE, value: const EdgeInsets.symmetric(horizontal: 48, vertical: 12)),
+        Condition.largerThan(
+          name: MOBILE,
+          value: const EdgeInsets.symmetric(horizontal: 48, vertical: 12),
+        ),
       ],
     ).value;
-    
-    final titleStyle = TextStyle(color: colorScheme.onSurface, fontSize: 16, fontWeight: FontWeight.bold);
-    final subtitleStyle = TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14);
+
+    final titleStyle = TextStyle(
+      color: colorScheme.onSurface,
+      fontSize: 16,
+      fontWeight: FontWeight.bold,
+    );
+    final subtitleStyle = TextStyle(
+      color: colorScheme.onSurfaceVariant,
+      fontSize: 14,
+    );
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -185,12 +253,15 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 16),
-                    
+
                     // 1. Theme Section
                     ListTile(
                       contentPadding: itemPadding,
                       leading: const Icon(Symbols.routine),
-                      title: Text(t.settings.title_theme_section, style: titleStyle),
+                      title: Text(
+                        t.settings.title_theme_section,
+                        style: titleStyle,
+                      ),
                       subtitle: BlocBuilder<ThemeCubit, ThemeMode>(
                         builder: (context, currentThemeMode) {
                           return Padding(
@@ -242,12 +313,36 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ListTile(
                       contentPadding: itemPadding,
                       leading: const Icon(Symbols.notifications),
-                      title: Text(t.settings.lbl_item_notification, style: titleStyle),
-                      subtitle: Text(t.settings.desc_item_notification, style: subtitleStyle),
+                      title: Text(
+                        t.settings.lbl_item_notification,
+                        style: titleStyle,
+                      ),
+                      subtitle: notificationService == null
+                          ? Text(
+                              _notificationCountLabel(0),
+                              style: subtitleStyle.copyWith(
+                                color: colorScheme.primary,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            )
+                          : ListenableBuilder(
+                              listenable: notificationService,
+                              builder: (context, _) => Text(
+                                _notificationCountLabel(
+                                  notificationService.enabledCategoryCount,
+                                ),
+                                style: subtitleStyle.copyWith(
+                                  color: colorScheme.primary,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
+                            ),
                       trailing: const Icon(Symbols.chevron_right),
                       onTap: () {
                         Navigator.of(context, rootNavigator: false).push(
-                          MaterialPageRoute(builder: (_) => const NotificationSettingsScreen())
+                          MaterialPageRoute(
+                            builder: (_) => const NotificationSettingsScreen(),
+                          ),
                         );
                       },
                     ),
@@ -256,13 +351,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ListTile(
                       contentPadding: itemPadding,
                       onTap: () {
-                        Navigator.of(context, rootNavigator: false).push(MaterialPageRoute(builder: (_) => const AccountManagementScreen()));
+                        Navigator.of(context, rootNavigator: false).push(
+                          MaterialPageRoute(
+                            builder: (_) => const AccountManagementScreen(),
+                          ),
+                        );
                       },
                       leading: Icon(Symbols.manage_accounts),
-                      title: Text(t.settings.title_account_management, style: titleStyle),
+                      title: Text(
+                        t.settings.title_account_management,
+                        style: titleStyle,
+                      ),
                       subtitle: Text(
-                        isLinked ? t.settings.msg_auth_linked : t.settings.msg_auth_unlinked, 
-                        style: TextStyle(color: isLinked ? Theme.of(context).gymColors.success : colorScheme.onSurfaceVariant, fontSize: 13, fontWeight: FontWeight.w600)
+                        isLinked
+                            ? t.settings.msg_auth_linked
+                            : t.settings.msg_auth_unlinked,
+                        style: TextStyle(
+                          color: isLinked
+                              ? Theme.of(context).gymColors.success
+                              : colorScheme.onSurfaceVariant,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       trailing: const Icon(Symbols.chevron_right),
                     ),
@@ -280,21 +390,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             'assets/svg/icons/tutorial.svg',
                             width: 28,
                             height: 28,
-                            colorFilter: ColorFilter.mode(colorScheme.onSurfaceVariant, BlendMode.srcIn),
+                            colorFilter: ColorFilter.mode(
+                              colorScheme.onSurfaceVariant,
+                              BlendMode.srcIn,
+                            ),
                           ),
                         ),
                       ),
                       title: Text(t.common.tutorial_title, style: titleStyle),
-                      subtitle: Text(t.settings.desc_item_tutorial, style: subtitleStyle),
+                      subtitle: Text(
+                        t.settings.desc_item_tutorial,
+                        style: subtitleStyle,
+                      ),
                       trailing: const Icon(Symbols.chevron_right),
-                      onTap: () => context.push('/profile/${AppRoutes.tutorial}'),
+                      onTap: () =>
+                          context.push('/profile/${AppRoutes.tutorial}'),
                     ),
 
                     // 4. Language
                     ListTile(
                       contentPadding: itemPadding,
                       leading: const Icon(Symbols.language),
-                      title: Text(t.settings.lbl_item_language, style: titleStyle),
+                      title: Text(
+                        t.settings.lbl_item_language,
+                        style: titleStyle,
+                      ),
                       subtitle: Text(currentLang, style: subtitleStyle),
                       trailing: const Icon(Symbols.chevron_right),
                       onTap: () => _showLanguageDialog(context),
@@ -304,18 +424,30 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ListTile(
                       contentPadding: itemPadding,
                       leading: const Icon(Symbols.mail),
-                      title: Text(t.settings.lbl_item_contact, style: titleStyle),
-                      subtitle: Text("support.plato@zenithas.vn", style: subtitleStyle),
+                      title: Text(
+                        t.settings.lbl_item_contact,
+                        style: titleStyle,
+                      ),
+                      subtitle: Text(
+                        "support.plato@zenithas.vn",
+                        style: subtitleStyle,
+                      ),
                       trailing: const Icon(Symbols.chevron_right),
                       onTap: _sendSupportEmail,
                     ),
-                    
+
                     // 6. Terms of Use
                     ListTile(
                       contentPadding: itemPadding,
                       leading: const Icon(Symbols.description),
-                      title: Text(t.onboarding.lbl_terms_link, style: titleStyle),
-                      subtitle: Text(t.settings.desc_terms_link, style: subtitleStyle),
+                      title: Text(
+                        t.onboarding.lbl_terms_link,
+                        style: titleStyle,
+                      ),
+                      subtitle: Text(
+                        t.settings.desc_terms_link,
+                        style: subtitleStyle,
+                      ),
                       trailing: const Icon(Symbols.chevron_right),
                       onTap: () => _showTermsDialog(context),
                     ),
@@ -324,8 +456,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ListTile(
                       contentPadding: itemPadding,
                       leading: const Icon(Symbols.contract),
-                      title: Text(t.onboarding.lbl_eula_link, style: titleStyle),
-                      subtitle: Text(t.settings.desc_eula_link, style: subtitleStyle),
+                      title: Text(
+                        t.onboarding.lbl_eula_link,
+                        style: titleStyle,
+                      ),
+                      subtitle: Text(
+                        t.settings.desc_eula_link,
+                        style: subtitleStyle,
+                      ),
                       trailing: const Icon(Symbols.chevron_right),
                       onTap: () => _showEulaDialog(context),
                     ),
@@ -334,8 +472,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     ListTile(
                       contentPadding: itemPadding,
                       leading: const Icon(Symbols.info),
-                      title: Text(t.settings.lbl_item_version, style: titleStyle),
+                      title: Text(
+                        t.settings.lbl_item_version,
+                        style: titleStyle,
+                      ),
                       subtitle: Text("1.1.1", style: subtitleStyle),
+                      onTap: _handleVersionTap,
                     ),
 
                     // 9. Đăng xuất
@@ -343,11 +485,14 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       ListTile(
                         contentPadding: itemPadding,
                         leading: Icon(Symbols.logout, color: colorScheme.error),
-                        title: Text(t.common.logout, style: titleStyle.copyWith(color: colorScheme.error)),
+                        title: Text(
+                          t.common.logout,
+                          style: titleStyle.copyWith(color: colorScheme.error),
+                        ),
                         onTap: () => _handleLogout(context),
                       ),
                     ],
-                    
+
                     const SizedBox(height: 32),
 
                     // 10. SOCIAL LINKS SECTION
@@ -367,17 +512,26 @@ class _SettingsScreenState extends State<SettingsScreen> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               _buildSocialIcon(
-                                FaIcon(FontAwesomeIcons.instagram, size: 22, color: colorScheme.onSurface), 
-                                colorScheme, 
+                                FaIcon(
+                                  FontAwesomeIcons.instagram,
+                                  size: 22,
+                                  color: colorScheme.onSurface,
+                                ),
+                                colorScheme,
                                 () => _launchSocialUrl(
                                   'https://www.instagram.com/plato.zenithas/',
-                                  nativeUrl: 'instagram://user?username=plato.zenithas',
+                                  nativeUrl:
+                                      'instagram://user?username=plato.zenithas',
                                 ),
                               ),
                               const SizedBox(width: 20),
                               _buildSocialIcon(
-                                FaIcon(FontAwesomeIcons.facebookF, size: 22, color: colorScheme.onSurface), 
-                                colorScheme, 
+                                FaIcon(
+                                  FontAwesomeIcons.facebookF,
+                                  size: 22,
+                                  color: colorScheme.onSurface,
+                                ),
+                                colorScheme,
                                 () => _launchSocialUrl(
                                   'https://www.facebook.com/profile.php?id=61592005979928',
                                   nativeUrl: 'fb://profile/61592005979928',
@@ -385,16 +539,24 @@ class _SettingsScreenState extends State<SettingsScreen> {
                               ),
                               const SizedBox(width: 20),
                               _buildSocialIcon(
-                                FaIcon(FontAwesomeIcons.threads, size: 22, color: colorScheme.onSurface), 
-                                colorScheme, 
+                                FaIcon(
+                                  FontAwesomeIcons.threads,
+                                  size: 22,
+                                  color: colorScheme.onSurface,
+                                ),
+                                colorScheme,
                                 () => _launchSocialUrl(
                                   'https://www.threads.com/@plato.zenithas',
                                 ),
                               ),
                               const SizedBox(width: 20),
                               _buildSocialIcon(
-                                FaIcon(FontAwesomeIcons.tiktok, size: 22, color: colorScheme.onSurface), 
-                                colorScheme, 
+                                FaIcon(
+                                  FontAwesomeIcons.tiktok,
+                                  size: 22,
+                                  color: colorScheme.onSurface,
+                                ),
+                                colorScheme,
                                 () => _launchSocialUrl(
                                   'https://www.tiktok.com/@plato.zenithas?_r=1&_t=ZS-990YzsfNfXO',
                                 ),
@@ -430,21 +592,25 @@ class _SettingsScreenState extends State<SettingsScreen> {
       style: OutlinedButton.styleFrom(
         padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        backgroundColor: isSelected ? colorScheme.primary.withValues(alpha: 0.1) : Colors.transparent,
+        backgroundColor: isSelected
+            ? colorScheme.primary.withValues(alpha: 0.1)
+            : Colors.transparent,
         side: BorderSide(
-          color: isSelected ? colorScheme.primary : colorScheme.outlineVariant, 
+          color: isSelected ? colorScheme.primary : colorScheme.outlineVariant,
           width: 1.5,
         ),
       ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center, 
+        mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Icon(
-            icon, 
-            size: 22, 
-            color: isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant,
-            fill: isSelected ? 1.0 : 0.0, 
+            icon,
+            size: 22,
+            color: isSelected
+                ? colorScheme.primary
+                : colorScheme.onSurfaceVariant,
+            fill: isSelected ? 1.0 : 0.0,
           ),
           const SizedBox(height: 6),
           FittedBox(
@@ -458,7 +624,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
               style: TextStyle(
                 fontWeight: FontWeight.bold,
                 fontSize: 12,
-                color: isSelected ? colorScheme.primary : colorScheme.onSurfaceVariant,
+                color: isSelected
+                    ? colorScheme.primary
+                    : colorScheme.onSurfaceVariant,
               ),
               textAlign: TextAlign.center,
             ),
@@ -468,7 +636,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildSocialIcon(Widget iconWidget, ColorScheme colorScheme, VoidCallback onTap) {
+  Widget _buildSocialIcon(
+    Widget iconWidget,
+    ColorScheme colorScheme,
+    VoidCallback onTap,
+  ) {
     return InkWell(
       onTap: onTap,
       borderRadius: BorderRadius.circular(24),
@@ -479,9 +651,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
           shape: BoxShape.circle,
           color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
         ),
-        child: Center(
-          child: iconWidget,
-        ),
+        child: Center(child: iconWidget),
       ),
     );
   }
@@ -502,9 +672,25 @@ List<TextSpan> _buildRichSpans(String text, ColorScheme colorScheme) {
     }
     final tag = match.group(0);
     if (tag == '{app}') {
-      spans.add(TextSpan(text: appName, style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onSurface)));
+      spans.add(
+        TextSpan(
+          text: appName,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: colorScheme.onSurface,
+          ),
+        ),
+      );
     } else if (tag == '{brand}') {
-      spans.add(TextSpan(text: brandName, style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.onSurface)));
+      spans.add(
+        TextSpan(
+          text: brandName,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: colorScheme.onSurface,
+          ),
+        ),
+      );
     }
     lastIndex = match.end;
   }
@@ -521,8 +707,15 @@ void _showTermsDialog(BuildContext context) {
     useRootNavigator: false,
     titleWidget: RichText(
       text: TextSpan(
-        style: TextStyle(fontWeight: FontWeight.w900, fontSize: 20, color: colorScheme.onSurface),
-        children: _buildRichSpans(t.onboarding.title_terms(app: "{app}"), colorScheme),
+        style: TextStyle(
+          fontWeight: FontWeight.w900,
+          fontSize: 20,
+          color: colorScheme.onSurface,
+        ),
+        children: _buildRichSpans(
+          t.onboarding.title_terms(app: "{app}"),
+          colorScheme,
+        ),
       ),
     ),
     content: Column(
@@ -540,7 +733,12 @@ void _showTermsDialog(BuildContext context) {
         ], colorScheme),
       ],
     ),
-    actions: [TextButton(onPressed: () => Navigator.of(context, rootNavigator: false).pop(), child: Text(t.common.close))],
+    actions: [
+      TextButton(
+        onPressed: () => Navigator.of(context, rootNavigator: false).pop(),
+        child: Text(t.common.close),
+      ),
+    ],
   );
 }
 
@@ -551,20 +749,42 @@ void _showEulaDialog(BuildContext context) {
     useRootNavigator: false,
     titleWidget: RichText(
       text: TextSpan(
-        style: TextStyle(fontWeight: FontWeight.w900, fontSize: 18, color: colorScheme.onSurface),
-        children: _buildRichSpans(t.onboarding.title_eula(app: "{app}"), colorScheme),
+        style: TextStyle(
+          fontWeight: FontWeight.w900,
+          fontSize: 18,
+          color: colorScheme.onSurface,
+        ),
+        children: _buildRichSpans(
+          t.onboarding.title_eula(app: "{app}"),
+          colorScheme,
+        ),
       ),
     ),
     content: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(t.onboarding.eula_updated, 
-          style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic, color: colorScheme.onSurfaceVariant)),
+        Text(
+          t.onboarding.eula_updated,
+          style: TextStyle(
+            fontSize: 12,
+            fontStyle: FontStyle.italic,
+            color: colorScheme.onSurfaceVariant,
+          ),
+        ),
         const SizedBox(height: 12),
-        RichText(text: TextSpan(
-          style: TextStyle(fontSize: 13, height: 1.5, color: colorScheme.onSurfaceVariant),
-          children: _buildRichSpans(t.onboarding.eula_intro(app: "{app}", brand: "{brand}"), colorScheme),
-        )),
+        RichText(
+          text: TextSpan(
+            style: TextStyle(
+              fontSize: 13,
+              height: 1.5,
+              color: colorScheme.onSurfaceVariant,
+            ),
+            children: _buildRichSpans(
+              t.onboarding.eula_intro(app: "{app}", brand: "{brand}"),
+              colorScheme,
+            ),
+          ),
+        ),
         const SizedBox(height: 16),
         _buildTermsSection(t.onboarding.eula_p1_title, [
           t.onboarding.eula_p1_desc(app: "{app}"),
@@ -582,39 +802,68 @@ void _showEulaDialog(BuildContext context) {
           t.onboarding.eula_p3_item2(app: "{app}"),
           t.onboarding.eula_p3_item3,
         ], colorScheme),
-        _buildTermsSection(t.onboarding.eula_p4_title, [t.onboarding.eula_p4_desc], colorScheme),
+        _buildTermsSection(t.onboarding.eula_p4_title, [
+          t.onboarding.eula_p4_desc,
+        ], colorScheme),
         _buildTermsSection(t.onboarding.eula_p5_title, [
           t.onboarding.eula_p5_item1(app: "{app}"),
           t.onboarding.eula_p5_item2,
           t.onboarding.eula_p5_item3,
         ], colorScheme),
-        _buildTermsSection(t.onboarding.eula_p6_title, [t.onboarding.eula_p6_desc], colorScheme),
+        _buildTermsSection(t.onboarding.eula_p6_title, [
+          t.onboarding.eula_p6_desc,
+        ], colorScheme),
       ],
     ),
     actions: [
-      TextButton(onPressed: () => Navigator.of(context, rootNavigator: false).pop(), 
-        child: Text(t.common.close, style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.primary)))
+      TextButton(
+        onPressed: () => Navigator.of(context, rootNavigator: false).pop(),
+        child: Text(
+          t.common.close,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            color: colorScheme.primary,
+          ),
+        ),
+      ),
     ],
   );
 }
-  
-Widget _buildTermsSection(String title, List<String> paragraphs, ColorScheme colorScheme) {
+
+Widget _buildTermsSection(
+  String title,
+  List<String> paragraphs,
+  ColorScheme colorScheme,
+) {
   return Padding(
     padding: const EdgeInsets.only(bottom: 24.0),
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(title, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: colorScheme.primary)),
+        Text(
+          title,
+          style: TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+            color: colorScheme.primary,
+          ),
+        ),
         const SizedBox(height: 8),
-        ...paragraphs.map((p) => Padding(
-          padding: const EdgeInsets.only(bottom: 8.0),
-          child: RichText(
-            text: TextSpan(
-              style: TextStyle(fontSize: 14, height: 1.5, color: colorScheme.onSurfaceVariant),
-              children: _buildRichSpans(p, colorScheme),
+        ...paragraphs.map(
+          (p) => Padding(
+            padding: const EdgeInsets.only(bottom: 8.0),
+            child: RichText(
+              text: TextSpan(
+                style: TextStyle(
+                  fontSize: 14,
+                  height: 1.5,
+                  color: colorScheme.onSurfaceVariant,
+                ),
+                children: _buildRichSpans(p, colorScheme),
+              ),
             ),
           ),
-        ))
+        ),
       ],
     ),
   );

@@ -144,16 +144,16 @@ const streakGradientStartLight = Color(0xFFF05756);
 const streakGradientEndLight = Color(0xFFF89D2A);
 
 // Rest Card (Nghỉ ngơi/Phục hồi - Gradient Xanh Dương Dịu Mát)
-const restGradientStartDark = Color(0xFF1565C0); // Light Blue 300
-const restGradientEndDark = Color(0xFF4FC3F7);   // Blue 800
-const restGradientStartLight = Color(0xFF1976D2); // Light Blue 200
-const restGradientEndLight = Color(0xFF81D4FA);   // Blue 700
+const restGradientStartDark = Color(0xFF4FC3F7); // Light Blue 300
+const restGradientEndDark = Color(0xFF1565C0);   // Blue 800
+const restGradientStartLight = Color(0xFF81D4FA); // Light Blue 200
+const restGradientEndLight = Color(0xFF1976D2);   // Blue 700\
 
-// Fire 2 - Xanh dương neon
-const fire2StartDark = Color(0xFF00E5FF); 
-const fire2EndDark = Color(0xFF2979FF);
-const fire2StartLight = Color(0xFF00B0FF);
-const fire2EndLight = Color(0xFF2962FF);
+// Fire 2 - Teal Gradient
+const fire2StartDark = Color(0xFF1DE9B6); 
+const fire2EndDark = Color(0xFF00897B);
+const fire2StartLight = Color(0xFF4DD0E1); // Cyan 300 (Tạo độ chênh lệch màu rõ ràng)
+const fire2EndLight = Color(0xFF00897B);   // Teal 600 (Đậm hơn để thấy rõ gradient)
 
 // Fire 3 - Tím neon
 const fire3StartDark = Color(0xFFE040FB);
