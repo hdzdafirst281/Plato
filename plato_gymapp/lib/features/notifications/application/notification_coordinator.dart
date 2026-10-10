@@ -84,21 +84,29 @@ class NotificationCoordinator extends ChangeNotifier
 
   NotificationPreferences get preferences => _preferences;
   bool get enabled => _preferences.masterEnabled;
-  bool get waterEnabled => _preferences.hydrationEnabled;
-  bool get recoveryEnabled => _preferences.recoveryEnabled;
-  bool get streakEnabled => _preferences.streakEnabled;
-  bool get rankEnabled => _preferences.rankEnabled;
+  bool get waterEnabled =>
+      _preferences.enabled(NotificationPreferenceKind.hydration);
+  bool get recoveryEnabled =>
+      _preferences.enabled(NotificationPreferenceKind.recovery);
+  bool get streakEnabled =>
+      _preferences.enabled(NotificationPreferenceKind.streak);
+  bool get rankEnabled => _preferences.enabled(NotificationPreferenceKind.rank);
   int get enabledCategoryCount => _preferences.enabledCategoryCount;
   double get waterTarget => prefs.getDouble('saved_water_target') ?? 2.5;
   String get timezone => gateway.zoneId;
 
-  Future<bool> hasWorkoutReminderCapacity(
+  /// Allocates reminder capacity to workout occurrences in chronological order.
+  /// Automatic reminder kinds do not consume these slots; the global policy
+  /// moves or suppresses those after workout reminders have been selected.
+  Future<Set<int>> workoutReminderOverflowTargetDates(
     Iterable<DateTime> dates, {
     String? excludingScheduleId,
     required int timeOfDayMinutes,
     required int leadMinutes,
   }) async {
-    final requestedDays = dates.map((date) {
+    final now = await clock();
+    final requests = dates.map((date) {
+      final targetDate = DateTime(date.year, date.month, date.day);
       final start = DateTime(
         date.year,
         date.month,
@@ -106,28 +114,13 @@ class NotificationCoordinator extends ChangeNotifier
         timeOfDayMinutes ~/ 60,
         timeOfDayMinutes % 60,
       );
-      return NotificationPolicy.dayKey(
-        start.subtract(Duration(minutes: leadMinutes)),
+      return (
+        targetDateMillis: targetDate.millisecondsSinceEpoch,
+        reminderAt: start.subtract(Duration(minutes: leadMinutes)),
       );
-    }).toSet();
-    if (requestedDays.isEmpty) return true;
-    final now = await clock();
-    final counts = <String, int>{};
-    for (final record in (await store.all('schedule:')).values) {
-      final atValue = record['at'];
-      if (atValue is! int ||
-          (record['state'] != 'scheduled' && record['state'] != 'pending')) {
-        continue;
-      }
-      // Workout reminders are counted from the schedule table below. Counting
-      // their ledger rows here as well would reject capacity too early.
-      if (record['kind'] == ReminderKind.workout.name) continue;
-      final at = DateTime.fromMillisecondsSinceEpoch(atValue);
-      final day = NotificationPolicy.dayKey(at);
-      if (requestedDays.contains(day) && at.isAfter(now)) {
-        counts[day] = (counts[day] ?? 0) + 1;
-      }
-    }
+    }).toList();
+    if (requests.isEmpty) return const {};
+    final existingReminderTimes = <DateTime>[];
     for (final schedule in await db.workoutDao.getAllScheduledWorkouts()) {
       if (schedule.id == excludingScheduleId ||
           schedule.isDeleted ||
@@ -139,13 +132,12 @@ class NotificationCoordinator extends ChangeNotifier
       final reminderAt = scheduleTime(
         schedule,
       ).subtract(Duration(minutes: schedule.reminderMinutesBefore));
-      final day = NotificationPolicy.dayKey(reminderAt);
-      if (requestedDays.contains(day) && reminderAt.isAfter(now)) {
-        counts[day] = (counts[day] ?? 0) + 1;
-      }
+      if (reminderAt.isAfter(now)) existingReminderTimes.add(reminderAt);
     }
-    return requestedDays.every(
-      (day) => (counts[day] ?? 0) < NotificationPolicy.maxPerDay,
+    return NotificationPolicy.workoutReminderOverflowTargetDates(
+      requests: requests,
+      existingReminderTimes: existingReminderTimes,
+      now: now,
     );
   }
 
@@ -247,8 +239,9 @@ class NotificationCoordinator extends ChangeNotifier
     notifyListeners();
   }
 
-  Future<int> upcomingWorkoutReminderCount() async {
+  Future<int> remainingTodayWorkoutReminderCount() async {
     final now = await clock();
+    final today = NotificationPolicy.dayKey(now);
     final schedules = await db.workoutDao.getAllScheduledWorkouts();
     return schedules.where((schedule) {
       if (schedule.isDeleted ||
@@ -257,9 +250,11 @@ class NotificationCoordinator extends ChangeNotifier
           schedule.timeOfDayMinutes == null) {
         return false;
       }
-      return scheduleTime(schedule)
-          .subtract(Duration(minutes: schedule.reminderMinutesBefore))
-          .isAfter(now);
+      final reminderAt = scheduleTime(
+        schedule,
+      ).subtract(Duration(minutes: schedule.reminderMinutesBefore));
+      return reminderAt.isAfter(now) &&
+          NotificationPolicy.dayKey(reminderAt) == today;
     }).length;
   }
 
@@ -382,8 +377,7 @@ class NotificationCoordinator extends ChangeNotifier
       );
       if (!backgroundRefresh) BackgroundWorkoutService().stopService();
     }
-    if (!hasPermission &&
-        (_preferences.masterEnabled || _preferences.hasEnabledCategory)) {
+    if (!hasPermission && _preferences.masterEnabled) {
       _preferences = _preferences.withMasterEnabled(false);
       await preferencesStore.save(scope, _preferences);
       notifyListeners();
@@ -884,13 +878,9 @@ class NotificationCoordinator extends ChangeNotifier
       await store.writeBatch({
         key: {'at': DateTime.now().millisecondsSinceEpoch},
         'event:$key': {
-          'parts': [
-            {
-              'title': 'notifications.title_hydration_completed',
-              'body': 'notifications.body_hydration_completed',
-              'args': {'target': waterTarget.toStringAsFixed(2)},
-            },
-          ],
+          // The WaterTrackerCard renders the completion state inline. Keep an
+          // empty event only to preserve once-per-day acknowledgement/metrics.
+          'parts': const [],
           'at': DateTime.now().millisecondsSinceEpoch,
           'shown': false,
           'route': '/nutrition?water=1',

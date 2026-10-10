@@ -8,14 +8,15 @@ import 'package:plato_gymapp/features/gamification/data/repositories/gamificatio
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:uuid/uuid.dart';
 
-import '../../../../core/database/enums.dart';
 import '../../data/models/workout_models.dart';
 import '../../data/repositories/workout_repository.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 
 // Import Domain Logic & Components
 import '../../domain/training_load_manager.dart';
-import '../../domain/muscle_recovery_calculator.dart';
+import '../../domain/major_muscle_recovery_projection.dart';
+import '../../domain/muscle_exposure_calculator.dart';
+import '../../domain/streak_calculator.dart';
 import '../components/workout_components.dart';
 
 part 'workout_cubit.freezed.dart';
@@ -24,11 +25,11 @@ part 'workout_cubit.freezed.dart';
 class WorkoutState with _$WorkoutState {
   const factory WorkoutState({
     @Default([]) List<String> folderOrder,
-    @Default([]) List<WorkoutSession> historicalWorkoutSessionsList, 
-    @Default([]) List<WorkoutSession> userCustomRoutinesList,        
+    @Default([]) List<WorkoutSession> historicalWorkoutSessionsList,
+    @Default([]) List<WorkoutSession> userCustomRoutinesList,
     @Default([]) List<WorkoutProgram> exploreProgramsList,
     @Default([]) List<RecoveryUIData> recoveryUIDataList,
-    @Default([]) List<ScheduledWorkout> scheduledWorkoutsList, 
+    @Default([]) List<ScheduledWorkout> scheduledWorkoutsList,
     @Default({}) Map<String, int> exerciseFrequencyMap,
   }) = _WorkoutState;
 }
@@ -37,19 +38,19 @@ class WorkoutState with _$WorkoutState {
 class WorkoutCubit extends Cubit<WorkoutState> {
   final WorkoutRepository _workoutRepo;
   final AuthRepository _authRepo;
-  final SharedPreferences _prefs; 
+  final SharedPreferences _prefs;
   final GamificationRepository _gamificationRepo;
 
   StreamSubscription? _historySub;
   StreamSubscription? _routinesSub;
-  StreamSubscription? _programsSub; 
+  StreamSubscription? _programsSub;
   StreamSubscription? _scheduledSub;
 
   static const String _folderOrderKey = 'WORKOUT_FOLDER_ORDER';
 
   WorkoutCubit(
-    this._workoutRepo, 
-    this._authRepo, 
+    this._workoutRepo,
+    this._authRepo,
     this._prefs,
     this._gamificationRepo,
   ) : super(const WorkoutState()) {
@@ -60,19 +61,21 @@ class WorkoutCubit extends Cubit<WorkoutState> {
   void _initStreams() {
     _historySub = _workoutRepo.workoutHistoryStream.listen((history) {
       emit(state.copyWith(historicalWorkoutSessionsList: history));
-      _recalculateBackgroundData(history); 
+      _recalculateBackgroundData(history);
     });
 
     _routinesSub = _workoutRepo.routinesStream.listen((dbRoutines) {
       if (state.userCustomRoutinesList.isNotEmpty) {
-        final currentOrderIds = state.userCustomRoutinesList.map((r) => r.id).toList();
-        
+        final currentOrderIds = state.userCustomRoutinesList
+            .map((r) => r.id)
+            .toList();
+
         final sortedRoutines = List<WorkoutSession>.from(dbRoutines);
         sortedRoutines.sort((a, b) {
           final indexA = currentOrderIds.indexOf(a.id);
           final indexB = currentOrderIds.indexOf(b.id);
           if (indexA != -1 && indexB != -1) return indexA.compareTo(indexB);
-          if (indexA != -1) return -1; 
+          if (indexA != -1) return -1;
           if (indexB != -1) return 1;
           return 0;
         });
@@ -95,7 +98,7 @@ class WorkoutCubit extends Cubit<WorkoutState> {
   Future<void> close() {
     _historySub?.cancel();
     _routinesSub?.cancel();
-    _programsSub?.cancel(); 
+    _programsSub?.cancel();
     _scheduledSub?.cancel();
     return super.close();
   }
@@ -116,7 +119,7 @@ class WorkoutCubit extends Cubit<WorkoutState> {
 
   Future<void> createFolder(String folderName) async {
     final currentOrder = List<String>.from(state.folderOrder);
-    
+
     String validatedUniqueFolderName = folderName;
     int namingCounter = 1;
     while (currentOrder.contains(validatedUniqueFolderName)) {
@@ -139,7 +142,10 @@ class WorkoutCubit extends Cubit<WorkoutState> {
     await _workoutRepo.duplicateRoutine(routineIdToDuplicate);
   }
 
-  Future<void> renameFolder(String oldFolderNameString, String newFolderNameString) async {
+  Future<void> renameFolder(
+    String oldFolderNameString,
+    String newFolderNameString,
+  ) async {
     await _workoutRepo.renameFolder(oldFolderNameString, newFolderNameString);
     final currentOrder = List<String>.from(state.folderOrder);
     final targetedIndex = currentOrder.indexOf(oldFolderNameString);
@@ -158,22 +164,33 @@ class WorkoutCubit extends Cubit<WorkoutState> {
   }
 
   Future<void> addProgramRoutines(WorkoutProgram programDataToSave) async {
-    if (state.userCustomRoutinesList.length + programDataToSave.routines.length > 10) {
+    if (state.userCustomRoutinesList.length +
+            programDataToSave.routines.length >
+        10) {
       throw Exception("MAX_ROUTINES_REACHED");
     }
     await _workoutRepo.saveProgramRoutines(programDataToSave);
   }
 
-  Future<void> moveAndReorderRoutine(String draggedId, String targetFolder, int targetLocalIndex, String defaultFolderName) async {
+  Future<void> moveAndReorderRoutine(
+    String draggedId,
+    String targetFolder,
+    int targetLocalIndex,
+    String defaultFolderName,
+  ) async {
     final allRoutines = List<WorkoutSession>.from(state.userCustomRoutinesList);
     final draggedIndex = allRoutines.indexWhere((r) => r.id == draggedId);
     if (draggedIndex == -1) return;
 
     final draggedItem = allRoutines[draggedIndex];
-    final sourceFolder = (draggedItem.programName?.trim().isNotEmpty == true) ? draggedItem.programName!.trim() : defaultFolderName;
-    
+    final sourceFolder = (draggedItem.programName?.trim().isNotEmpty == true)
+        ? draggedItem.programName!.trim()
+        : defaultFolderName;
+
     final currentFolderRoutines = allRoutines.where((r) {
-      final fName = (r.programName?.trim().isNotEmpty == true) ? r.programName!.trim() : defaultFolderName;
+      final fName = (r.programName?.trim().isNotEmpty == true)
+          ? r.programName!.trim()
+          : defaultFolderName;
       return fName == targetFolder;
     }).toList();
 
@@ -182,18 +199,26 @@ class WorkoutCubit extends Cubit<WorkoutState> {
       targetRoutineId = currentFolderRoutines[targetLocalIndex].id;
     }
 
-    if (targetRoutineId == draggedId) return; 
+    if (targetRoutineId == draggedId) return;
 
-    int sourceLocalIndex = currentFolderRoutines.indexWhere((r) => r.id == draggedId);
+    int sourceLocalIndex = currentFolderRoutines.indexWhere(
+      (r) => r.id == draggedId,
+    );
     allRoutines.removeAt(draggedIndex);
-    final actualFolderName = targetFolder == defaultFolderName ? "" : targetFolder;
+    final actualFolderName = targetFolder == defaultFolderName
+        ? ""
+        : targetFolder;
     final updatedItem = draggedItem.copyWith(programName: actualFolderName);
 
     int insertIndex = 0;
     if (targetRoutineId != null) {
-      int globalTargetIndex = allRoutines.indexWhere((r) => r.id == targetRoutineId);
+      int globalTargetIndex = allRoutines.indexWhere(
+        (r) => r.id == targetRoutineId,
+      );
       if (globalTargetIndex != -1) {
-        if (sourceFolder == targetFolder && sourceLocalIndex != -1 && sourceLocalIndex < targetLocalIndex) {
+        if (sourceFolder == targetFolder &&
+            sourceLocalIndex != -1 &&
+            sourceLocalIndex < targetLocalIndex) {
           insertIndex = globalTargetIndex + 1;
         } else {
           insertIndex = globalTargetIndex;
@@ -201,32 +226,36 @@ class WorkoutCubit extends Cubit<WorkoutState> {
       }
     } else {
       final targetFolderItemsNow = allRoutines.where((r) {
-        final fName = (r.programName?.trim().isNotEmpty == true) ? r.programName!.trim() : defaultFolderName;
+        final fName = (r.programName?.trim().isNotEmpty == true)
+            ? r.programName!.trim()
+            : defaultFolderName;
         return fName == targetFolder;
       }).toList();
-      
+
       if (targetFolderItemsNow.isNotEmpty) {
-        int lastGlobalIndex = allRoutines.indexWhere((r) => r.id == targetFolderItemsNow.last.id);
+        int lastGlobalIndex = allRoutines.indexWhere(
+          (r) => r.id == targetFolderItemsNow.last.id,
+        );
         insertIndex = lastGlobalIndex + 1;
       } else {
-        insertIndex = allRoutines.length; 
+        insertIndex = allRoutines.length;
       }
     }
 
     allRoutines.insert(insertIndex, updatedItem);
     emit(state.copyWith(userCustomRoutinesList: allRoutines));
-    
+
     if (sourceFolder != targetFolder) {
       await _workoutRepo.updateRoutineFolder(draggedId, actualFolderName);
     }
   }
 
   Future<void> scheduleRoutine(
-    String routineId, 
-    String routineName, 
+    String routineId,
+    String routineName,
     DateTime startDate, {
-    int repeatType = 0, 
-    List<int>? selectedWeekdays, 
+    int repeatType = 0,
+    List<int>? selectedWeekdays,
     int occurrences = 999,
     int intervalDays = 1,
     String? colorHex,
@@ -234,22 +263,44 @@ class WorkoutCubit extends Cubit<WorkoutState> {
     String? timeZoneId,
     bool reminderEnabled = false,
     int reminderMinutesBefore = 30,
+    Set<int> reminderDisabledTargetDates = const {},
   }) async {
     final recurrenceGroupId = const Uuid().v4();
     await _workoutRepo.scheduleWorkout(
-      routineId, routineName, startDate,
-      repeatType: repeatType, selectedWeekdays: selectedWeekdays, occurrences: occurrences, intervalDays: intervalDays, colorHex: colorHex, recurrenceGroupId: recurrenceGroupId,
-      timeOfDayMinutes: timeOfDayMinutes, timeZoneId: timeZoneId,
-      reminderEnabled: reminderEnabled, reminderMinutesBefore: reminderMinutesBefore,
+      routineId,
+      routineName,
+      startDate,
+      repeatType: repeatType,
+      selectedWeekdays: selectedWeekdays,
+      occurrences: occurrences,
+      intervalDays: intervalDays,
+      colorHex: colorHex,
+      recurrenceGroupId: recurrenceGroupId,
+      timeOfDayMinutes: timeOfDayMinutes,
+      timeZoneId: timeZoneId,
+      reminderEnabled: reminderEnabled,
+      reminderMinutesBefore: reminderMinutesBefore,
+      reminderDisabledTargetDates: reminderDisabledTargetDates,
     );
   }
 
-  Future<void> updateScheduledWorkout(ScheduledWorkout schedule, {
-    required DateTime date, int? timeOfDayMinutes, String? timeZoneId,
-    required bool reminderEnabled, required int reminderMinutesBefore, String? colorHex,
-  }) => _workoutRepo.updateScheduledWorkout(schedule, date: date,
-    timeOfDayMinutes: timeOfDayMinutes, timeZoneId: timeZoneId,
-    reminderEnabled: reminderEnabled, reminderMinutesBefore: reminderMinutesBefore, colorHex: colorHex);
+  Future<void> updateScheduledWorkout(
+    ScheduledWorkout schedule, {
+    required DateTime date,
+    int? timeOfDayMinutes,
+    String? timeZoneId,
+    required bool reminderEnabled,
+    required int reminderMinutesBefore,
+    String? colorHex,
+  }) => _workoutRepo.updateScheduledWorkout(
+    schedule,
+    date: date,
+    timeOfDayMinutes: timeOfDayMinutes,
+    timeZoneId: timeZoneId,
+    reminderEnabled: reminderEnabled,
+    reminderMinutesBefore: reminderMinutesBefore,
+    colorHex: colorHex,
+  );
 
   Future<void> removeScheduledWorkout(String scheduleId) async {
     await _workoutRepo.deleteScheduledWorkout(scheduleId);
@@ -271,19 +322,24 @@ class WorkoutCubit extends Cubit<WorkoutState> {
     if (sessionToDelete != null) {
       // 1. Tính toán điểm buổi tập gốc
       int workoutXp = sessionToDelete.xpEarned;
-      if (workoutXp <= 0) workoutXp = _gamificationRepo.calculateXpForSession(sessionToDelete);
+      if (workoutXp <= 0)
+        workoutXp = _gamificationRepo.calculateXpForSession(sessionToDelete);
 
       final currentProfile = _authRepo.getProfile();
-      
+
       // 2. Tính toán Quest XP rớt hạng dựa trên lịch sử giả lập
       final simulatedHistory = state.historicalWorkoutSessionsList
-          .where((s) => s.id != workoutSessionIdToRemove).toList();
-      
-      await _gamificationRepo.auditSpecificWeek(sessionToDelete.startTime, simulatedHistory);
+          .where((s) => s.id != workoutSessionIdToRemove)
+          .toList();
+
+      await _gamificationRepo.auditSpecificWeek(
+        sessionToDelete.startTime,
+        simulatedHistory,
+      );
 
       final questXpToRollback = await _gamificationRepo.calculateWeeklyStats(
-          workoutsList: simulatedHistory,
-          userProfileData: currentProfile,
+        workoutsList: simulatedHistory,
+        userProfileData: currentProfile,
       );
 
       // 3. LƯU PROFILE (XP ĐÃ CẬP NHẬT, RP GIỮ NGUYÊN) TRƯỚC KHI KÍCH HOẠT STREAM
@@ -291,7 +347,7 @@ class WorkoutCubit extends Cubit<WorkoutState> {
       if (totalXpToDeduct > 0) {
         int newXp = currentProfile.experiencePoints - totalXpToDeduct;
         await _authRepo.saveProfile(
-          currentProfile.copyWith(experiencePoints: newXp > 0 ? newXp : 0)
+          currentProfile.copyWith(experiencePoints: newXp > 0 ? newXp : 0),
         );
       }
     }
@@ -303,11 +359,17 @@ class WorkoutCubit extends Cubit<WorkoutState> {
 
   void dismissPrDialog() {
     _workoutRepo.dismissPrDialog();
-    emit(state.copyWith()); 
+    emit(state.copyWith());
   }
 
-  Future<void> updateSessionRpe(String sessionIdToUpdate, int newlyAssignedRpeValue) async {
-    await _workoutRepo.updateSessionRpe(sessionIdToUpdate, newlyAssignedRpeValue);
+  Future<void> updateSessionRpe(
+    String sessionIdToUpdate,
+    int newlyAssignedRpeValue,
+  ) async {
+    await _workoutRepo.updateSessionRpe(
+      sessionIdToUpdate,
+      newlyAssignedRpeValue,
+    );
   }
 
   Future<LoadAnalysis> getWeeklyLoadAnalysis() async {
@@ -322,34 +384,34 @@ class WorkoutCubit extends Cubit<WorkoutState> {
     ]);
 
     if (!isClosed) {
-      emit(state.copyWith(
-        recoveryUIDataList: results[0] as List<RecoveryUIData>,
-        exerciseFrequencyMap: results[1] as Map<String, int>,
-      ));
+      emit(
+        state.copyWith(
+          recoveryUIDataList: results[0] as List<RecoveryUIData>,
+          exerciseFrequencyMap: results[1] as Map<String, int>,
+        ),
+      );
     }
   }
 
-  static List<RecoveryUIData> _calculateRecoveryInIsolate(List<WorkoutSession> history) {
-    final majorGroups = [
-      MajorMuscleGroup.CHEST, MajorMuscleGroup.BACK, MajorMuscleGroup.LEGS,
-      MajorMuscleGroup.SHOULDERS, MajorMuscleGroup.ARMS, MajorMuscleGroup.CORE
-    ];
-
-    return majorGroups.map((majorGroupEnum) {
-      final associatedSubMuscles = MuscleGroup.values.where((m) => m.major == majorGroupEnum).toList();
-      final recoveryStatuses = associatedSubMuscles.map(
-        (m) => MuscleRecoveryCalculator.getRecoveryStatus(m, history)
-      ).toList();
-
-      final minRecovery = recoveryStatuses.isEmpty 
-          ? MuscleRecoveryCalculator.getRecoveryStatus(MuscleGroup.FULL_BODY, history)
-          : recoveryStatuses.reduce((curr, next) => curr.recoveryPercentage < next.recoveryPercentage ? curr : next);
-
-      return RecoveryUIData("muscles.${majorGroupEnum.name.toLowerCase()}", minRecovery);
+  static List<RecoveryUIData> _calculateRecoveryInIsolate(
+    List<WorkoutSession> history,
+  ) {
+    final qualifyingHistory = history
+        .where(StreakCalculator.qualifies)
+        .toList();
+    final projection = MajorMuscleRecoveryProjection(qualifyingHistory);
+    return MuscleExposureCalculator.majorMuscles.map((majorGroupEnum) {
+      return RecoveryUIData(
+        "muscles.${majorGroupEnum.name.toLowerCase()}",
+        majorGroupEnum,
+        projection,
+      );
     }).toList();
   }
 
-  static Map<String, int> _calculateFrequencyInIsolate(List<WorkoutSession> history) {
+  static Map<String, int> _calculateFrequencyInIsolate(
+    List<WorkoutSession> history,
+  ) {
     final freqMap = <String, int>{};
     for (var session in history) {
       for (var ex in session.exercises) {
@@ -358,15 +420,15 @@ class WorkoutCubit extends Cubit<WorkoutState> {
     }
     return freqMap;
   }
-  
+
   void updateGlobalRoutines(List<WorkoutSession> updatedRoutines) {
     emit(state.copyWith(userCustomRoutinesList: updatedRoutines));
   }
 
   void resetWorkoutState() {
     emit(WorkoutState(exploreProgramsList: state.exploreProgramsList));
-    _loadFolderOrder(); 
-    _workoutRepo.dismissPrDialog(); 
+    _loadFolderOrder();
+    _workoutRepo.dismissPrDialog();
     _recalculateBackgroundData([]);
   }
 }

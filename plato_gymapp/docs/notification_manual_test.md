@@ -54,7 +54,8 @@ Script lưu permission, alarm, notification, WorkManager, Doze và logcat vào `
 3. Bấm Home, vuốt app khỏi Recent Apps và khóa máy.
 4. Kỳ vọng: reminder xuất hiện quanh thời điểm đã chọn; Android có thể trễ vài phút. Nội dung có routine, giờ tập và recovery nếu có dữ liệu phù hợp.
 5. Chạm CTA **View schedule**: Calendar phải mở đúng schedule.
-6. Tạo bốn lịch cùng ngày: cả bốn được chấp nhận. Lịch thứ năm có reminder phải bị chặn bởi giới hạn bốn notification/ngày.
+6. Tạo năm lịch có reminder cùng ngày giao nhận: hộp thoại phải báo giới hạn bốn reminder. Sau khi xác nhận, cả năm lịch vẫn được lưu nhưng occurrence thứ năm có reminder tắt; các occurrence của chuỗi lặp ở ngày khác vẫn giữ reminder.
+7. Sau khi một reminder trong hôm nay đã quá giờ, mở Notification Settings: số đếm chỉ gồm các reminder còn lại trong hôm nay và không cộng lịch của ngày/tuần sau.
 
 ## 5. Hydration
 
@@ -68,16 +69,22 @@ Script lưu permission, alarm, notification, WorkManager, Doze và logcat vào `
 
 1. Cần ít nhất một workout đã hoàn thành có dữ liệu cơ hợp lệ.
 2. Mở Workout screen và kiểm tra Recovery Bar Chart, phần trăm, trạng thái và thời gian dự kiến của sáu nhóm cơ.
-3. Khi cả sáu nhóm đều dưới 50%, phần bên dưới chart phải khuyên nghỉ hôm nay và không được hiện routine hay CTA chọn buổi tập.
-4. Khi không nhóm nào xanh nhưng vẫn có nhóm từ 50–79%, kỳ vọng tối đa hai routine gần sẵn sàng nhất; routine đỏ phải có cảnh báo rõ ràng.
-5. Khi có routine xanh, kỳ vọng tối đa hai ô: một routine phù hợp và, nếu có, một routine nên tránh. Nếu tất cả routine đều xanh, chỉ hiện hai routine ưu tiên cao nhất.
-6. Tạo lịch sử 30 ngày lệch về một nhóm cơ rồi để hai routine có recovery gần ngang nhau. Routine nhắm vào nhóm cơ được tập ít hơn phải được ưu tiên; chênh lệch recovery lớn hơn 10 điểm vẫn phải thắng điểm cân bằng lịch sử.
-7. Với một routine, chỉ hiện một ô và một ghi chú khuyên bổ sung routine. Nếu routine đó không phù hợp nhưng vẫn còn nhóm cơ xanh, ghi chú phải nêu các nhóm cơ này. Xóa toàn bộ routine, phần recommendation phải biến mất hoàn toàn.
-8. Mở một routine xanh và xác nhận có status cho biết routine phù hợp với recovery hiện tại.
-9. Từ routine A không phù hợp, mở Alternative Routine B rồi quay lại. Màn A chỉ được hiện B như alternative; không được biến thành danh sách tổng quan chứa cả A và B. Trong trạng thái cả sáu nhóm đỏ, không được đề xuất alternative.
-10. Khi cả sáu nhóm đã sẵn sàng và history không đổi, notification recovery ngày kế tiếp phải được suppress.
-11. Alternative/Recovery Routine chỉ xuất hiện khi đang xem routine thuộc user. Chuyển sang Edit, mở Create Routine hoặc đang lưu/chỉnh sửa phải ẩn khối này; quay lại View mới hiện lại.
-12. Routine không có exercise phải ẩn hoàn toàn Muscle Split. Thêm exercise phải làm Muscle Split xuất hiện; nếu có cả Alternative Routine, giữa hai khối phải có khoảng cách rõ ràng và không dính viền.
+3. Khi cả sáu nhóm đều dưới 40% (đỏ), phần bên dưới chart phải khuyên nghỉ hôm nay và không được hiện routine hay CTA chọn buổi tập.
+4. Khi không nhóm nào xanh nhưng vẫn có nhóm từ 40–79%, kỳ vọng tối đa hai routine gần sẵn sàng nhất; routine đỏ phải có cảnh báo rõ ràng.
+5. Với full-body routine có một trong sáu nhóm đỏ và năm nhóm còn lại xanh, kỳ vọng card xanh có điều chỉnh và nội dung khuyên bỏ hoặc giảm các bài liên quan. Khi phần đỏ vượt adjustment budget 20%, routine phải chuyển sang vàng.
+6. Khi phần Muscle Split đỏ đạt 40%, red severity đạt 30 điểm, hoặc một nhóm chiếm ít nhất 30% nhưng recovery dưới 20%, kỳ vọng routine chuyển sang đỏ. Khi recovery tăng, trạng thái chỉ được tốt dần và không xuất hiện trạng thái vàng có điều chỉnh.
+7. So sánh một routine có 5% cơ phụ đỏ với routine có 20% cơ đỏ. Cơ phụ 5% không được kéo thứ hạng xuống như một nhóm chính; routine 20% phải nhận lower-tail penalty rõ ràng hơn.
+8. Với routine vàng, thời gian sẵn sàng phải là lúc chính routine chuyển sang xanh/xanh có điều chỉnh, không cần chờ mọi nhóm target đạt 80%. Card phải tự cập nhật tại thời điểm này mà không cần rời màn hình.
+9. Tạo hai routine có Muscle Split gần giống nhau; kỳ vọng chỉ một routine xuất hiện trong hai card. Tạo thêm một routine khác biệt để xác nhận card thứ hai trở lại.
+10. Khi có routine xanh, kỳ vọng tối đa hai ô: một routine phù hợp và, nếu có, một routine nên tránh. Nếu tất cả routine đều xanh, chỉ hiện hai routine ưu tiên cao nhất.
+11. Tạo lịch sử 30 ngày lệch về một nhóm cơ rồi để hai routine có recovery gần ngang nhau. Routine nhắm vào nhóm cơ được tập ít hơn phải được ưu tiên; Training Balance không được đổi thứ tự an toàn xanh/vàng/đỏ.
+12. Với một routine, chỉ hiện một ô và một ghi chú khuyên bổ sung routine. Nếu routine đó không phù hợp nhưng vẫn còn nhóm cơ xanh, ghi chú phải nêu các nhóm cơ này. Xóa toàn bộ routine, phần recommendation phải biến mất hoàn toàn.
+13. Mở một routine xanh và xác nhận có status cho biết routine phù hợp với recovery hiện tại.
+14. Từ routine A không phù hợp, mở Alternative Routine B rồi quay lại. Màn A chỉ được hiện B như alternative; không được biến thành danh sách tổng quan chứa cả A và B. Trong trạng thái cả sáu nhóm đỏ, không được đề xuất alternative.
+15. Khi cả sáu nhóm đã sẵn sàng và history không đổi, notification recovery ngày kế tiếp phải được suppress.
+16. Alternative/Recovery Routine chỉ xuất hiện khi đang xem routine thuộc user. Chuyển sang Edit, mở Create Routine hoặc đang lưu/chỉnh sửa phải ẩn khối này; quay lại View mới hiện lại.
+17. Routine không có exercise phải ẩn hoàn toàn Muscle Split. Thêm exercise phải làm Muscle Split xuất hiện; nếu có cả Alternative Routine, giữa hai khối phải có khoảng cách rõ ràng và không dính viền.
+18. Với dữ liệu thời gian có thể kiểm soát, kiểm tra vùng xanh 80–100: thời gian 80→90 phải xấp xỉ 90→100, thời gian 95→100 bằng khoảng một nửa 90→100, và thanh phải đạt đúng 100 thay vì dừng lâu ở 97–99%.
 
 ## 7. Streak, Rank và Long Inactivity
 
@@ -89,7 +96,7 @@ Không nên đổi ngày hệ thống trên máy đang dùng thật để ép c�
 
 ## 8. Permission, reboot và timezone
 
-1. Tắt master switch: toàn bộ Plato OS reminder bị hủy và bốn category Water/Recovery/Streak/Rank đều tự chuyển sang tắt.
+1. Tắt master switch: toàn bộ Plato OS reminder bị hủy và bốn category Water/Recovery/Streak/Rank đều hiển thị tắt. Bật lại master phải khôi phục lựa chọn category trước đó.
 2. Khi master đang tắt, bật riêng một category: app yêu cầu notification permission khi cần, master tự bật và category vừa chọn giữ trạng thái bật.
 3. Tắt từng category, kể cả category cuối cùng: master vẫn bật vì Scheduled Workout và Long Inactivity còn phụ thuộc vào master.
 4. Bật **Chạy dưới nền**, sau đó tắt master: toggle chạy nền phải giữ nguyên. Tắt chạy nền phải dừng foreground workout service nhưng không thay đổi master/category notification.

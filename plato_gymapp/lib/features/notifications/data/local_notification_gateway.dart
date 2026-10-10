@@ -140,7 +140,7 @@ class LocalNotificationGateway {
       ReminderKind.workout: 'notifications.cta_view_schedule',
       ReminderKind.hydration: 'notifications.cta_open_water',
       ReminderKind.recovery: 'notifications.cta_view_recovery',
-      ReminderKind.streak: 'notifications.cta_view_progress',
+      ReminderKind.streak: 'notifications.cta_choose_workout',
       ReminderKind.rank: 'notifications.cta_view_rank',
       ReminderKind.inactivity: 'notifications.cta_choose_workout',
     };

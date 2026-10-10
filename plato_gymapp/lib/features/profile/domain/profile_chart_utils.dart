@@ -2,9 +2,10 @@ import 'package:intl/intl.dart';
 import 'dart:math' as math;
 
 import '../../workout/data/models/workout_models.dart';
-import '../../workout/domain/workout_extensions.dart'; 
+import '../../workout/domain/workout_extensions.dart';
 import '../../../../core/database/enums.dart';
-import '../../workout/domain/training_load_manager.dart'; 
+import '../../workout/domain/training_load_manager.dart';
+import '../../workout/domain/muscle_exposure_calculator.dart';
 
 // ==========================================
 // DATA CLASSES
@@ -16,25 +17,30 @@ class StatPoint {
   final double volume;
   final double durationHours;
   final int reps;
-  StatPoint(this.timestamp, this.label, this.volume, this.durationHours, this.reps);
+  StatPoint(
+    this.timestamp,
+    this.label,
+    this.volume,
+    this.durationHours,
+    this.reps,
+  );
 }
 
 // ==========================================
 // THUẬT TOÁN BIỂU ĐỒ & THỐNG KÊ
 // ==========================================
 class ProfileChartUtils {
-
   // ==========================================
   // ELITE VOLUME THRESHOLDS (GAMIFICATION HARDCORE SCALING)
   // ==========================================
-  
+
   /// Lấy mốc Rank S (1.0) cho Hexagon Screen (Macro Groups)
   /// Được thiết lập dựa trên Elite MRV để đảm bảo Rank S là một thử thách thực sự.
   static double getHexagonMaxVolume(String majorMuscleName) {
     switch (majorMuscleName) {
-      case "Legs": 
-        return 160.0; 
-      case "Back": 
+      case "Legs":
+        return 160.0;
+      case "Back":
         return 140.0;
       case "Chest":
       case "Shoulders":
@@ -57,47 +63,65 @@ class ProfileChartUtils {
       case MuscleGroup.MIDDLE_CHEST:
       case MuscleGroup.LOWER_CHEST:
       case MuscleGroup.GLUTES:
-        return 80.0; 
+        return 80.0;
       default:
         return 60.0;
     }
   }
 
-  static List<LoadAnalysis> calculateLoadHistory(List<WorkoutSession> workouts, int maxWeeks) {
+  static List<LoadAnalysis> calculateLoadHistory(
+    List<WorkoutSession> workouts,
+    int maxWeeks,
+  ) {
     if (workouts.isEmpty) return [];
 
-    final sortedWorkouts = List<WorkoutSession>.from(workouts)..sort((a, b) => a.startTime.compareTo(b.startTime));
-    final firstWorkoutDate = DateTime.fromMillisecondsSinceEpoch(sortedWorkouts.first.startTime);
+    final sortedWorkouts = List<WorkoutSession>.from(workouts)
+      ..sort((a, b) => a.startTime.compareTo(b.startTime));
+    final firstWorkoutDate = DateTime.fromMillisecondsSinceEpoch(
+      sortedWorkouts.first.startTime,
+    );
     final now = DateTime.now();
 
     final daysSinceFirst = now.difference(firstWorkoutDate).inDays;
-    int activeWeeks = math.max(1, (daysSinceFirst / 7).floor() + 1); 
+    int activeWeeks = math.max(1, (daysSinceFirst / 7).floor() + 1);
     int weeksToShow = math.min(activeWeeks, maxWeeks);
-    
+
     final result = <LoadAnalysis>[];
     for (int i = weeksToShow - 1; i >= 0; i--) {
-      final targetDateMillis = now.subtract(Duration(days: i * 7)).millisecondsSinceEpoch;
-      final historicalWorkouts = sortedWorkouts.where((w) => w.startTime <= targetDateMillis).toList();
-      
-      final analysis = TrainingLoadManager.analyzeWeeklyLoad(historicalWorkouts, evaluationDateMillis: targetDateMillis);
+      final targetDateMillis = now
+          .subtract(Duration(days: i * 7))
+          .millisecondsSinceEpoch;
+      final historicalWorkouts = sortedWorkouts
+          .where((w) => w.startTime <= targetDateMillis)
+          .toList();
+
+      final analysis = TrainingLoadManager.analyzeWeeklyLoad(
+        historicalWorkouts,
+        evaluationDateMillis: targetDateMillis,
+      );
       result.add(analysis);
     }
     return result;
   }
 
-  static Map<MuscleGroup, double> calculateWeeklyCoverage(List<WorkoutSession> workouts) {
+  static Map<MuscleGroup, double> calculateWeeklyCoverage(
+    List<WorkoutSession> workouts,
+  ) {
     final scores = <MuscleGroup, double>{};
     for (var muscle in MuscleGroup.values) {
-      scores[muscle] = 0.0; 
+      scores[muscle] = 0.0;
     }
 
     final now = DateTime.now().millisecondsSinceEpoch;
     final sevenDaysAgo = now - (7 * 24 * 60 * 60 * 1000);
-    final recentWorkouts = workouts.where((w) => w.startTime >= sevenDaysAgo).toList();
-    
+    final recentWorkouts = workouts
+        .where((w) => w.startTime >= sevenDaysAgo)
+        .toList();
+
     for (var w in recentWorkouts) {
       for (var we in w.exercises) {
-        if (we.exercise.primaryMuscle != null) scores[we.exercise.primaryMuscle!] = 1.0;
+        if (we.exercise.primaryMuscle != null)
+          scores[we.exercise.primaryMuscle!] = 1.0;
         if (we.exercise.secondaryMuscles != null) {
           for (var secondary in we.exercise.secondaryMuscles!) {
             scores[secondary] = 1.0;
@@ -108,24 +132,39 @@ class ProfileChartUtils {
     return scores;
   }
 
-  static Map<MuscleGroup, double> calculateDetailedMuscleScores(List<WorkoutSession> workouts) {
+  static Map<MuscleGroup, double> calculateDetailedMuscleScores(
+    List<WorkoutSession> workouts,
+  ) {
     final scores = <MuscleGroup, double>{};
     for (var w in workouts) {
       for (var we in w.exercises) {
         // LỌC HARD SETS DỰA TRÊN SetType VÀ isCompleted
-        final hardSetsCompleted = we.sets.where((s) => 
-            s.isCompleted && 
-            (s.type == SetType.NORMAL || s.type == SetType.DROPSET || s.type == SetType.FAILURE)
-        ).length.toDouble();
+        final hardSetsCompleted = we.sets
+            .where(
+              (set) =>
+                  set.isCompleted && MuscleExposureCalculator.isWorkingSet(set),
+            )
+            .length
+            .toDouble();
 
         if (hardSetsCompleted > 0) {
           final primary = we.exercise.primaryMuscle;
-          if (primary != null && primary != MuscleGroup.FULL_BODY && primary != MuscleGroup.CARDIO) {
-            scores[primary] = (scores[primary] ?? 0.0) + hardSetsCompleted; // Tỷ lệ 1.0 cho cơ chính
+          if (primary != null &&
+              primary != MuscleGroup.FULL_BODY &&
+              primary != MuscleGroup.CARDIO) {
+            scores[primary] =
+                (scores[primary] ?? 0.0) +
+                hardSetsCompleted; // Tỷ lệ 1.0 cho cơ chính
           }
-          for (var secondary in we.exercise.secondaryMuscles ?? []) {
-            if (secondary != MuscleGroup.FULL_BODY && secondary != MuscleGroup.CARDIO) {
-              scores[secondary] = (scores[secondary] ?? 0.0) + (hardSetsCompleted / 3.0); // Tỷ lệ 1/3 cho cơ phụ
+          for (var secondary
+              in (we.exercise.secondaryMuscles ?? [])
+                  .where((muscle) => muscle != primary)
+                  .toSet()) {
+            if (secondary != MuscleGroup.FULL_BODY &&
+                secondary != MuscleGroup.CARDIO) {
+              scores[secondary] =
+                  (scores[secondary] ?? 0.0) +
+                  (hardSetsCompleted / 3.0); // Tỷ lệ 1/3 cho cơ phụ
             }
           }
         }
@@ -134,42 +173,61 @@ class ProfileChartUtils {
     return scores;
   }
 
-  static Map<String, double> calculateRawMuscleScores(List<WorkoutSession> workouts) {
-    final scores = {"Chest": 0.0, "Back": 0.0, "Abs": 0.0, "Legs": 0.0, "Shoulders": 0.0, "Arms": 0.0};
+  static Map<String, double> calculateRawMuscleScores(
+    List<WorkoutSession> workouts,
+  ) {
+    final scores = {
+      "Chest": 0.0,
+      "Back": 0.0,
+      "Abs": 0.0,
+      "Legs": 0.0,
+      "Shoulders": 0.0,
+      "Arms": 0.0,
+    };
     if (workouts.isEmpty) return scores;
 
-    void addScore(MajorMuscleGroup? mg, double weight, double setsCompleted) {
+    void addScore(MajorMuscleGroup? mg, double value) {
       switch (mg) {
-        case MajorMuscleGroup.CHEST: scores["Chest"] = scores["Chest"]! + (setsCompleted * weight); break;
-        case MajorMuscleGroup.BACK: scores["Back"] = scores["Back"]! + (setsCompleted * weight); break;
-        case MajorMuscleGroup.CORE: scores["Abs"] = scores["Abs"]! + (setsCompleted * weight); break;
-        case MajorMuscleGroup.LEGS: scores["Legs"] = scores["Legs"]! + (setsCompleted * weight); break;
-        case MajorMuscleGroup.SHOULDERS: scores["Shoulders"] = scores["Shoulders"]! + (setsCompleted * weight); break;
-        case MajorMuscleGroup.ARMS: scores["Arms"] = scores["Arms"]! + (setsCompleted * weight); break;
-        default: break;
+        case MajorMuscleGroup.CHEST:
+          scores["Chest"] = scores["Chest"]! + value;
+          break;
+        case MajorMuscleGroup.BACK:
+          scores["Back"] = scores["Back"]! + value;
+          break;
+        case MajorMuscleGroup.CORE:
+          scores["Abs"] = scores["Abs"]! + value;
+          break;
+        case MajorMuscleGroup.LEGS:
+          scores["Legs"] = scores["Legs"]! + value;
+          break;
+        case MajorMuscleGroup.SHOULDERS:
+          scores["Shoulders"] = scores["Shoulders"]! + value;
+          break;
+        case MajorMuscleGroup.ARMS:
+          scores["Arms"] = scores["Arms"]! + value;
+          break;
+        default:
+          break;
       }
     }
 
-    for (var w in workouts) {
-      for (var we in w.exercises) {
-        // LỌC HARD SETS DỰA TRÊN SetType VÀ isCompleted
-        final hardSetsCompleted = we.sets.where((s) => 
-            s.isCompleted && 
-            (s.type == SetType.NORMAL || s.type == SetType.DROPSET || s.type == SetType.FAILURE)
-        ).length.toDouble();
-        
-        if (hardSetsCompleted > 0) {
-          addScore(we.exercise.primaryMuscle?.major, 1.0, hardSetsCompleted); // Tỷ lệ 1.0 cho cơ chính
-          for (var secondary in we.exercise.secondaryMuscles ?? []) {
-            addScore(secondary.major, 1.0 / 3.0, hardSetsCompleted); // Tỷ lệ 1/3 cho cơ phụ
-          }
-        }
+    for (final workout in workouts) {
+      final weights = MuscleExposureCalculator.majorWeights(
+        workout.exercises,
+        onlyCompletedSets: true,
+      );
+      for (final entry in weights.entries) {
+        addScore(entry.key, entry.value / 3);
       }
     }
     return scores;
   }
 
-  static List<StatPoint> aggregateStatsByTimeRange(List<WorkoutSession> workouts, ChartTimeRange range, String langCode) {
+  static List<StatPoint> aggregateStatsByTimeRange(
+    List<WorkoutSession> workouts,
+    ChartTimeRange range,
+    String langCode,
+  ) {
     if (workouts.isEmpty) return [];
 
     final now = DateTime.now();
@@ -178,8 +236,10 @@ class ProfileChartUtils {
 
     if (range == ChartTimeRange.THREE_MONTHS) {
       limitDate = now.subtract(const Duration(days: 90));
-    } else if (range == ChartTimeRange.YEAR) limitDate = now.subtract(const Duration(days: 365));
-    else limitDate = DateTime.fromMillisecondsSinceEpoch(0);
+    } else if (range == ChartTimeRange.YEAR)
+      limitDate = now.subtract(const Duration(days: 365));
+    else
+      limitDate = DateTime.fromMillisecondsSinceEpoch(0);
 
     final validWorkouts = workouts.where((w) {
       final d = DateTime.fromMillisecondsSinceEpoch(w.startTime);
@@ -189,21 +249,34 @@ class ProfileChartUtils {
     if (validWorkouts.isEmpty) return [];
 
     validWorkouts.sort((a, b) => a.startTime.compareTo(b.startTime));
-    
-    final firstDate = DateTime.fromMillisecondsSinceEpoch(validWorkouts.first.startTime);
-    final lastDate = DateTime.fromMillisecondsSinceEpoch(validWorkouts.last.startTime);
-    
+
+    final firstDate = DateTime.fromMillisecondsSinceEpoch(
+      validWorkouts.first.startTime,
+    );
+    final lastDate = DateTime.fromMillisecondsSinceEpoch(
+      validWorkouts.last.startTime,
+    );
+
     final buckets = <DateTime, List<WorkoutSession>>{};
 
     DateTime current = isWeekly
-        ? DateTime(firstDate.year, firstDate.month, firstDate.day).subtract(Duration(days: firstDate.weekday - 1))
+        ? DateTime(
+            firstDate.year,
+            firstDate.month,
+            firstDate.day,
+          ).subtract(Duration(days: firstDate.weekday - 1))
         : DateTime(firstDate.year, firstDate.month, 1);
-        
+
     DateTime endAligned = isWeekly
-        ? DateTime(lastDate.year, lastDate.month, lastDate.day).subtract(Duration(days: lastDate.weekday - 1))
+        ? DateTime(
+            lastDate.year,
+            lastDate.month,
+            lastDate.day,
+          ).subtract(Duration(days: lastDate.weekday - 1))
         : DateTime(lastDate.year, lastDate.month, 1);
 
-    while (current.isBefore(endAligned) || current.isAtSameMomentAs(endAligned)) {
+    while (current.isBefore(endAligned) ||
+        current.isAtSameMomentAs(endAligned)) {
       buckets[current] = [];
       if (isWeekly) {
         current = current.add(const Duration(days: 7));
@@ -215,9 +288,13 @@ class ProfileChartUtils {
     for (var w in validWorkouts) {
       final d = DateTime.fromMillisecondsSinceEpoch(w.startTime);
       DateTime bucketKey = isWeekly
-          ? DateTime(d.year, d.month, d.day).subtract(Duration(days: d.weekday - 1))
+          ? DateTime(
+              d.year,
+              d.month,
+              d.day,
+            ).subtract(Duration(days: d.weekday - 1))
           : DateTime(d.year, d.month, 1);
-          
+
       if (buckets.containsKey(bucketKey)) {
         buckets[bucketKey]!.add(w);
       }
@@ -229,10 +306,20 @@ class ProfileChartUtils {
       final slice = e.value;
       return StatPoint(
         date.millisecondsSinceEpoch,
-        dateFormat.format(date), 
+        dateFormat.format(date),
         slice.fold(0.0, (sum, w) => sum + w.totalVolume),
         slice.fold(0.0, (sum, w) => sum + w.totalDurationSeconds) / 3600.0,
-        slice.fold(0, (sum, w) => sum + w.exercises.fold(0, (sumE, ex) => sumE + ex.getMetricValue(ExerciseMetric.SESSION_REPS).toInt())),
+        slice.fold(
+          0,
+          (sum, w) =>
+              sum +
+              w.exercises.fold(
+                0,
+                (sumE, ex) =>
+                    sumE +
+                    ex.getMetricValue(ExerciseMetric.SESSION_REPS).toInt(),
+              ),
+        ),
       );
     }).toList();
 
@@ -250,30 +337,41 @@ class HeatmapStats {
   final int totalWorkouts;
   final int maxDaysStreak;
   final int maxWeeksStreak;
-  const HeatmapStats(this.totalWorkouts, this.maxDaysStreak, this.maxWeeksStreak);
+  const HeatmapStats(
+    this.totalWorkouts,
+    this.maxDaysStreak,
+    this.maxWeeksStreak,
+  );
 }
 
 // Thêm hàm này vào bên trong class ProfileChartUtils
-HeatmapStats calculateHeatmapStats(List<WorkoutSession> workouts, {int? targetYear}) {
+HeatmapStats calculateHeatmapStats(
+  List<WorkoutSession> workouts, {
+  int? targetYear,
+}) {
   if (workouts.isEmpty) return const HeatmapStats(0, 0, 0);
 
   Iterable<WorkoutSession> filtered = workouts;
   if (targetYear != null) {
     filtered = workouts.where((w) {
-      return DateTime.fromMillisecondsSinceEpoch(w.startTime).toLocal().year == targetYear;
+      return DateTime.fromMillisecondsSinceEpoch(w.startTime).toLocal().year ==
+          targetYear;
     });
   }
 
   if (filtered.isEmpty) return const HeatmapStats(0, 0, 0);
 
   int totalWorkouts = filtered.length;
-  
+
   // Ép về UTC để loại bỏ hoàn toàn các sai số do múi giờ và Daylight Saving Time
-  List<DateTime> activeDates = filtered.map((w) {
-    final d = DateTime.fromMillisecondsSinceEpoch(w.startTime).toLocal();
-    return DateTime.utc(d.year, d.month, d.day);
-  }).toSet().toList();
-  
+  List<DateTime> activeDates = filtered
+      .map((w) {
+        final d = DateTime.fromMillisecondsSinceEpoch(w.startTime).toLocal();
+        return DateTime.utc(d.year, d.month, d.day);
+      })
+      .toSet()
+      .toList();
+
   activeDates.sort();
 
   int maxDays = 0, currentDays = 0;

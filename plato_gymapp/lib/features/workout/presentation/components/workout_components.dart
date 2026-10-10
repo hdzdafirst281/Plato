@@ -12,7 +12,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
 import 'package:plato_gymapp/features/profile/presentation/components/muscle_group_presentation.dart';
-import 'package:plato_gymapp/features/workout/domain/muscle_recovery_calculator.dart';
+import 'package:plato_gymapp/features/workout/domain/major_muscle_recovery_projection.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../../core/designsystem/components/gym_animated_progress_bar.dart';
@@ -981,8 +981,9 @@ class _AdvancedChartPainter extends CustomPainter {
 
 class RecoveryUIData {
   final String label;
-  final MuscleRecoveryStatus status;
-  RecoveryUIData(this.label, this.status);
+  final MajorMuscleGroup muscle;
+  final MajorMuscleRecoveryProjection projection;
+  RecoveryUIData(this.label, this.muscle, this.projection);
 }
 
 class RecoveryBarChart extends StatelessWidget {
@@ -1208,32 +1209,18 @@ class _SegmentedRecoveryBarState extends State<SegmentedRecoveryBar> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final status = widget.recoveryUIDataItem.status;
-
-    int dynamicPercent = 100;
-    double remainingHours = 0.0;
-
-    if (status.initialFatigue > 0 &&
-        status.recoveryRate > 0 &&
-        status.lastTrainedDate > 0) {
-      final exactHoursPassed =
-          (_currentSystemTimeMillis - status.lastTrainedDate) / 3600000.0;
-      final safeHours = exactHoursPassed < 0 ? 0.0 : exactHoursPassed;
-
-      final currentFatigue =
-          status.initialFatigue * math.exp(-status.recoveryRate * safeHours);
-      final trueRecovery = 100.0 - currentFatigue;
-
-      dynamicPercent = ((trueRecovery / 95.0) * 100.0).toInt().clamp(0, 100);
-
-      const targetFatigue = 5.0;
-      if (currentFatigue > targetFatigue) {
-        final totalHoursReq =
-            -math.log(targetFatigue / status.initialFatigue) /
-            status.recoveryRate;
-        remainingHours = totalHoursReq - safeHours;
-      }
-    }
+    final data = widget.recoveryUIDataItem;
+    final now = DateTime.fromMillisecondsSinceEpoch(_currentSystemTimeMillis);
+    final dynamicPercent = data.projection.percentageAt(data.muscle, now);
+    final fullyReadyAt = data.projection.thresholdAt(
+      data.muscle,
+      100,
+      from: now,
+    );
+    final remainingHours = fullyReadyAt == null
+        ? 0.0
+        : fullyReadyAt.difference(now).inMilliseconds /
+              Duration.millisecondsPerHour;
 
     final percent = dynamicPercent;
     final progressColor = percent >= 80

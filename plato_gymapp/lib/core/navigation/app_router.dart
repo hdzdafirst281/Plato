@@ -469,7 +469,10 @@ class AppRouter {
                       GoRoute(
                         path: AppRoutes.calendar,
                         parentNavigatorKey: _rootNavigatorKey, 
-                        builder: (context, state) => CalendarScreen(initialScheduleId: state.uri.queryParameters['schedule']),
+                        builder: (context, state) => CalendarScreen(
+                          initialScheduleId: state.uri.queryParameters['schedule'],
+                          setupRoutineId: state.uri.queryParameters['setupRoutine'],
+                        ),
                       ),
                       GoRoute(
                         path: AppRoutes.profileSettings,

@@ -1,3 +1,5 @@
+import 'package:plato_gymapp/features/profile/presentation/screens/calendar_screen.dart';
+
 import '../../../notifications/presentation/recovery_recommendations.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_snackbar.dart';
 import 'dart:io';
@@ -33,6 +35,7 @@ import '../components/workout_components.dart';
 import '../components/workout_shared_ui.dart';
 import 'exercise_library_screen.dart';
 import '../../domain/workout_extensions.dart';
+import '../../domain/muscle_exposure_calculator.dart';
 
 class RoutineScreen extends StatefulWidget {
   final bool isViewMode;
@@ -680,21 +683,38 @@ class _RoutineScreenState extends State<RoutineScreen>
     if (_currentIsViewMode) {
       return [
         PopupMenuButton<String>(
-          icon: Icon(Symbols.more_vert, color: colorScheme.onSurfaceVariant),
+          icon: Icon(Symbols.more_vert, color: colorScheme.onSurface),
           color: colorScheme.surface,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
             side: BorderSide(color: colorScheme.outline.withValues(alpha: 0.3)),
           ),
           elevation: 4,
+          offset: const Offset(0, 40),
           onSelected: (value) {
-            if (value == 'edit') {
+            if (value == 'schedule') {
+              if (_routeRoutine != null) {
+                Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
+                  builder: (_) => CalendarScreen(setupRoutineId: _routeRoutine.id),
+                ));
+              }
+            } else if (value == 'edit') {
               setState(() => _currentIsViewMode = false);
             } else if (value == 'delete') {
               _showDeleteRoutineConfirmDialog();
             }
           },
           itemBuilder: (context) => [
+            PopupMenuItem(
+              value: 'schedule',
+              child: Row(
+                children: [
+                  Icon(Symbols.calendar_add_on, color: colorScheme.onSurface),
+                  const SizedBox(width: 8),
+                  Text(t.calendar.btn_confirm),
+                ],
+              ),
+            ),
             PopupMenuItem(
               value: 'edit',
               child: Row(
@@ -793,7 +813,9 @@ class _RoutineScreenState extends State<RoutineScreen>
           ),
     );
     final showRoutineRecovery = _currentIsViewMode && isEditing && ownsDraft;
-    final showMuscleSplit = _routineExercises.isNotEmpty;
+    final showMuscleSplit = MuscleExposureCalculator.majorWeights(
+      _routineExercises,
+    ).isNotEmpty;
     final showRoutineInsights = showRoutineRecovery || showMuscleSplit;
 
     final isSaveEnabled =

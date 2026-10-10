@@ -149,13 +149,13 @@ void main() {
         suggestions: [
           _SuggestionPreviewData(
             icon: Icons.check_circle_outline,
-            color: Color(0xFF1976D2),
+            color: Color(0xFF2E7D32),
             title: 'Upper Body',
             body: 'Upper Body phù hợp với các nhóm cơ đã sẵn sàng tập.',
           ),
           _SuggestionPreviewData(
             icon: Icons.check_circle_outline,
-            color: Color(0xFF1976D2),
+            color: Color(0xFF2E7D32),
             title: 'Full Body',
             body: 'Full Body phù hợp với các nhóm cơ đã sẵn sàng tập.',
           ),
@@ -576,9 +576,9 @@ class _RecoveryOverviewPreview extends StatelessWidget {
             title: 'Upper Body',
             body: 'Upper Body phù hợp với các nhóm cơ đã sẵn sàng tập.',
           ),
-          _SuggestionPreviewData(
+          const _SuggestionPreviewData(
             icon: Icons.do_not_disturb_alt_outlined,
-            color: Theme.of(context).colorScheme.error,
+            color: Color(0xFFD32F2F),
             title: 'Leg Day',
             body:
                 'Đùi trong Leg Day cần thêm thời gian hồi phục. Hãy cân nhắc tập nhẹ hơn hoặc đổi nhóm cơ.',
@@ -645,13 +645,13 @@ class _RecommendationPreviewTile extends StatelessWidget {
   Widget build(BuildContext context) => Container(
     padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
     decoration: BoxDecoration(
-      color: color.withValues(alpha: .1),
+      color: color.withValues(alpha: .08),
       borderRadius: BorderRadius.circular(16),
-      border: Border.all(color: color.withValues(alpha: .3)),
+      border: Border.all(color: color.withValues(alpha: .24)),
     ),
     child: Row(
       children: [
-        Icon(icon, color: color, size: 22),
+        Icon(icon, color: color, size: 21),
         const SizedBox(width: 12),
         Expanded(
           child: Column(
@@ -816,8 +816,8 @@ class _RecoveryWarningPreview extends StatelessWidget {
       ),
       const SizedBox(height: 12),
       const _RecommendationPreviewTile(
-        icon: Icons.swap_horiz,
-        color: Color(0xFF1976D2),
+        icon: Icons.check_circle_outline,
+        color: Color(0xFF2E7D32),
         title: 'Pull Day',
         body:
             'Ngực, vai cần thêm thời gian hồi phục. Pull Day phù hợp hơn cho hôm nay.',

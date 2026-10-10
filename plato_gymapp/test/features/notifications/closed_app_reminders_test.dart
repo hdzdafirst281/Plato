@@ -9,7 +9,8 @@ import 'package:plato_gymapp/features/notifications/domain/reminder_planner.dart
 import 'package:plato_gymapp/features/notifications/domain/recovery_forecast_service.dart';
 import 'package:plato_gymapp/features/notifications/data/notification_copy.dart';
 import 'package:plato_gymapp/features/workout/data/models/workout_models.dart';
-import 'package:plato_gymapp/features/workout/domain/muscle_recovery_calculator.dart';
+import 'package:plato_gymapp/features/workout/domain/muscle_exposure_calculator.dart';
+import 'package:plato_gymapp/features/workout/domain/recovery_scale.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
 
 const profile = UserProfile(
@@ -207,7 +208,7 @@ void main() {
     expect(inactive, hasLength(1));
     expect(inactive.single.at, DateTime(2026, 9, 15, 20));
   });
-  test('recovery forecasts a nearly-green muscle at the start of the day', () {
+  test('recovery uses the same normalized scale as the recovery bar', () {
     final now = DateTime(2026, 9, 24, 5);
     final history = [completedWorkout(DateTime(2026, 9, 23, 6))];
     final recovery = plan(
@@ -215,16 +216,52 @@ void main() {
       history: history,
     ).firstWhere((e) => e.kind == ReminderKind.recovery);
     expect(recovery.at, DateTime(2026, 9, 24, 7, 30));
+    final snapshot = RecoveryForecastService(
+      history,
+      at: now,
+    ).snapshotAt(recovery.at);
     expect(
-      MuscleRecoveryCalculator.getRecoveryStatus(
-        MuscleGroup.MIDDLE_CHEST,
-        history,
-        at: recovery.at,
-      ).recoveryPercentage,
-      lessThan(80),
+      snapshot.muscles[MajorMuscleGroup.CHEST]!.percentage,
+      greaterThanOrEqualTo(80),
     );
-    expect(recovery.bodyKey, 'notifications.body_recovery_ready_and_next');
-    expect(recovery.arguments['time'], isNotEmpty);
+    expect(recovery.bodyKey, 'notifications.body_recovery_all_ready');
+  });
+  test('recovery completes after one post-ready fatigue half-life', () {
+    final justBelowFull = RecoveryScale.fullRecoveryRawPercentage - .01;
+    final fatigueAt90 = RecoveryScale.targetFatigueForDisplayPercentage(90);
+
+    expect(RecoveryScale.readyFatigue, closeTo(24, .0001));
+    expect(RecoveryScale.fullRecoveryFatigue, closeTo(12, .0001));
+    expect(RecoveryScale.displayPercentageFromRaw(76), 80);
+    expect(RecoveryScale.displayPercentageFromRaw(justBelowFull), 99);
+    expect(RecoveryScale.aggregateDisplayPercentage(99.49), 99);
+    expect(RecoveryScale.aggregateDisplayPercentage(99.5), 100);
+    expect(RecoveryScale.aggregateDisplayPercentage(79.99), 79);
+    expect(
+      RecoveryScale.displayPercentageFromRaw(
+        RecoveryScale.fullRecoveryRawPercentage,
+      ),
+      100,
+    );
+    expect(
+      RecoveryScale.targetFatigueForDisplayPercentage(100),
+      closeTo(RecoveryScale.fullRecoveryFatigue, .0001),
+    );
+    expect(
+      fatigueAt90 * fatigueAt90,
+      closeTo(
+        RecoveryScale.readyFatigue * RecoveryScale.fullRecoveryFatigue,
+        .0001,
+      ),
+    );
+    for (final percentage in [80, 90, 95, 99, 100]) {
+      expect(
+        RecoveryScale.displayPercentageFromRaw(
+          100 - RecoveryScale.targetFatigueForDisplayPercentage(percentage),
+        ),
+        percentage,
+      );
+    }
   });
   test(
     'recovery advises waiting until evening when some groups are at 50%',
@@ -250,7 +287,7 @@ void main() {
       expect(recovery.arguments['muscles'], isNotEmpty);
     },
   );
-  test('recovery advises resting when all six groups remain below 50%', () {
+  test('recovery advises waiting when red groups reach yellow by noon', () {
     final recovery = plan(
       now: DateTime(2026, 9, 24, 5),
       history: [
@@ -268,9 +305,8 @@ void main() {
       ],
     ).firstWhere((e) => e.kind == ReminderKind.recovery);
     expect(recovery.at, DateTime(2026, 9, 24, 7, 30));
-    expect(recovery.titleKey, 'notifications.title_recovery_rest_today');
-    expect(recovery.bodyKey, 'notifications.body_recovery_rest_today');
-    expect(recovery.arguments, isEmpty);
+    expect(recovery.titleKey, 'notifications.title_recovery_ready_later');
+    expect(recovery.bodyKey, 'notifications.body_recovery_ready_later');
   });
   test('recovery recommends training at the default morning time', () {
     final recovery = plan(
@@ -292,7 +328,7 @@ void main() {
     expect(recovery.arguments['muscles'], isNot(contains('CHEST')));
     expect(recovery.arguments['muscles'], contains('BACK'));
   });
-  test('recovery thresholds classify 49, 50, 79 and 80 correctly', () {
+  test('recovery thresholds classify 39, 40, 79 and 80 correctly', () {
     const majors = [
       MajorMuscleGroup.CHEST,
       MajorMuscleGroup.BACK,
@@ -306,26 +342,26 @@ void main() {
     };
 
     expect(
-      ReminderPlanner.classifyRecovery(scores(49)),
+      ReminderPlanner.classifyRecovery(scores(39)),
       RecoveryNotificationState.restToday,
     );
     expect(
       ReminderPlanner.classifyRecovery({
-        ...scores(49),
-        MajorMuscleGroup.CHEST: 50,
+        ...scores(39),
+        MajorMuscleGroup.CHEST: 40,
       }),
       RecoveryNotificationState.readyLater,
     );
     expect(
       ReminderPlanner.classifyRecovery({
-        ...scores(49),
+        ...scores(39),
         MajorMuscleGroup.CHEST: 79,
       }),
       RecoveryNotificationState.readyLater,
     );
     expect(
       ReminderPlanner.classifyRecovery({
-        ...scores(49),
+        ...scores(39),
         MajorMuscleGroup.CHEST: 80,
       }),
       RecoveryNotificationState.partialReady,
@@ -333,6 +369,83 @@ void main() {
     expect(
       ReminderPlanner.classifyRecovery(scores(80)),
       RecoveryNotificationState.allReady,
+    );
+  });
+  test('routine risk boundaries use exposure and severity', () {
+    RoutineRecoveryState classify({
+      double redShare = 0,
+      double yellowShare = 0,
+      double redSeverity = 0,
+      double waitSeverity = 0,
+      bool dominantCritical = false,
+    }) => RecoveryForecastService.classifyRoutineRisk(
+      redShare: redShare,
+      yellowShare: yellowShare,
+      redSeverity: redSeverity,
+      waitSeverity: waitSeverity,
+      hasDominantCriticalMuscle: dominantCritical,
+    );
+
+    expect(classify(redShare: 19.9), RoutineRecoveryState.readyAdjusted);
+    expect(classify(redShare: 20), RoutineRecoveryState.readyAdjusted);
+    expect(classify(redShare: 20.1), RoutineRecoveryState.nearlyReady);
+    expect(classify(redShare: 39.9), RoutineRecoveryState.nearlyReady);
+    expect(classify(redShare: 40), RoutineRecoveryState.low);
+    expect(classify(redShare: 35, redSeverity: 30), RoutineRecoveryState.low);
+    expect(
+      classify(redShare: 30, dominantCritical: true),
+      RoutineRecoveryState.low,
+    );
+    expect(
+      classify(redShare: 20, yellowShare: 20),
+      RoutineRecoveryState.nearlyReady,
+    );
+    expect(
+      classify(yellowShare: 30, waitSeverity: 19.9),
+      RoutineRecoveryState.ready,
+    );
+    expect(
+      classify(yellowShare: 30, waitSeverity: 20),
+      RoutineRecoveryState.nearlyReady,
+    );
+    expect(
+      classify(redShare: 20, waitSeverity: 20.5),
+      RoutineRecoveryState.readyAdjusted,
+    );
+    expect(
+      classify(yellowShare: 20, waitSeverity: 20),
+      RoutineRecoveryState.ready,
+    );
+  });
+  test('muscle split ignores warmups and deduplicates secondary majors', () {
+    final exercise = WorkoutExercise(
+      id: 'split',
+      exercise: Exercise(
+        id: 'split',
+        name: 'Split',
+        primaryMuscle: MuscleGroup.MIDDLE_CHEST,
+        secondaryMuscles: const [MuscleGroup.BICEPS, MuscleGroup.TRICEPS],
+        type: ExerciseType.REPS_ONLY,
+        isDeleted: false,
+      ),
+      sets: const [
+        ExerciseSet(id: 'warmup', type: SetType.WARMUP),
+        ExerciseSet(id: 'work-1'),
+        ExerciseSet(id: 'work-2', type: SetType.SUPERSET),
+      ],
+    );
+    final distribution = MuscleExposureCalculator.distribution([exercise]);
+    expect(distribution[MajorMuscleGroup.CHEST], closeTo(75, .001));
+    expect(distribution[MajorMuscleGroup.ARMS], closeTo(25, .001));
+    expect(
+      distribution.entries
+          .where(
+            (entry) =>
+                entry.key != MajorMuscleGroup.CHEST &&
+                entry.key != MajorMuscleGroup.ARMS,
+          )
+          .every((entry) => entry.value == 0),
+      isTrue,
     );
   });
   test(
@@ -396,6 +509,34 @@ void main() {
     expect(selected, hasLength(4));
     expect(selected.any((e) => e.kind == ReminderKind.streak), isTrue);
     expect(selected.any((e) => e.kind == ReminderKind.recovery), isFalse);
+  });
+  test('workout reminder capacity disables only overflowing occurrences', () {
+    final now = DateTime(2026, 9, 24, 7);
+    final overflow = NotificationPolicy.workoutReminderOverflowTargetDates(
+      now: now,
+      existingReminderTimes: [
+        DateTime(2026, 9, 24, 8),
+        DateTime(2026, 9, 24, 9),
+        DateTime(2026, 9, 24, 10),
+        DateTime(2026, 9, 23, 20),
+      ],
+      requests: [
+        (
+          targetDateMillis: DateTime(2026, 9, 24).millisecondsSinceEpoch,
+          reminderAt: DateTime(2026, 9, 24, 11),
+        ),
+        (
+          targetDateMillis: DateTime(2026, 9, 25).millisecondsSinceEpoch,
+          reminderAt: DateTime(2026, 9, 24, 12),
+        ),
+        (
+          targetDateMillis: DateTime(2026, 9, 26).millisecondsSinceEpoch,
+          reminderAt: DateTime(2026, 9, 25, 8),
+        ),
+      ],
+    );
+
+    expect(overflow, {DateTime(2026, 9, 25).millisecondsSinceEpoch});
   });
 
   test('rank reminder moves earlier when its preferred day is crowded', () {
@@ -526,6 +667,55 @@ void main() {
             item.metadata['targetDay'] == '2026-09-25',
       ),
       isEmpty,
+    );
+  });
+  test('scheduled workout uses adjusted-ready copy for a small red share', () {
+    final now = DateTime(2026, 9, 24, 5);
+    final routine = completedWorkout(
+      now,
+      muscles: const [
+        MuscleGroup.MIDDLE_CHEST,
+        MuscleGroup.LATS,
+        MuscleGroup.QUADS,
+        MuscleGroup.FRONT_DELTS,
+        MuscleGroup.BICEPS,
+        MuscleGroup.ABS,
+      ],
+    ).copyWith(id: 'full-body', name: 'Full body');
+    final items = plan(
+      now: now,
+      history: [
+        completedWorkout(
+          now.subtract(const Duration(hours: 1)),
+          muscles: const [MuscleGroup.QUADS],
+        ),
+      ],
+      routinesById: {'full-body': routine},
+      schedules: [
+        ScheduledWorkoutEntity(
+          id: 'adjusted',
+          routineId: 'full-body',
+          routineName: 'Full body',
+          targetDateMillis: DateTime(2026, 9, 24).millisecondsSinceEpoch,
+          timeOfDayMinutes: 10 * 60,
+          reminderEnabled: true,
+          reminderMinutesBefore: 30,
+          isCompleted: false,
+          isDeleted: false,
+          syncStatus: 'PENDING',
+          updatedAt: 0,
+        ),
+      ],
+    );
+    final workout = items.singleWhere((item) => item.sourceId == 'adjusted');
+    expect(
+      workout.bodyKey,
+      'notifications.body_workout_reminder_recovery_adjusted',
+    );
+    expect(workout.arguments['muscles'], contains('LEGS'));
+    expect(
+      workout.metadata['recoveryState'],
+      RoutineRecoveryState.readyAdjusted.name,
     );
   });
   test('external reminder model contains the six supported types', () {
@@ -695,15 +885,28 @@ void main() {
       final history = [
         completedWorkout(
           now.subtract(const Duration(days: 5)),
-          muscles: const [MuscleGroup.MIDDLE_CHEST, MuscleGroup.LATS],
+          muscles: const [
+            MuscleGroup.MIDDLE_CHEST,
+            MuscleGroup.MIDDLE_CHEST,
+            MuscleGroup.LATS,
+            MuscleGroup.LATS,
+          ],
         ),
         completedWorkout(
           now.subtract(const Duration(days: 7)),
-          muscles: const [MuscleGroup.MIDDLE_CHEST],
+          muscles: const [MuscleGroup.MIDDLE_CHEST, MuscleGroup.MIDDLE_CHEST],
         ),
         completedWorkout(
           now.subtract(const Duration(days: 9)),
-          muscles: const [MuscleGroup.MIDDLE_CHEST],
+          muscles: const [MuscleGroup.MIDDLE_CHEST, MuscleGroup.MIDDLE_CHEST],
+        ),
+        completedWorkout(
+          now.subtract(const Duration(days: 11)),
+          muscles: const [MuscleGroup.MIDDLE_CHEST, MuscleGroup.MIDDLE_CHEST],
+        ),
+        completedWorkout(
+          now.subtract(const Duration(days: 13)),
+          muscles: const [MuscleGroup.MIDDLE_CHEST, MuscleGroup.MIDDLE_CHEST],
         ),
       ];
       final chest = completedWorkout(
@@ -824,6 +1027,7 @@ void main() {
     final morningPlan = forecast.planRoutines([legs, back], at: morning);
     expect(morningPlan.recommended.single.routine.id, 'back');
     expect(morningPlan.cautions.single.routine.id, 'legs');
+    expect(morningPlan.prioritizedSuggestions.first.routine.id, 'legs');
 
     final readyAt = forecast
         .snapshotAt(morning)
@@ -839,7 +1043,7 @@ void main() {
     });
     expect(laterPlan.cautions, isEmpty);
   });
-  test('mixed plan fills both visible slots with ready routines', () {
+  test('mixed plan keeps an unsuitable routine ahead of ready routines', () {
     final now = DateTime(2026, 9, 24, 7);
     final history = [
       completedWorkout(
@@ -868,16 +1072,258 @@ void main() {
     ).planRoutines(routines);
 
     expect(result.state, RecoveryRoutinePlanState.mixed);
-    expect(result.recommended, hasLength(2));
+    expect(result.cautions.single.routine.id, 'chest');
+    expect(result.recommended, hasLength(1));
+    expect(result.prioritizedSuggestions.first.routine.id, 'chest');
     expect(
-      result.recommended.every(
-        (item) => item.state == RoutineRecoveryState.ready,
-      ),
-      isTrue,
+      result.prioritizedSuggestions.last.state,
+      RoutineRecoveryState.ready,
     );
-    expect(result.cautions, isEmpty);
+    expect(result.displaySuggestions.first.state, RoutineRecoveryState.ready);
+    expect(result.displaySuggestions.last.routine.id, 'chest');
   });
-  test('routine plan keeps only two safest options when none are ready', () {
+  test('routine plan prioritizes low, then recovering, then ready', () {
+    final now = DateTime(2026, 9, 24, 7);
+    final history = [
+      completedWorkout(
+        now.subtract(const Duration(hours: 4)),
+        muscles: const [MuscleGroup.QUADS],
+      ),
+      completedWorkout(
+        now.subtract(const Duration(hours: 16)),
+        muscles: const [MuscleGroup.MIDDLE_CHEST],
+      ),
+    ];
+    final routines = [
+      completedWorkout(
+        now,
+        muscles: const [MuscleGroup.LATS],
+      ).copyWith(id: 'ready-back', name: 'Ready back'),
+      completedWorkout(
+        now,
+        muscles: const [MuscleGroup.MIDDLE_CHEST],
+      ).copyWith(id: 'recovering-chest', name: 'Recovering chest'),
+      completedWorkout(
+        now,
+        muscles: const [MuscleGroup.QUADS],
+      ).copyWith(id: 'low-legs', name: 'Low legs'),
+    ];
+
+    final result = RecoveryForecastService(
+      history,
+      at: now,
+    ).planRoutines(routines);
+
+    expect(result.state, RecoveryRoutinePlanState.mixed);
+    expect(result.prioritizedSuggestions, hasLength(2));
+    expect(result.prioritizedSuggestions.first.routine.id, 'low-legs');
+    expect(result.prioritizedSuggestions.first.state, RoutineRecoveryState.low);
+    expect(result.prioritizedSuggestions.last.routine.id, 'ready-back');
+    expect(
+      result.prioritizedSuggestions.last.state,
+      RoutineRecoveryState.ready,
+    );
+  });
+  test(
+    'routine plan prefers a different state before a second low routine',
+    () {
+      final now = DateTime(2026, 9, 24, 7);
+      final history = [
+        completedWorkout(
+          now.subtract(const Duration(hours: 4)),
+          muscles: const [MuscleGroup.QUADS, MuscleGroup.LATS],
+        ),
+        completedWorkout(
+          now.subtract(const Duration(hours: 16)),
+          muscles: const [MuscleGroup.MIDDLE_CHEST],
+        ),
+      ];
+      final routines = [
+        completedWorkout(
+          now,
+          muscles: const [MuscleGroup.QUADS],
+        ).copyWith(id: 'low-legs', name: 'Low legs'),
+        completedWorkout(
+          now,
+          muscles: const [MuscleGroup.LATS],
+        ).copyWith(id: 'low-back', name: 'Low back'),
+        completedWorkout(
+          now,
+          muscles: const [MuscleGroup.MIDDLE_CHEST],
+        ).copyWith(id: 'recovering-chest', name: 'Recovering chest'),
+      ];
+
+      final result = RecoveryForecastService(
+        history,
+        at: now,
+      ).planRoutines(routines);
+
+      expect(result.prioritizedSuggestions, hasLength(2));
+      expect(result.prioritizedSuggestions.map((item) => item.state).toList(), [
+        RoutineRecoveryState.nearlyReady,
+        RoutineRecoveryState.low,
+      ]);
+    },
+  );
+  test('full-body routines expose ready muscles when one group is low', () {
+    final now = DateTime(2026, 9, 24, 7);
+    final history = [
+      completedWorkout(
+        now.subtract(const Duration(hours: 4)),
+        muscles: const [MuscleGroup.QUADS],
+      ),
+    ];
+    const fullBodyMuscles = [
+      MuscleGroup.MIDDLE_CHEST,
+      MuscleGroup.LATS,
+      MuscleGroup.QUADS,
+      MuscleGroup.FRONT_DELTS,
+      MuscleGroup.BICEPS,
+      MuscleGroup.ABS,
+    ];
+    final routines = [
+      completedWorkout(
+        now,
+        muscles: fullBodyMuscles,
+      ).copyWith(id: 'full-a', name: 'Full body A'),
+      completedWorkout(
+        now,
+        muscles: fullBodyMuscles,
+      ).copyWith(id: 'full-b', name: 'Full body B'),
+    ];
+
+    final result = RecoveryForecastService(
+      history,
+      at: now,
+    ).planRoutines(routines);
+
+    expect(result.recommended, hasLength(1));
+    expect(result.recommended.single.state, RoutineRecoveryState.readyAdjusted);
+    expect(result.recommended.single.lowMuscles, [MajorMuscleGroup.LEGS]);
+    expect(result.cautions, isEmpty);
+    expect(result.distinctRoutineCount, 1);
+  });
+  test('a tiny secondary muscle no longer dominates routine ranking', () {
+    final now = DateTime(2026, 9, 24, 7);
+    final history = [
+      completedWorkout(
+        now.subtract(const Duration(hours: 4)),
+        muscles: const [MuscleGroup.BICEPS],
+      ),
+    ];
+    final fivePercentLow = completedWorkout(
+      now,
+      muscles: [
+        ...List.filled(19, MuscleGroup.MIDDLE_CHEST),
+        MuscleGroup.BICEPS,
+      ],
+    ).copyWith(id: 'five-percent-low', name: 'Five percent low');
+    final twentyPercentLow = completedWorkout(
+      now,
+      muscles: [
+        ...List.filled(4, MuscleGroup.MIDDLE_CHEST),
+        MuscleGroup.BICEPS,
+      ],
+    ).copyWith(id: 'twenty-percent-low', name: 'Twenty percent low');
+
+    final ranked = RecoveryForecastService(
+      history,
+      at: now,
+    ).rankRoutines([twentyPercentLow, fivePercentLow]);
+
+    expect(ranked.map((item) => item.state).toSet(), {
+      RoutineRecoveryState.readyAdjusted,
+    });
+    expect(ranked.first.routine.id, 'five-percent-low');
+    expect(ranked.first.lowerTailPercentage, 100);
+    expect(
+      ranked.last.lowerTailPercentage,
+      lessThan(RecoveryForecastService.restThreshold),
+    );
+  });
+  test(
+    'routine readyAt is when the routine turns ready, before every muscle is green',
+    () {
+      final now = DateTime(2026, 9, 24, 7);
+      final history = [
+        completedWorkout(
+          now.subtract(const Duration(hours: 4)),
+          muscles: const [MuscleGroup.MIDDLE_CHEST],
+        ),
+      ];
+      final routine = completedWorkout(
+        now,
+        muscles: const [
+          MuscleGroup.MIDDLE_CHEST,
+          MuscleGroup.LATS,
+          MuscleGroup.LATS,
+          MuscleGroup.LATS,
+        ],
+      ).copyWith(id: 'quarter-chest', name: 'Quarter chest');
+      final forecast = RecoveryForecastService(history, at: now);
+      final assessment = forecast.assessRoutine(routine);
+      final chestReadyAt = forecast
+          .snapshotAt(now)
+          .muscles[MajorMuscleGroup.CHEST]!
+          .readyAt;
+
+      expect(assessment.state, RoutineRecoveryState.nearlyReady);
+      expect(assessment.readyAt, isNotNull);
+      expect(assessment.readyAt!.isBefore(chestReadyAt), isTrue);
+      expect(
+        forecast
+            .assessRoutine(
+              routine,
+              at: assessment.readyAt!.add(const Duration(minutes: 2)),
+            )
+            .isReady,
+        isTrue,
+      );
+    },
+  );
+  test(
+    'routine coverage gap lists green muscle groups without a safe routine',
+    () {
+      final now = DateTime(2026, 9, 24, 7);
+      final history = [
+        completedWorkout(
+          now.subtract(const Duration(hours: 4)),
+          muscles: const [
+            MuscleGroup.MIDDLE_CHEST,
+            MuscleGroup.LATS,
+            MuscleGroup.QUADS,
+          ],
+        ),
+      ];
+      final routines = [
+        completedWorkout(
+          now,
+          muscles: const [MuscleGroup.MIDDLE_CHEST],
+        ).copyWith(id: 'chest', name: 'Chest'),
+        completedWorkout(
+          now,
+          muscles: const [MuscleGroup.LATS],
+        ).copyWith(id: 'back', name: 'Back'),
+        completedWorkout(
+          now,
+          muscles: const [MuscleGroup.QUADS],
+        ).copyWith(id: 'legs', name: 'Legs'),
+      ];
+
+      final result = RecoveryForecastService(
+        history,
+        at: now,
+      ).planRoutines(routines);
+
+      expect(result.state, RecoveryRoutinePlanState.noneReady);
+      expect(result.uncoveredReadyMuscles.toSet(), {
+        MajorMuscleGroup.SHOULDERS,
+        MajorMuscleGroup.ARMS,
+        MajorMuscleGroup.CORE,
+      });
+    },
+  );
+  test('routine plan keeps only two highest-priority cautions', () {
     final now = DateTime(2026, 9, 24, 7);
     final history = [
       completedWorkout(
@@ -957,6 +1403,39 @@ void main() {
       );
     }
   });
+  test(
+    'adjusted workout copy renders and obsolete notification keys are gone',
+    () {
+      for (final locale in AppLocale.values) {
+        LocaleSettings.setLocale(locale);
+        expect(
+          NotificationCopy.text(
+            'notifications.body_workout_reminder_recovery_adjusted',
+            const {
+              'routineName': 'Full body',
+              'time': '10:00',
+              'muscles': 'Legs',
+            },
+          ),
+          isNotEmpty,
+        );
+        expect(
+          NotificationCopy.text('notifications.body_hydration_completed'),
+          isNull,
+        );
+        expect(
+          NotificationCopy.text('notifications.cta_view_progress'),
+          isNull,
+        );
+        expect(
+          NotificationCopy.text(
+            'notifications.body_recovery_routine_ready_adjusted',
+          ),
+          isNull,
+        );
+      }
+    },
+  );
   test('all external reminder titles render from both generated locales', () {
     for (final locale in AppLocale.values) {
       LocaleSettings.setLocale(locale);

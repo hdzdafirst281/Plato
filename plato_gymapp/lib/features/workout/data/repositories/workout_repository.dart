@@ -14,6 +14,7 @@ import '../../../../core/database/entities.dart';
 import '../../../../core/database/enums.dart';
 
 import '../models/workout_models.dart';
+import '../../domain/muscle_exposure_calculator.dart';
 
 @lazySingleton
 class WorkoutRepository {
@@ -165,6 +166,7 @@ class WorkoutRepository {
     String? timeZoneId,
     bool reminderEnabled = false,
     int reminderMinutesBefore = 30,
+    Set<int> reminderDisabledTargetDates = const {},
   }) async {
     List<DateTime> datesToSchedule = [];
 
@@ -175,7 +177,9 @@ class WorkoutRepository {
       datesToSchedule.add(baseDate);
     } else if (repeatType == 1) {
       for (int i = 0; i < occurrences; i++) {
-        datesToSchedule.add(DateTime(baseDate.year, baseDate.month, baseDate.day + i));
+        datesToSchedule.add(
+          DateTime(baseDate.year, baseDate.month, baseDate.day + i),
+        );
       }
     } else if (repeatType == 2 &&
         selectedWeekdays != null &&
@@ -186,7 +190,11 @@ class WorkoutRepository {
       while (weeksAdded < occurrences) {
         bool addedAnyThisWeek = false;
         for (int i = 0; i < 7; i++) {
-          final testDate = DateTime(current.year, current.month, current.day + i);
+          final testDate = DateTime(
+            current.year,
+            current.month,
+            current.day + i,
+          );
           if (selectedWeekdays.contains(testDate.weekday)) {
             if (!testDate.isBefore(baseDate)) {
               datesToSchedule.add(testDate);
@@ -202,7 +210,13 @@ class WorkoutRepository {
     } else if (repeatType == 3) {
       int safeInterval = intervalDays > 0 ? intervalDays : 1;
       for (int i = 0; i < occurrences; i++) {
-        datesToSchedule.add(DateTime(baseDate.year, baseDate.month, baseDate.day + i * safeInterval));
+        datesToSchedule.add(
+          DateTime(
+            baseDate.year,
+            baseDate.month,
+            baseDate.day + i * safeInterval,
+          ),
+        );
       }
     }
 
@@ -223,7 +237,9 @@ class WorkoutRepository {
         targetDateMillis: date.millisecondsSinceEpoch,
         timeOfDayMinutes: timeOfDayMinutes,
         timeZoneId: timeZoneId,
-        reminderEnabled: reminderEnabled,
+        reminderEnabled:
+            reminderEnabled &&
+            !reminderDisabledTargetDates.contains(date.millisecondsSinceEpoch),
         reminderMinutesBefore: reminderMinutesBefore,
         isCompleted: false,
         colorHex: colorHex,
@@ -240,26 +256,47 @@ class WorkoutRepository {
       }
     }
 
-    if (recurrenceGroupId == null || !_cancelledGroups.contains(recurrenceGroupId)) {
+    if (recurrenceGroupId == null ||
+        !_cancelledGroups.contains(recurrenceGroupId)) {
       await _workoutDao.insertScheduledWorkouts(scheduledEntities);
     }
     if (recurrenceGroupId != null) _cancelledGroups.remove(recurrenceGroupId);
   }
 
-  Future<void> updateScheduledWorkout(ScheduledWorkout schedule, {
-    required DateTime date, int? timeOfDayMinutes, String? timeZoneId,
-    required bool reminderEnabled, required int reminderMinutesBefore, String? colorHex,
+  Future<void> updateScheduledWorkout(
+    ScheduledWorkout schedule, {
+    required DateTime date,
+    int? timeOfDayMinutes,
+    String? timeZoneId,
+    required bool reminderEnabled,
+    required int reminderMinutesBefore,
+    String? colorHex,
   }) async {
     final existing = await _workoutDao.getScheduledWorkout(schedule.id);
     if (existing == null) throw StateError('Schedule no longer exists');
-    await _workoutDao.insertScheduledWorkout(ScheduledWorkoutEntity(
-      id: existing.id, routineId: existing.routineId, routineName: existing.routineName,
-      targetDateMillis: DateTime(date.year,date.month,date.day).millisecondsSinceEpoch,
-      timeOfDayMinutes: timeOfDayMinutes, timeZoneId: timeZoneId,
-      reminderEnabled: reminderEnabled, reminderMinutesBefore: reminderMinutesBefore,
-      isCompleted: existing.isCompleted, completedWorkoutId: existing.completedWorkoutId,
-      colorHex: colorHex ?? existing.colorHex, recurrenceGroupId: existing.recurrenceGroupId,
-      syncStatus: SyncStatus.PENDING.name, updatedAt: DateTime.now().millisecondsSinceEpoch, isDeleted: false));
+    await _workoutDao.insertScheduledWorkout(
+      ScheduledWorkoutEntity(
+        id: existing.id,
+        routineId: existing.routineId,
+        routineName: existing.routineName,
+        targetDateMillis: DateTime(
+          date.year,
+          date.month,
+          date.day,
+        ).millisecondsSinceEpoch,
+        timeOfDayMinutes: timeOfDayMinutes,
+        timeZoneId: timeZoneId,
+        reminderEnabled: reminderEnabled,
+        reminderMinutesBefore: reminderMinutesBefore,
+        isCompleted: existing.isCompleted,
+        completedWorkoutId: existing.completedWorkoutId,
+        colorHex: colorHex ?? existing.colorHex,
+        recurrenceGroupId: existing.recurrenceGroupId,
+        syncStatus: SyncStatus.PENDING.name,
+        updatedAt: DateTime.now().millisecondsSinceEpoch,
+        isDeleted: false,
+      ),
+    );
   }
 
   Future<void> deleteScheduledWorkout(String id) async {
@@ -1151,45 +1188,8 @@ class WorkoutRepository {
 
   Map<MajorMuscleGroup, double> _calculateMuscleDistribution(
     List<WorkoutExercise> exercisesListForCalculation,
-  ) {
-    final computedRawScoresMap = <MajorMuscleGroup, double>{};
-
-    for (var workoutExerciseItem in exercisesListForCalculation) {
-      final countOfCompletedSets = workoutExerciseItem.sets
-          .where((s) => s.isCompleted)
-          .length;
-      if (countOfCompletedSets > 0) {
-        final primaryMajor = workoutExerciseItem.exercise.primaryMuscle?.major;
-        if (primaryMajor != null) {
-          computedRawScoresMap[primaryMajor] =
-              (computedRawScoresMap[primaryMajor] ?? 0.0) +
-              (3.0 * countOfCompletedSets);
-        }
-        workoutExerciseItem.exercise.secondaryMuscles?.forEach((
-          secondaryMuscle,
-        ) {
-          computedRawScoresMap[secondaryMuscle.major] =
-              (computedRawScoresMap[secondaryMuscle.major] ?? 0.0) +
-              (1.0 * countOfCompletedSets);
-        });
-      }
-    }
-
-    final totalRawScoreCalculated = computedRawScoresMap.values.fold(
-      0.0,
-      (sum, val) => sum + val,
-    );
-    final finalPercentageDistributionMap = <MajorMuscleGroup, double>{};
-
-    if (totalRawScoreCalculated > 0) {
-      for (var majorMuscleGroup in MajorMuscleGroup.values) {
-        final score = computedRawScoresMap[majorMuscleGroup] ?? 0.0;
-        if (score > 0) {
-          finalPercentageDistributionMap[majorMuscleGroup] =
-              (score / totalRawScoreCalculated) * 100.0;
-        }
-      }
-    }
-    return finalPercentageDistributionMap;
-  }
+  ) => MuscleExposureCalculator.distribution(
+    exercisesListForCalculation,
+    onlyCompletedSets: true,
+  )..removeWhere((_, value) => value == 0);
 }

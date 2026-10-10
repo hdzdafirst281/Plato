@@ -1,6 +1,8 @@
 import 'dart:math';
 import '../data/models/workout_models.dart';
 import '../../../../core/database/enums.dart';
+import 'muscle_exposure_calculator.dart';
+import 'recovery_scale.dart';
 
 class MuscleRecoveryStatus {
   final MuscleGroup muscle;
@@ -28,6 +30,7 @@ class MuscleRecoveryCalculator {
     List<WorkoutSession> history, {
     DateTime? at,
     bool historyIsSorted = false,
+    double? userBodyWeight,
   }) {
     if (history.isEmpty) {
       return MuscleRecoveryStatus(
@@ -63,7 +66,10 @@ class MuscleRecoveryCalculator {
 
       for (var we in session.exercises) {
         // Sử dụng hàm tính Load nội bộ, không dùng workout_extensions
-        double loadEx = _calculateStandardizedLoad(we);
+        double loadEx = _calculateStandardizedLoad(
+          we,
+          userBodyWeight: userBodyWeight,
+        );
         if (loadEx <= 0) continue;
 
         String exId = we.exercise.id;
@@ -170,12 +176,13 @@ class MuscleRecoveryCalculator {
 
     // Recovery Percentage
     final trueRecovery = 100.0 - currentFatigue;
-    final recoveryPercentage = trueRecovery.toInt().clamp(0, 100);
-
+    final recoveryPercentage = RecoveryScale.displayPercentageFromRaw(
+      trueRecovery,
+    );
     RecoveryState state = RecoveryState.EXHAUSTED;
-    if (recoveryPercentage >= 80) {
+    if (recoveryPercentage >= RecoveryScale.readyThreshold) {
       state = RecoveryState.FRESH;
-    } else if (recoveryPercentage >= 40) {
+    } else if (recoveryPercentage >= RecoveryScale.redThreshold) {
       state = RecoveryState.RECOVERING;
     }
 
@@ -198,16 +205,25 @@ class MuscleRecoveryCalculator {
   /// Xử lý an toàn bodyweight fallback và đa loại hình tập
   static double _calculateStandardizedLoad(
     WorkoutExercise we, {
-    double userBodyWeight = 65.0,
+    double? userBodyWeight,
   }) {
-    final completedSets = we.sets.where((s) => s.isCompleted).toList();
+    final completedSets = we.sets
+        .where(
+          (set) =>
+              set.isCompleted && MuscleExposureCalculator.isWorkingSet(set),
+        )
+        .toList();
     if (completedSets.isEmpty) return 0.0;
 
     // Giả định `Exercise` entity có biến type. Nếu property name khác, bạn update lại ở đây.
     switch (we.exercise.type) {
       case ExerciseType.WEIGHT_REPS:
         return completedSets.fold(0.0, (sum, set) {
-          double effectiveWeight = set.weight > 0 ? set.weight : userBodyWeight;
+          // When profile weight is unavailable, one normalized unit keeps
+          // relative-load history stable without assuming every user is 65kg.
+          double effectiveWeight = set.weight > 0
+              ? set.weight
+              : (userBodyWeight ?? 1.0);
           return sum + (effectiveWeight * set.reps);
         });
       case ExerciseType.REPS_ONLY:

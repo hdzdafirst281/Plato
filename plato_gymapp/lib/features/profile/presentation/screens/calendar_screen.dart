@@ -39,7 +39,12 @@ import 'package:intl/intl.dart';
 
 class CalendarScreen extends StatefulWidget {
   final String? initialScheduleId;
-  const CalendarScreen({super.key, this.initialScheduleId});
+  final String? setupRoutineId;
+  const CalendarScreen({
+    super.key,
+    this.initialScheduleId,
+    this.setupRoutineId,
+  });
 
   @override
   State<CalendarScreen> createState() => _CalendarScreenState();
@@ -165,19 +170,47 @@ class _CalendarScreenState extends State<CalendarScreen> {
       statsState.workouts,
       workoutState.scheduledWorkoutsList,
     );
-    if (!_openedInitialSchedule && widget.initialScheduleId != null) {
-      final schedule = workoutState.scheduledWorkoutsList
-          .where((s) => s.id == widget.initialScheduleId)
-          .firstOrNull;
-      if (schedule != null) {
+    if (!_openedInitialSchedule && widget.setupRoutineId != null) {
+      _openedInitialSchedule = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final routines = context
+            .read<WorkoutCubit>()
+            .state
+            .userCustomRoutinesList;
+        final routine = routines
+            .where((r) => r.id == widget.setupRoutineId)
+            .firstOrNull;
+        if (routine != null) {
+          final now = DateTime.now();
+          final today = DateTime(now.year, now.month, now.day);
+          _openScheduleFlow(context, today, initialRoutine: routine);
+        }
+      });
+    } else if (!_openedInitialSchedule && widget.initialScheduleId != null) {
+      if (widget.initialScheduleId == 'today') {
         _openedInitialSchedule = true;
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!mounted) return;
-          final date = DateTime.fromMillisecondsSinceEpoch(
-            schedule.targetDateMillis,
-          );
-          _showDayWorkoutsSheet(context, date, [schedule]);
+          final now = DateTime.now();
+          final today = DateTime(now.year, now.month, now.day);
+          final sessions = _mappedItemsCache[today] ?? [];
+          _showDayWorkoutsSheet(context, today, sessions);
         });
+      } else {
+        final schedule = workoutState.scheduledWorkoutsList
+            .where((s) => s.id == widget.initialScheduleId)
+            .firstOrNull;
+        if (schedule != null) {
+          _openedInitialSchedule = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            final date = DateTime.fromMillisecondsSinceEpoch(
+              schedule.targetDateMillis,
+            );
+            _showDayWorkoutsSheet(context, date, [schedule]);
+          });
+        }
       }
     }
 
@@ -338,19 +371,47 @@ class _CalendarScreenState extends State<CalendarScreen> {
       statsState.workouts,
       workoutState.scheduledWorkoutsList,
     );
-    if (!_openedInitialSchedule && widget.initialScheduleId != null) {
-      final schedule = workoutState.scheduledWorkoutsList
-          .where((s) => s.id == widget.initialScheduleId)
-          .firstOrNull;
-      if (schedule != null) {
+    if (!_openedInitialSchedule && widget.setupRoutineId != null) {
+      _openedInitialSchedule = true;
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted) return;
+        final routines = context
+            .read<WorkoutCubit>()
+            .state
+            .userCustomRoutinesList;
+        final routine = routines
+            .where((r) => r.id == widget.setupRoutineId)
+            .firstOrNull;
+        if (routine != null) {
+          final now = DateTime.now();
+          final today = DateTime(now.year, now.month, now.day);
+          _openScheduleFlow(context, today, initialRoutine: routine);
+        }
+      });
+    } else if (!_openedInitialSchedule && widget.initialScheduleId != null) {
+      if (widget.initialScheduleId == 'today') {
         _openedInitialSchedule = true;
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (!mounted) return;
-          final date = DateTime.fromMillisecondsSinceEpoch(
-            schedule.targetDateMillis,
-          );
-          _showDayWorkoutsSheet(context, date, [schedule]);
+          final now = DateTime.now();
+          final today = DateTime(now.year, now.month, now.day);
+          final sessions = _mappedItemsCache[today] ?? [];
+          _showDayWorkoutsSheet(context, today, sessions);
         });
+      } else {
+        final schedule = workoutState.scheduledWorkoutsList
+            .where((s) => s.id == widget.initialScheduleId)
+            .firstOrNull;
+        if (schedule != null) {
+          _openedInitialSchedule = true;
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            if (!mounted) return;
+            final date = DateTime.fromMillisecondsSinceEpoch(
+              schedule.targetDateMillis,
+            );
+            _showDayWorkoutsSheet(context, date, [schedule]);
+          });
+        }
       }
     }
 
@@ -840,35 +901,22 @@ class _CalendarScreenState extends State<CalendarScreen> {
         .toList();
 
     if (sameRoutineInstances.length > 1) {
-      GymDialog.showCustom(
+      final confirm = await GymDialog.showConfirm(
         context: parentContext,
-        titleWidget: Text(
-          t.calendar.title_delete,
-          style: const TextStyle(fontWeight: FontWeight.bold),
-        ),
-        content: Text(t.calendar.msg_delete_recurring),
-        actions: [
-          TextButton(
-            onPressed: () {
-              cubit.removeScheduledWorkout(s.id);
-              Navigator.of(parentContext, rootNavigator: true).pop();
-            },
-            child: Text(t.calendar.opt_delete_one),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(parentContext).colorScheme.error,
-            ),
-            onPressed: () {
-              for (var instance in sameRoutineInstances) {
-                cubit.removeScheduledWorkout(instance.id);
-              }
-              Navigator.of(parentContext, rootNavigator: true).pop();
-            },
-            child: Text(t.calendar.opt_delete_all),
-          ),
-        ],
+        title: t.calendar.title_delete,
+        message: t.calendar.msg_delete_recurring,
+        cancelText: t.calendar.opt_delete_one,
+        confirmText: t.calendar.opt_delete_all,
+        isDestructive: true,
       );
+
+      if (confirm == false) {
+        cubit.removeScheduledWorkout(s.id);
+      } else if (confirm == true) {
+        for (var instance in sameRoutineInstances) {
+          cubit.removeScheduledWorkout(instance.id);
+        }
+      }
     } else {
       final confirm = await GymDialog.showDestructive(
         context: parentContext,
@@ -1378,6 +1426,7 @@ class _ScheduleDialogContentState extends State<_ScheduleDialogContent> {
     try {
       if (minutes != null && service != null)
         await service.gateway.updateTimezone();
+      var reminderDisabledTargetDates = <int>{};
       if (reminder && service != null) {
         final dates = _plannedDates(
           date,
@@ -1386,13 +1435,29 @@ class _ScheduleDialogContentState extends State<_ScheduleDialogContent> {
           weekdays,
           intervalDays,
         );
-        if (!await service.hasWorkoutReminderCapacity(
-          dates,
-          excludingScheduleId: widget.existingSchedule?.id,
-          timeOfDayMinutes: minutes ?? 8 * 60,
-          leadMinutes: lead,
-        )) {
-          throw const _WorkoutReminderLimitException();
+        reminderDisabledTargetDates = await service
+            .workoutReminderOverflowTargetDates(
+              dates,
+              excludingScheduleId: widget.existingSchedule?.id,
+              timeOfDayMinutes: minutes ?? 8 * 60,
+              leadMinutes: lead,
+            );
+        if (reminderDisabledTargetDates.isNotEmpty) {
+          if (!mounted) return;
+          final confirmed = await GymDialog.showConfirm(
+            context: context,
+            title:
+                NotificationCopy.text('notifications.title_workout_reminder') ??
+                '',
+            message:
+                NotificationCopy.text(
+                  'notifications.msg_workout_reminder_daily_limit',
+                  {'count': '${NotificationPolicy.maxPerDay}'},
+                ) ??
+                '',
+            icon: Symbols.notifications_paused,
+          );
+          if (confirmed != true) return;
         }
       }
       if (widget.existingSchedule != null) {
@@ -1411,13 +1476,21 @@ class _ScheduleDialogContentState extends State<_ScheduleDialogContent> {
             timeZoneId: service?.timezone,
             reminderEnabled: reminder,
             reminderMinutesBefore: lead,
+            reminderDisabledTargetDates: reminderDisabledTargetDates,
           );
         } else {
+          final targetDateMillis = DateTime(
+            date.year,
+            date.month,
+            date.day,
+          ).millisecondsSinceEpoch;
           await cubit.updateScheduledWorkout(
             widget.existingSchedule!,
             date: date,
             timeOfDayMinutes: minutes,
-            reminderEnabled: reminder,
+            reminderEnabled:
+                reminder &&
+                !reminderDisabledTargetDates.contains(targetDateMillis),
             reminderMinutesBefore: lead,
             timeZoneId: service?.timezone,
             colorHex: colorHex,
@@ -1437,27 +1510,13 @@ class _ScheduleDialogContentState extends State<_ScheduleDialogContent> {
           timeZoneId: service?.timezone,
           reminderEnabled: reminder,
           reminderMinutesBefore: lead,
+          reminderDisabledTargetDates: reminderDisabledTargetDates,
         );
       }
       if (!mounted) return;
       final rootContext = Navigator.of(context, rootNavigator: true).context;
       Navigator.pop(context);
       if (rootContext.mounted) _showSuccessDialog(rootContext);
-    } on _WorkoutReminderLimitException {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              NotificationCopy.text(
-                    'notifications.msg_workout_reminder_daily_limit',
-                    {'count': '${NotificationPolicy.maxPerDay}'},
-                  ) ??
-                  '',
-            ),
-          ),
-        );
-      }
-      rethrow;
     } catch (error) {
       if (mounted)
         ScaffoldMessenger.of(context).showSnackBar(
@@ -1468,7 +1527,6 @@ class _ScheduleDialogContentState extends State<_ScheduleDialogContent> {
             ),
           ),
         );
-      rethrow;
     }
   }
 
@@ -2366,7 +2424,7 @@ class _RecurrenceConfigPageState extends State<_RecurrenceConfigPage> {
                         _reminder,
                         _lead,
                       )
-                      .catchError((Object error) {
+                      .whenComplete(() {
                         if (mounted) setState(() => _saving = false);
                       });
                 },
@@ -3325,8 +3383,4 @@ class _HevyYearHeatmap extends StatelessWidget {
       ],
     );
   }
-}
-
-class _WorkoutReminderLimitException implements Exception {
-  const _WorkoutReminderLimitException();
 }

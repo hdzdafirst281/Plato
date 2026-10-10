@@ -133,6 +133,36 @@ class NotificationPolicy {
         : 'notifications.body_hydration_progress';
   }
 
+  /// Keeps the earliest requested workout reminders until each delivery day
+  /// reaches the hard ceiling. The returned values are normalized target-date
+  /// timestamps whose reminders should be disabled while retaining the workout.
+  static Set<int> workoutReminderOverflowTargetDates({
+    required Iterable<({int targetDateMillis, DateTime reminderAt})> requests,
+    required Iterable<DateTime> existingReminderTimes,
+    required DateTime now,
+  }) {
+    final counts = <String, int>{};
+    for (final reminderAt in existingReminderTimes) {
+      if (!reminderAt.isAfter(now)) continue;
+      final day = dayKey(reminderAt);
+      counts[day] = (counts[day] ?? 0) + 1;
+    }
+    final ordered =
+        requests.where((item) => item.reminderAt.isAfter(now)).toList()
+          ..sort((a, b) => a.reminderAt.compareTo(b.reminderAt));
+    final overflow = <int>{};
+    for (final request in ordered) {
+      final day = dayKey(request.reminderAt);
+      final count = counts[day] ?? 0;
+      if (count >= maxPerDay) {
+        overflow.add(request.targetDateMillis);
+      } else {
+        counts[day] = count + 1;
+      }
+    }
+    return overflow;
+  }
+
   /// Allocates fixed reminders first, then moves deadline-based reminders only
   /// to their explicit fallback times. It never invents a delivery time.
   static List<ReminderCandidate> select(

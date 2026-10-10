@@ -4,9 +4,9 @@
 /// To regenerate, run: `dart run slang`
 ///
 /// Locales: 2
-/// Strings: 3340 (1670 per locale)
+/// Strings: 3344 (1672 per locale)
 ///
-/// Built on 2026-10-06 at 14:36 UTC
+/// Built on 2026-10-10 at 11:13 UTC
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -1934,7 +1934,7 @@ class _StringsNotificationsEn {
 	String get title_recovery_all_ready => 'Your body is ready to train';
 	String get body_recovery_all_ready => 'All six major muscle groups are well recovered. Today is a good day to train.';
 	String get title_recovery_rest_today => 'Make today a recovery day';
-	String get body_recovery_rest_today => 'All six major muscle groups are below 50% recovery. Rest today and give your body more time to recover.';
+	String get body_recovery_rest_today => 'All six major muscle groups are currently at a low level of recovery. Rest today and give your body more time to recover.';
 	String get title_recovery_ready_later => 'You’re almost ready to train';
 	String body_recovery_ready_later({required Object muscles}) => '${muscles} are recovering well but are not ready yet. Wait until this evening and check your recovery again before training.';
 	String get title_recovery_tomorrow => 'Tomorrow\'s recovery outlook';
@@ -1942,12 +1942,13 @@ class _StringsNotificationsEn {
 	String body_recovery_tomorrow_ready({required Object muscles}) => '${muscles} are expected to be ready tomorrow. Plan your workout around these muscle groups.';
 	String body_recovery_tomorrow_ready_at({required Object muscles, required Object time}) => '${muscles} are expected to be ready around ${time} tomorrow. Consider training after that time.';
 	String body_recovery_tomorrow_ready_and_next({required Object readyMuscles, required Object recoveringMuscles, required Object time}) => '${readyMuscles} should be ready tomorrow morning. ${recoveringMuscles} are expected to be ready around ${time}.';
-	String get body_recovery_tomorrow_rest => 'All six major muscle groups are expected to remain below 50% by noon tomorrow. Consider making it a recovery day.';
+	String get body_recovery_tomorrow_rest => 'All six major muscle groups are expected to still need more recovery by noon tomorrow. Consider making it a recovery day.';
 	String body_recovery_ready_at({required Object muscles, required Object time}) => '${muscles} should be ready around ${time} today. Consider training after that time.';
 	String body_recovery_ready_and_next({required Object readyMuscles, required Object recoveringMuscles, required Object time}) => '${readyMuscles} are ready now. ${recoveringMuscles} should be ready around ${time}.';
 	String body_workout_reminder_recovery_ready({required Object routineName, required Object time, required Object muscles}) => '${routineName} starts at ${time}. ${muscles} are ready to train.';
 	String body_workout_reminder_recovery_low({required Object routineName, required Object time, required Object muscles}) => '${routineName} starts at ${time}. ${muscles} are still recovering, so consider lowering the intensity or switching focus.';
-	String msg_workout_reminder_daily_limit({required Object count}) => 'You already have ${count} workout reminders for this day. Turn one off before adding another.';
+	String body_workout_reminder_recovery_adjusted({required Object routineName, required Object time, required Object muscles}) => '${routineName} starts at ${time}. Skip or reduce exercises targeting ${muscles}.';
+	String msg_workout_reminder_daily_limit({required Object count}) => 'This reminder day already has ${count} workout reminders. The workout will still be saved, but extra reminders will be turned off. Continue?';
 	String get title_inactivity => 'Ready to get back into training?';
 	String get body_inactivity => 'Start again at your own pace. Pick a routine and a time that works for you.';
 	String get title_streak_started => 'Your streak starts here';
@@ -1957,7 +1958,6 @@ class _StringsNotificationsEn {
 	String get title_streak_milestone => 'A milestone worth celebrating';
 	String body_streak_milestone({required Object weeks}) => '${weeks} weeks of consistency. Celebrate your progress!';
 	String get title_hydration_completed => 'Water goal reached';
-	String body_hydration_completed({required Object target}) => 'You\'ve reached your ${target} L goal today.';
 	String get title_rank_maintained => 'Rank maintained';
 	String body_rank_maintained({required Object rankName}) => 'You finished this cycle at ${rankName}. Explore your next goal.';
 	String get title_rank_demoted => 'Your rank cycle result';
@@ -1976,8 +1976,8 @@ class _StringsNotificationsEn {
 	String get status_permission_blocked => 'Blocked by your device';
 	String get btn_open_system_settings => 'Open device settings';
 	String get lbl_workout_reminders => 'Workout reminders';
-	String fmt_workout_reminders_active({required Object count}) => '${count} upcoming reminders';
-	String get msg_workout_reminders_none => 'No upcoming reminders.';
+	String fmt_workout_reminders_active({required Object count}) => '${count} workout notifications today';
+	String get msg_workout_reminders_none => 'No workout notifications left today';
 	String get msg_schedule_save_failed => 'Could not save your schedule. Please try again.';
 	String get lbl_recovery_reminders => 'Recovery reminder';
 	String get desc_recovery_reminders => 'A daily training suggestion based on muscle recovery.';
@@ -1988,7 +1988,6 @@ class _StringsNotificationsEn {
 	String get cta_view_schedule => 'View schedule';
 	String get cta_open_water => 'Open Water Tracker';
 	String get cta_view_recovery => 'View suggestions';
-	String get cta_view_progress => 'View progress';
 	String get cta_view_rank => 'View ranking';
 	String get cta_choose_workout => 'Choose a workout';
 	String get cta_view_routine => 'View routine';
@@ -1999,13 +1998,16 @@ class _StringsNotificationsEn {
 	String body_recovery_routine_alternative({required Object muscles, required Object alternative}) => '${muscles} need more recovery. ${alternative} is a better match today.';
 	String get msg_add_routine_variety => 'Add another routine to give yourself more variety and more suitable workout options.';
 	String msg_add_routine_for_ready_muscles({required Object muscles}) => '${muscles} are ready to train. Add a routine for these muscle groups so you have a suitable option today.';
+	String msg_recovery_adjust_exercises({required Object muscles}) => 'Skip or reduce exercises targeting ${muscles}.';
 	String get desc_recovery_routine_details => 'Plato compares each routine\'s target muscles with your current recovery and recent training history. It shows up to two useful options.';
 	String get title_recovery_routine_ready_detail => 'Ready to train';
-	String get desc_recovery_routine_ready_detail => 'All target muscle groups are at least 80% recovered. Routines for muscles trained less recently are ranked higher.';
+	String get desc_recovery_routine_ready_detail => 'This routine is a good match for today\'s recovery. Plato also favors muscle groups you have trained less recently.';
+	String get title_recovery_routine_adjusted_detail => 'Ready with adjustments';
+	String get desc_recovery_routine_adjusted_detail => 'This routine is still suitable for today. Skip or reduce exercises that target muscles needing more time to recover.';
 	String get title_recovery_routine_recovering_detail => 'Better later today';
-	String get desc_recovery_routine_recovering_detail => 'At least one target muscle is 50–79% recovered. Wait longer or lower the intensity if you train now.';
+	String get desc_recovery_routine_recovering_detail => 'A large part of this routine targets muscles that are still recovering. Wait a little longer before training.';
 	String get title_recovery_routine_rest_detail => 'More recovery needed';
-	String get desc_recovery_routine_rest_detail => 'At least one target muscle is below 50%, so Plato avoids recommending this routine. When all six groups are below 50%, no routine is shown.';
+	String get desc_recovery_routine_rest_detail => 'Much of this routine targets muscles that need more recovery. Choose another workout or give your body more time to rest.';
 	String get title_diagnostics => 'Notification diagnostics';
 	String get lbl_last_reconcile => 'Last schedule refresh';
 	String get lbl_last_background_worker => 'Last background refresh';
@@ -3842,7 +3844,7 @@ class _StringsNotificationsVi extends _StringsNotificationsEn {
 	@override String get title_recovery_all_ready => 'Cơ thể đã sẵn sàng tập luyện';
 	@override String get body_recovery_all_ready => 'Cả 6 nhóm cơ chính đều đã phục hồi tốt. Hôm nay là thời điểm phù hợp để tập luyện.';
 	@override String get title_recovery_rest_today => 'Hôm nay nên ưu tiên nghỉ ngơi';
-	@override String get body_recovery_rest_today => 'Cả 6 nhóm cơ chính đều đang dưới 50% phục hồi. Hãy nghỉ hôm nay để cơ thể có thêm thời gian hồi phục.';
+	@override String get body_recovery_rest_today => 'Cả 6 nhóm cơ chính đều đang ở mức phục hồi thấp. Hãy nghỉ hôm nay để cơ thể có thêm thời gian hồi phục.';
 	@override String get title_recovery_ready_later => 'Bạn sắp sẵn sàng tập lại';
 	@override String body_recovery_ready_later({required Object muscles}) => '${muscles} đang phục hồi tốt nhưng chưa hoàn toàn sẵn sàng. Hãy đợi đến tối và kiểm tra lại trước khi tập.';
 	@override String get title_recovery_tomorrow => 'Dự báo phục hồi ngày mai';
@@ -3850,12 +3852,13 @@ class _StringsNotificationsVi extends _StringsNotificationsEn {
 	@override String body_recovery_tomorrow_ready({required Object muscles}) => '${muscles} dự kiến sẵn sàng vào ngày mai. Bạn có thể lên kế hoạch tập các nhóm cơ này.';
 	@override String body_recovery_tomorrow_ready_at({required Object muscles, required Object time}) => '${muscles} dự kiến sẵn sàng vào khoảng ${time} ngày mai. Hãy cân nhắc tập sau thời điểm đó.';
 	@override String body_recovery_tomorrow_ready_and_next({required Object readyMuscles, required Object recoveringMuscles, required Object time}) => '${readyMuscles} dự kiến sẵn sàng vào sáng mai. ${recoveringMuscles} dự kiến sẵn sàng vào khoảng ${time}.';
-	@override String get body_recovery_tomorrow_rest => 'Cả 6 nhóm cơ chính dự kiến vẫn dưới 50% vào trưa mai. Hãy cân nhắc dành ngày mai để phục hồi.';
+	@override String get body_recovery_tomorrow_rest => 'Cả 6 nhóm cơ chính dự kiến vẫn cần thêm thời gian phục hồi vào trưa mai. Hãy cân nhắc dành ngày mai để nghỉ ngơi.';
 	@override String body_recovery_ready_at({required Object muscles, required Object time}) => '${muscles} dự kiến sẵn sàng vào khoảng ${time} hôm nay. Hãy cân nhắc tập sau thời điểm đó.';
 	@override String body_recovery_ready_and_next({required Object readyMuscles, required Object recoveringMuscles, required Object time}) => '${readyMuscles} đã sẵn sàng. ${recoveringMuscles} dự kiến sẵn sàng vào khoảng ${time}.';
 	@override String body_workout_reminder_recovery_ready({required Object routineName, required Object time, required Object muscles}) => 'Buổi ${routineName} bắt đầu lúc ${time}. ${muscles} đã sẵn sàng tập luyện.';
 	@override String body_workout_reminder_recovery_low({required Object routineName, required Object time, required Object muscles}) => 'Buổi ${routineName} bắt đầu lúc ${time}. ${muscles} vẫn đang hồi phục, hãy cân nhắc giảm cường độ hoặc đổi nhóm cơ.';
-	@override String msg_workout_reminder_daily_limit({required Object count}) => 'Bạn đã có ${count} lời nhắc tập luyện trong ngày này. Hãy tắt một lời nhắc trước khi thêm lời nhắc mới.';
+	@override String body_workout_reminder_recovery_adjusted({required Object routineName, required Object time, required Object muscles}) => 'Buổi ${routineName} bắt đầu lúc ${time}. Hãy bỏ hoặc giảm các bài tập tác động vào ${muscles}.';
+	@override String msg_workout_reminder_daily_limit({required Object count}) => 'Ngày gửi thông báo này đã có ${count} lời nhắc tập luyện. Lịch tập vẫn được lưu, nhưng các lời nhắc vượt giới hạn sẽ được tắt. Bạn có muốn tiếp tục không?';
 	@override String get title_inactivity => 'Bạn muốn quay lại tập không?';
 	@override String get body_inactivity => 'Quay lại theo nhịp của bạn. Chọn một lịch tập và thời gian phù hợp nhé.';
 	@override String get title_streak_started => 'Chuỗi tập của bạn bắt đầu rồi';
@@ -3865,7 +3868,6 @@ class _StringsNotificationsVi extends _StringsNotificationsEn {
 	@override String get title_streak_milestone => 'Một cột mốc đáng nhớ';
 	@override String body_streak_milestone({required Object weeks}) => '${weeks} tuần duy trì tập luyện. Cùng ghi nhận hành trình của bạn!';
 	@override String get title_hydration_completed => 'Đã đạt mục tiêu nước';
-	@override String body_hydration_completed({required Object target}) => 'Bạn đã đạt mục tiêu ${target} L hôm nay.';
 	@override String get title_rank_maintained => 'Bạn đã giữ hạng';
 	@override String body_rank_maintained({required Object rankName}) => 'Bạn kết thúc chu kỳ ở hạng ${rankName}. Xem mục tiêu tiếp theo nhé.';
 	@override String get title_rank_demoted => 'Kết quả chu kỳ xếp hạng';
@@ -3884,8 +3886,8 @@ class _StringsNotificationsVi extends _StringsNotificationsEn {
 	@override String get status_permission_blocked => 'Bị thiết bị chặn';
 	@override String get btn_open_system_settings => 'Mở cài đặt thiết bị';
 	@override String get lbl_workout_reminders => 'Nhắc lịch tập';
-	@override String fmt_workout_reminders_active({required Object count}) => '${count} lời nhắc sắp tới đang bật';
-	@override String get msg_workout_reminders_none => 'Chưa có lời nhắc sắp tới.';
+	@override String fmt_workout_reminders_active({required Object count}) => '${count} thông báo tập hôm nay';
+	@override String get msg_workout_reminders_none => 'Không còn thông báo tập hôm nay';
 	@override String get msg_schedule_save_failed => 'Chưa lưu được lịch tập. Vui lòng thử lại.';
 	@override String get lbl_recovery_reminders => 'Nhắc phục hồi';
 	@override String get desc_recovery_reminders => 'Gợi ý tập mỗi ngày dựa trên mức phục hồi cơ.';
@@ -3896,7 +3898,6 @@ class _StringsNotificationsVi extends _StringsNotificationsEn {
 	@override String get cta_view_schedule => 'Xem lịch tập';
 	@override String get cta_open_water => 'Mở theo dõi nước';
 	@override String get cta_view_recovery => 'Xem gợi ý';
-	@override String get cta_view_progress => 'Xem tiến độ';
 	@override String get cta_view_rank => 'Xem xếp hạng';
 	@override String get cta_choose_workout => 'Chọn bài tập';
 	@override String get cta_view_routine => 'Xem lịch tập';
@@ -3907,13 +3908,16 @@ class _StringsNotificationsVi extends _StringsNotificationsEn {
 	@override String body_recovery_routine_alternative({required Object muscles, required Object alternative}) => '${muscles} cần thêm thời gian hồi phục. ${alternative} phù hợp hơn cho hôm nay.';
 	@override String get msg_add_routine_variety => 'Hãy tạo hoặc thêm một lịch tập khác để đa dạng buổi tập và có thêm lựa chọn phù hợp.';
 	@override String msg_add_routine_for_ready_muscles({required Object muscles}) => '${muscles} đang sẵn sàng tập. Hãy tạo hoặc thêm lịch tập cho các nhóm cơ này để có lựa chọn phù hợp hôm nay.';
-	@override String get desc_recovery_routine_details => 'Plato đối chiếu nhóm cơ của từng lịch tập với mức phục hồi hiện tại và lịch sử tập gần đây. Tối đa hai lựa chọn phù hợp sẽ được hiển thị.';
+	@override String msg_recovery_adjust_exercises({required Object muscles}) => 'Hãy bỏ hoặc giảm các bài tập tác động vào ${muscles}.';
+	@override String get desc_recovery_routine_details => 'Plato đối chiếu các nhóm cơ của từng lịch tập với mức phục hồi hiện tại và lịch sử tập gần đây. Tối đa hai gợi ý hữu ích sẽ được hiển thị.';
 	@override String get title_recovery_routine_ready_detail => 'Sẵn sàng tập';
-	@override String get desc_recovery_routine_ready_detail => 'Tất cả nhóm cơ của lịch tập đã phục hồi ít nhất 80%. Lịch tập dành cho các nhóm cơ ít được tập gần đây sẽ được ưu tiên hơn.';
+	@override String get desc_recovery_routine_ready_detail => 'Lịch tập này phù hợp với mức phục hồi hôm nay. Plato cũng ưu tiên các nhóm cơ gần đây bạn tập ít hơn.';
+	@override String get title_recovery_routine_adjusted_detail => 'Phù hợp khi điều chỉnh';
+	@override String get desc_recovery_routine_adjusted_detail => 'Lịch tập này vẫn phù hợp để tập hôm nay. Hãy bỏ qua hoặc giảm các bài tập tác động vào những nhóm cơ cần thêm thời gian hồi phục.';
 	@override String get title_recovery_routine_recovering_detail => 'Phù hợp hơn khi tập muộn';
-	@override String get desc_recovery_routine_recovering_detail => 'Có ít nhất một nhóm cơ đang phục hồi ở mức 50–79%. Hãy đợi thêm hoặc giảm cường độ nếu tập ngay.';
+	@override String get desc_recovery_routine_recovering_detail => 'Phần lớn lịch tập này tác động vào các nhóm cơ vẫn đang hồi phục. Hãy đợi thêm một chút trước khi tập.';
 	@override String get title_recovery_routine_rest_detail => 'Cần phục hồi thêm';
-	@override String get desc_recovery_routine_rest_detail => 'Có ít nhất một nhóm cơ dưới 50% nên Plato hạn chế gợi ý lịch tập này. Khi cả sáu nhóm cơ đều dưới 50%, ứng dụng sẽ không hiển thị lịch tập.';
+	@override String get desc_recovery_routine_rest_detail => 'Phần lớn lịch tập này tác động vào các nhóm cơ cần hồi phục thêm. Hãy chọn buổi tập khác hoặc cho cơ thể thêm thời gian nghỉ ngơi.';
 	@override String get title_diagnostics => 'Chẩn đoán thông báo';
 	@override String get lbl_last_reconcile => 'Lần cập nhật lịch gần nhất';
 	@override String get lbl_last_background_worker => 'Lần cập nhật nền gần nhất';
@@ -5520,7 +5524,7 @@ extension on Translations {
 			case 'notifications.title_recovery_all_ready': return 'Your body is ready to train';
 			case 'notifications.body_recovery_all_ready': return 'All six major muscle groups are well recovered. Today is a good day to train.';
 			case 'notifications.title_recovery_rest_today': return 'Make today a recovery day';
-			case 'notifications.body_recovery_rest_today': return 'All six major muscle groups are below 50% recovery. Rest today and give your body more time to recover.';
+			case 'notifications.body_recovery_rest_today': return 'All six major muscle groups are currently at a low level of recovery. Rest today and give your body more time to recover.';
 			case 'notifications.title_recovery_ready_later': return 'You’re almost ready to train';
 			case 'notifications.body_recovery_ready_later': return ({required Object muscles}) => '${muscles} are recovering well but are not ready yet. Wait until this evening and check your recovery again before training.';
 			case 'notifications.title_recovery_tomorrow': return 'Tomorrow\'s recovery outlook';
@@ -5528,12 +5532,13 @@ extension on Translations {
 			case 'notifications.body_recovery_tomorrow_ready': return ({required Object muscles}) => '${muscles} are expected to be ready tomorrow. Plan your workout around these muscle groups.';
 			case 'notifications.body_recovery_tomorrow_ready_at': return ({required Object muscles, required Object time}) => '${muscles} are expected to be ready around ${time} tomorrow. Consider training after that time.';
 			case 'notifications.body_recovery_tomorrow_ready_and_next': return ({required Object readyMuscles, required Object recoveringMuscles, required Object time}) => '${readyMuscles} should be ready tomorrow morning. ${recoveringMuscles} are expected to be ready around ${time}.';
-			case 'notifications.body_recovery_tomorrow_rest': return 'All six major muscle groups are expected to remain below 50% by noon tomorrow. Consider making it a recovery day.';
+			case 'notifications.body_recovery_tomorrow_rest': return 'All six major muscle groups are expected to still need more recovery by noon tomorrow. Consider making it a recovery day.';
 			case 'notifications.body_recovery_ready_at': return ({required Object muscles, required Object time}) => '${muscles} should be ready around ${time} today. Consider training after that time.';
 			case 'notifications.body_recovery_ready_and_next': return ({required Object readyMuscles, required Object recoveringMuscles, required Object time}) => '${readyMuscles} are ready now. ${recoveringMuscles} should be ready around ${time}.';
 			case 'notifications.body_workout_reminder_recovery_ready': return ({required Object routineName, required Object time, required Object muscles}) => '${routineName} starts at ${time}. ${muscles} are ready to train.';
 			case 'notifications.body_workout_reminder_recovery_low': return ({required Object routineName, required Object time, required Object muscles}) => '${routineName} starts at ${time}. ${muscles} are still recovering, so consider lowering the intensity or switching focus.';
-			case 'notifications.msg_workout_reminder_daily_limit': return ({required Object count}) => 'You already have ${count} workout reminders for this day. Turn one off before adding another.';
+			case 'notifications.body_workout_reminder_recovery_adjusted': return ({required Object routineName, required Object time, required Object muscles}) => '${routineName} starts at ${time}. Skip or reduce exercises targeting ${muscles}.';
+			case 'notifications.msg_workout_reminder_daily_limit': return ({required Object count}) => 'This reminder day already has ${count} workout reminders. The workout will still be saved, but extra reminders will be turned off. Continue?';
 			case 'notifications.title_inactivity': return 'Ready to get back into training?';
 			case 'notifications.body_inactivity': return 'Start again at your own pace. Pick a routine and a time that works for you.';
 			case 'notifications.title_streak_started': return 'Your streak starts here';
@@ -5543,7 +5548,6 @@ extension on Translations {
 			case 'notifications.title_streak_milestone': return 'A milestone worth celebrating';
 			case 'notifications.body_streak_milestone': return ({required Object weeks}) => '${weeks} weeks of consistency. Celebrate your progress!';
 			case 'notifications.title_hydration_completed': return 'Water goal reached';
-			case 'notifications.body_hydration_completed': return ({required Object target}) => 'You\'ve reached your ${target} L goal today.';
 			case 'notifications.title_rank_maintained': return 'Rank maintained';
 			case 'notifications.body_rank_maintained': return ({required Object rankName}) => 'You finished this cycle at ${rankName}. Explore your next goal.';
 			case 'notifications.title_rank_demoted': return 'Your rank cycle result';
@@ -5562,8 +5566,8 @@ extension on Translations {
 			case 'notifications.status_permission_blocked': return 'Blocked by your device';
 			case 'notifications.btn_open_system_settings': return 'Open device settings';
 			case 'notifications.lbl_workout_reminders': return 'Workout reminders';
-			case 'notifications.fmt_workout_reminders_active': return ({required Object count}) => '${count} upcoming reminders';
-			case 'notifications.msg_workout_reminders_none': return 'No upcoming reminders.';
+			case 'notifications.fmt_workout_reminders_active': return ({required Object count}) => '${count} workout notifications today';
+			case 'notifications.msg_workout_reminders_none': return 'No workout notifications left today';
 			case 'notifications.msg_schedule_save_failed': return 'Could not save your schedule. Please try again.';
 			case 'notifications.lbl_recovery_reminders': return 'Recovery reminder';
 			case 'notifications.desc_recovery_reminders': return 'A daily training suggestion based on muscle recovery.';
@@ -5574,7 +5578,6 @@ extension on Translations {
 			case 'notifications.cta_view_schedule': return 'View schedule';
 			case 'notifications.cta_open_water': return 'Open Water Tracker';
 			case 'notifications.cta_view_recovery': return 'View suggestions';
-			case 'notifications.cta_view_progress': return 'View progress';
 			case 'notifications.cta_view_rank': return 'View ranking';
 			case 'notifications.cta_choose_workout': return 'Choose a workout';
 			case 'notifications.cta_view_routine': return 'View routine';
@@ -5585,13 +5588,16 @@ extension on Translations {
 			case 'notifications.body_recovery_routine_alternative': return ({required Object muscles, required Object alternative}) => '${muscles} need more recovery. ${alternative} is a better match today.';
 			case 'notifications.msg_add_routine_variety': return 'Add another routine to give yourself more variety and more suitable workout options.';
 			case 'notifications.msg_add_routine_for_ready_muscles': return ({required Object muscles}) => '${muscles} are ready to train. Add a routine for these muscle groups so you have a suitable option today.';
+			case 'notifications.msg_recovery_adjust_exercises': return ({required Object muscles}) => 'Skip or reduce exercises targeting ${muscles}.';
 			case 'notifications.desc_recovery_routine_details': return 'Plato compares each routine\'s target muscles with your current recovery and recent training history. It shows up to two useful options.';
 			case 'notifications.title_recovery_routine_ready_detail': return 'Ready to train';
-			case 'notifications.desc_recovery_routine_ready_detail': return 'All target muscle groups are at least 80% recovered. Routines for muscles trained less recently are ranked higher.';
+			case 'notifications.desc_recovery_routine_ready_detail': return 'This routine is a good match for today\'s recovery. Plato also favors muscle groups you have trained less recently.';
+			case 'notifications.title_recovery_routine_adjusted_detail': return 'Ready with adjustments';
+			case 'notifications.desc_recovery_routine_adjusted_detail': return 'This routine is still suitable for today. Skip or reduce exercises that target muscles needing more time to recover.';
 			case 'notifications.title_recovery_routine_recovering_detail': return 'Better later today';
-			case 'notifications.desc_recovery_routine_recovering_detail': return 'At least one target muscle is 50–79% recovered. Wait longer or lower the intensity if you train now.';
+			case 'notifications.desc_recovery_routine_recovering_detail': return 'A large part of this routine targets muscles that are still recovering. Wait a little longer before training.';
 			case 'notifications.title_recovery_routine_rest_detail': return 'More recovery needed';
-			case 'notifications.desc_recovery_routine_rest_detail': return 'At least one target muscle is below 50%, so Plato avoids recommending this routine. When all six groups are below 50%, no routine is shown.';
+			case 'notifications.desc_recovery_routine_rest_detail': return 'Much of this routine targets muscles that need more recovery. Choose another workout or give your body more time to rest.';
 			case 'notifications.title_diagnostics': return 'Notification diagnostics';
 			case 'notifications.lbl_last_reconcile': return 'Last schedule refresh';
 			case 'notifications.lbl_last_background_worker': return 'Last background refresh';
@@ -7198,7 +7204,7 @@ extension on _StringsVi {
 			case 'notifications.title_recovery_all_ready': return 'Cơ thể đã sẵn sàng tập luyện';
 			case 'notifications.body_recovery_all_ready': return 'Cả 6 nhóm cơ chính đều đã phục hồi tốt. Hôm nay là thời điểm phù hợp để tập luyện.';
 			case 'notifications.title_recovery_rest_today': return 'Hôm nay nên ưu tiên nghỉ ngơi';
-			case 'notifications.body_recovery_rest_today': return 'Cả 6 nhóm cơ chính đều đang dưới 50% phục hồi. Hãy nghỉ hôm nay để cơ thể có thêm thời gian hồi phục.';
+			case 'notifications.body_recovery_rest_today': return 'Cả 6 nhóm cơ chính đều đang ở mức phục hồi thấp. Hãy nghỉ hôm nay để cơ thể có thêm thời gian hồi phục.';
 			case 'notifications.title_recovery_ready_later': return 'Bạn sắp sẵn sàng tập lại';
 			case 'notifications.body_recovery_ready_later': return ({required Object muscles}) => '${muscles} đang phục hồi tốt nhưng chưa hoàn toàn sẵn sàng. Hãy đợi đến tối và kiểm tra lại trước khi tập.';
 			case 'notifications.title_recovery_tomorrow': return 'Dự báo phục hồi ngày mai';
@@ -7206,12 +7212,13 @@ extension on _StringsVi {
 			case 'notifications.body_recovery_tomorrow_ready': return ({required Object muscles}) => '${muscles} dự kiến sẵn sàng vào ngày mai. Bạn có thể lên kế hoạch tập các nhóm cơ này.';
 			case 'notifications.body_recovery_tomorrow_ready_at': return ({required Object muscles, required Object time}) => '${muscles} dự kiến sẵn sàng vào khoảng ${time} ngày mai. Hãy cân nhắc tập sau thời điểm đó.';
 			case 'notifications.body_recovery_tomorrow_ready_and_next': return ({required Object readyMuscles, required Object recoveringMuscles, required Object time}) => '${readyMuscles} dự kiến sẵn sàng vào sáng mai. ${recoveringMuscles} dự kiến sẵn sàng vào khoảng ${time}.';
-			case 'notifications.body_recovery_tomorrow_rest': return 'Cả 6 nhóm cơ chính dự kiến vẫn dưới 50% vào trưa mai. Hãy cân nhắc dành ngày mai để phục hồi.';
+			case 'notifications.body_recovery_tomorrow_rest': return 'Cả 6 nhóm cơ chính dự kiến vẫn cần thêm thời gian phục hồi vào trưa mai. Hãy cân nhắc dành ngày mai để nghỉ ngơi.';
 			case 'notifications.body_recovery_ready_at': return ({required Object muscles, required Object time}) => '${muscles} dự kiến sẵn sàng vào khoảng ${time} hôm nay. Hãy cân nhắc tập sau thời điểm đó.';
 			case 'notifications.body_recovery_ready_and_next': return ({required Object readyMuscles, required Object recoveringMuscles, required Object time}) => '${readyMuscles} đã sẵn sàng. ${recoveringMuscles} dự kiến sẵn sàng vào khoảng ${time}.';
 			case 'notifications.body_workout_reminder_recovery_ready': return ({required Object routineName, required Object time, required Object muscles}) => 'Buổi ${routineName} bắt đầu lúc ${time}. ${muscles} đã sẵn sàng tập luyện.';
 			case 'notifications.body_workout_reminder_recovery_low': return ({required Object routineName, required Object time, required Object muscles}) => 'Buổi ${routineName} bắt đầu lúc ${time}. ${muscles} vẫn đang hồi phục, hãy cân nhắc giảm cường độ hoặc đổi nhóm cơ.';
-			case 'notifications.msg_workout_reminder_daily_limit': return ({required Object count}) => 'Bạn đã có ${count} lời nhắc tập luyện trong ngày này. Hãy tắt một lời nhắc trước khi thêm lời nhắc mới.';
+			case 'notifications.body_workout_reminder_recovery_adjusted': return ({required Object routineName, required Object time, required Object muscles}) => 'Buổi ${routineName} bắt đầu lúc ${time}. Hãy bỏ hoặc giảm các bài tập tác động vào ${muscles}.';
+			case 'notifications.msg_workout_reminder_daily_limit': return ({required Object count}) => 'Ngày gửi thông báo này đã có ${count} lời nhắc tập luyện. Lịch tập vẫn được lưu, nhưng các lời nhắc vượt giới hạn sẽ được tắt. Bạn có muốn tiếp tục không?';
 			case 'notifications.title_inactivity': return 'Bạn muốn quay lại tập không?';
 			case 'notifications.body_inactivity': return 'Quay lại theo nhịp của bạn. Chọn một lịch tập và thời gian phù hợp nhé.';
 			case 'notifications.title_streak_started': return 'Chuỗi tập của bạn bắt đầu rồi';
@@ -7221,7 +7228,6 @@ extension on _StringsVi {
 			case 'notifications.title_streak_milestone': return 'Một cột mốc đáng nhớ';
 			case 'notifications.body_streak_milestone': return ({required Object weeks}) => '${weeks} tuần duy trì tập luyện. Cùng ghi nhận hành trình của bạn!';
 			case 'notifications.title_hydration_completed': return 'Đã đạt mục tiêu nước';
-			case 'notifications.body_hydration_completed': return ({required Object target}) => 'Bạn đã đạt mục tiêu ${target} L hôm nay.';
 			case 'notifications.title_rank_maintained': return 'Bạn đã giữ hạng';
 			case 'notifications.body_rank_maintained': return ({required Object rankName}) => 'Bạn kết thúc chu kỳ ở hạng ${rankName}. Xem mục tiêu tiếp theo nhé.';
 			case 'notifications.title_rank_demoted': return 'Kết quả chu kỳ xếp hạng';
@@ -7240,8 +7246,8 @@ extension on _StringsVi {
 			case 'notifications.status_permission_blocked': return 'Bị thiết bị chặn';
 			case 'notifications.btn_open_system_settings': return 'Mở cài đặt thiết bị';
 			case 'notifications.lbl_workout_reminders': return 'Nhắc lịch tập';
-			case 'notifications.fmt_workout_reminders_active': return ({required Object count}) => '${count} lời nhắc sắp tới đang bật';
-			case 'notifications.msg_workout_reminders_none': return 'Chưa có lời nhắc sắp tới.';
+			case 'notifications.fmt_workout_reminders_active': return ({required Object count}) => '${count} thông báo tập hôm nay';
+			case 'notifications.msg_workout_reminders_none': return 'Không còn thông báo tập hôm nay';
 			case 'notifications.msg_schedule_save_failed': return 'Chưa lưu được lịch tập. Vui lòng thử lại.';
 			case 'notifications.lbl_recovery_reminders': return 'Nhắc phục hồi';
 			case 'notifications.desc_recovery_reminders': return 'Gợi ý tập mỗi ngày dựa trên mức phục hồi cơ.';
@@ -7252,7 +7258,6 @@ extension on _StringsVi {
 			case 'notifications.cta_view_schedule': return 'Xem lịch tập';
 			case 'notifications.cta_open_water': return 'Mở theo dõi nước';
 			case 'notifications.cta_view_recovery': return 'Xem gợi ý';
-			case 'notifications.cta_view_progress': return 'Xem tiến độ';
 			case 'notifications.cta_view_rank': return 'Xem xếp hạng';
 			case 'notifications.cta_choose_workout': return 'Chọn bài tập';
 			case 'notifications.cta_view_routine': return 'Xem lịch tập';
@@ -7263,13 +7268,16 @@ extension on _StringsVi {
 			case 'notifications.body_recovery_routine_alternative': return ({required Object muscles, required Object alternative}) => '${muscles} cần thêm thời gian hồi phục. ${alternative} phù hợp hơn cho hôm nay.';
 			case 'notifications.msg_add_routine_variety': return 'Hãy tạo hoặc thêm một lịch tập khác để đa dạng buổi tập và có thêm lựa chọn phù hợp.';
 			case 'notifications.msg_add_routine_for_ready_muscles': return ({required Object muscles}) => '${muscles} đang sẵn sàng tập. Hãy tạo hoặc thêm lịch tập cho các nhóm cơ này để có lựa chọn phù hợp hôm nay.';
-			case 'notifications.desc_recovery_routine_details': return 'Plato đối chiếu nhóm cơ của từng lịch tập với mức phục hồi hiện tại và lịch sử tập gần đây. Tối đa hai lựa chọn phù hợp sẽ được hiển thị.';
+			case 'notifications.msg_recovery_adjust_exercises': return ({required Object muscles}) => 'Hãy bỏ hoặc giảm các bài tập tác động vào ${muscles}.';
+			case 'notifications.desc_recovery_routine_details': return 'Plato đối chiếu các nhóm cơ của từng lịch tập với mức phục hồi hiện tại và lịch sử tập gần đây. Tối đa hai gợi ý hữu ích sẽ được hiển thị.';
 			case 'notifications.title_recovery_routine_ready_detail': return 'Sẵn sàng tập';
-			case 'notifications.desc_recovery_routine_ready_detail': return 'Tất cả nhóm cơ của lịch tập đã phục hồi ít nhất 80%. Lịch tập dành cho các nhóm cơ ít được tập gần đây sẽ được ưu tiên hơn.';
+			case 'notifications.desc_recovery_routine_ready_detail': return 'Lịch tập này phù hợp với mức phục hồi hôm nay. Plato cũng ưu tiên các nhóm cơ gần đây bạn tập ít hơn.';
+			case 'notifications.title_recovery_routine_adjusted_detail': return 'Phù hợp khi điều chỉnh';
+			case 'notifications.desc_recovery_routine_adjusted_detail': return 'Lịch tập này vẫn phù hợp để tập hôm nay. Hãy bỏ qua hoặc giảm các bài tập tác động vào những nhóm cơ cần thêm thời gian hồi phục.';
 			case 'notifications.title_recovery_routine_recovering_detail': return 'Phù hợp hơn khi tập muộn';
-			case 'notifications.desc_recovery_routine_recovering_detail': return 'Có ít nhất một nhóm cơ đang phục hồi ở mức 50–79%. Hãy đợi thêm hoặc giảm cường độ nếu tập ngay.';
+			case 'notifications.desc_recovery_routine_recovering_detail': return 'Phần lớn lịch tập này tác động vào các nhóm cơ vẫn đang hồi phục. Hãy đợi thêm một chút trước khi tập.';
 			case 'notifications.title_recovery_routine_rest_detail': return 'Cần phục hồi thêm';
-			case 'notifications.desc_recovery_routine_rest_detail': return 'Có ít nhất một nhóm cơ dưới 50% nên Plato hạn chế gợi ý lịch tập này. Khi cả sáu nhóm cơ đều dưới 50%, ứng dụng sẽ không hiển thị lịch tập.';
+			case 'notifications.desc_recovery_routine_rest_detail': return 'Phần lớn lịch tập này tác động vào các nhóm cơ cần hồi phục thêm. Hãy chọn buổi tập khác hoặc cho cơ thể thêm thời gian nghỉ ngơi.';
 			case 'notifications.title_diagnostics': return 'Chẩn đoán thông báo';
 			case 'notifications.lbl_last_reconcile': return 'Lần cập nhật lịch gần nhất';
 			case 'notifications.lbl_last_background_worker': return 'Lần cập nhật nền gần nhất';

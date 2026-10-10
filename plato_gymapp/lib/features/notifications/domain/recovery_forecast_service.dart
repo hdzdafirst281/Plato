@@ -2,12 +2,20 @@ import 'dart:math';
 
 import 'package:plato_gymapp/core/database/enums.dart';
 import 'package:plato_gymapp/features/workout/data/models/workout_models.dart';
-import 'package:plato_gymapp/features/workout/domain/muscle_recovery_calculator.dart';
+import 'package:plato_gymapp/features/workout/domain/major_muscle_recovery_projection.dart';
+import 'package:plato_gymapp/features/workout/domain/muscle_exposure_calculator.dart';
+import 'package:plato_gymapp/features/workout/domain/recovery_scale.dart';
 import 'package:plato_gymapp/features/workout/domain/streak_calculator.dart';
 
 enum RecoveryForecastState { allReady, partialReady, restToday, readyLater }
 
-enum RoutineRecoveryState { ready, nearlyReady, low, unavailable }
+enum RoutineRecoveryState {
+  ready,
+  readyAdjusted,
+  nearlyReady,
+  low,
+  unavailable,
+}
 
 enum RecoveryRoutinePlanState { empty, restToday, allReady, mixed, noneReady }
 
@@ -71,8 +79,13 @@ class RoutineRecoveryAssessment {
   final List<MajorMuscleGroup> readyMuscles;
   final List<MajorMuscleGroup> recoveringMuscles;
   final List<MajorMuscleGroup> lowMuscles;
-  final int minimumPercentage;
   final int weightedPercentage;
+  final int lowerTailPercentage;
+  final Map<MajorMuscleGroup, double> muscleDistribution;
+  final double redShare;
+  final double redSeverity;
+  final DateTime? readyAt;
+  final DateTime? nextStateAt;
 
   const RoutineRecoveryAssessment({
     required this.routine,
@@ -81,45 +94,119 @@ class RoutineRecoveryAssessment {
     required this.readyMuscles,
     required this.recoveringMuscles,
     required this.lowMuscles,
-    required this.minimumPercentage,
     required this.weightedPercentage,
+    required this.lowerTailPercentage,
+    this.muscleDistribution = const {},
+    this.redShare = 0,
+    this.redSeverity = 0,
+    this.readyAt,
+    this.nextStateAt,
   });
 
   bool get isActionable => state != RoutineRecoveryState.unavailable;
+  bool get isReady =>
+      state == RoutineRecoveryState.ready ||
+      state == RoutineRecoveryState.readyAdjusted;
+  bool get needsAdjustment => state == RoutineRecoveryState.readyAdjusted;
+}
+
+class _RoutineRecoveryMetrics {
+  final RoutineRecoveryState state;
+  final List<MajorMuscleGroup> readyMuscles;
+  final List<MajorMuscleGroup> recoveringMuscles;
+  final List<MajorMuscleGroup> lowMuscles;
+  final int weightedPercentage;
+  final int lowerTailPercentage;
+  final double redShare;
+  final double yellowShare;
+  final double redSeverity;
+  final double waitSeverity;
+
+  const _RoutineRecoveryMetrics({
+    required this.state,
+    required this.readyMuscles,
+    required this.recoveringMuscles,
+    required this.lowMuscles,
+    required this.weightedPercentage,
+    required this.lowerTailPercentage,
+    required this.redShare,
+    required this.yellowShare,
+    required this.redSeverity,
+    required this.waitSeverity,
+  });
+}
+
+class _RoutineRisk {
+  final double redShare;
+  final double yellowShare;
+  final double redSeverity;
+  final double waitSeverity;
+  final bool hasDominantCriticalMuscle;
+
+  const _RoutineRisk({
+    required this.redShare,
+    required this.yellowShare,
+    required this.redSeverity,
+    required this.waitSeverity,
+    required this.hasDominantCriticalMuscle,
+  });
 }
 
 class RecoveryRoutinePlan {
   final RecoveryRoutinePlanState state;
   final List<RoutineRecoveryAssessment> recommended;
   final List<RoutineRecoveryAssessment> cautions;
+  final List<MajorMuscleGroup> uncoveredReadyMuscles;
+  final int distinctRoutineCount;
+  final DateTime? nextStateAt;
 
   const RecoveryRoutinePlan({
     required this.state,
     required this.recommended,
     required this.cautions,
+    this.uncoveredReadyMuscles = const [],
+    this.distinctRoutineCount = 0,
+    this.nextStateAt,
   });
+
+  /// Keeps the limited UI focused on what needs the user's attention first:
+  /// unsuitable routines, routines that need more time, then ready routines.
+  List<RoutineRecoveryAssessment> get prioritizedSuggestions => [
+    ...cautions,
+    ...recommended,
+  ];
+
+  /// Selection keeps warnings from being dropped, while presentation puts the
+  /// most immediately useful action first.
+  List<RoutineRecoveryAssessment> get displaySuggestions => [
+    ...recommended,
+    ...cautions.where((item) => item.state == RoutineRecoveryState.nearlyReady),
+    ...cautions.where((item) => item.state == RoutineRecoveryState.low),
+    ...cautions.where((item) => item.state == RoutineRecoveryState.unavailable),
+  ];
 }
 
 /// Shared recovery projection for notification planning and in-app guidance.
 /// Workout history is replayed once per detailed muscle. Future snapshots are
 /// then derived analytically without replaying history for every day/routine.
 class RecoveryForecastService {
-  static const readyThreshold = 80;
-  static const restThreshold = 50;
-  static const trainingBalanceWindow = Duration(days: 30);
-  static const majorMuscles = <MajorMuscleGroup>[
-    MajorMuscleGroup.CHEST,
-    MajorMuscleGroup.BACK,
-    MajorMuscleGroup.LEGS,
-    MajorMuscleGroup.SHOULDERS,
-    MajorMuscleGroup.ARMS,
-    MajorMuscleGroup.CORE,
-  ];
+  static const readyThreshold = RecoveryScale.readyThreshold;
+  static const restThreshold = RecoveryScale.redThreshold;
+  static const majorMuscles = MuscleExposureCalculator.majorMuscles;
+  static const routineRiskLimitShare = 40.0;
+  static const adjustmentBudgetShare = 20.0;
+  static const maximumRedSeverity = 30.0;
+  static const maximumWaitSeverity = 20.0;
+  static const dominantMuscleShare = 30.0;
+  static const criticalRecoveryPercentage = 20;
+  static const lowerTailPercentile = 20.0;
+  static const meaningfulCoverageShare = 10.0;
+  static const _comparisonEpsilon = .0001;
 
   final DateTime baseTime;
   final List<WorkoutSession> history;
   final String historyRevision;
-  final Map<MuscleGroup, MuscleRecoveryStatus> _base;
+  final MajorMuscleRecoveryProjection _recovery;
 
   factory RecoveryForecastService(List<WorkoutSession> source, {DateTime? at}) {
     final baseTime = at ?? DateTime.now();
@@ -129,15 +216,11 @@ class RecoveryForecastService {
       baseTime,
       history,
       revisionOf(history, historyIsSorted: true),
-      {
-        for (final muscle in MuscleGroup.values)
-          muscle: MuscleRecoveryCalculator.getRecoveryStatus(
-            muscle,
-            history,
-            at: baseTime,
-            historyIsSorted: true,
-          ),
-      },
+      MajorMuscleRecoveryProjection(
+        history,
+        at: baseTime,
+        historyIsSorted: true,
+      ),
     );
   }
 
@@ -145,7 +228,7 @@ class RecoveryForecastService {
     this.baseTime,
     this.history,
     this.historyRevision,
-    this._base,
+    this._recovery,
   );
 
   bool get hasHistory => history.isNotEmpty;
@@ -153,21 +236,13 @@ class RecoveryForecastService {
   RecoveryForecastSnapshot snapshotAt(DateTime at) {
     final forecasts = <MajorMuscleGroup, MajorMuscleForecast>{};
     for (final major in majorMuscles) {
-      final details = MuscleGroup.values
-          .where((muscle) => muscle.major == major)
-          .map((muscle) => _base[muscle]!)
-          .toList(growable: false);
       forecasts[major] = MajorMuscleForecast(
         muscle: major,
-        percentage: details
-            .map((status) => _percentageAt(status, at))
-            .reduce(min),
-        readyAt: details
-            .map(_readyAt)
-            .reduce((latest, value) => value.isAfter(latest) ? value : latest),
-        lastTrainedAt: details
-            .map((status) => status.lastTrainedDate)
-            .reduce(max),
+        percentage: _recovery.percentageAt(major, at),
+        readyAt:
+            _recovery.thresholdAt(major, readyThreshold, from: at) ??
+            at.add(const Duration(days: 36500)),
+        lastTrainedAt: _recovery.lastTrainedAt(major),
       );
     }
     return RecoveryForecastSnapshot(
@@ -181,31 +256,11 @@ class RecoveryForecastService {
     );
   }
 
-  /// Returns the next moment where a major muscle can cross the 50% or 80%
+  /// Returns the next moment where a major muscle can cross the 40% or 80%
   /// boundary used by routine recommendations. Callers can schedule one
   /// refresh at this time instead of polling while the screen is open.
   DateTime? nextTransitionAfter(DateTime at) {
-    DateTime? next;
-    for (final major in majorMuscles) {
-      final details = MuscleGroup.values
-          .where((muscle) => muscle.major == major)
-          .map((muscle) => _base[muscle]!)
-          .toList(growable: false);
-      for (final threshold in [restThreshold, readyThreshold]) {
-        final crossings = details
-            .map((status) => _thresholdAt(status, threshold))
-            .toList(growable: false);
-        if (crossings.any((value) => value == null)) continue;
-        final groupCrossing = crossings.cast<DateTime>().reduce(
-          (latest, value) => value.isAfter(latest) ? value : latest,
-        );
-        if (!groupCrossing.isAfter(at)) continue;
-        if (next == null || groupCrossing.isBefore(next)) {
-          next = groupCrossing;
-        }
-      }
-    }
-    return next;
+    return _recovery.nextTransitionAfter(at);
   }
 
   RoutineRecoveryAssessment assessRoutine(
@@ -220,7 +275,7 @@ class RecoveryForecastService {
     WorkoutSession routine,
     RecoveryForecastSnapshot snapshot,
   ) {
-    final weights = _routineWeights(routine);
+    final weights = MuscleExposureCalculator.majorWeights(routine.exercises);
     if (weights.isEmpty) {
       return RoutineRecoveryAssessment(
         routine: routine,
@@ -229,23 +284,64 @@ class RecoveryForecastService {
         readyMuscles: const [],
         recoveringMuscles: const [],
         lowMuscles: const [],
-        minimumPercentage: 0,
         weightedPercentage: 0,
+        lowerTailPercentage: 0,
       );
     }
 
     final targets = weights.keys.toList(growable: false);
+    var totalWeight = 0.0;
+    for (final weight in weights.values) {
+      totalWeight += weight;
+    }
+
+    final distribution = {
+      for (final entry in weights.entries)
+        entry.key: entry.value / totalWeight * 100,
+    };
+    final metrics = _routineMetrics(distribution, {
+      for (final muscle in targets)
+        muscle: snapshot.muscles[muscle]!.percentage,
+    });
+    final nextStateAt = _routineTransitionAt(
+      distribution,
+      snapshot,
+      metrics.state,
+    );
+    final readyAt = metrics.state == RoutineRecoveryState.nearlyReady
+        ? nextStateAt
+        : null;
+    return RoutineRecoveryAssessment(
+      routine: routine,
+      state: metrics.state,
+      targetMuscles: targets,
+      readyMuscles: metrics.readyMuscles,
+      recoveringMuscles: metrics.recoveringMuscles,
+      lowMuscles: metrics.lowMuscles,
+      weightedPercentage: metrics.weightedPercentage,
+      lowerTailPercentage: metrics.lowerTailPercentage,
+      muscleDistribution: Map.unmodifiable(distribution),
+      redShare: metrics.redShare,
+      redSeverity: metrics.redSeverity,
+      readyAt: readyAt,
+      nextStateAt: nextStateAt,
+    );
+  }
+
+  _RoutineRecoveryMetrics _routineMetrics(
+    Map<MajorMuscleGroup, double> distribution,
+    Map<MajorMuscleGroup, int> recoveryByMuscle,
+  ) {
+    final risk = _routineRisk(distribution, recoveryByMuscle);
     final ready = <MajorMuscleGroup>[];
     final recovering = <MajorMuscleGroup>[];
     final low = <MajorMuscleGroup>[];
-    var minimum = 100;
     var weightedTotal = 0.0;
-    var totalWeight = 0.0;
-    for (final muscle in targets) {
-      final percentage = snapshot.muscles[muscle]!.percentage;
-      minimum = min(minimum, percentage);
-      weightedTotal += percentage * weights[muscle]!;
-      totalWeight += weights[muscle]!;
+    for (final entry in distribution.entries) {
+      final muscle = entry.key;
+      final share = entry.value;
+      final percentage = recoveryByMuscle[muscle] ?? 100;
+      weightedTotal += percentage * share;
       if (percentage >= readyThreshold) {
         ready.add(muscle);
       } else if (percentage >= restThreshold) {
@@ -254,24 +350,134 @@ class RecoveryForecastService {
         low.add(muscle);
       }
     }
-
-    final state = low.isNotEmpty
-        ? RoutineRecoveryState.low
-        : recovering.isNotEmpty
-        ? RoutineRecoveryState.nearlyReady
-        : RoutineRecoveryState.ready;
-    return RoutineRecoveryAssessment(
-      routine: routine,
-      state: state,
-      targetMuscles: targets,
-      readyMuscles: ready,
-      recoveringMuscles: recovering,
-      lowMuscles: low,
-      minimumPercentage: minimum,
-      weightedPercentage: totalWeight == 0
-          ? minimum
-          : (weightedTotal / totalWeight).round().clamp(0, 100),
+    return _RoutineRecoveryMetrics(
+      state: classifyRoutineRisk(
+        redShare: risk.redShare,
+        yellowShare: risk.yellowShare,
+        redSeverity: risk.redSeverity,
+        waitSeverity: risk.waitSeverity,
+        hasDominantCriticalMuscle: risk.hasDominantCriticalMuscle,
+      ),
+      readyMuscles: List.unmodifiable(ready),
+      recoveringMuscles: List.unmodifiable(recovering),
+      lowMuscles: List.unmodifiable(low),
+      weightedPercentage: (weightedTotal / 100).round().clamp(0, 100),
+      lowerTailPercentage: _weightedPercentile(
+        distribution,
+        recoveryByMuscle,
+        lowerTailPercentile,
+      ),
+      redShare: risk.redShare,
+      yellowShare: risk.yellowShare,
+      redSeverity: risk.redSeverity,
+      waitSeverity: risk.waitSeverity,
     );
+  }
+
+  static _RoutineRisk _routineRisk(
+    Map<MajorMuscleGroup, double> distribution,
+    Map<MajorMuscleGroup, int> recoveryByMuscle,
+  ) {
+    var redShare = 0.0;
+    var yellowShare = 0.0;
+    var redSeverity = 0.0;
+    var waitSeverity = 0.0;
+    var hasDominantCriticalMuscle = false;
+    for (final entry in distribution.entries) {
+      final share = entry.value;
+      final percentage = recoveryByMuscle[entry.key] ?? 100;
+      if (percentage >= readyThreshold) continue;
+      waitSeverity +=
+          share *
+          (readyThreshold - percentage) /
+          (readyThreshold - restThreshold);
+      if (percentage >= restThreshold) {
+        yellowShare += share;
+        continue;
+      }
+      redShare += share;
+      redSeverity += share * (restThreshold - percentage) / restThreshold;
+      if (_greaterThanOrEqual(share, dominantMuscleShare) &&
+          percentage < criticalRecoveryPercentage) {
+        hasDominantCriticalMuscle = true;
+      }
+    }
+    return _RoutineRisk(
+      redShare: redShare,
+      yellowShare: yellowShare,
+      redSeverity: redSeverity,
+      waitSeverity: waitSeverity,
+      hasDominantCriticalMuscle: hasDominantCriticalMuscle,
+    );
+  }
+
+  DateTime? _routineTransitionAt(
+    Map<MajorMuscleGroup, double> distribution,
+    RecoveryForecastSnapshot snapshot,
+    RoutineRecoveryState currentState,
+  ) {
+    if (currentState == RoutineRecoveryState.ready ||
+        currentState == RoutineRecoveryState.readyAdjusted ||
+        currentState == RoutineRecoveryState.unavailable) {
+      return null;
+    }
+    var high = snapshot.at;
+    for (final muscle in distribution.keys) {
+      final candidate = snapshot.muscles[muscle]!.readyAt;
+      if (candidate.isAfter(high)) high = candidate;
+    }
+    final limit = snapshot.at.add(const Duration(days: 90));
+    if (high.isAfter(limit)) high = limit;
+    bool hasImprovedAt(DateTime at) {
+      final risk = _routineRisk(distribution, {
+        for (final muscle in distribution.keys)
+          muscle: _recovery.percentageAt(muscle, at),
+      });
+      final state = classifyRoutineRisk(
+        redShare: risk.redShare,
+        yellowShare: risk.yellowShare,
+        redSeverity: risk.redSeverity,
+        waitSeverity: risk.waitSeverity,
+        hasDominantCriticalMuscle: risk.hasDominantCriticalMuscle,
+      );
+      return _routineStatePriority(state) < _routineStatePriority(currentState);
+    }
+
+    if (!hasImprovedAt(high)) return null;
+    var lowMillis = snapshot.at.millisecondsSinceEpoch;
+    var highMillis = high.millisecondsSinceEpoch;
+    while (highMillis - lowMillis > Duration.millisecondsPerMinute) {
+      final middle = lowMillis + ((highMillis - lowMillis) ~/ 2);
+      if (hasImprovedAt(DateTime.fromMillisecondsSinceEpoch(middle))) {
+        highMillis = middle;
+      } else {
+        lowMillis = middle;
+      }
+    }
+    return DateTime.fromMillisecondsSinceEpoch(highMillis);
+  }
+
+  static int _weightedPercentile(
+    Map<MajorMuscleGroup, double> distribution,
+    Map<MajorMuscleGroup, int> recoveryByMuscle,
+    double percentile,
+  ) {
+    final ordered = distribution.entries.toList()
+      ..sort((a, b) {
+        final recoveryOrder = (recoveryByMuscle[a.key] ?? 100).compareTo(
+          recoveryByMuscle[b.key] ?? 100,
+        );
+        if (recoveryOrder != 0) return recoveryOrder;
+        return a.key.index.compareTo(b.key.index);
+      });
+    var accumulatedShare = 0.0;
+    for (final entry in ordered) {
+      accumulatedShare += entry.value;
+      if (_greaterThanOrEqual(accumulatedShare, percentile)) {
+        return recoveryByMuscle[entry.key] ?? 100;
+      }
+    }
+    return ordered.isEmpty ? 0 : recoveryByMuscle[ordered.last.key] ?? 100;
   }
 
   List<RoutineRecoveryAssessment> rankRoutines(
@@ -281,20 +487,38 @@ class RecoveryForecastService {
   }) {
     final targetTime = at ?? baseTime;
     final snapshot = snapshotAt(targetTime);
-    final recentTrainingLoad = _recentMajorMuscleLoad(targetTime);
+    final recentTrainingLoad = MuscleExposureCalculator.recentMajorLoad(
+      history,
+      targetTime,
+    );
+    final recentStart = targetTime
+        .subtract(MuscleExposureCalculator.trainingBalanceWindow)
+        .millisecondsSinceEpoch;
+    final hasReliableBalance =
+        history.where((session) => session.startTime >= recentStart).length >=
+            3 &&
+        recentTrainingLoad.values.fold(0.0, (sum, value) => sum + value) >= 6;
     final assessments = routines
         .map((routine) => _assessRoutine(routine, snapshot))
         .where((assessment) => assessment.isActionable)
         .toList();
     final deficitScores = {
       for (final assessment in assessments)
-        assessment: _trainingDeficitScore(assessment, recentTrainingLoad),
+        assessment: hasReliableBalance
+            ? _trainingDeficitScore(assessment, recentTrainingLoad)
+            : 0.0,
     };
     assessments.sort((a, b) {
       final stateOrder = _routineStatePriority(
         a.state,
       ).compareTo(_routineStatePriority(b.state));
       if (stateOrder != 0) return stateOrder;
+      if (a.state == RoutineRecoveryState.nearlyReady &&
+          b.state == RoutineRecoveryState.nearlyReady) {
+        final readyOrder = (a.readyAt?.millisecondsSinceEpoch ?? 1 << 62)
+            .compareTo(b.readyAt?.millisecondsSinceEpoch ?? 1 << 62);
+        if (readyOrder != 0) return readyOrder;
+      }
       final aDeficit = deficitScores[a]!;
       final bDeficit = deficitScores[b]!;
       final priorityOrder = _routinePriorityScore(
@@ -302,8 +526,10 @@ class RecoveryForecastService {
         bDeficit,
       ).compareTo(_routinePriorityScore(a, aDeficit));
       if (priorityOrder != 0) return priorityOrder;
-      final minimumOrder = b.minimumPercentage.compareTo(a.minimumPercentage);
-      if (minimumOrder != 0) return minimumOrder;
+      final lowerTailOrder = b.lowerTailPercentage.compareTo(
+        a.lowerTailPercentage,
+      );
+      if (lowerTailOrder != 0) return lowerTailOrder;
       final weightedOrder = b.weightedPercentage.compareTo(
         a.weightedPercentage,
       );
@@ -340,7 +566,7 @@ class RecoveryForecastService {
         cautions: [],
       );
     }
-    final ranked = rankRoutines(routines, at: at);
+    final ranked = _deduplicateAssessments(rankRoutines(routines, at: at));
     if (ranked.isEmpty) {
       return const RecoveryRoutinePlan(
         state: RecoveryRoutinePlanState.empty,
@@ -348,54 +574,89 @@ class RecoveryForecastService {
         cautions: [],
       );
     }
-    final ready = ranked
-        .where((item) => item.state == RoutineRecoveryState.ready)
+    final nextStateAt = ranked
+        .map((item) => item.nextStateAt)
+        .whereType<DateTime>()
+        .fold<DateTime?>(
+          null,
+          (earliest, value) =>
+              earliest == null || value.isBefore(earliest) ? value : earliest,
+        );
+    final ready = ranked.where((item) => item.isReady).toList(growable: false);
+    final nearlyReady = ranked
+        .where((item) => item.state == RoutineRecoveryState.nearlyReady)
         .toList(growable: false);
-    final notReady = ranked
-        .where((item) => item.state != RoutineRecoveryState.ready)
+    final low =
+        ranked
+            .where((item) => item.state == RoutineRecoveryState.low)
+            .toList(growable: true)
+          ..sort((a, b) {
+            final danger = _dangerScore(b).compareTo(_dangerScore(a));
+            if (danger != 0) return danger;
+            return a.routine.id.compareTo(b.routine.id);
+          });
+    final safelyCoveredMuscles = ready
+        .expand(
+          (assessment) => assessment.muscleDistribution.entries
+              .where((entry) => entry.value >= meaningfulCoverageShare)
+              .map((entry) => entry.key),
+        )
+        .toSet();
+    final uncoveredReadyMuscles = snapshot.ready
+        .where((muscle) => !safelyCoveredMuscles.contains(muscle))
         .toList(growable: false);
-    if (notReady.isEmpty) {
+    if (low.isEmpty && nearlyReady.isEmpty) {
       return RecoveryRoutinePlan(
         state: RecoveryRoutinePlanState.allReady,
         recommended: ready.take(maxSuggestions).toList(growable: false),
         cautions: const [],
+        uncoveredReadyMuscles: uncoveredReadyMuscles,
+        distinctRoutineCount: ranked.length,
+        nextStateAt: nextStateAt,
       );
     }
-    if (ready.length >= maxSuggestions) {
-      return RecoveryRoutinePlan(
-        state: RecoveryRoutinePlanState.mixed,
-        recommended: ready.take(maxSuggestions).toList(growable: false),
-        cautions: const [],
-      );
-    }
+    final selected = <RoutineRecoveryAssessment>[];
+
     if (ready.isNotEmpty) {
-      final highestRisk = [...notReady]
-        ..sort((a, b) {
-          final minimum = a.minimumPercentage.compareTo(b.minimumPercentage);
-          if (minimum != 0) return minimum;
-          final weighted = a.weightedPercentage.compareTo(b.weightedPercentage);
-          if (weighted != 0) return weighted;
-          return a.routine.id.compareTo(b.routine.id);
-        });
-      return RecoveryRoutinePlan(
-        state: RecoveryRoutinePlanState.mixed,
-        recommended: [ready.first],
-        cautions: [highestRisk.first],
-      );
+      selected.add(ready.first);
+      if (low.isNotEmpty) {
+        selected.add(low.first);
+      } else if (nearlyReady.isNotEmpty) {
+        selected.add(nearlyReady.first);
+      } else if (ready.length > 1) {
+        selected.add(ready[1]);
+      }
+    } else if (nearlyReady.isNotEmpty) {
+      selected.add(nearlyReady.first);
+      if (low.isNotEmpty) {
+        selected.add(low.first);
+      } else if (nearlyReady.length > 1) {
+        selected.add(nearlyReady[1]);
+      }
+    } else {
+      selected.addAll(low.take(maxSuggestions));
+    }
+    if (selected.length > maxSuggestions) {
+      selected.removeRange(maxSuggestions, selected.length);
     }
     return RecoveryRoutinePlan(
-      state: RecoveryRoutinePlanState.noneReady,
-      recommended: const [],
-      // rankRoutines puts nearly-ready and the safest low-recovery options
-      // first, which is the most useful ordering when every routine needs care.
-      cautions: notReady.take(maxSuggestions).toList(growable: false),
+      state: ready.isEmpty
+          ? RecoveryRoutinePlanState.noneReady
+          : RecoveryRoutinePlanState.mixed,
+      recommended: selected
+          .where((item) => item.isReady)
+          .toList(growable: false),
+      cautions: selected.where((item) => !item.isReady).toList(growable: false),
+      uncoveredReadyMuscles: uncoveredReadyMuscles,
+      distinctRoutineCount: ranked.length,
+      nextStateAt: nextStateAt,
     );
   }
 
   /// Returns an alternative only when it is materially safer than [current].
   /// A better recovery state always qualifies. Within the same state, require
-  /// at least a ten-point gain in the weakest or weighted recovery score so a
-  /// visually similar routine is not presented as a meaningful replacement.
+  /// at least a ten-point gain in the exposure-aware lower tail or weighted
+  /// recovery score so a tiny secondary muscle cannot dominate the decision.
   RoutineRecoveryAssessment? bestAlternativeFor(
     WorkoutSession current,
     Iterable<WorkoutSession> routines, {
@@ -406,27 +667,88 @@ class RecoveryForecastService {
       return null;
     }
     final currentAssessment = assessRoutine(current, at: at);
-    if (!currentAssessment.isActionable ||
-        currentAssessment.state == RoutineRecoveryState.ready) {
+    if (!currentAssessment.isActionable || currentAssessment.isReady) {
       return null;
     }
-    for (final candidate in rankRoutines(routines, at: at)) {
+    for (final candidate in _deduplicateAssessments(
+      rankRoutines(routines, at: at),
+    )) {
       if (candidate.routine.id == current.id) continue;
+      if (_sameSplit(currentAssessment, candidate)) continue;
       final stateGain =
           _routineStatePriority(currentAssessment.state) -
           _routineStatePriority(candidate.state);
       if (stateGain > 0) return candidate;
       if (stateGain < 0) continue;
-      final minimumGain =
-          candidate.minimumPercentage - currentAssessment.minimumPercentage;
+      if (currentAssessment.state == RoutineRecoveryState.nearlyReady &&
+          candidate.readyAt != null &&
+          currentAssessment.readyAt != null &&
+          candidate.readyAt!.isBefore(
+            currentAssessment.readyAt!.subtract(const Duration(hours: 2)),
+          )) {
+        return candidate;
+      }
+      if (currentAssessment.state == RoutineRecoveryState.low &&
+          _dangerScore(currentAssessment) - _dangerScore(candidate) >= 10) {
+        return candidate;
+      }
+      final lowerTailGain =
+          candidate.lowerTailPercentage - currentAssessment.lowerTailPercentage;
       final weightedGain =
           candidate.weightedPercentage - currentAssessment.weightedPercentage;
-      if (minimumGain >= minimumImprovement ||
-          (minimumGain >= 0 && weightedGain >= minimumImprovement)) {
+      if (lowerTailGain >= minimumImprovement ||
+          (lowerTailGain >= 0 && weightedGain >= minimumImprovement)) {
         return candidate;
       }
     }
     return null;
+  }
+
+  static List<RoutineRecoveryAssessment> _deduplicateAssessments(
+    List<RoutineRecoveryAssessment> ranked,
+  ) {
+    final result = <RoutineRecoveryAssessment>[];
+    for (final candidate in ranked) {
+      if (result.any((kept) => _sameSplit(kept, candidate))) continue;
+      result.add(candidate);
+    }
+    return result;
+  }
+
+  static bool _sameSplit(
+    RoutineRecoveryAssessment a,
+    RoutineRecoveryAssessment b,
+  ) {
+    if (a.muscleDistribution.isEmpty || b.muscleDistribution.isEmpty) {
+      return false;
+    }
+    Set<MajorMuscleGroup> dominant(Map<MajorMuscleGroup, double> distribution) {
+      final highest = distribution.values.fold(0.0, max);
+      return distribution.entries
+          .where((entry) => highest - entry.value <= 5 && entry.value > 0)
+          .map((entry) => entry.key)
+          .toSet();
+    }
+
+    final aDominant = dominant(a.muscleDistribution);
+    final bDominant = dominant(b.muscleDistribution);
+    if (aDominant.length != bDominant.length ||
+        !aDominant.containsAll(bDominant)) {
+      return false;
+    }
+    final absoluteDifference = majorMuscles.fold(
+      0.0,
+      (sum, muscle) =>
+          sum +
+          ((a.muscleDistribution[muscle] ?? 0) -
+                  (b.muscleDistribution[muscle] ?? 0))
+              .abs(),
+    );
+    return absoluteDifference <= 20;
+  }
+
+  static double _dangerScore(RoutineRecoveryAssessment assessment) {
+    return assessment.redSeverity * .7 + assessment.redShare * .3;
   }
 
   static int _lastTargetWorkout(
@@ -440,68 +762,44 @@ class RecoveryForecastService {
   /// sets count as 1 for the primary muscle and 1/3 for secondary muscles.
   /// The map is calculated once per ranking pass, so adding more routines does
   /// not replay workout history for every candidate.
-  Map<MajorMuscleGroup, double> _recentMajorMuscleLoad(DateTime at) {
-    final load = {for (final muscle in majorMuscles) muscle: 0.0};
-    final end = at.millisecondsSinceEpoch;
-    final start = at.subtract(trainingBalanceWindow).millisecondsSinceEpoch;
-    for (final session in history.reversed) {
-      if (session.startTime > end) continue;
-      if (session.startTime < start) break;
-      for (final workoutExercise in session.exercises) {
-        final hardSets = workoutExercise.sets
-            .where(
-              (set) =>
-                  set.isCompleted &&
-                  (set.type == SetType.NORMAL ||
-                      set.type == SetType.DROPSET ||
-                      set.type == SetType.FAILURE),
-            )
-            .length
-            .toDouble();
-        if (hardSets == 0) continue;
-        final primary = workoutExercise.exercise.primaryMuscle?.major;
-        if (primary != null && majorMuscles.contains(primary)) {
-          load[primary] = load[primary]! + hardSets;
-        }
-        for (final secondary
-            in workoutExercise.exercise.secondaryMuscles ??
-                const <MuscleGroup>[]) {
-          if (!majorMuscles.contains(secondary.major)) continue;
-          load[secondary.major] = load[secondary.major]! + hardSets / 3;
-        }
-      }
-    }
-    return load;
-  }
-
   static double _trainingDeficitScore(
     RoutineRecoveryAssessment assessment,
     Map<MajorMuscleGroup, double> recentLoad,
   ) {
-    final routineWeights = _routineWeights(assessment.routine);
+    final routineWeights = assessment.muscleDistribution;
     if (routineWeights.isEmpty) return 0;
-    final highestLoad = recentLoad.values.fold(0.0, max);
-    if (highestLoad <= 0) return 0;
+    final positive = recentLoad.values.where((value) => value > 0).toList()
+      ..sort();
+    if (positive.isEmpty) return 0;
+    final median = positive.length.isOdd
+        ? positive[positive.length ~/ 2]
+        : (positive[positive.length ~/ 2 - 1] +
+                  positive[positive.length ~/ 2]) /
+              2;
+    if (median <= 0) return 0;
     var weightedDeficit = 0.0;
     var totalWeight = 0.0;
     for (final entry in routineWeights.entries) {
-      final normalizedLoad = (recentLoad[entry.key] ?? 0) / highestLoad;
-      weightedDeficit += (1 - normalizedLoad.clamp(0.0, 1.0)) * entry.value;
+      final need = ((median - (recentLoad[entry.key] ?? 0)) / median).clamp(
+        0.0,
+        1.0,
+      );
+      weightedDeficit += need * entry.value;
       totalWeight += entry.value;
     }
     return totalWeight == 0 ? 0 : weightedDeficit / totalWeight;
   }
 
-  /// Safety state is compared before this score. Within the same state,
-  /// recovery remains dominant while training balance can compensate for at
-  /// most ten recovery points. This avoids overreacting to small 98/99%
-  /// differences caused by muscle-specific recovery rates.
+  /// Safety state is compared before this score. The weighted 20th percentile
+  /// represents the least-recovered meaningful portion of a routine without
+  /// letting a tiny secondary muscle dominate. Training balance can compensate
+  /// for at most ten points and never overrides the safety state.
   static double _routinePriorityScore(
     RoutineRecoveryAssessment assessment,
     double trainingDeficit,
   ) =>
-      assessment.minimumPercentage * .65 +
-      assessment.weightedPercentage * .35 +
+      assessment.weightedPercentage * .8 +
+      assessment.lowerTailPercentage * .2 +
       trainingDeficit * 10;
 
   static RecoveryForecastState classify(
@@ -517,6 +815,37 @@ class RecoveryForecastService {
     }
     return RecoveryForecastState.readyLater;
   }
+
+  static RoutineRecoveryState classifyRoutineRisk({
+    required double redShare,
+    required double yellowShare,
+    required double redSeverity,
+    required double waitSeverity,
+    bool hasDominantCriticalMuscle = false,
+  }) {
+    if (_greaterThanOrEqual(redShare, routineRiskLimitShare) ||
+        _greaterThanOrEqual(redSeverity, maximumRedSeverity) ||
+        hasDominantCriticalMuscle) {
+      return RoutineRecoveryState.low;
+    }
+    final unreadyShare = redShare + yellowShare;
+    if (_greaterThan(redShare, adjustmentBudgetShare) ||
+        _greaterThanOrEqual(unreadyShare, routineRiskLimitShare) ||
+        (_greaterThan(unreadyShare, adjustmentBudgetShare) &&
+            _greaterThanOrEqual(waitSeverity, maximumWaitSeverity))) {
+      return RoutineRecoveryState.nearlyReady;
+    }
+    if (_greaterThan(redShare, 0)) {
+      return RoutineRecoveryState.readyAdjusted;
+    }
+    return RoutineRecoveryState.ready;
+  }
+
+  static bool _greaterThan(double value, double threshold) =>
+      value - threshold > _comparisonEpsilon;
+
+  static bool _greaterThanOrEqual(double value, double threshold) =>
+      value > threshold - _comparisonEpsilon;
 
   static String revisionOf(
     List<WorkoutSession> history, {
@@ -537,62 +866,12 @@ class RecoveryForecastService {
     return '${qualifying.length}:$hash';
   }
 
-  static Map<MajorMuscleGroup, double> _routineWeights(WorkoutSession routine) {
-    final weights = <MajorMuscleGroup, double>{};
-    for (final workoutExercise in routine.exercises) {
-      final setWeight = max(1, workoutExercise.sets.length).toDouble();
-      final primary = workoutExercise.exercise.primaryMuscle?.major;
-      if (primary != null && majorMuscles.contains(primary)) {
-        weights[primary] = (weights[primary] ?? 0) + 3 * setWeight;
-      }
-      for (final secondary
-          in workoutExercise.exercise.secondaryMuscles ??
-              const <MuscleGroup>[]) {
-        if (!majorMuscles.contains(secondary.major)) continue;
-        weights[secondary.major] = (weights[secondary.major] ?? 0) + setWeight;
-      }
-    }
-    return weights;
-  }
-
   static int _routineStatePriority(RoutineRecoveryState state) =>
       switch (state) {
         RoutineRecoveryState.ready => 0,
-        RoutineRecoveryState.nearlyReady => 1,
-        RoutineRecoveryState.low => 2,
-        RoutineRecoveryState.unavailable => 3,
+        RoutineRecoveryState.readyAdjusted => 1,
+        RoutineRecoveryState.nearlyReady => 2,
+        RoutineRecoveryState.low => 3,
+        RoutineRecoveryState.unavailable => 4,
       };
-
-  static int _percentageAt(MuscleRecoveryStatus status, DateTime at) {
-    if (status.lastTrainedDate == 0) return 100;
-    final hours = max(
-      0.0,
-      (at.millisecondsSinceEpoch - status.lastTrainedDate) /
-          Duration.millisecondsPerHour,
-    );
-    final fatigue = status.initialFatigue * exp(-status.recoveryRate * hours);
-    return (100 - fatigue).toInt().clamp(0, 100);
-  }
-
-  static DateTime _readyAt(MuscleRecoveryStatus status) {
-    return _thresholdAt(status, readyThreshold) ??
-        DateTime.fromMillisecondsSinceEpoch(
-          status.lastTrainedDate,
-        ).add(const Duration(days: 36500));
-  }
-
-  static DateTime? _thresholdAt(MuscleRecoveryStatus status, int threshold) {
-    final targetFatigue = 100 - threshold;
-    if (status.lastTrainedDate == 0 || status.initialFatigue <= targetFatigue) {
-      return DateTime.fromMillisecondsSinceEpoch(status.lastTrainedDate);
-    }
-    if (status.recoveryRate <= 0) {
-      return null;
-    }
-    final hours =
-        log(status.initialFatigue / targetFatigue) / status.recoveryRate;
-    return DateTime.fromMillisecondsSinceEpoch(
-      status.lastTrainedDate + (hours * Duration.millisecondsPerHour).ceil(),
-    );
-  }
 }

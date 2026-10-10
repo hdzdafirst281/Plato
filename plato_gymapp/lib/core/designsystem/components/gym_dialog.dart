@@ -150,6 +150,7 @@ class GymDialog {
     );
   }
 
+
   static Future<T?> showCustom<T>({
     required BuildContext context,
     Widget? titleWidget,

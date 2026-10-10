@@ -213,19 +213,23 @@ class ReminderPlanner {
           final assessment = projection.assessRoutine(routine, at: workout.at);
           if (!assessment.isActionable) continue;
           hasAssessment = true;
-          if (assessment.state != RoutineRecoveryState.ready) {
+          if (!assessment.isReady) {
             everyAssessedRoutineReady = false;
             warning ??= assessment;
             warningAt ??= workout.at;
           }
-          final relevant = assessment.state == RoutineRecoveryState.ready
+          final relevant = assessment.needsAdjustment
+              ? assessment.lowMuscles
+              : assessment.isReady
               ? assessment.targetMuscles
               : assessment.lowMuscles.isNotEmpty
               ? assessment.lowMuscles
               : assessment.recoveringMuscles;
           final names = formatMuscles(relevant.map(muscleName).toList());
           final merged = workout.copyWith(
-            bodyKey: assessment.state == RoutineRecoveryState.ready
+            bodyKey: assessment.needsAdjustment
+                ? 'notifications.body_workout_reminder_recovery_adjusted'
+                : assessment.isReady
                 ? 'notifications.body_workout_reminder_recovery_ready'
                 : 'notifications.body_workout_reminder_recovery_low',
             arguments: {...workout.arguments, 'muscles': names},
@@ -308,6 +312,51 @@ class ReminderPlanner {
             },
           );
         }
+      }
+
+      // A daily all-ready reminder may be suppressed after the first unchanged
+      // day, but a scheduled workout still needs recovery context. Enrich any
+      // remaining workout directly from the shared forecast.
+      for (final workout in workouts.toList()) {
+        if (workout.metadata.containsKey('recoveryState')) continue;
+        final routine = routinesById[workout.metadata['routineId']];
+        RoutineRecoveryAssessment? assessment;
+        if (routine != null) {
+          assessment = projection.assessRoutine(routine, at: workout.at);
+        }
+        final snapshot = projection.snapshotAt(workout.at);
+        final globalReady = snapshot.ready;
+        final relevant = assessment?.needsAdjustment == true
+            ? assessment!.lowMuscles
+            : assessment?.isReady == true
+            ? assessment!.targetMuscles
+            : assessment != null
+            ? (assessment.lowMuscles.isNotEmpty
+                  ? assessment.lowMuscles
+                  : assessment.recoveringMuscles)
+            : globalReady.isNotEmpty
+            ? globalReady
+            : [...snapshot.low, ...snapshot.nearlyReady];
+        final names = formatMuscles(relevant.map(muscleName).toList());
+        final bodyKey = assessment?.needsAdjustment == true
+            ? 'notifications.body_workout_reminder_recovery_adjusted'
+            : assessment?.isReady == true ||
+                  (assessment == null && globalReady.isNotEmpty)
+            ? 'notifications.body_workout_reminder_recovery_ready'
+            : 'notifications.body_workout_reminder_recovery_low';
+        workouts[workouts.indexWhere(
+          (item) => item.key == workout.key,
+        )] = workout.copyWith(
+          bodyKey: bodyKey,
+          arguments: {...workout.arguments, 'muscles': names},
+          metadata: {
+            ...workout.metadata,
+            'recoverySignature':
+                '${snapshot.state.name}:${snapshot.historyRevision}',
+            'recoveryState': assessment?.state.name ?? snapshot.state.name,
+            'recoveryMuscles': relevant.map((muscle) => muscle.name).join(','),
+          },
+        );
       }
       result.addAll(recoveryByTargetDay.values);
     }
@@ -431,10 +480,17 @@ class ReminderPlanner {
     };
     final state = classifyRecovery(atDelivery);
     final green = majorMuscles
-        .where((major) => (atDelivery[major] ?? 0) >= 80)
+        .where(
+          (major) =>
+              (atDelivery[major] ?? 0) >=
+              RecoveryForecastService.readyThreshold,
+        )
         .toList();
     final low = majorMuscles
-        .where((major) => (atDelivery[major] ?? 0) < 80)
+        .where(
+          (major) =>
+              (atDelivery[major] ?? 0) < RecoveryForecastService.readyThreshold,
+        )
         .toList();
     final crossing = <MajorMuscleGroup, DateTime>{};
     for (final major in majorMuscles) {
@@ -454,7 +510,9 @@ class ReminderPlanner {
       majorMuscles
           .where(
             (major) =>
-                (atNoon[major] ?? 0) >= 50 && (atDelivery[major] ?? 0) < 80,
+                (atNoon[major] ?? 0) >= RecoveryForecastService.restThreshold &&
+                (atDelivery[major] ?? 0) <
+                    RecoveryForecastService.readyThreshold,
           )
           .map(muscleName)
           .toList(),
@@ -485,7 +543,9 @@ class ReminderPlanner {
         'muscles': crossingNames,
         'time': _formatTime(latestCrossing),
       };
-    } else if (atNoon.values.every((value) => value < 50)) {
+    } else if (atNoon.values.every(
+      (value) => value < RecoveryForecastService.restThreshold,
+    )) {
       titleKey = 'notifications.title_recovery_rest_today';
       bodyKey = 'notifications.body_recovery_rest_today';
     } else {
@@ -506,7 +566,9 @@ class ReminderPlanner {
     if (previewAt.isAfter(now) && !hasLateSchedule) {
       final preview = _tomorrowCopy(
         state: state,
-        restThroughNoon: atNoon.values.every((value) => value < 50),
+        restThroughNoon: atNoon.values.every(
+          (value) => value < RecoveryForecastService.restThreshold,
+        ),
         readyNames: readyNames,
         crossingNames: crossingNames,
         recoveringNames: recoveringNames,

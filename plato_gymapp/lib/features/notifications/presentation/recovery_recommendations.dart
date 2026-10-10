@@ -95,6 +95,16 @@ class _RecoveryRecommendationsState extends State<RecoveryRecommendations> {
           const SizedBox(height: 10),
           _detailZone(
             context,
+            color: Theme.of(context).gymColors.success,
+            icon: Symbols.tune,
+            title: _copy(
+              'notifications.title_recovery_routine_adjusted_detail',
+            ),
+            body: _copy('notifications.desc_recovery_routine_adjusted_detail'),
+          ),
+          const SizedBox(height: 10),
+          _detailZone(
+            context,
             color: Theme.of(context).gymColors.warning,
             icon: Symbols.schedule,
             title: _copyWithFallback(
@@ -178,12 +188,21 @@ class _RecoveryRecommendationsState extends State<RecoveryRecommendations> {
   Color _stateColor(BuildContext context, RoutineRecoveryState state) {
     final theme = Theme.of(context);
     return switch (state) {
-      RoutineRecoveryState.ready => theme.gymColors.success,
+      RoutineRecoveryState.ready ||
+      RoutineRecoveryState.readyAdjusted => theme.gymColors.success,
       RoutineRecoveryState.nearlyReady => theme.gymColors.warning,
       RoutineRecoveryState.low ||
       RoutineRecoveryState.unavailable => theme.colorScheme.error,
     };
   }
+
+  IconData _stateIcon(RoutineRecoveryState state) => switch (state) {
+    RoutineRecoveryState.ready => Symbols.check_circle,
+    RoutineRecoveryState.readyAdjusted => Symbols.tune,
+    RoutineRecoveryState.nearlyReady => Symbols.schedule,
+    RoutineRecoveryState.low ||
+    RoutineRecoveryState.unavailable => Symbols.do_not_disturb_on,
+  };
 
   void _scheduleNextRefresh(DateTime? transition) {
     if (_scheduledRefreshAt == transition) return;
@@ -198,6 +217,12 @@ class _RecoveryRecommendationsState extends State<RecoveryRecommendations> {
       _scheduledRefreshAt = null;
       setState(() {});
     });
+  }
+
+  DateTime? _earliestTransition(DateTime? first, DateTime? second) {
+    if (first == null) return second;
+    if (second == null) return first;
+    return first.isBefore(second) ? first : second;
   }
 
   Future<void> _openRoutine(BuildContext context, WorkoutSession value) async {
@@ -234,7 +259,8 @@ class _RecoveryRecommendationsState extends State<RecoveryRecommendations> {
     final now = DateTime.now();
     final forecast = _RecoveryForecastCache.forHistory(history);
     final snapshot = forecast.snapshotAt(now);
-    _scheduleNextRefresh(forecast.nextTransitionAfter(now));
+    final recoveryTransition = forecast.nextTransitionAfter(now);
+    _scheduleNextRefresh(recoveryTransition);
 
     if (widget.routine != null) {
       if (snapshot.state == RecoveryForecastState.restToday) {
@@ -246,17 +272,25 @@ class _RecoveryRecommendationsState extends State<RecoveryRecommendations> {
         );
       }
       final assessment = forecast.assessRoutine(widget.routine!, at: now);
+      _scheduleNextRefresh(
+        _earliestTransition(recoveryTransition, assessment.nextStateAt),
+      );
       if (!assessment.isActionable) {
         return const SizedBox.shrink();
       }
-      if (assessment.state == RoutineRecoveryState.ready) {
+      if (assessment.isReady) {
+        final body = assessment.needsAdjustment
+            ? _copy('notifications.msg_recovery_adjust_exercises', {
+                'muscles': assessment.lowMuscles.map(_muscleName).join(', '),
+              })
+            : _copy('notifications.body_recovery_routine_ready', {
+                'routineName': t.translateDynamic(widget.routine!.name),
+              });
         return _RecoveryMessageCard(
-          icon: Symbols.check_circle,
+          icon: _stateIcon(assessment.state),
           color: Theme.of(context).gymColors.success,
           title: t.translateDynamic(widget.routine!.name),
-          body: _copy('notifications.body_recovery_routine_ready', {
-            'routineName': t.translateDynamic(widget.routine!.name),
-          }),
+          body: body,
         );
       }
       final affected = assessment.lowMuscles.isNotEmpty
@@ -282,12 +316,10 @@ class _RecoveryRecommendationsState extends State<RecoveryRecommendations> {
               'muscles': muscles,
               'routineName': t.translateDynamic(widget.routine!.name),
             };
-      final accent = _stateColor(
-        context,
-        alternative?.state ?? assessment.state,
-      );
+      final tileState = alternative?.state ?? assessment.state;
+      final accent = _stateColor(context, tileState);
       return _RoutineRecommendationTile(
-        icon: alternative == null ? Symbols.monitor_heart : Symbols.swap_horiz,
+        icon: _stateIcon(tileState),
         color: accent,
         title: alternative == null
             ? _copy('notifications.title_recovery_low')
@@ -309,6 +341,9 @@ class _RecoveryRecommendationsState extends State<RecoveryRecommendations> {
       return const SizedBox.shrink();
     }
     final plan = forecast.planRoutines(routines, at: now, maxSuggestions: 2);
+    _scheduleNextRefresh(
+      _earliestTransition(recoveryTransition, plan.nextStateAt),
+    );
     if (plan.state == RecoveryRoutinePlanState.restToday) {
       return _RecoveryMessageCard(
         icon: Symbols.bedtime,
@@ -320,18 +355,13 @@ class _RecoveryRecommendationsState extends State<RecoveryRecommendations> {
     if (plan.state == RecoveryRoutinePlanState.empty) {
       return const SizedBox.shrink();
     }
-    final suggestions = [
-      ...plan.recommended,
-      ...plan.cautions,
-    ].take(2).toList(growable: false);
+    final suggestions = plan.displaySuggestions.take(2).toList(growable: false);
     if (suggestions.isEmpty) return const SizedBox.shrink();
-    final moreRoutineNote = routines.length == 1
-        ? _moreRoutineNote(
-            context,
-            snapshot: snapshot,
-            assessment: suggestions.first,
-          )
-        : null;
+    final moreRoutineNote = _moreRoutineNote(
+      context,
+      plan: plan,
+      routineCount: plan.distinctRoutineCount,
+    );
     final colors = Theme.of(context).colorScheme;
 
     return Semantics(
@@ -367,19 +397,18 @@ class _RecoveryRecommendationsState extends State<RecoveryRecommendations> {
 
   Widget? _moreRoutineNote(
     BuildContext context, {
-    required RecoveryForecastSnapshot snapshot,
-    required RoutineRecoveryAssessment assessment,
+    required RecoveryRoutinePlan plan,
+    required int routineCount,
   }) {
-    final readyMuscles = snapshot.ready;
-    final shouldSuggestReadyMuscles =
-        assessment.state != RoutineRecoveryState.ready &&
-        readyMuscles.isNotEmpty;
-    final message = shouldSuggestReadyMuscles
+    final uncoveredReadyMuscles = plan.uncoveredReadyMuscles;
+    final message = uncoveredReadyMuscles.isNotEmpty
         ? NotificationCopy.text(
             'notifications.msg_add_routine_for_ready_muscles',
-            {'muscles': readyMuscles.map(_muscleName).join(', ')},
+            {'muscles': uncoveredReadyMuscles.map(_muscleName).join(', ')},
           )
-        : NotificationCopy.text('notifications.msg_add_routine_variety');
+        : routineCount == 1
+        ? NotificationCopy.text('notifications.msg_add_routine_variety')
+        : null;
     if (message == null || message.trim().isEmpty) {
       return null;
     }
@@ -415,15 +444,19 @@ class _RecoveryRecommendationsState extends State<RecoveryRecommendations> {
     BuildContext context,
     RoutineRecoveryAssessment assessment,
   ) {
-    final ready = assessment.state == RoutineRecoveryState.ready;
+    final ready = assessment.isReady;
     final nearly = assessment.state == RoutineRecoveryState.nearlyReady;
     final affected = assessment.lowMuscles.isNotEmpty
         ? assessment.lowMuscles
         : assessment.recoveringMuscles;
     final body = ready
-        ? _copy('notifications.body_recovery_routine_ready', {
-            'routineName': t.translateDynamic(assessment.routine.name),
-          })
+        ? assessment.needsAdjustment
+              ? _copy('notifications.msg_recovery_adjust_exercises', {
+                  'muscles': assessment.lowMuscles.map(_muscleName).join(', '),
+                })
+              : _copy('notifications.body_recovery_routine_ready', {
+                  'routineName': t.translateDynamic(assessment.routine.name),
+                })
         : _copy(
             nearly
                 ? 'notifications.body_recovery_routine_nearly'
@@ -434,11 +467,7 @@ class _RecoveryRecommendationsState extends State<RecoveryRecommendations> {
             },
           );
     return _RoutineRecommendationTile(
-      icon: ready
-          ? Symbols.check_circle
-          : nearly
-          ? Symbols.schedule
-          : Symbols.do_not_disturb_on,
+      icon: _stateIcon(assessment.state),
       color: _stateColor(context, assessment.state),
       title: t.translateDynamic(assessment.routine.name),
       body: body,
@@ -467,14 +496,14 @@ class _RecoveryMessageCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: .07),
+        color: color.withValues(alpha: .08),
         borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: color.withValues(alpha: .24)),
+        border: Border.all(color: color),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          _RecoveryIconBadge(icon: icon, color: color),
+          Icon(icon, color: color, size: 22, fill: 1),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -504,25 +533,6 @@ class _RecoveryMessageCard extends StatelessWidget {
   }
 }
 
-class _RecoveryIconBadge extends StatelessWidget {
-  final IconData icon;
-  final Color color;
-
-  const _RecoveryIconBadge({required this.icon, required this.color});
-
-  @override
-  Widget build(BuildContext context) => Container(
-    width: 38,
-    height: 38,
-    alignment: Alignment.center,
-    decoration: BoxDecoration(
-      color: color.withValues(alpha: .13),
-      shape: BoxShape.circle,
-    ),
-    child: Icon(icon, color: color, size: 22, fill: 1),
-  );
-}
-
 class _RoutineRecommendationTile extends StatelessWidget {
   final IconData icon;
   final Color color;
@@ -543,26 +553,26 @@ class _RoutineRecommendationTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = Theme.of(context).colorScheme;
-    final radius = BorderRadius.circular(18);
+    final radius = BorderRadius.circular(16);
     return Semantics(
       button: true,
       label: '$title. $body. $semanticActionLabel',
       child: Material(
-        color: color.withValues(alpha: .07),
+        color: color.withValues(alpha: .08),
         shape: RoundedRectangleBorder(
           borderRadius: radius,
-          side: BorderSide(color: color.withValues(alpha: .24)),
+          side: BorderSide(color: color),
         ),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
           onTap: onTap,
           borderRadius: radius,
           child: Padding(
-            padding: const EdgeInsets.all(14),
+            padding: const EdgeInsets.fromLTRB(12, 10, 8, 10),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                _RecoveryIconBadge(icon: icon, color: color),
+                Icon(icon, color: color, size: 21),
                 const SizedBox(width: 12),
                 Expanded(
                   child: Column(
@@ -577,7 +587,7 @@ class _RoutineRecommendationTile extends StatelessWidget {
                           fontWeight: FontWeight.w800,
                         ),
                       ),
-                      const SizedBox(height: 5),
+                      const SizedBox(height: 3),
                       Text(
                         body,
                         maxLines: 4,

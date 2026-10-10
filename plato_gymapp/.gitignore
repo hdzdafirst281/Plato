@@ -21,6 +21,8 @@ android/key.properties
 .pub-cache/
 /build/
 /coverage/
+/lib/i18n/_missing_translations.json
+/lib/i18n/_unused_translations.json
 
 # IDEs and Editors
 ## IntelliJ related

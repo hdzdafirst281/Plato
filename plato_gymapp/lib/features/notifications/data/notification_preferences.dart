@@ -25,35 +25,30 @@ class NotificationPreferences {
     rankEnabled: true,
   );
 
-  bool enabled(NotificationPreferenceKind kind) => switch (kind) {
+  bool selected(NotificationPreferenceKind kind) => switch (kind) {
     NotificationPreferenceKind.hydration => hydrationEnabled,
     NotificationPreferenceKind.recovery => recoveryEnabled,
     NotificationPreferenceKind.streak => streakEnabled,
     NotificationPreferenceKind.rank => rankEnabled,
   };
 
-  bool get hasEnabledCategory =>
+  bool enabled(NotificationPreferenceKind kind) =>
+      masterEnabled && selected(kind);
+
+  bool get hasSelectedCategory =>
       hydrationEnabled || recoveryEnabled || streakEnabled || rankEnabled;
 
+  bool get hasEnabledCategory => masterEnabled && hasSelectedCategory;
+
   int get enabledCategoryCount => [
-    hydrationEnabled,
-    recoveryEnabled,
-    streakEnabled,
-    rankEnabled,
+    for (final kind in NotificationPreferenceKind.values) enabled(kind),
   ].where((value) => value).length;
 
-  /// Turning the master switch off is an explicit opt-out, so every category
-  /// switch follows it. Turning it on does not guess which categories the
-  /// user wants; a category can enable the master through [withPreference].
-  NotificationPreferences withMasterEnabled(bool value) => value
-      ? copyWith(masterEnabled: true)
-      : copyWith(
-          masterEnabled: false,
-          hydrationEnabled: false,
-          recoveryEnabled: false,
-          streakEnabled: false,
-          rankEnabled: false,
-        );
+  /// Category choices remain stored while the master switch is off so turning
+  /// it back on restores the user's previous selection. [enabled] still makes
+  /// every category appear and behave as disabled while the master is off.
+  NotificationPreferences withMasterEnabled(bool value) =>
+      copyWith(masterEnabled: value);
 
   /// Enabling any category also enables the master switch. Disabling one
   /// category leaves the master and the other category choices unchanged.
@@ -61,17 +56,27 @@ class NotificationPreferences {
     NotificationPreferenceKind kind,
     bool value,
   ) {
+    final base = value && !masterEnabled
+        ? copyWith(
+            masterEnabled: true,
+            hydrationEnabled: false,
+            recoveryEnabled: false,
+            streakEnabled: false,
+            rankEnabled: false,
+          )
+        : this;
     final updated = switch (kind) {
-      NotificationPreferenceKind.hydration => copyWith(hydrationEnabled: value),
-      NotificationPreferenceKind.recovery => copyWith(recoveryEnabled: value),
-      NotificationPreferenceKind.streak => copyWith(streakEnabled: value),
-      NotificationPreferenceKind.rank => copyWith(rankEnabled: value),
+      NotificationPreferenceKind.hydration => base.copyWith(
+        hydrationEnabled: value,
+      ),
+      NotificationPreferenceKind.recovery => base.copyWith(
+        recoveryEnabled: value,
+      ),
+      NotificationPreferenceKind.streak => base.copyWith(streakEnabled: value),
+      NotificationPreferenceKind.rank => base.copyWith(rankEnabled: value),
     };
     return value ? updated.copyWith(masterEnabled: true) : updated;
   }
-
-  NotificationPreferences get normalized =>
-      !masterEnabled && hasEnabledCategory ? withMasterEnabled(false) : this;
 
   NotificationPreferences copyWith({
     bool? masterEnabled,
@@ -103,7 +108,7 @@ class NotificationPreferencesStore {
         recoveryEnabled: true,
         streakEnabled: true,
         rankEnabled: true,
-      ).normalized;
+      );
       await save(scope, migrated);
       await prefs.setBool(_migrationKey, true);
       return migrated;
@@ -125,22 +130,17 @@ class NotificationPreferencesStore {
           prefs.getBool('${prefix}rank') ??
           NotificationPreferences.defaults.rankEnabled,
     );
-    final normalized = loaded.normalized;
-    if (!loaded.masterEnabled && loaded.hasEnabledCategory) {
-      await save(scope, normalized);
-    }
-    return normalized;
+    return loaded;
   }
 
   Future<void> save(String scope, NotificationPreferences value) async {
     final prefix = _prefix(scope);
-    final normalized = value.normalized;
     await Future.wait([
-      prefs.setBool('${prefix}master', normalized.masterEnabled),
-      prefs.setBool('${prefix}hydration', normalized.hydrationEnabled),
-      prefs.setBool('${prefix}recovery', normalized.recoveryEnabled),
-      prefs.setBool('${prefix}streak', normalized.streakEnabled),
-      prefs.setBool('${prefix}rank', normalized.rankEnabled),
+      prefs.setBool('${prefix}master', value.masterEnabled),
+      prefs.setBool('${prefix}hydration', value.hydrationEnabled),
+      prefs.setBool('${prefix}recovery', value.recoveryEnabled),
+      prefs.setBool('${prefix}streak', value.streakEnabled),
+      prefs.setBool('${prefix}rank', value.rankEnabled),
     ]);
   }
 

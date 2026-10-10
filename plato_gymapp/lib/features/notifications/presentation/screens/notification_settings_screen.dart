@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:plato_gymapp/features/profile/presentation/screens/calendar_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -77,7 +78,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
     final generation = ++_refreshGeneration;
     final prefs = getIt<SharedPreferences>();
     final permissionFuture = Permission.notification.isGranted;
-    final countFuture = _service?.upcomingWorkoutReminderCount();
+    final countFuture = _service?.remainingTodayWorkoutReminderCount();
     var background =
         prefs.getBool(WorkoutPermissionHelper.isBackgroundWorkoutEnabledKey) ??
         false;
@@ -282,9 +283,28 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                               'notifications.fmt_workout_reminders_active',
                               {'count': '$_workoutReminderCount'},
                             ),
+                      style: TextStyle(
+                        color: Theme.of(context).colorScheme.primary,
+                      ),
                     ),
                     trailing: const Icon(Icons.chevron_right),
-                    onTap: () => context.go('/profile/calendar'),
+                    onTap: () {
+                      if (_workoutReminderCount > 0) {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const CalendarScreen(
+                              initialScheduleId: 'today',
+                            ),
+                          ),
+                        );
+                      } else {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => const CalendarScreen(),
+                          ),
+                        );
+                      }
+                    },
                   ),
                   const Divider(height: 1),
                   _categoryTile(

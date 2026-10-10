@@ -8,6 +8,8 @@ Plato's localization system is centrally managed via **Google Sheets** to provid
 2. **Automated Data Fetching**: A custom script (`fetch_langs.dart`) downloads the latest translation data from Google Sheets in CSV format.
 3. **Parse & Code Generation**: The script automatically parses the downloaded CSV, generates the corresponding `.i18n.json` files (e.g., `strings_en.i18n.json` and `strings_vi.i18n.json`), and then triggers `slang` to rebuild the `strings.g.dart` file.
 
+The downloaded CSV is parsed in memory. No checked-in `strings.csv` snapshot is required.
+
 ---
 
 ## 🛠 How to Update Translations
