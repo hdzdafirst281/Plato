@@ -40,7 +40,7 @@ class _StatsScreenState extends State<StatsScreen> {
   }
 
   void _handleBack() {
-    if (_activeScreen == StatsScreenType.DASHBOARD) {
+    if (_activeScreen == StatsScreenType.DASHBOARD || widget.initialScreen != StatsScreenType.DASHBOARD) {
       context.pop();
     } else {
       setState(() => _activeScreen = StatsScreenType.DASHBOARD); 
@@ -50,9 +50,10 @@ class _StatsScreenState extends State<StatsScreen> {
   @override
   Widget build(BuildContext context) {
     final workouts = context.watch<StatsCubit>().state.workouts;
+    final canPopNow = _activeScreen == StatsScreenType.DASHBOARD || widget.initialScreen != StatsScreenType.DASHBOARD;
 
     return PopScope(
-      canPop: _activeScreen == StatsScreenType.DASHBOARD,
+      canPop: canPopNow,
       onPopInvokedWithResult: (didPop, result) {
         if (!didPop) {
           setState(() => _activeScreen = StatsScreenType.DASHBOARD);

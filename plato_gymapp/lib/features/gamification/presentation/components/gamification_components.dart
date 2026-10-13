@@ -121,9 +121,10 @@ class _UserProfileHeader extends StatelessWidget {
   final UserProfile userProfile;
   final int streak;
   final bool isTablet;
+  final Animation<double> marqueeAnimation;
   final VoidCallback onAvatarClick;
 
-  const _UserProfileHeader({required this.userStats, required this.userProfile, required this.streak, required this.isTablet, required this.onAvatarClick});
+  const _UserProfileHeader({required this.userStats, required this.userProfile, required this.streak, required this.isTablet, required this.marqueeAnimation, required this.onAvatarClick});
 
   @override
   Widget build(BuildContext context) {
@@ -236,7 +237,7 @@ class _UserProfileHeader extends StatelessWidget {
                     Expanded(
                       child: Row(
                         children: [
-                          Flexible(child: AutoSizeText(displayName, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900, letterSpacing: -0.5), maxLines: 1, minFontSize: 16, overflow: TextOverflow.ellipsis)),
+                          Flexible(child: GymMarqueeText(displayName, animation: marqueeAnimation, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w900, letterSpacing: -0.5))),
                           const SizedBox(width: 8),
                           Container(
                             padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
@@ -511,12 +512,13 @@ class _QuestItem extends StatelessWidget {
                           trackColor: colorScheme.onSurface.withValues(alpha: 0.1),
                           height: 14,
                         ),
-                        Center(
-                          child: Text(
-                            "${quest.current}/${quest.target}",
-                            style: TextStyle(color: colorScheme.onSurface, fontSize: 10, fontWeight: FontWeight.bold),
-                          ),
-                        )
+                        if (!quest.isCompleted)
+                          Center(
+                            child: Text(
+                              "${quest.current}/${quest.target}",
+                              style: TextStyle(color: colorScheme.onSurface, fontSize: 10, fontWeight: FontWeight.bold),
+                            ),
+                          )
                       ],
                     ),
                   ),
@@ -563,8 +565,9 @@ class _QuestItem extends StatelessWidget {
 class _PodiumView extends StatelessWidget {
   final List<LeaderboardEntry> top3;
   final int activeRankId;
+  final Animation<double> marqueeAnimation;
 
-  const _PodiumView({required this.top3, required this.activeRankId});
+  const _PodiumView({required this.top3, required this.activeRankId, required this.marqueeAnimation});
 
   Color _getThemeRankColor(int rankId, GymColors gymColors) {
     if (rankId <= 2) return gymColors.rankBronze;
@@ -622,6 +625,7 @@ class _PodiumView extends StatelessWidget {
             rankColor: rankColor,
             rankId: rankId, // Truyền rankId xuống
             animDelay: index * 200,
+            marqueeAnimation: marqueeAnimation,
           );
         }).toList(),
       ),
@@ -638,8 +642,9 @@ class _PodiumColumn extends StatelessWidget {
   final Color rankColor;
   final int rankId; // [FIX] Nhận rankId
   final int animDelay;
+  final Animation<double> marqueeAnimation;
 
-  const _PodiumColumn({required this.user, required this.rank, required this.height, required this.scale, required this.gradientColors, required this.rankColor, required this.rankId, required this.animDelay});
+  const _PodiumColumn({required this.user, required this.rank, required this.height, required this.scale, required this.gradientColors, required this.rankColor, required this.rankId, required this.animDelay, required this.marqueeAnimation});
 
   @override
   Widget build(BuildContext context) {
@@ -692,10 +697,11 @@ class _PodiumColumn extends StatelessWidget {
           const SizedBox(height: 12),
           SizedBox(
             width: 86 * scale,
-            child: Text(
+            child: GymMarqueeText(
               user.isUser ? t.gamification.fmt_user_name_badge(arg1: user.name) : user.name,
+              animation: marqueeAnimation,
               style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: user.isUser ? colorScheme.primary : colorScheme.onSurface),
-              maxLines: 1, overflow: TextOverflow.ellipsis, textAlign: TextAlign.center,
+              textAlign: TextAlign.center,
             ),
           ).animate(delay: animDelay.ms).fade(),
           
@@ -732,8 +738,9 @@ class _RankItem extends StatelessWidget {
   final LeaderboardEntry entry;
   final int rankPlacement;
   final int activeRankId;
+  final Animation<double> marqueeAnimation;
 
-  const _RankItem({required this.entry, required this.rankPlacement, required this.activeRankId});
+  const _RankItem({required this.entry, required this.rankPlacement, required this.activeRankId, required this.marqueeAnimation});
 
   @override
   Widget build(BuildContext context) {
@@ -802,10 +809,10 @@ class _RankItem extends StatelessWidget {
           ),
           const SizedBox(width: 16),
           Expanded(
-            child: Text(
+            child: GymMarqueeText(
               entry.isUser ? t.gamification.fmt_user_name_badge(arg1: entry.name) : entry.name,
+              animation: marqueeAnimation,
               style: TextStyle(fontWeight: entry.isUser ? FontWeight.w900 : FontWeight.w600, fontSize: 15, color: entry.isUser ? colorScheme.primary : colorScheme.onSurface),
-              maxLines: 1, overflow: TextOverflow.ellipsis,
             ),
           ),
           // Bọc FittedBox để bảo vệ khi user có XP quá lớn

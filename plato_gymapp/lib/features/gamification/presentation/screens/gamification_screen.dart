@@ -1,6 +1,5 @@
 import 'dart:math' as math; 
 import 'package:flutter/material.dart';
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart'; 
 import 'package:plato_gymapp/i18n/strings.g.dart';
@@ -15,8 +14,10 @@ import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../../core/navigation/app_routes.dart'; 
 import '../../../../core/designsystem/components/gym_animated_progress_bar.dart';
+import '../../../../core/designsystem/components/gym_marquee_text.dart';
 import '../../../../core/designsystem/components/gym_shimmer.dart';
 import '../../../../core/designsystem/components/streak_icon.dart';
+import '../../../../core/navigation/main_scaffold.dart';
 
 import '../../../../core/worker/sync_manager.dart'; 
 
@@ -36,15 +37,19 @@ class GamificationScreen extends StatefulWidget {
   State<GamificationScreen> createState() => _GamificationScreenState();
 }
 
-class _GamificationScreenState extends State<GamificationScreen> with SingleTickerProviderStateMixin {
+class _GamificationScreenState extends State<GamificationScreen> with TickerProviderStateMixin {
   final bool debugForceLoading = false; // TODO(Debug): Đổi thành false khi build Production
   
   late TabController _tabController;
+  late final AnimationController _marqueeController;
 
   @override
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    _marqueeController = AnimationController(vsync: this, duration: GymMarqueeText.cycleDuration);
+    globalActiveTabIndex.addListener(_syncMarquee);
+    _syncMarquee();
     
     // Load leaderboard lần đầu khi mở màn hình
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -56,8 +61,18 @@ class _GamificationScreenState extends State<GamificationScreen> with SingleTick
 
   @override
   void dispose() {
+    globalActiveTabIndex.removeListener(_syncMarquee);
+    _marqueeController.dispose();
     _tabController.dispose();
     super.dispose();
+  }
+
+  void _syncMarquee() {
+    if (globalActiveTabIndex.value == 2) {
+      _marqueeController.repeat();
+    } else {
+      _marqueeController.stop();
+    }
   }
 
   void _showChestRewardDialog(BuildContext context) {
@@ -139,6 +154,7 @@ class _GamificationScreenState extends State<GamificationScreen> with SingleTick
                 userProfile: userProfile,
                 streak: currentWeeklyStreak, 
                 isTablet: isTablet,
+                marqueeAnimation: _marqueeController,
                 onAvatarClick: () => context.push('/social/${AppRoutes.rank}'), 
               ),
             ),
@@ -309,7 +325,7 @@ class _GamificationScreenState extends State<GamificationScreen> with SingleTick
       padding: const EdgeInsets.only(bottom: 24, top: 16),
       children: [
         if (all.length >= 3) ...[
-          _PodiumView(top3: all.take(3).toList(), activeRankId: userProfile.activeRankId)
+          _PodiumView(top3: all.take(3).toList(), activeRankId: userProfile.activeRankId, marqueeAnimation: _marqueeController)
             .animate().fade(duration: 400.ms, curve: Curves.easeOutCubic).slideY(begin: 0.1, end: 0),
           
           const SizedBox(height: 32),
@@ -318,6 +334,7 @@ class _GamificationScreenState extends State<GamificationScreen> with SingleTick
               entry: entry.value,
               rankPlacement: entry.key + 4,
               activeRankId: userProfile.activeRankId,
+              marqueeAnimation: _marqueeController,
             ).animate(delay: (entry.key * 100).ms).fade(duration: 400.ms, curve: Curves.easeOutCubic).slideY(begin: 0.1, end: 0);
           }),
         ] else ...[
@@ -327,6 +344,7 @@ class _GamificationScreenState extends State<GamificationScreen> with SingleTick
               entry: entry.value,
               rankPlacement: entry.key + 1,
               activeRankId: userProfile.activeRankId,
+              marqueeAnimation: _marqueeController,
             ).animate(delay: (entry.key * 100).ms).fade(duration: 400.ms, curve: Curves.easeOutCubic).slideY(begin: 0.1, end: 0);
           }),
         ]

@@ -17,5 +17,5 @@ class NotificationCopy {
   }
 
   static bool get available =>
-      text('settings.title_notifications_section') != null;
+      text('settings.lbl_item_notification') != null;
 }

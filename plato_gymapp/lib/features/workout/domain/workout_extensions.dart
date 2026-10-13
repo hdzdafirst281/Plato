@@ -303,8 +303,8 @@ extension WorkoutSessionPRX on WorkoutSession {
 }
 
 extension MuscleDistributionX on List<WorkoutExercise> {
-  /// Tính toán phần trăm phân bổ nhóm cơ từ cùng nguồn dữ liệu mà recovery
-  /// recommender sử dụng. Nhóm không được tập giữ đúng 0%.
+  /// Tính phần trăm hiển thị Muscle Split với mức vận động nền 1% cho mỗi
+  /// nhóm cơ. Recovery recommender vẫn dùng tải thực tế từ majorWeights.
   /// - [onlyCompletedSets]: Đặt true nếu dùng cho Lịch sử (Workout Session), false nếu dùng cho Giáo án.
   Map<MajorMuscleGroup, double> calculateMuscleDistribution({
     bool onlyCompletedSets = false,

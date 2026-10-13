@@ -4,7 +4,6 @@ import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -18,12 +17,14 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:plato_gymapp/core/database/enums.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_countdown_text.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_marquee_text.dart';
 
 import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
 import 'package:plato_gymapp/features/workout/domain/workout_extensions.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../../core/navigation/app_routes.dart';
+import '../../../../core/navigation/main_scaffold.dart';
 import '../../../../core/worker/sync_manager.dart';
 
 import '../../../auth/data/models/user_models.dart';
@@ -42,7 +43,48 @@ class ProfileScreen extends StatefulWidget {
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
+class _ProfileScreenState extends State<ProfileScreen>
+    with SingleTickerProviderStateMixin {
+  bool _isMenuOpen = false;
+  late final AnimationController _marqueeController;
+
+  @override
+  void initState() {
+    super.initState();
+    _marqueeController = AnimationController(
+      vsync: this,
+      duration: GymMarqueeText.cycleDuration,
+    );
+    globalActiveTabIndex.addListener(_syncMarquee);
+    _syncMarquee();
+    globalIsTabSwiping.addListener(_onTabSwiping);
+  }
+
+  @override
+  void dispose() {
+    globalActiveTabIndex.removeListener(_syncMarquee);
+    globalIsTabSwiping.removeListener(_onTabSwiping);
+    _marqueeController.dispose();
+    super.dispose();
+  }
+
+  void _syncMarquee() {
+    if (globalActiveTabIndex.value == 3) {
+      _marqueeController.repeat();
+    } else {
+      _marqueeController.stop();
+    }
+  }
+
+  void _onTabSwiping() {
+    if (globalIsTabSwiping.value && _isMenuOpen) {
+      if (Navigator.canPop(context)) {
+        Navigator.pop(context);
+        _isMenuOpen = false;
+      }
+    }
+  }
+
   Future<void> _handleRefresh() async {
     await SyncManager.syncNow();
     if (mounted) {
@@ -260,7 +302,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             ),
             position: PopupMenuPosition.under,
             offset: const Offset(16, 0),
+            onOpened: () => _isMenuOpen = true,
+            onCanceled: () => _isMenuOpen = false,
             onSelected: (value) {
+              _isMenuOpen = false;
               switch (value) {
                 case 'stats':
                   context.push('/profile/${AppRoutes.stats}');
@@ -747,15 +792,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
               avatarSection,
               const SizedBox(width: 16),
               Expanded(
-                child: AutoSizeText(
+                child: GymMarqueeText(
                   profile.displayName,
+                  animation: _marqueeController,
                   style: const TextStyle(
                     fontWeight: FontWeight.w900,
                     fontSize: 24,
                   ),
-                  maxLines: 1,
-                  minFontSize: 18,
-                  overflow: TextOverflow.ellipsis,
                   textAlign: TextAlign.left,
                 ),
               ),

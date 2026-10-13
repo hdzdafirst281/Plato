@@ -10,6 +10,8 @@ import '../../data/models/gamification_models.dart';
 import '../../data/repositories/gamification_repository.dart';
 import '../../domain/rank_calculator.dart';
 import '../../domain/reward_progress.dart';
+import 'package:plato_gymapp/core/designsystem/components/streak_icon.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 
 class WorkoutRewardsContent extends StatefulWidget {
   final WorkoutSession session;
@@ -18,10 +20,13 @@ class WorkoutRewardsContent extends StatefulWidget {
   final List<Quest> beforeQuests;
   final bool animateWorkout;
   final int? streakWeeks;
+  final bool streakIncreased;
   final bool leveledUp;
   final String? claimingQuestId;
   final ValueChanged<Quest> onClaim;
   final VoidCallback? onClaimChest;
+  final VoidCallback? onAutoClaimQuests;
+  final VoidCallback? onAutoClaimChest;
   final VoidCallback onContinue;
   final VoidCallback? onAnimationComplete;
 
@@ -33,10 +38,13 @@ class WorkoutRewardsContent extends StatefulWidget {
     this.beforeQuests = const [],
     this.animateWorkout = true,
     this.streakWeeks,
+    this.streakIncreased = false,
     this.leveledUp = false,
     this.claimingQuestId,
     required this.onClaim,
     this.onClaimChest,
+    this.onAutoClaimQuests,
+    this.onAutoClaimChest,
     required this.onContinue,
     this.onAnimationComplete,
   });
@@ -48,7 +56,7 @@ class WorkoutRewardsContent extends StatefulWidget {
 class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
     with TickerProviderStateMixin {
   static const _leadIn = 180;
-  static const _stageMillis = 960;
+  static const _stageMillis = 1200;
   late final AnimationController _sequence = AnimationController(
     vsync: this,
     duration: Duration(milliseconds: _leadIn + _stages.length * _stageMillis),
@@ -61,6 +69,8 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
   Animation<double>? _routeAnimation;
   bool _started = false;
   bool _notified = false;
+  bool _autoClaimQuestsDone = false;
+  bool _autoClaimChestDone = false;
   late int _xpStart = math.max(
     0,
     RewardXpProgress.total(widget.stats) -
@@ -86,6 +96,16 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
         WidgetsBinding.instance.addPostFrameCallback((_) {
           if (mounted) widget.onAnimationComplete?.call();
         });
+      }
+    });
+    _sequence.addListener(() {
+      if (!_autoClaimQuestsDone && _phase('quests', 280, 800) == 1.0) {
+        _autoClaimQuestsDone = true;
+        widget.onAutoClaimQuests?.call();
+      }
+      if (!_autoClaimChestDone && _phase('chest', 280, 800) == 1.0) {
+        _autoClaimChestDone = true;
+        widget.onAutoClaimChest?.call();
       }
     });
   }
@@ -150,7 +170,7 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
   }
 
   double _progress(String id) =>
-      Curves.easeInOutCubic.transform(_phase(id, 280, 560));
+      Curves.easeInOutCubic.transform(_phase(id, 280, 800));
   int _between(int from, int to, double progress) =>
       (from + (to - from) * progress).round();
   int get _displayedXp => _between(
@@ -260,7 +280,7 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
   );
 
   Widget _reveal(String id, Widget child) {
-    final value = Curves.easeOutCubic.transform(_phase(id, 0, 240));
+    final value = Curves.easeOutCubic.transform(_phase(id, 0, 400));
     return ExcludeSemantics(
       excluding: value < 1,
       child: Opacity(
@@ -304,42 +324,120 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
 
   Widget _streak(bool compact) {
     final weeks = _between(
-      math.max(0, widget.streakWeeks! - 1),
+      widget.streakIncreased ? math.max(0, widget.streakWeeks! - 1) : widget.streakWeeks!,
       widget.streakWeeks!,
       _progress('streak'),
     );
-    final color =
-        (Theme.of(context).extension<GymColors>()?.warning ?? Colors.orange);
+    final gymColors = Theme.of(context).extension<GymColors>();
+    
+    List<Color>? gradientColors;
+    Color? solidColor;
+    if (weeks == 0) {
+      solidColor = gymColors?.fireBreakColor ?? Colors.grey;
+    } else if (weeks < 50) {
+      gradientColors = [gymColors?.streakGradientStart ?? Colors.orange, gymColors?.streakGradientEnd ?? Colors.orangeAccent];
+    } else if (weeks < 100) {
+      gradientColors = [gymColors?.fire2Start ?? Colors.deepOrange, gymColors?.fire2End ?? Colors.orange];
+    } else {
+      gradientColors = [gymColors?.fire3Start ?? Colors.red, gymColors?.fire3End ?? Colors.redAccent];
+    }
+
+    final text = t.workout_rewards.streak(weeks: weeks);
+    final weeksStr = weeks.toString();
+    final index = text.indexOf(weeksStr);
+    
+    final baseStyle = TextStyle(
+      fontWeight: FontWeight.w800,
+      fontSize: compact ? 22 : 28,
+      color: Theme.of(context).colorScheme.onSurface,
+    );
+
+    Widget numberWidget = Text(
+      weeksStr,
+      style: baseStyle.copyWith(color: gradientColors != null ? Colors.white : solidColor),
+    );
+
+    if (gradientColors != null) {
+      numberWidget = ShaderMask(
+        key: ValueKey(weeks),
+        shaderCallback: (bounds) => LinearGradient(
+          colors: gradientColors!,
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+        ).createShader(bounds),
+        blendMode: BlendMode.srcIn,
+        child: numberWidget,
+      );
+    } else {
+      numberWidget = KeyedSubtree(
+        key: ValueKey(weeks),
+        child: numberWidget,
+      );
+    }
+
+    Widget textWidget;
+    if (index == -1) {
+      textWidget = Text(text, style: baseStyle);
+    } else {
+      final before = text.substring(0, index);
+      final after = text.substring(index + weeksStr.length);
+      textWidget = RichText(
+        text: TextSpan(
+          style: baseStyle,
+          children: [
+            TextSpan(text: before),
+            WidgetSpan(
+              alignment: PlaceholderAlignment.baseline,
+              baseline: TextBaseline.alphabetic,
+              child: AnimatedSwitcher(
+                duration: const Duration(milliseconds: 300),
+                transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
+                child: numberWidget,
+              ),
+            ),
+            TextSpan(text: after),
+          ],
+        ),
+      );
+    }
+
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        Icon(
-          Symbols.local_fire_department,
-          color: color,
-          size: compact ? 24 : 36,
+        AnimatedSwitcher(
+          duration: const Duration(milliseconds: 300),
+          transitionBuilder: (child, animation) => ScaleTransition(scale: animation, child: child),
+          child: StreakIcon(key: ValueKey(weeks), streak: weeks, size: compact ? 36 : 48),
         ),
         const SizedBox(width: 8),
-        Flexible(
-          child: Text(
-            t.workout_rewards.streak(weeks: weeks),
-            style: TextStyle(
-              fontWeight: FontWeight.w800,
-              fontSize: compact ? 18 : 22,
-            ),
-          ),
-        ),
+        Flexible(child: textWidget),
       ],
     );
   }
 
-  String _questTitle(Quest quest) => switch (quest.type) {
-    QuestType.WORKOUT_COUNT => t.profile.lbl_stats_workouts,
-    QuestType.TOTAL_VOLUME => t.common.volume,
-    QuestType.PR_COUNT => t.workout_rewards.quest_prs,
-    QuestType.TOTAL_TIME => t.common.duration,
-    QuestType.TOTAL_SETS => t.workout_rewards.quest_sets,
-    QuestType.TOTAL_EXERCISES => t.profile.btn_menu_exercises,
-  };
+  String _questTitle(Quest quest) {
+    final title = switch (quest.type) {
+      QuestType.WORKOUT_COUNT => t.profile.lbl_stats_workouts,
+      QuestType.TOTAL_VOLUME => t.common.volume,
+      QuestType.PR_COUNT => t.workout_rewards.quest_prs,
+      QuestType.TOTAL_TIME => t.common.duration,
+      QuestType.TOTAL_SETS => t.workout_rewards.quest_sets,
+      QuestType.TOTAL_EXERCISES => t.profile.btn_menu_exercises,
+    };
+    if (title.isEmpty) return title;
+    return '${title[0].toUpperCase()}${title.substring(1)}';
+  }
+
+  String _questUnit(QuestType type) {
+    switch (type) {
+      case QuestType.TOTAL_VOLUME:
+        return ' ${t.common.unit_kg}';
+      case QuestType.TOTAL_TIME:
+        return ' ${t.workout.lbl_minute.toLowerCase()}';
+      default:
+        return '';
+    }
+  }
   String _number(int value) =>
       value >= 1000 && value % 1000 == 0 ? '${value ~/ 1000}k' : '$value';
 
@@ -395,6 +493,8 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
 
   Widget _questTile(Quest quest, bool compact) {
     final colors = Theme.of(context).colorScheme;
+    final successColor = Theme.of(context).extension<GymColors>()?.success ?? Colors.green;
+    
     final before = widget.beforeQuests
         .where((q) => q.id == quest.id)
         .firstOrNull;
@@ -410,95 +510,118 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
         : ready
         ? t.workout_rewards.claim(xp: quest.xpReward)
         : '+${quest.xpReward} XP';
-    return Tooltip(
-      message: '${t.translateDynamic(quest.title)} · $stateText',
-      child: Semantics(
-        label:
-            '${t.translateDynamic(quest.title)}, ${quest.current}/${quest.target}, $stateText',
-        button: ready,
-        child: Material(
-          textStyle: Theme.of(
-            context,
-          ).textTheme.bodyMedium?.copyWith(height: compact ? 1.15 : null),
-          color: ready
-              ? colors.primary.withValues(alpha: 0.1)
-              : Colors.transparent,
-          borderRadius: BorderRadius.circular(10),
-          child: InkWell(
-            key: ValueKey('quest-${quest.id}'),
-            borderRadius: BorderRadius.circular(10),
-            onTap: ready && widget.claimingQuestId == null
-                ? () => widget.onClaim(quest)
-                : null,
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(minHeight: 48),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Row(
+
+    final progressVal = _progress('quests');
+    final completedNow = ready && progressVal > 0.8;
+    
+    final bump = completedNow ? math.sin((progressVal - 0.8) * 5 * math.pi) : 0.0;
+    final scale = 1.0 + bump * 0.05;
+    final rotation = (completedNow ? math.sin((progressVal - 0.8) * 20 * math.pi) : 0.0) * 0.05;
+    
+    final activeColor = quest.isCompleted ? successColor : colors.primary;
+
+    return Transform.scale(
+      scale: scale,
+      child: Transform.rotate(
+        angle: rotation,
+        child: Tooltip(
+          message: '${_questTitle(quest)} · $stateText',
+          child: Semantics(
+            label:
+                '${_questTitle(quest)}, ${quest.current}/${quest.target}, $stateText',
+            button: ready,
+            child: Material(
+              textStyle: Theme.of(
+                context,
+              ).textTheme.bodyMedium?.copyWith(height: compact ? 1.15 : null),
+              color: ready
+                  ? activeColor.withValues(alpha: 0.1)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(10),
+              child: InkWell(
+                key: ValueKey('quest-${quest.id}'),
+                borderRadius: BorderRadius.circular(10),
+                onTap: ready && widget.claimingQuestId == null
+                    ? () => widget.onClaim(quest)
+                    : null,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: 48),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Expanded(
-                          child: Text(
-                            _questTitle(quest),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              fontSize: compact ? 12 : 13,
-                              fontWeight: FontWeight.w600,
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                _questTitle(quest),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  fontSize: compact ? 12 : 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: quest.isCompleted ? activeColor : null,
+                                ),
+                              ),
                             ),
-                          ),
+                            if (busy)
+                              const SizedBox(
+                                width: 14,
+                                height: 14,
+                                child: CircularProgressIndicator(strokeWidth: 2),
+                              )
+                            else if (quest.claimedReward || ready)
+                              Icon(
+                                quest.claimedReward
+                                    ? Symbols.check
+                                    : Symbols.redeem,
+                                size: 16,
+                                color: activeColor,
+                              ),
+                          ],
                         ),
-                        if (busy)
-                          const SizedBox(
-                            width: 14,
-                            height: 14,
-                            child: CircularProgressIndicator(strokeWidth: 2),
-                          )
-                        else if (quest.claimedReward || ready)
-                          Icon(
-                            quest.claimedReward
-                                ? Symbols.check
-                                : Symbols.redeem,
-                            size: 16,
-                            color: colors.primary,
-                          ),
+                        const SizedBox(height: 4),
+                        _bar(
+                          'quest-progress-${quest.id}',
+                          current,
+                          quest.target,
+                          activeColor,
+                        ),
+                        AnimatedSize(
+                          duration: const Duration(milliseconds: 200),
+                          child: current < quest.target
+                              ? Column(
+                                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                                  children: [
+                                    const SizedBox(height: 3),
+                                    Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            '${_number(current)}/${_number(quest.target)}${_questUnit(quest.type)}',
+                                            style: TextStyle(
+                                              fontSize: 11,
+                                              color: colors.onSurfaceVariant,
+                                            ),
+                                          ),
+                                        ),
+                                        Text(
+                                          '+${quest.xpReward} XP',
+                                          style: TextStyle(
+                                            fontSize: 11,
+                                            color: colors.onSurfaceVariant,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                )
+                              : const SizedBox(width: double.infinity),
+                        ),
                       ],
                     ),
-                    const SizedBox(height: 4),
-                    _bar(
-                      'quest-progress-${quest.id}',
-                      (before?.current ?? quest.current) +
-                          (quest.current - (before?.current ?? quest.current)) *
-                              _progress('quests'),
-                      quest.target,
-                      colors.primary,
-                    ),
-                    const SizedBox(height: 3),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: Text(
-                            '${_number(current)}/${_number(quest.target)}',
-                            style: TextStyle(
-                              fontSize: 11,
-                              color: colors.onSurfaceVariant,
-                            ),
-                          ),
-                        ),
-                        Text(
-                          quest.claimedReward ? '✓' : '+${quest.xpReward} XP',
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: ready
-                                ? colors.primary
-                                : colors.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
+                  ),
                 ),
               ),
             ),
@@ -543,10 +666,10 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
             child: _card(
               Row(
                 children: [
-                  Icon(
-                    Symbols.redeem,
-                    color: colors.primary,
-                    size: compact ? 24 : 30,
+                  SvgPicture.asset(
+                    'assets/svg/icons/weekly_chest.svg',
+                    width: compact ? 24 : 30,
+                    colorFilter: ColorFilter.mode(colors.primary, BlendMode.srcIn),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
@@ -606,7 +729,6 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
     final colors = Theme.of(context).colorScheme;
     final (level, xp) = RewardXpProgress.at(_displayedXp);
     final target = RewardXpProgress.requirement(level);
-    final leveled = widget.leveledUp && level >= widget.stats.level;
     return _card(
       Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -622,14 +744,6 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
                   ),
                 ),
               ),
-              if (leveled)
-                Padding(
-                  padding: const EdgeInsets.only(right: 8),
-                  child: Tooltip(
-                    message: t.gamification.msg_level_up_base,
-                    child: Icon(Symbols.stars, color: colors.primary, size: 20),
-                  ),
-                ),
               Text(
                 '+${widget.session.xpEarned} XP',
                 style: TextStyle(
@@ -683,6 +797,11 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
         ? math.max(0, rank.totalRp - earned)
         : rank.totalRp;
     final current = _between(before, rank.totalRp, _progress('rp'));
+    
+    final cycleEndTimeMillis = rank.cycleStartTimeMillis + RankCalculator.cycleDurationMillis;
+    final remainingMillis = cycleEndTimeMillis - DateTime.now().millisecondsSinceEpoch;
+    final remainingDays = math.max(0, (remainingMillis / (1000 * 60 * 60 * 24)).ceil());
+    
     return _card(
       Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -709,9 +828,10 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
                     ),
                     Text(
                       '$current RP',
-                      style: const TextStyle(
+                      style: TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.w800,
+                        color: colors.primary,
                       ),
                     ),
                   ],
@@ -721,7 +841,8 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
                 '+$earned RP',
                 style: TextStyle(
                   color: colors.primary,
-                  fontWeight: FontWeight.w700,
+                  fontWeight: FontWeight.w800,
+                  fontSize: compact ? 20 : 24,
                 ),
               ),
             ],
@@ -813,9 +934,9 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
                 ),
             ],
           ),
-          const SizedBox(height: 4),
+          const SizedBox(height: 12),
           Text(
-            t.workout_rewards.rank_review,
+            t.workout_rewards.rank_review(days: remainingDays),
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 10, color: colors.onSurfaceVariant),
           ),

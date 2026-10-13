@@ -435,8 +435,9 @@ void main() {
       ],
     );
     final distribution = MuscleExposureCalculator.distribution([exercise]);
-    expect(distribution[MajorMuscleGroup.CHEST], closeTo(75, .001));
-    expect(distribution[MajorMuscleGroup.ARMS], closeTo(25, .001));
+    expect(distribution, hasLength(6));
+    expect(distribution[MajorMuscleGroup.CHEST], closeTo(71.5, .001));
+    expect(distribution[MajorMuscleGroup.ARMS], closeTo(24.5, .001));
     expect(
       distribution.entries
           .where(
@@ -444,8 +445,12 @@ void main() {
                 entry.key != MajorMuscleGroup.CHEST &&
                 entry.key != MajorMuscleGroup.ARMS,
           )
-          .every((entry) => entry.value == 0),
+          .every((entry) => entry.value == 1),
       isTrue,
+    );
+    expect(
+      distribution.values.fold(0.0, (sum, value) => sum + value),
+      closeTo(100, .001),
     );
   });
   test(

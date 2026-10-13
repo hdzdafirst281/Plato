@@ -3,11 +3,11 @@ import 'dart:io';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_snackbar.dart';
 import 'package:flutter/material.dart';
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_marquee_text.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_top_bar.dart';
 import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_shake_wrapper.dart';
@@ -37,8 +37,9 @@ class AccountManagementScreen extends StatefulWidget {
   State<AccountManagementScreen> createState() => _AccountManagementScreenState();
 }
 
-class _AccountManagementScreenState extends State<AccountManagementScreen> {
+class _AccountManagementScreenState extends State<AccountManagementScreen> with SingleTickerProviderStateMixin {
   final TextEditingController _emailController = TextEditingController();
+  late final AnimationController _marqueeController;
   bool _isRequestingOtp = false;
   bool _isEmailInitialized = false;
   String? _localErrorKey;
@@ -51,6 +52,7 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
   @override
   void initState() {
     super.initState();
+    _marqueeController = AnimationController(vsync: this, duration: GymMarqueeText.cycleDuration)..repeat();
     context.read<AuthCubit>().clearAuthMessage();
     _checkExistingCooldown();
   }
@@ -96,6 +98,7 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
   void dispose() {
     _emailController.dispose();
     _cooldownTimer?.cancel();
+    _marqueeController.dispose();
     super.dispose();
   }
 
@@ -448,13 +451,14 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      AutoSizeText(
-                        profile.displayName,
-                        style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
-                        textAlign: TextAlign.center,
-                        maxLines: 1,
-                        minFontSize: 16,
-                        overflow: TextOverflow.ellipsis,
+                      SizedBox(
+                        width: double.infinity,
+                        child: GymMarqueeText(
+                          profile.displayName,
+                          animation: _marqueeController,
+                          style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w900),
+                          textAlign: TextAlign.center,
+                        ),
                       ),
                       const SizedBox(height: 8),
                       Container(

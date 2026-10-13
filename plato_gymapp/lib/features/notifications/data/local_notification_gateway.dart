@@ -46,7 +46,7 @@ class LocalNotificationGateway {
       notificationDetails: NotificationDetails(
         android: AndroidNotificationDetails(
           channelId,
-          NotificationCopy.text('settings.title_notifications_section')!,
+          NotificationCopy.text('settings.lbl_item_notification')!,
           importance: Importance.defaultImportance,
           priority: Priority.defaultPriority,
           icon: 'ic_stat_plato',
@@ -102,7 +102,7 @@ class LocalNotificationGateway {
       notificationDetails: NotificationDetails(
         android: AndroidNotificationDetails(
           channelId,
-          NotificationCopy.text('settings.title_notifications_section')!,
+          NotificationCopy.text('settings.lbl_item_notification')!,
           importance: Importance.defaultImportance,
           priority: Priority.defaultPriority,
           icon: 'ic_stat_plato',

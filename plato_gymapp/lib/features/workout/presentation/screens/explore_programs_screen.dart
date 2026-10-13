@@ -28,11 +28,10 @@ class _ExploreProgramsScreenState extends State<ExploreProgramsScreen> {
   WorkoutEnvironment? _filterEnv;
   WorkoutGoal? _filterGoal;
   
-  bool _hideAddedPrograms = false;
   WorkoutProgram? _detailedProgram;
 
   @override
-  void initState() {
+  void initState( ) {
     super.initState();
     context.read<WorkoutCubit>().triggerSyncPrograms();
   }
@@ -119,8 +118,7 @@ class _ExploreProgramsScreenState extends State<ExploreProgramsScreen> {
       final matchLevel = _filterLevel == null || p.difficulty == _filterLevel;
       final matchEnv = _filterEnv == null || p.environment == _filterEnv;
       final matchGoal = _filterGoal == null || p.goal == _filterGoal;
-      final matchHidden = !_hideAddedPrograms || !addedProgramNames.contains(p.name);
-      return matchLevel && matchEnv && matchGoal && matchHidden;
+      return matchLevel && matchEnv && matchGoal;
     }).toList();
 
     // ĐÃ FIX: Bọc Scaffold bằng PopScope để can thiệp vào hành vi Back của điện thoại
@@ -144,13 +142,6 @@ class _ExploreProgramsScreenState extends State<ExploreProgramsScreen> {
               context.pop();
             }
           },
-          actions: _detailedProgram != null ? [] : [
-            IconButton(
-              icon: Icon(_hideAddedPrograms ? Symbols.visibility_off : Symbols.visibility, color: colorScheme.primary),
-              onPressed: () => setState(() => _hideAddedPrograms = !_hideAddedPrograms),
-              tooltip: _hideAddedPrograms ? t.explore.tooltip_show_all : t.explore.tooltip_hide_added,
-            )
-          ],
         ),
         body: _detailedProgram != null 
           ? _ProgramDetailView(

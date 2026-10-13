@@ -56,12 +56,12 @@ class NutritionConstants {
     IngredientDef(id: 'ing_butter', nameKey: 'nutrition.ing_butter', allergenTags: ['allergy_lactose'], dietTags: ['diet_keto']),
     IngredientDef(id: 'ing_peanut', nameKey: 'nutrition.ing_peanut', allergenTags: ['allergy_peanut'], dietTags: ['diet_vegan']),
     IngredientDef(id: 'ing_peanut_butter', nameKey: 'nutrition.food_name_peanut_butter', allergenTags: ['allergy_peanut'], dietTags: ['diet_vegan', 'diet_keto']),
-    IngredientDef(id: 'ing_almond', nameKey: 'nutrition.ing_almond', allergenTags: ['allergy_tree_nuts'], dietTags: ['diet_vegan', 'diet_keto']),
+    IngredientDef(id: 'ing_almond', nameKey: 'nutrition.food_name_almonds', allergenTags: ['allergy_tree_nuts'], dietTags: ['diet_vegan', 'diet_keto']),
     IngredientDef(id: 'ing_walnut', nameKey: 'nutrition.ing_walnut', allergenTags: ['allergy_tree_nuts'], dietTags: ['diet_vegan', 'diet_keto']),
     IngredientDef(id: 'ing_soybean', nameKey: 'nutrition.ing_soybean', allergenTags: ['allergy_soy'], dietTags: ['diet_vegan']),
-    IngredientDef(id: 'ing_tofu', nameKey: 'nutrition.ing_tofu', allergenTags: ['allergy_soy'], dietTags: ['diet_vegan']),
+    IngredientDef(id: 'ing_tofu', nameKey: 'nutrition.food_name_tofu', allergenTags: ['allergy_soy'], dietTags: ['diet_vegan']),
     IngredientDef(id: 'ing_almond_milk', nameKey: 'nutrition.ing_almond_milk', allergenTags: ['allergy_tree_nuts'], dietTags: ['diet_vegan', 'diet_keto']),
-    IngredientDef(id: 'ing_olive_oil', nameKey: 'nutrition.ing_olive_oil', dietTags: ['diet_vegan', 'diet_keto']),
+    IngredientDef(id: 'ing_olive_oil', nameKey: 'nutrition.food_name_olive_oil', dietTags: ['diet_vegan', 'diet_keto']),
 
     // Rau củ quả
     IngredientDef(id: 'ing_tomato', nameKey: 'nutrition.ing_tomato', dietTags: ['diet_vegan', 'diet_keto']),

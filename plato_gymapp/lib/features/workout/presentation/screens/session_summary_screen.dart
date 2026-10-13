@@ -7,7 +7,6 @@ import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
-import 'package:plato_gymapp/core/designsystem/components/gym_shimmer.dart';
 
 import '../../../../core/database/enums.dart';
 import 'dart:math' as math;
@@ -229,20 +228,22 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
                           onPressed: _targetSession == null ? null : _handleGoHome,
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Container(
-                        width: 56,
-                        height: 56,
-                        decoration: BoxDecoration(
-                          color: colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(16),
+                      if (false) ...[
+                        const SizedBox(width: 12),
+                        Container(
+                          width: 56,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            color: colorScheme.surfaceContainerHighest,
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          child: IconButton(
+                            icon: const Icon(Symbols.share, fill: 1.0),
+                            color: colorScheme.onSurface,
+                            onPressed: () {},
+                          ),
                         ),
-                        child: IconButton(
-                          icon: const Icon(Symbols.share, fill: 1.0),
-                          color: colorScheme.onSurface,
-                          onPressed: () {},
-                        ),
-                      ),
+                      ],
                     ],
                   ),
                 ),
@@ -256,7 +257,7 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
             extendBody: true,
             backgroundColor: colorScheme.surface,
             bottomNavigationBar: bottomNav,
-            body: const _SessionSummaryShimmer(),
+            body: const Center(child: CircularProgressIndicator()),
           );
         }
 
@@ -820,40 +821,4 @@ class _StaticBodymapState extends State<_StaticBodymap> {
       }
     );
   }
-}
-
-class _SessionSummaryShimmer extends StatelessWidget {
-  const _SessionSummaryShimmer();
-
-  @override
-  Widget build(BuildContext context) {
-    return GymShimmer(
-      child: ListView(
-        padding: const EdgeInsets.only(left: 16, right: 16, top: 32, bottom: 120),
-        children: [
-          const Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-               GymShimmerBlock(width: 150, height: 32, borderRadius: 8),
-               GymShimmerBlock(width: 100, height: 20, borderRadius: 4),
-            ],
-          ),
-          const SizedBox(height: 24),
-          const Row(
-            children: [
-              Expanded(child: GymShimmerBlock(height: 80, borderRadius: 16)),
-              SizedBox(width: 12),
-              Expanded(child: GymShimmerBlock(height: 80, borderRadius: 16)),
-              SizedBox(width: 12),
-              Expanded(child: GymShimmerBlock(height: 80, borderRadius: 16)),
-            ],
-          ),
-          const SizedBox(height: 32),
-          const GymShimmerBlock(height: 180, borderRadius: 20),
-          const SizedBox(height: 24),
-          const GymShimmerBlock(height: 220, borderRadius: 20),
-        ],
-      ),
-    );
-  }
-}
+}

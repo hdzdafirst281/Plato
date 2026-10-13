@@ -9,6 +9,7 @@ import '../../../workout/domain/streak_calculator.dart';
 import '../components/workout_rewards_content.dart';
 export '../components/workout_rewards_content.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_shimmer.dart';
 
 import '../../../notifications/application/notification_coordinator.dart';
 import '../../../workout/data/models/workout_models.dart';
@@ -59,6 +60,7 @@ class _WorkoutRewardsScreenState extends State<WorkoutRewardsScreen> {
   int? _initialLevel;
   bool _workoutLevelUp = false;
   int? _streakWeeks;
+  bool _streakIncreased = false;
 
   @override
   void initState() {
@@ -104,7 +106,8 @@ class _WorkoutRewardsScreenState extends State<WorkoutRewardsScreen> {
       final stats = gamification.state.stats;
       setState(() {
         _session = session;
-        _streakWeeks = increased ? streak : null;
+        _streakWeeks = streak > 0 ? streak : null;
+        _streakIncreased = increased;
         _initialLevel = stats.level;
         _workoutLevelUp =
             widget.completion != null &&
@@ -154,6 +157,19 @@ class _WorkoutRewardsScreenState extends State<WorkoutRewardsScreen> {
     }
   }
 
+  Future<void> _autoClaimQuests() async {
+    if (!mounted) return;
+    final quests = context.read<GamificationCubit>().state.stats.weeklyQuests;
+    for (final q in quests) {
+      if (q.isCompleted && !q.claimedReward) {
+        await _claimReward(
+          q.id,
+          () => context.read<GamificationCubit>().claimQuestReward(q.id),
+        );
+      }
+    }
+  }
+
   Future<void> _acknowledgeAnimation() async {
     final service = NotificationCoordinator.instance;
     if (service == null) return;
@@ -189,34 +205,36 @@ class _WorkoutRewardsScreenState extends State<WorkoutRewardsScreen> {
   @override
   Widget build(BuildContext context) {
     if (_session == null) {
-      return Scaffold(
-        body: SafeArea(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(32),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  if (_failed)
-                    const Icon(Symbols.info, size: 40)
-                  else
-                    const CircularProgressIndicator(),
-                  const SizedBox(height: 24),
-                  Text(
-                    _failed
-                        ? t.workout_rewards.load_error
-                        : t.workout_rewards.loading,
-                    textAlign: TextAlign.center,
-                  ),
-                  const SizedBox(height: 24),
-                  TextButton(
-                    onPressed: () => context.go('/workout'),
-                    child: Text(t.common.back),
-                  ),
-                ],
+      if (_failed) {
+        return Scaffold(
+          body: SafeArea(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(32),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Symbols.info, size: 40),
+                    const SizedBox(height: 24),
+                    Text(
+                      t.workout_rewards.load_error,
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
+                    TextButton(
+                      onPressed: () => context.go('/workout'),
+                      child: Text(t.common.back),
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
+        );
+      }
+      return const Scaffold(
+        body: SafeArea(
+          child: _WorkoutRewardsShimmer(),
         ),
       );
     }
@@ -232,13 +250,84 @@ class _WorkoutRewardsScreenState extends State<WorkoutRewardsScreen> {
               claimingQuestId: _claiming,
               onClaim: _claim,
               onClaimChest: _claimChest,
+              onAutoClaimQuests: _autoClaimQuests,
+              onAutoClaimChest: _claimChest,
               onContinue: _continue,
               beforeQuests: widget.beforeQuests,
               animateWorkout: widget.completion != null,
               streakWeeks: _streakWeeks,
+              streakIncreased: _streakIncreased,
               onAnimationComplete: _acknowledgeAnimation,
             ),
           ),
     );
   }
 }
+
+class _WorkoutRewardsShimmer extends StatelessWidget {
+  const _WorkoutRewardsShimmer();
+
+  @override
+  Widget build(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final compact = constraints.maxHeight < 690;
+        final accessible = MediaQuery.textScalerOf(context).scale(14) > 19;
+        
+        final content = Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                GymShimmerBlock(width: 30, height: 30, borderRadius: 15),
+                SizedBox(width: 8),
+                GymShimmerBlock(width: 140, height: 24, borderRadius: 8),
+              ],
+            ),
+            SizedBox(height: compact ? 6 : 20),
+            GymShimmerBlock(height: compact ? 100 : 120, borderRadius: 20),
+            SizedBox(height: compact ? 6 : 10),
+            GymShimmerBlock(height: compact ? 70 : 80, borderRadius: 20),
+            SizedBox(height: compact ? 6 : 10),
+            GymShimmerBlock(height: compact ? 80 : 90, borderRadius: 20),
+            SizedBox(height: compact ? 6 : 10),
+            GymShimmerBlock(height: compact ? 80 : 90, borderRadius: 20),
+            SizedBox(height: compact ? 3 : 10),
+          ],
+        );
+
+        return GymShimmer(
+          child: Padding(
+            padding: EdgeInsets.fromLTRB(
+              16,
+              compact ? 4 : 16,
+              16,
+              compact ? 4 : 12,
+            ),
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 520),
+                child: Column(
+                  children: [
+                    Expanded(
+                      child: accessible || constraints.maxHeight < 500
+                          ? SingleChildScrollView(child: content)
+                          : Align(
+                              alignment: Alignment.center,
+                              child: content,
+                            ),
+                    ),
+                    const SizedBox(height: 6),
+                    const GymShimmerBlock(height: 48, borderRadius: 16),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}

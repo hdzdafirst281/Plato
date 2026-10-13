@@ -6,6 +6,8 @@ import 'package:plato_gymapp/features/workout/data/models/workout_models.dart';
 /// Shared muscle-load rules used by Muscle Split, recovery guidance, the
 /// training-balance tie breaker, and history charts.
 class MuscleExposureCalculator {
+  static const displayBaselinePercent = 1.0;
+
   static const majorMuscles = <MajorMuscleGroup>[
     MajorMuscleGroup.CHEST,
     MajorMuscleGroup.BACK,
@@ -75,8 +77,13 @@ class MuscleExposureCalculator {
     );
     final total = weights.values.fold(0.0, (sum, value) => sum + value);
     if (total == 0) return <MajorMuscleGroup, double>{};
+    final distributablePercent =
+        100 - displayBaselinePercent * majorMuscles.length;
     return {
-      for (final entry in weights.entries) entry.key: entry.value / total * 100,
+      for (final muscle in majorMuscles)
+        muscle:
+            displayBaselinePercent +
+            (weights[muscle] ?? 0) / total * distributablePercent,
     };
   }
 
