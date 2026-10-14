@@ -1,26 +1,31 @@
 import { exercisesData } from './exercises_data.js';
-import { createIcons, Dumbbell, Play, Search, Info, Activity, X } from 'lucide';
 
-const removeAccents = (str) => {
-  let result = str;
-  const withDiacritics = 'àáạảãâầấậẩẫăằắặẳẵèéẹẻẽêềếệểễìíịỉĩòóọỏõôồốộổỗơờớợởỡùúụủũưừứựửữỳýỵỷỹđÀÁẠẢÃÂẦẤẬẨẪĂẰẮẶẲẴÈÉẸẺẼÊỀẾỆỂỄÌÍỊỈĨÒÓỌỎÕÔỒỐỘỔỖƠỜỚỢỞỠÙÚỤỦŨƯỪỨỰỬỮỲÝỴỶỸĐ';
-  const withoutDiacritics = 'aaaaaaaaaaaaaaaaaeeeeeeeeeeeiiiiiooooooooooooooooouuuuuuuuuuuyyyyydAAAAAAAAAAAAAAAAAEEEEEEEEEEEIIIIIOOOOOOOOOOOOOOOOOUUUUUUUUUUUYYYYYD';
-  for (let i = 0; i < withDiacritics.length; i++) {
-    result = result.replaceAll(withDiacritics[i], withoutDiacritics[i]);
-  }
-  return result;
-};
+const PAGE_SIZE = 12;
+
+const removeAccents = (value) => value
+  .normalize('NFD')
+  .replace(/[\u0300-\u036f]/g, '')
+  .replace(/đ/g, 'd')
+  .replace(/Đ/g, 'D');
+
+const searchIndex = new Map(exercisesData.map((exercise) => [
+  exercise.id,
+  removeAccents(`${exercise.name} ${exercise.primaryMuscleVi}`).toLowerCase(),
+]));
+const exercisesById = new Map(exercisesData.map((exercise) => [exercise.id, exercise]));
 
 document.addEventListener('DOMContentLoaded', () => {
   const grid = document.getElementById('exercise-grid');
+  const loadSentinel = document.getElementById('load-sentinel');
+  const loadStatus = document.getElementById('load-status');
   const searchInput = document.getElementById('search-input');
   const clearSearchBtn = document.getElementById('clear-search');
   const countSpan = document.getElementById('exercise-count');
-  
-  // Modal Elements
+
   const modal = document.getElementById('exercise-modal');
   const modalBackdrop = document.getElementById('modal-backdrop');
   const modalClose = document.getElementById('modal-close');
+  const modalContent = document.getElementById('modal-content');
   const modalImage = document.getElementById('modal-image');
   const modalTitle = document.getElementById('modal-title');
   const modalMuscle = document.getElementById('modal-muscle');
@@ -29,227 +34,258 @@ document.addEventListener('DOMContentLoaded', () => {
   const modalInstructions = document.getElementById('modal-instructions');
 
   let searchQuery = '';
-  let selectedMuscles = [];
-  let selectedEquipments = [];
-  let searchTimeout = null;
+  const selectedMuscles = [];
+  const selectedEquipments = [];
+  let filteredExercises = exercisesData;
+  let renderedCount = 0;
+  let searchTimeout;
+  let lastFocusedElement;
 
-  // Populate Filters
-  const muscles = [...new Set(exercisesData.map(ex => ex.primaryMuscleVi))].sort();
-  const equipments = [...new Set(exercisesData.map(ex => ex.equipmentVi))].sort();
+  const muscles = [...new Set(exercisesData.map((exercise) => exercise.primaryMuscleVi))].sort();
+  const equipments = [...new Set(exercisesData.map((exercise) => exercise.equipmentVi))].sort();
 
-  function setupCustomDropdown(wrapperId, optionsList, selectedState, placeholder, onUpdate) {
+  function updateDropdownLabel(textSpan, iconSvg, selectedState, placeholder) {
+    textSpan.textContent = selectedState.length === 0
+      ? placeholder
+      : selectedState.length === 1
+        ? selectedState[0]
+        : `Đã chọn (${selectedState.length})`;
+    iconSvg.innerHTML = selectedState.length === 0
+      ? '<path d="m6 9 6 6 6-6"/>'
+      : '<path d="M18 6 6 18"/><path d="m6 6 12 12"/>';
+    iconSvg.classList.toggle('is-clear', selectedState.length > 0);
+  }
+
+  function setupCustomDropdown(wrapperId, optionsList, selectedState, placeholder) {
     const wrapper = document.getElementById(wrapperId);
-    const btn = wrapper.querySelector('button');
-    const textSpan = btn.querySelector('span');
-    const menu = wrapper.querySelector('div.filter-menu');
-    const iconSvg = btn.querySelector('.dropdown-arrow');
+    const button = wrapper.querySelector('button');
+    const textSpan = button.querySelector('span');
+    const menu = wrapper.querySelector('.filter-menu');
+    const iconSvg = button.querySelector('.dropdown-arrow');
 
-    iconSvg.addEventListener('click', (e) => {
-      if (selectedState.length > 0) {
-        e.stopPropagation();
-        selectedState.length = 0;
-        const checkboxes = menu.querySelectorAll('input[type="checkbox"]');
-        checkboxes.forEach(cb => cb.checked = false);
-        
-        textSpan.textContent = placeholder;
-        iconSvg.innerHTML = '<path d="m6 9 6 6 6-6"/>';
-        iconSvg.classList.remove('is-clear', 'text-red-400');
-        
-        onUpdate();
-      }
+    iconSvg.addEventListener('click', (event) => {
+      if (selectedState.length === 0) return;
+      event.stopPropagation();
+      selectedState.length = 0;
+      menu.querySelectorAll('input[type="checkbox"]').forEach((checkbox) => {
+        checkbox.checked = false;
+      });
+      updateDropdownLabel(textSpan, iconSvg, selectedState, placeholder);
+      renderExercises();
     });
 
-    btn.addEventListener('click', (e) => {
-      e.stopPropagation();
-      // Đóng tất cả các menu khác đang mở
-      document.querySelectorAll('.filter-menu').forEach(m => {
-        if (m !== menu) m.classList.add('hidden');
+    button.addEventListener('click', (event) => {
+      event.stopPropagation();
+      document.querySelectorAll('.filter-menu').forEach((otherMenu) => {
+        if (otherMenu !== menu) otherMenu.classList.add('hidden');
       });
       menu.classList.toggle('hidden');
+      button.setAttribute('aria-expanded', String(!menu.classList.contains('hidden')));
     });
 
-    optionsList.forEach(opt => {
+    const optionsFragment = document.createDocumentFragment();
+    optionsList.forEach((option) => {
       const label = document.createElement('label');
       label.className = 'flex items-center gap-3 p-2 hover:bg-white/5 rounded-lg cursor-pointer transition-colors';
       label.innerHTML = `
-        <input type="checkbox" value="${opt}" class="w-4 h-4 rounded border-gray-300 text-plato-primary focus:ring-plato-primary bg-white/5 cursor-pointer">
-        <span class="text-sm font-medium text-gray-200">${opt}</span>
+        <input type="checkbox" value="${option}" class="w-4 h-4 rounded border-gray-300 text-plato-primary focus:ring-plato-primary bg-white/5 cursor-pointer">
+        <span class="text-sm font-medium text-gray-200">${option}</span>
       `;
-      const checkbox = label.querySelector('input');
-      checkbox.addEventListener('change', (e) => {
-        if (e.target.checked) {
-          selectedState.push(opt);
+      label.querySelector('input').addEventListener('change', (event) => {
+        if (event.target.checked) {
+          selectedState.push(option);
         } else {
-          selectedState.splice(selectedState.indexOf(opt), 1);
+          selectedState.splice(selectedState.indexOf(option), 1);
         }
-        
-        if (selectedState.length === 0) {
-          textSpan.textContent = placeholder;
-          iconSvg.innerHTML = '<path d="m6 9 6 6 6-6"/>';
-          iconSvg.classList.remove('is-clear', 'text-red-400');
-        } else {
-          if (selectedState.length === 1) {
-            textSpan.textContent = selectedState[0];
-          } else {
-            textSpan.textContent = `Đã chọn (${selectedState.length})`;
-          }
-          iconSvg.innerHTML = '<path d="M18 6 6 18" /><path d="m6 6 12 12" />';
-          iconSvg.classList.add('is-clear');
-        }
-        onUpdate();
+        updateDropdownLabel(textSpan, iconSvg, selectedState, placeholder);
+        renderExercises();
       });
-      menu.appendChild(label);
+      optionsFragment.appendChild(label);
     });
+    menu.appendChild(optionsFragment);
 
-    document.addEventListener('click', (e) => {
-      if (!wrapper.contains(e.target)) {
+    document.addEventListener('click', (event) => {
+      if (!wrapper.contains(event.target)) {
         menu.classList.add('hidden');
+        button.setAttribute('aria-expanded', 'false');
       }
     });
   }
 
-  setupCustomDropdown('muscle-filter-wrapper', muscles, selectedMuscles, 'Tất cả nhóm cơ', renderExercises);
-  setupCustomDropdown('equipment-filter-wrapper', equipments, selectedEquipments, 'Tất cả dụng cụ', renderExercises);
+  function createExerciseCard(exercise, index) {
+    const card = document.createElement('button');
+    card.type = 'button';
+    card.className = 'exercise-card group text-left w-full';
+    card.dataset.exerciseId = exercise.id;
+    card.setAttribute('aria-label', `Xem hướng dẫn bài tập ${exercise.name}`);
+    card.innerHTML = `
+      <span class="relative w-full aspect-square bg-white flex items-center justify-center overflow-hidden shrink-0 exercise-media">
+        <img src="${exercise.image || '/logo_plato.png'}" alt="Minh họa bài tập ${exercise.name}" width="480" height="480" ${index < 4 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" class="w-full h-full object-contain transition-transform duration-300 group-hover:scale-[1.03]" data-static-src="${exercise.image || '/logo_plato.png'}" data-gif-src="${exercise.gif || ''}">
+        ${exercise.gif ? '<span class="exercise-preview-badge"><svg aria-hidden="true" viewBox="0 0 24 24"><polygon points="6 3 20 12 6 21 6 3"/></svg>Xem chuyển động</span>' : ''}
+      </span>
+      <span class="p-5 flex-1 flex flex-col">
+        <span class="text-lg font-bold text-gray-100 exercise-title mb-4 line-clamp-2 group-hover:text-plato-primary transition-colors leading-tight">${exercise.name}</span>
+        <span class="flex flex-wrap gap-2 mt-auto">
+          <span class="px-3 py-1.5 bg-plato-primary/10 text-plato-primary border border-plato-primary/20 rounded-lg text-xs font-bold uppercase tracking-wider">${exercise.primaryMuscleVi}</span>
+          <span class="px-3 py-1.5 bg-white/5 text-gray-300 border border-white/10 rounded-lg text-xs font-bold uppercase tracking-wider inline-flex items-center gap-1.5 equipment-tag">
+            <svg aria-hidden="true" viewBox="0 0 24 24" class="w-3.5 h-3.5 opacity-70" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6.5 6.5 11 11"/><path d="m21 21-1-1"/><path d="m3 3 1 1"/><path d="m18 22 4-4"/><path d="m2 6 4-4"/><path d="m3 10 7-7"/><path d="m14 21 7-7"/></svg>
+            ${exercise.equipmentVi}
+          </span>
+        </span>
+      </span>
+    `;
+    return card;
+  }
+
+  function updateLoadStatus() {
+    const hasMore = renderedCount < filteredExercises.length;
+    loadStatus.textContent = filteredExercises.length > 0
+      ? `Đã tải ${renderedCount}/${filteredExercises.length} bài tập`
+      : '';
+    loadSentinel.classList.toggle('hidden', !hasMore);
+  }
+
+  function loadNextBatch() {
+    if (renderedCount >= filteredExercises.length) return;
+    const nextExercises = filteredExercises.slice(renderedCount, renderedCount + PAGE_SIZE);
+    const fragment = document.createDocumentFragment();
+    nextExercises.forEach((exercise, index) => {
+      fragment.appendChild(createExerciseCard(exercise, renderedCount + index));
+    });
+    grid.appendChild(fragment);
+    renderedCount += nextExercises.length;
+    updateLoadStatus();
+  }
+
+  const loadObserver = 'IntersectionObserver' in window
+    ? new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting) loadNextBatch();
+      }, { rootMargin: '600px 0px' })
+    : null;
+
+  if (loadObserver) loadObserver.observe(loadSentinel);
 
   function renderExercises() {
-    let filtered = exercisesData;
+    const queryTokens = removeAccents(searchQuery.toLowerCase()).trim().split(/\s+/).filter(Boolean);
+    filteredExercises = exercisesData.filter((exercise) => (
+      queryTokens.every((token) => searchIndex.get(exercise.id).includes(token))
+      && (selectedMuscles.length === 0 || selectedMuscles.includes(exercise.primaryMuscleVi))
+      && (selectedEquipments.length === 0 || selectedEquipments.includes(exercise.equipmentVi))
+    ));
 
-    if (searchQuery) {
-      const q = removeAccents(searchQuery.toLowerCase()).trim();
-      const tokens = q.split(/\s+/).filter(e => e.length > 0);
-      filtered = filtered.filter(ex => {
-        const normalizedName = removeAccents(ex.name.toLowerCase());
-        const normalizedMuscle = removeAccents(ex.primaryMuscleVi.toLowerCase());
-        const haystack = `${normalizedName} ${normalizedMuscle}`;
-        return tokens.length === 0 || tokens.every(t => haystack.includes(t));
-      });
-    }
+    countSpan.textContent = filteredExercises.length;
+    grid.replaceChildren();
+    renderedCount = 0;
 
-    if (selectedMuscles.length > 0) {
-      filtered = filtered.filter(ex => selectedMuscles.includes(ex.primaryMuscleVi));
-    }
-
-    if (selectedEquipments.length > 0) {
-      filtered = filtered.filter(ex => selectedEquipments.includes(ex.equipmentVi));
-    }
-
-    countSpan.textContent = filtered.length;
-
-    grid.innerHTML = '';
-    
-    if (filtered.length === 0) {
-      grid.innerHTML = `
-        <div class="col-span-full text-center py-12 text-gray-400">
-          Không tìm thấy bài tập nào phù hợp.
-        </div>
-      `;
+    if (filteredExercises.length === 0) {
+      const emptyState = document.createElement('div');
+      emptyState.className = 'col-span-full text-center py-16 px-6 rounded-3xl border border-dashed border-white/15 bg-white/[0.03]';
+      emptyState.innerHTML = '<p class="text-lg font-bold text-gray-200 mb-2">Không tìm thấy bài tập phù hợp</p><p class="text-gray-400">Hãy thử tên bài tập, nhóm cơ hoặc bỏ bớt bộ lọc.</p>';
+      grid.appendChild(emptyState);
+      updateLoadStatus();
       return;
     }
 
-    filtered.forEach(ex => {
-      const card = document.createElement('div');
-      card.className = "exercise-card group";
-      card.innerHTML = `
-        <div class="relative w-full aspect-square bg-white flex items-center justify-center overflow-hidden shrink-0">
-          <img src="${ex.image || '/logo_plato.png'}" alt="${ex.name}" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" data-img="${ex.image}" data-gif="${ex.gif}">
-        </div>
-        <div class="p-6 flex-1 flex flex-col">
-          <h3 class="text-xl font-bold text-gray-100 exercise-title mb-4 line-clamp-2 group-hover:text-plato-primary transition-colors leading-tight">${ex.name}</h3>
-          <div class="flex flex-wrap gap-2 mt-auto">
-            <span class="px-3 py-1.5 bg-plato-primary/10 text-plato-primary border border-plato-primary/20 rounded-lg text-xs font-bold uppercase tracking-wider">${ex.primaryMuscleVi}</span>
-            <span class="px-3 py-1.5 bg-white/5 text-gray-300 border border-white/10 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 equipment-tag">
-              <i data-lucide="dumbbell" class="w-3.5 h-3.5 opacity-70"></i> ${ex.equipmentVi}
-            </span>
-          </div>
-        </div>
-      `;
-      
-      const imgEl = card.querySelector('img');
-      card.addEventListener('mouseenter', () => {
-        if (ex.gif) imgEl.src = ex.gif;
-      });
-      card.addEventListener('mouseleave', () => {
-        if (ex.image) imgEl.src = ex.image;
-      });
-
-      card.addEventListener('click', () => openModal(ex));
-      
-      grid.appendChild(card);
-    });
-
-    // Re-initialize lucide icons for new elements
-    createIcons({
-      icons: { Dumbbell, Play }
-    });
+    loadNextBatch();
+    if (!loadObserver) {
+      while (renderedCount < filteredExercises.length) loadNextBatch();
+    }
   }
 
-  function openModal(ex) {
-    modalTitle.textContent = ex.name;
-    modalImage.src = ex.gif || ex.image || '/logo_plato.png';
-    modalMuscle.textContent = ex.primaryMuscleVi;
-    modalEquipment.textContent = ex.equipmentVi;
-    
-    modalSecondaryMuscles.innerHTML = '';
-    if (ex.secondaryMuscles && ex.secondaryMuscles.length > 0) {
-      ex.secondaryMuscles.forEach(m => {
+  function openModal(exercise) {
+    lastFocusedElement = document.activeElement;
+    modalTitle.textContent = exercise.name;
+    modalImage.src = exercise.gif || exercise.image || '/logo_plato.png';
+    modalImage.alt = `Minh họa chuyển động ${exercise.name}`;
+    modalMuscle.textContent = exercise.primaryMuscleVi;
+    modalEquipment.textContent = exercise.equipmentVi;
+    modalSecondaryMuscles.replaceChildren();
+
+    if (exercise.secondaryMuscles?.length) {
+      const fragment = document.createDocumentFragment();
+      exercise.secondaryMuscles.forEach((muscle) => {
         const span = document.createElement('span');
         span.className = 'px-3 py-1 bg-white/5 text-gray-300 rounded-full text-xs border border-white/10';
-        span.textContent = m;
-        modalSecondaryMuscles.appendChild(span);
+        span.textContent = muscle;
+        fragment.appendChild(span);
       });
+      modalSecondaryMuscles.appendChild(fragment);
     } else {
       modalSecondaryMuscles.innerHTML = '<span class="text-gray-500 text-sm italic">Không có</span>';
     }
 
-    modalInstructions.textContent = ex.instructions || "Không có hướng dẫn.";
-
+    modalInstructions.textContent = exercise.instructions || 'Không có hướng dẫn.';
     modal.classList.remove('hidden');
-    // Allow display block to apply before animating opacity
     requestAnimationFrame(() => {
       modal.classList.remove('opacity-0', 'pointer-events-none');
-      document.getElementById('modal-content').classList.remove('scale-95');
-      document.getElementById('modal-content').classList.add('scale-100');
+      modalContent.classList.replace('scale-95', 'scale-100');
+      modalClose.focus();
     });
-    document.body.style.overflow = 'hidden'; // Prevent background scrolling
+    document.body.style.overflow = 'hidden';
   }
 
   function closeModal() {
     modal.classList.add('opacity-0', 'pointer-events-none');
-    document.getElementById('modal-content').classList.remove('scale-100');
-    document.getElementById('modal-content').classList.add('scale-95');
-    
+    modalContent.classList.replace('scale-100', 'scale-95');
     setTimeout(() => {
       modal.classList.add('hidden');
-      modalImage.src = '';
+      modalImage.removeAttribute('src');
       document.body.style.overflow = '';
+      lastFocusedElement?.focus();
     }, 300);
   }
 
-  // Event Listeners
-  searchInput.addEventListener('input', (e) => {
-    const val = e.target.value;
-    if (val) {
-      clearSearchBtn.classList.remove('hidden');
-    } else {
-      clearSearchBtn.classList.add('hidden');
-    }
+  setupCustomDropdown('muscle-filter-wrapper', muscles, selectedMuscles, 'Tất cả nhóm cơ');
+  setupCustomDropdown('equipment-filter-wrapper', equipments, selectedEquipments, 'Tất cả dụng cụ');
+
+  grid.addEventListener('click', (event) => {
+    const card = event.target.closest('.exercise-card');
+    if (card) openModal(exercisesById.get(card.dataset.exerciseId));
+  });
+
+  if (window.matchMedia('(hover: hover) and (pointer: fine)').matches) {
+    grid.addEventListener('mouseover', (event) => {
+      const card = event.target.closest('.exercise-card');
+      if (!card || card.contains(event.relatedTarget)) return;
+      const image = card.querySelector('img');
+      if (image.dataset.gifSrc) image.src = image.dataset.gifSrc;
+    });
+    grid.addEventListener('mouseout', (event) => {
+      const card = event.target.closest('.exercise-card');
+      if (!card || card.contains(event.relatedTarget)) return;
+      const image = card.querySelector('img');
+      image.src = image.dataset.staticSrc;
+    });
+  }
+
+  searchInput.addEventListener('input', (event) => {
+    const value = event.target.value;
+    clearSearchBtn.classList.toggle('hidden', !value);
     clearTimeout(searchTimeout);
     searchTimeout = setTimeout(() => {
-      searchQuery = val;
+      searchQuery = value;
       renderExercises();
-    }, 300);
+    }, 250);
   });
 
   clearSearchBtn.addEventListener('click', () => {
     searchInput.value = '';
     searchQuery = '';
     clearSearchBtn.classList.add('hidden');
+    searchInput.focus();
     renderExercises();
   });
 
   modalClose.addEventListener('click', closeModal);
   modalBackdrop.addEventListener('click', closeModal);
+  document.addEventListener('keydown', (event) => {
+    if (modal.classList.contains('hidden')) return;
+    if (event.key === 'Escape') closeModal();
+    if (event.key === 'Tab') {
+      event.preventDefault();
+      modalClose.focus();
+    }
+  });
 
-  // Initial render
   renderExercises();
 });

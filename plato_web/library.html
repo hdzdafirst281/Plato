@@ -5,7 +5,7 @@
     <link rel="icon" type="image/png" href="/logo_plato.png" />
     <link rel="stylesheet" href="/style.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Thư viện bài tập - Plato Zenithas</title>
+    <title>Thư viện 90+ bài tập gym có hướng dẫn | Plato Zenithas</title>
     <script>
       if (localStorage.getItem('theme') === 'light') {
         document.documentElement.classList.add('light-mode');
@@ -17,7 +17,23 @@
         window.scrollTo(0, 0);
       });
     </script>
-    <meta name="description" content="Thư viện bài tập đa dạng và phong phú của Plato." />
+    <meta name="description" content="Khám phá hơn 90 bài tập gym với hình minh họa, chuyển động và hướng dẫn chi tiết. Tìm kiếm theo nhóm cơ hoặc dụng cụ cùng Plato." />
+    <link rel="canonical" href="https://plato.zenithas.vn/library" />
+    <meta property="og:title" content="Thư viện 90+ bài tập gym có hướng dẫn | Plato" />
+    <meta property="og:description" content="Tìm bài tập theo nhóm cơ hoặc dụng cụ, xem chuyển động và hướng dẫn thực hiện chi tiết cùng Plato." />
+    <meta property="og:image" content="https://plato.zenithas.vn/og-image-v5.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:alt" content="Ảnh giới thiệu ứng dụng tập luyện Plato" />
+    <meta property="og:url" content="https://plato.zenithas.vn/library" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="vi_VN" />
+    <meta property="og:site_name" content="Plato Zenithas" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Thư viện 90+ bài tập gym | Plato Zenithas" />
+    <meta name="twitter:description" content="Tìm bài tập theo nhóm cơ, dụng cụ và xem hướng dẫn chuyển động chi tiết." />
+    <meta name="twitter:image" content="https://plato.zenithas.vn/og-image-v5.jpg" />
     <style>
       /* Custom Fixes */
       html.light-mode .exercise-card {
@@ -96,6 +112,26 @@
       ]
     }
     </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      "name": "Thư viện bài tập Plato",
+      "url": "https://plato.zenithas.vn/library",
+      "description": "Thư viện hơn 90 bài tập gym có hình minh họa, chuyển động và hướng dẫn chi tiết theo nhóm cơ và dụng cụ.",
+      "isPartOf": {
+        "@type": "WebSite",
+        "@id": "https://plato.zenithas.vn/#website",
+        "name": "Plato Zenithas",
+        "url": "https://plato.zenithas.vn/"
+      },
+      "mainEntity": {
+        "@type": "ItemList",
+        "numberOfItems": 93,
+        "itemListOrder": "https://schema.org/ItemListUnordered"
+      }
+    }
+    </script>
   </head>
   <body>
     <!-- Global Loader -->
@@ -135,8 +171,6 @@
         </div>
       </div>
     </div>
-    </div>
-
     <!-- Navbar -->
     <nav class="fixed w-full z-50 top-4 px-4 transition-all duration-300" id="navbar">
       <div class="glass-nav rounded-2xl max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -175,20 +209,23 @@
       </div>
     </nav>
 
-    <main class="min-h-screen pt-32 pb-20 px-4">
-      <div class="max-w-6xl mx-auto">
-        <div class="text-center mb-12" data-aos="fade-up">
-          <h1 class="text-3xl sm:text-4xl md:text-5xl font-black mb-4">Thư viện bài tập</h1>
-          <p class="text-gray-400 text-lg">Khám phá và tìm kiếm các bài tập phù hợp với mục tiêu của bạn.</p>
+    <main class="min-h-screen pt-32 pb-20 px-4 relative overflow-clip">
+      <div class="absolute inset-x-0 top-0 h-[34rem] bg-[radial-gradient(circle_at_50%_0%,rgba(30,136,229,0.16),transparent_62%)] pointer-events-none" aria-hidden="true"></div>
+      <div class="max-w-6xl mx-auto relative">
+        <div class="text-center mb-10 md:mb-12" data-aos="fade-up">
+          <p class="text-plato-primary text-sm font-black uppercase tracking-[0.22em] mb-3">Tập đúng · Tiến bộ nhanh</p>
+          <h1 class="text-4xl sm:text-5xl md:text-6xl font-black mb-4 tracking-tight">Thư viện bài tập</h1>
+          <p class="text-gray-400 text-base sm:text-lg max-w-2xl mx-auto">Tìm bài tập theo nhóm cơ và dụng cụ. Di chuột để xem chuyển động, chọn thẻ để mở hướng dẫn chi tiết.</p>
         </div>
 
         <!-- Filters & Search -->
-        <div class="flex flex-col md:flex-row gap-4 mb-6 relative z-40" data-aos="fade-up" data-aos-delay="100">
+        <section aria-label="Tìm kiếm và lọc bài tập" class="library-toolbar flex flex-col md:flex-row gap-4 mb-6 relative z-40" data-aos="fade-up" data-aos-delay="100">
           <!-- Search -->
           <div class="flex-1 relative group">
+            <label for="search-input" class="sr-only">Tìm kiếm bài tập</label>
             <i data-lucide="search" class="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-plato-primary transition-colors w-5 h-5 z-10"></i>
-            <input type="text" id="search-input" placeholder="Tìm kiếm bài tập..." class="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 pl-12 pr-12 text-white focus:outline-none focus:border-plato-primary focus:ring-1 focus:ring-plato-primary transition-all shadow-md custom-input">
-            <button id="clear-search" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-plato-primary hidden transition-colors z-10">
+            <input type="search" id="search-input" placeholder="Tên bài tập hoặc nhóm cơ..." autocomplete="off" class="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 pl-12 pr-12 text-white focus:outline-none focus:border-plato-primary focus:ring-1 focus:ring-plato-primary transition-all shadow-md custom-input">
+            <button type="button" id="clear-search" aria-label="Xóa nội dung tìm kiếm" class="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400 hover:text-plato-primary hidden transition-colors z-10 cursor-pointer">
               <i data-lucide="x" class="w-5 h-5"></i>
             </button>
           </div>
@@ -196,7 +233,7 @@
           <!-- Filters -->
           <div class="flex flex-col sm:flex-row gap-4 w-full md:w-auto relative z-40">
             <div id="muscle-filter-wrapper" class="relative w-full sm:w-48">
-              <button id="muscle-dropdown-btn" class="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 px-4 text-white focus:outline-none focus:border-plato-primary cursor-pointer shadow-md custom-input flex justify-between items-center transition-colors filter-btn" aria-expanded="false">
+              <button type="button" id="muscle-dropdown-btn" aria-controls="muscle-dropdown-menu" class="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 px-4 text-white focus:outline-none focus:border-plato-primary cursor-pointer shadow-md custom-input flex justify-between items-center transition-colors filter-btn" aria-expanded="false">
                 <span class="truncate pr-2" id="muscle-dropdown-text">Tất cả nhóm cơ</span>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-gray-400 shrink-0 transition-transform duration-300 dropdown-arrow"><path d="m6 9 6 6 6-6"/></svg>
               </button>
@@ -206,7 +243,7 @@
             </div>
             
             <div id="equipment-filter-wrapper" class="relative w-full sm:w-48">
-              <button id="equipment-dropdown-btn" class="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 px-4 text-white focus:outline-none focus:border-plato-primary cursor-pointer shadow-md custom-input flex justify-between items-center transition-colors filter-btn" aria-expanded="false">
+              <button type="button" id="equipment-dropdown-btn" aria-controls="equipment-dropdown-menu" class="w-full bg-white/5 border border-white/10 rounded-xl py-3.5 px-4 text-white focus:outline-none focus:border-plato-primary cursor-pointer shadow-md custom-input flex justify-between items-center transition-colors filter-btn" aria-expanded="false">
                 <span class="truncate pr-2" id="equipment-dropdown-text">Tất cả dụng cụ</span>
                 <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-gray-400 shrink-0 transition-transform duration-300 dropdown-arrow"><path d="m6 9 6 6 6-6"/></svg>
               </button>
@@ -215,36 +252,41 @@
               </div>
             </div>
           </div>
-        </div>
-        <div class="flex items-center gap-3 mt-0 mb-8" data-aos="fade-up" data-aos-delay="150">
+        </section>
+        <div class="flex flex-wrap items-center justify-between gap-3 mt-0 mb-8" data-aos="fade-up" data-aos-delay="150">
           <div class="px-5 py-2.5 rounded-full bg-plato-primary/10 border border-plato-primary/20 text-plato-primary font-bold text-base flex items-center gap-2 shadow-sm backdrop-blur-md">
             <i data-lucide="activity" class="w-5 h-5"></i>
-            <span>Hiển thị: <span id="exercise-count">0</span> bài tập</span>
+            <span><span id="exercise-count">0</span> bài tập phù hợp</span>
           </div>
+          <p id="load-status" class="text-sm text-gray-400" aria-live="polite"></p>
         </div>
 
         <!-- Exercise Grid -->
         <div id="exercise-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6" data-aos="fade-up" data-aos-delay="200">
           <!-- Exercise cards will be injected here -->
         </div>
+        <div id="load-sentinel" class="flex items-center justify-center gap-3 py-10 text-sm font-semibold text-gray-400" aria-hidden="true">
+          <span class="w-5 h-5 rounded-full border-2 border-white/15 border-t-plato-primary animate-spin"></span>
+          Đang tải thêm bài tập
+        </div>
       </div>
     </main>
 
     <!-- Exercise Modal -->
-    <div id="exercise-modal" class="fixed inset-0 z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 pointer-events-none p-4 md:p-8">
+    <div id="exercise-modal" role="dialog" aria-modal="true" aria-labelledby="modal-title" class="fixed inset-0 z-[100] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 pointer-events-none p-4 md:p-8">
       <div class="absolute inset-0 bg-black/90 backdrop-blur-md" id="modal-backdrop"></div>
       
       <!-- Modal Container: Strict dimensions for Desktop -->
       <div class="relative w-full max-w-4xl rounded-[2rem] overflow-y-auto overflow-x-hidden md:overflow-hidden transform scale-95 transition-transform duration-300 flex flex-col md:flex-row h-auto max-h-[90vh] md:h-[600px] modal-card" id="modal-content">
         
         <!-- Close Button -->
-        <button id="modal-close" class="absolute top-4 right-4 md:top-6 md:right-6 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/50 backdrop-blur-md border border-white/10 text-white flex items-center justify-center hover:bg-plato-primary hover:text-black hover:border-plato-primary transition-all duration-300 shadow-xl group">
+        <button type="button" id="modal-close" aria-label="Đóng hướng dẫn bài tập" class="absolute top-4 right-4 md:top-6 md:right-6 z-20 w-10 h-10 md:w-12 md:h-12 rounded-full bg-black/50 backdrop-blur-md border border-white/10 text-white flex items-center justify-center hover:bg-plato-primary hover:text-black hover:border-plato-primary transition-all duration-300 shadow-xl group cursor-pointer">
           <i data-lucide="x" class="w-5 h-5 group-hover:rotate-90 transition-transform duration-300"></i>
         </button>
         
         <!-- Image/Gif Section (Left on Desktop, Top on Mobile) -->
         <div class="w-full md:w-5/12 bg-white flex items-center justify-center relative p-0 shrink-0 border-b md:border-b-0 md:border-r border-white/10 aspect-3-2 overflow-hidden md:aspect-auto md:overflow-visible md:h-full modal-left">
-          <img id="modal-image" src="" alt="Exercise" class="w-full h-full object-contain">
+          <img id="modal-image" alt="" width="480" height="480" decoding="async" class="w-full h-full object-contain">
         </div>
         
         <!-- Content Section (Right on Desktop, Bottom on Mobile) -->

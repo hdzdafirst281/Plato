@@ -3,29 +3,64 @@
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/png" href="/logo_plato.png" />
+    <link rel="apple-touch-icon" href="/logo_plato.png" />
+    <link rel="manifest" href="/site.webmanifest" />
     <link rel="stylesheet" href="/style.css" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Plato - Zenithas</title>
+    <title>Plato - Nhật ký tập luyện</title>
     <script>
       if (localStorage.getItem('theme') === 'light') {
         document.documentElement.classList.add('light-mode');
       }
     </script>
-    <meta name="description" content="Plato - Hệ sinh thái toàn diện kết hợp Tập luyện, Dinh dưỡng, và Gamification. Kiến trúc Local-First hoạt động mượt mà ngay cả khi không có mạng." />
-    <!-- SEO and Open Graph tags -->
+    <meta name="description" content="Plato Zenithas giúp bạn ghi chép buổi tập, theo dõi dinh dưỡng, lịch tập và tiến độ thể hình ngay cả khi không có mạng. Tải miễn phí." />
+    <meta name="application-name" content="Plato Zenithas" />
     <link rel="canonical" href="https://plato.zenithas.vn/" />
-    <meta property="og:title" content="Plato - Nâng tầm hành trình tập luyện" />
-    <meta property="og:description" content="Hệ sinh thái toàn diện kết hợp Tập luyện, Dinh dưỡng, và Gamification. Hoạt động offline mượt mà." />
-    <meta property="og:image" content="/og-image.png" />
+    <meta property="og:title" content="Plato Zenithas – Kỷ luật mỗi ngày, thăng hạng bản thân" />
+    <meta property="og:description" content="Ghi chép tập luyện, theo dõi dinh dưỡng và tiến độ thể hình ngay cả khi không có mạng cùng Plato Zenithas." />
+    <meta property="og:image" content="https://plato.zenithas.vn/og-image-v5.jpg" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:type" content="image/jpeg" />
+    <meta property="og:image:alt" content="Plato – Kỷ luật mỗi ngày, thăng hạng bản thân" />
     <meta property="og:url" content="https://plato.zenithas.vn/" />
     <meta property="og:type" content="website" />
+    <meta property="og:locale" content="vi_VN" />
+    <meta property="og:site_name" content="Plato Zenithas" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Plato Zenithas – Kỷ luật mỗi ngày, thăng hạng bản thân" />
+    <meta name="twitter:description" content="Theo dõi tập luyện, dinh dưỡng và tiến độ thể hình ngay cả khi không có mạng." />
+    <meta name="twitter:image" content="https://plato.zenithas.vn/og-image-v5.jpg" />
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "@id": "https://plato.zenithas.vn/#website",
+      "url": "https://plato.zenithas.vn/",
+      "name": "Plato Zenithas",
+      "alternateName": ["Plato", "plato.zenithas.vn"],
+      "inLanguage": "vi-VN",
+      "publisher": {
+        "@id": "https://plato.zenithas.vn/#organization"
+      }
+    }
+    </script>
     <script type="application/ld+json">
     {
       "@context": "https://schema.org",
       "@type": "Organization",
+      "@id": "https://plato.zenithas.vn/#organization",
       "name": "Zenithas",
+      "alternateName": "Zenithas Technology",
       "url": "https://plato.zenithas.vn/",
       "logo": "https://plato.zenithas.vn/logo_plato.png",
+      "brand": {
+        "@type": "Brand",
+        "name": "Plato",
+        "alternateName": "Plato Zenithas",
+        "url": "https://plato.zenithas.vn/",
+        "logo": "https://plato.zenithas.vn/logo_plato.png"
+      },
       "sameAs": [
         "https://www.facebook.com/profile.php?id=61592005979928",
         "https://www.instagram.com/plato.zenithas/",
@@ -46,6 +81,28 @@
           "url": "https://www.linkedin.com/in/duy-ho%C3%A0ng-580784382"
         }
       ]
+    }
+    </script>
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "MobileApplication",
+      "@id": "https://plato.zenithas.vn/#app",
+      "name": "Plato",
+      "alternateName": "Plato Zenithas",
+      "url": "https://plato.zenithas.vn/",
+      "downloadUrl": "https://play.google.com/store/apps/details?id=vn.zenithas.plato",
+      "operatingSystem": "Android",
+      "applicationCategory": "HealthApplication",
+      "description": "Ứng dụng ghi chép tập luyện, theo dõi dinh dưỡng và tiến độ thể hình theo kiến trúc local-first.",
+      "publisher": {
+        "@id": "https://plato.zenithas.vn/#organization"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "VND"
+      }
     }
     </script>
   </head>
@@ -129,27 +186,34 @@
         <!-- Hero Left: Carousel -->
         <div class="lg:col-span-5 flex justify-center relative w-full order-2 lg:order-1" data-aos="fade-up" data-aos-delay="100">
           <!-- App Screenshots Carousel -->
-          <div class="relative w-full max-w-[460px] overflow-hidden rounded-[2.5rem] shadow-2xl border-4 border-gray-800 group">
+          <div id="carousel-region" role="region" aria-roledescription="carousel" aria-label="Ảnh giao diện ứng dụng Plato" tabindex="0" class="relative w-full max-w-[460px] overflow-hidden rounded-[2.5rem] shadow-2xl border-4 border-gray-800 group">
             <!-- Slides -->
             <div id="app-carousel" class="relative w-full">
-              <img src="/1.png" alt="Plato Screen 1" width="480" height="854" loading="eager" class="relative w-full h-auto transition-opacity duration-1000 opacity-100 carousel-slide" />
-              <img src="/2.png" alt="Plato Screen 2" width="480" height="854" loading="eager" class="absolute inset-0 w-full h-full transition-opacity duration-1000 opacity-0 carousel-slide" />
-              <img src="/3.png" alt="Plato Screen 3" width="480" height="854" loading="lazy" class="absolute inset-0 w-full h-full transition-opacity duration-1000 opacity-0 carousel-slide" />
-              <img src="/4.png" alt="Plato Screen 4" width="480" height="854" loading="lazy" class="absolute inset-0 w-full h-full transition-opacity duration-1000 opacity-0 carousel-slide" />
+              <img src="/1.jpg" alt="Màn hình theo dõi tập luyện của Plato" width="960" height="1358" fetchpriority="high" decoding="async" aria-hidden="false" class="relative w-full h-auto transition-opacity duration-1000 opacity-100 carousel-slide" />
+              <img data-src="/2.jpg" alt="Màn hình lập kế hoạch tập luyện của Plato" width="960" height="1358" decoding="async" aria-hidden="true" class="absolute inset-0 w-full h-full transition-opacity duration-1000 opacity-0 carousel-slide" />
+              <img data-src="/3.jpg" alt="Màn hình theo dõi dinh dưỡng của Plato" width="960" height="1358" decoding="async" aria-hidden="true" class="absolute inset-0 w-full h-full transition-opacity duration-1000 opacity-0 carousel-slide" />
+              <img data-src="/4.jpg" alt="Màn hình thử thách và xếp hạng của Plato" width="960" height="1358" decoding="async" aria-hidden="true" class="absolute inset-0 w-full h-full transition-opacity duration-1000 opacity-0 carousel-slide" />
             </div>
+            <p id="carousel-status" class="sr-only" aria-live="polite">Hình 1 trên 4</p>
             
             <!-- Buttons -->
-            <button id="prev-slide" aria-label="Hình ảnh trước" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-plato-primary z-10">
+            <button type="button" id="prev-slide" aria-label="Hình ảnh trước" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity hover:bg-plato-primary z-10 cursor-pointer">
               <i data-lucide="chevron-left" class="w-6 h-6"></i>
             </button>
-            <button id="next-slide" aria-label="Hình ảnh tiếp theo" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/50 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-plato-primary z-10">
+            <button type="button" id="next-slide" aria-label="Hình ảnh tiếp theo" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity hover:bg-plato-primary z-10 cursor-pointer">
               <i data-lucide="chevron-right" class="w-6 h-6"></i>
+            </button>
+            <button type="button" id="carousel-toggle" aria-label="Tạm dừng trình chiếu" aria-pressed="false" class="absolute right-3 bottom-3 bg-black/65 text-white px-3 py-2 rounded-full inline-flex items-center gap-2 text-xs font-bold hover:bg-plato-primary transition-colors z-10 cursor-pointer">
+              <svg id="carousel-pause-icon" aria-hidden="true" viewBox="0 0 24 24" class="w-4 h-4" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
+              <svg id="carousel-play-icon" aria-hidden="true" viewBox="0 0 24 24" class="w-4 h-4 hidden" fill="currentColor"><path d="M7 4.8v14.4a1 1 0 0 0 1.52.85l11.2-7.2a1 1 0 0 0 0-1.7L8.52 3.95A1 1 0 0 0 7 4.8Z"/></svg>
+              <span id="carousel-toggle-text">Tạm dừng</span>
             </button>
           </div>
         </div>
 
         <!-- Hero Right: Text Content -->
         <div class="lg:col-span-7 text-center order-1 lg:order-2" data-aos="fade-up" data-aos-delay="200">
+          <p class="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-plato-primary">Plato Zenithas · Ứng dụng tập luyện thông minh</p>
           <h1 class="text-4xl sm:text-5xl md:text-6xl font-black mb-6 leading-tight tracking-tight text-glow">
             <span class="block mb-6">Kỷ luật mỗi ngày</span>
             <span class="block text-transparent bg-clip-text bg-gradient-to-r from-plato-primary to-plato-purple pb-4">Thăng hạng bản thân</span>
@@ -162,6 +226,7 @@
             <a href="https://play.google.com/store/apps/details?id=vn.zenithas.plato&pli=1" target="_blank" rel="noopener noreferrer" class="inline-block hover:-translate-y-1 transition-transform duration-300">
               <img src="https://play.google.com/intl/en_us/badges/static/images/badges/vi_badge_web_generic.png" alt="Tải ứng dụng trên Google Play" width="167" height="64" class="h-16 w-auto play-btn-glow" />
             </a>
+            <a href="/library" class="btn-secondary">Khám phá thư viện bài tập</a>
           </div>
         </div>
       </div>
@@ -223,7 +288,7 @@
     <!-- Core Features Section (Y xì đúc HTML cũ từ features.html) -->
     <section id="features" class="max-w-6xl mx-auto px-4 py-24 min-h-[70vh]">
       <div class="text-center mb-16" data-aos="fade-up">
-        <h1 class="text-4xl md:text-5xl font-bold mb-4">Tính năng nổi bật</h1>
+        <h2 class="text-4xl md:text-5xl font-bold mb-4">Tính năng nổi bật</h2>
         <p class="text-gray-400 max-w-2xl mx-auto text-lg">Khám phá các công cụ mạnh mẽ giúp bạn đạt được mục tiêu tập luyện một cách khoa học và thú vị nhất.</p>
       </div>
 
@@ -233,11 +298,11 @@
           <div class="rounded-2xl bg-white/5 border border-white/10 h-[400px] lg:h-[550px] flex items-center justify-center relative">
             <div class="absolute inset-0 bg-gradient-to-tr from-plato-primary/20 to-transparent opacity-50 rounded-2xl"></div>
             <!-- Tập luyện Images -->
-            <img src="/product/logworkout.png" alt="Log Workout" width="300" height="600" loading="lazy" class="absolute w-auto h-[85%] left-1/2 -translate-x-[90%] -rotate-6 object-contain shadow-2xl z-10 rounded-2xl border border-white/10 transition-all hover:scale-110 lg:hover:scale-125 hover:drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] hover:z-30 duration-500" />
-            <img src="/product/recovery.png" alt="Recovery" width="300" height="600" loading="lazy" class="absolute w-auto h-[85%] left-1/2 -translate-x-[10%] rotate-6 object-contain shadow-2xl z-10 rounded-2xl border border-white/10 transition-all hover:scale-110 lg:hover:scale-125 hover:drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] hover:z-30 duration-500" />
+            <img src="/product/logworkout.png" alt="Giao diện ghi chép buổi tập trên Plato" width="300" height="600" loading="lazy" class="absolute w-auto h-[85%] left-1/2 -translate-x-[90%] -rotate-6 object-contain shadow-2xl z-10 rounded-2xl border border-white/10 transition-all hover:scale-110 lg:hover:scale-125 hover:drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] hover:z-30 duration-500" />
+            <img src="/product/recovery.png" alt="Giao diện theo dõi phục hồi trên Plato" width="300" height="600" loading="lazy" class="absolute w-auto h-[85%] left-1/2 -translate-x-[10%] rotate-6 object-contain shadow-2xl z-10 rounded-2xl border border-white/10 transition-all hover:scale-110 lg:hover:scale-125 hover:drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] hover:z-30 duration-500" />
           </div>
           <div>
-            <h2 class="text-3xl font-bold mb-4 text-plato-primary">Tập luyện</h2>
+            <h3 class="text-3xl font-bold mb-4 text-plato-primary">Tập luyện</h3>
             <p class="text-gray-300 text-lg leading-relaxed">
               Ghi chép chi tiết buổi tập trong thời gian thực với đồng hồ bấm giờ (Timer). Dễ dàng theo dõi số hiệp (set), số lần lặp (rep), mức tạ, cùng quãng đường và số bước chân cho các bài Cardio. Hệ thống tự động ghi nhận kỷ lục cá nhân (PR) và hỗ trợ Auto-Finish tiện lợi để hoàn tất buổi tập.
             </p>
@@ -247,7 +312,7 @@
         <!-- Feature 2: Dinh dưỡng (Text Left, Image Right) -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center" data-aos="fade-up">
           <div class="order-2 md:order-1">
-            <h2 class="text-3xl font-bold mb-4 text-plato-primary">Dinh dưỡng</h2>
+            <h3 class="text-3xl font-bold mb-4 text-plato-primary">Dinh dưỡng</h3>
             <p class="text-gray-300 text-lg leading-relaxed">
               Theo dõi và quản lý chặt chẽ lượng calo cùng các chỉ số dinh dưỡng đa lượng (Protein, Carb, Fat) tiêu thụ mỗi ngày. Giao diện trực quan giúp bạn kiểm soát sát sao mục tiêu dinh dưỡng cá nhân, đảm bảo cơ thể luôn được cung cấp đủ dưỡng chất để phục hồi và phát triển cơ bắp tối ưu.
             </p>
@@ -255,7 +320,7 @@
           <div class="order-1 md:order-2 rounded-2xl bg-white/5 border border-white/10 h-[400px] lg:h-[550px] flex items-center justify-center relative">
             <div class="absolute inset-0 bg-gradient-to-bl from-plato-primary/20 to-transparent opacity-50 rounded-2xl"></div>
             <!-- Dinh dưỡng Image -->
-            <img src="/product/nutrition.png" alt="Nutrition" width="300" height="600" loading="lazy" class="absolute w-auto h-[90%] object-contain drop-shadow-2xl z-10 rounded-2xl border border-white/10 transition-all hover:scale-110 lg:hover:scale-125 hover:drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] hover:z-30 duration-500" />
+            <img src="/product/nutrition.png" alt="Giao diện theo dõi dinh dưỡng trên Plato" width="300" height="600" loading="lazy" class="absolute w-auto h-[90%] object-contain drop-shadow-2xl z-10 rounded-2xl border border-white/10 transition-all hover:scale-110 lg:hover:scale-125 hover:drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] hover:z-30 duration-500" />
           </div>
         </div>
 
@@ -264,10 +329,10 @@
           <div class="rounded-2xl bg-white/5 border border-white/10 h-[400px] lg:h-[550px] flex items-center justify-center relative">
             <div class="absolute inset-0 bg-gradient-to-tr from-plato-primary/20 to-transparent opacity-50 rounded-2xl"></div>
             <!-- Xếp lịch Image -->
-            <img src="/product/calendar.png" alt="Calendar" width="300" height="600" loading="lazy" class="absolute w-auto h-[90%] object-contain drop-shadow-2xl z-10 rounded-2xl border border-white/10 transition-all hover:scale-110 lg:hover:scale-125 hover:drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] hover:z-30 duration-500" />
+            <img src="/product/calendar.png" alt="Giao diện lịch tập luyện trên Plato" width="300" height="600" loading="lazy" class="absolute w-auto h-[90%] object-contain drop-shadow-2xl z-10 rounded-2xl border border-white/10 transition-all hover:scale-110 lg:hover:scale-125 hover:drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] hover:z-30 duration-500" />
           </div>
           <div>
-            <h2 class="text-3xl font-bold mb-4 text-plato-primary">Xếp lịch</h2>
+            <h3 class="text-3xl font-bold mb-4 text-plato-primary">Xếp lịch</h3>
             <p class="text-gray-300 text-lg leading-relaxed">
               Quản lý lịch trình tập luyện toàn diện thông qua giao diện lịch tháng (Calendar) trực quan. Dễ dàng xem lại lịch sử các buổi tập đã hoàn thành trong quá khứ và lên kế hoạch chi tiết cho các buổi tập sắp tới, giúp bạn duy trì tính kỷ luật và thói quen tập luyện đều đặn.
             </p>
@@ -277,7 +342,7 @@
         <!-- Feature 4: Gamification (Text Left, Image Right) -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center" data-aos="fade-up">
           <div class="order-2 md:order-1">
-            <h2 class="text-3xl font-bold mb-4 text-plato-primary">Gamification</h2>
+            <h3 class="text-3xl font-bold mb-4 text-plato-primary">Gamification</h3>
             <p class="text-gray-300 text-lg leading-relaxed">
               Biến hành trình thể hình thành một trò chơi đầy thú vị! Hoàn thành các nhiệm vụ tuần (Quests) và duy trì chuỗi ngày tập (Streak) để nhận rương thưởng, điểm kinh nghiệm (XP) và thăng cấp. So tài với cộng đồng trên Bảng xếp hạng (Leaderboard) và chinh phục hệ thống Ranks độc quyền.
             </p>
@@ -285,9 +350,9 @@
           <div class="order-1 md:order-2 rounded-2xl bg-white/5 border border-white/10 h-[400px] lg:h-[550px] flex items-center justify-center relative">
             <div class="absolute inset-0 bg-gradient-to-bl from-plato-primary/20 to-transparent opacity-50 rounded-2xl"></div>
             <!-- Gamification Images -->
-            <img src="/product/quests.png" alt="Quests" width="300" height="600" loading="lazy" class="absolute w-auto h-[75%] left-[20%] -translate-x-1/2 -rotate-12 object-contain shadow-2xl z-10 rounded-2xl border border-white/10 transition-all hover:scale-110 lg:hover:scale-125 hover:drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] hover:-translate-y-4 hover:rotate-[-4deg] hover:z-30 duration-500" />
-            <img src="/product/leaderboard.png" alt="Leaderboard" width="300" height="600" loading="lazy" class="absolute w-auto h-[90%] left-1/2 -translate-x-1/2 object-contain shadow-2xl z-20 rounded-2xl border border-white/10 transition-all hover:scale-110 lg:hover:scale-125 hover:drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] hover:-translate-y-4 hover:z-40 duration-500" />
-            <img src="/product/rank.png" alt="Rank" width="300" height="600" loading="lazy" class="absolute w-auto h-[75%] left-[80%] -translate-x-1/2 rotate-12 object-contain shadow-2xl z-10 rounded-2xl border border-white/10 transition-all hover:scale-110 lg:hover:scale-125 hover:drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] hover:-translate-y-4 hover:rotate-[4deg] hover:z-30 duration-500" />
+            <img src="/product/quests.png" alt="Giao diện nhiệm vụ tập luyện trên Plato" width="300" height="600" loading="lazy" class="absolute w-auto h-[75%] left-[20%] -translate-x-1/2 -rotate-12 object-contain shadow-2xl z-10 rounded-2xl border border-white/10 transition-all hover:scale-110 lg:hover:scale-125 hover:drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] hover:-translate-y-4 hover:rotate-[-4deg] hover:z-30 duration-500" />
+            <img src="/product/leaderboard.png" alt="Giao diện bảng xếp hạng trên Plato" width="300" height="600" loading="lazy" class="absolute w-auto h-[90%] left-1/2 -translate-x-1/2 object-contain shadow-2xl z-20 rounded-2xl border border-white/10 transition-all hover:scale-110 lg:hover:scale-125 hover:drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] hover:-translate-y-4 hover:z-40 duration-500" />
+            <img src="/product/rank.png" alt="Giao diện cấp bậc người dùng trên Plato" width="300" height="600" loading="lazy" class="absolute w-auto h-[75%] left-[80%] -translate-x-1/2 rotate-12 object-contain shadow-2xl z-10 rounded-2xl border border-white/10 transition-all hover:scale-110 lg:hover:scale-125 hover:drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] hover:-translate-y-4 hover:rotate-[4deg] hover:z-30 duration-500" />
           </div>
         </div>
 
@@ -296,12 +361,12 @@
           <div class="rounded-2xl bg-white/5 border border-white/10 h-[400px] lg:h-[550px] flex items-center justify-center relative">
             <div class="absolute inset-0 bg-gradient-to-tr from-plato-primary/20 to-transparent opacity-50 rounded-2xl"></div>
             <!-- Số liệu thống kê Images -->
-            <img src="/product/heatmap.png" alt="Heatmap" width="300" height="600" loading="lazy" class="absolute w-auto h-[75%] left-[20%] -translate-x-1/2 -rotate-12 object-contain shadow-2xl z-10 rounded-2xl border border-white/10 transition-all hover:scale-110 lg:hover:scale-125 hover:drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] hover:-translate-y-4 hover:rotate-[-4deg] hover:z-30 duration-500" />
-            <img src="/product/linechart.png" alt="Linechart" width="300" height="600" loading="lazy" class="absolute w-auto h-[90%] left-1/2 -translate-x-1/2 object-contain shadow-2xl z-20 rounded-2xl border border-white/10 transition-all hover:scale-110 lg:hover:scale-125 hover:drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] hover:-translate-y-4 hover:z-40 duration-500" />
-            <img src="/product/hexagon.png" alt="Hexagon" width="300" height="600" loading="lazy" class="absolute w-auto h-[75%] left-[80%] -translate-x-1/2 rotate-12 object-contain shadow-2xl z-10 rounded-2xl border border-white/10 transition-all hover:scale-110 lg:hover:scale-125 hover:drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] hover:-translate-y-4 hover:rotate-[4deg] hover:z-30 duration-500" />
+            <img src="/product/heatmap.png" alt="Biểu đồ nhiệt tần suất tập luyện trên Plato" width="300" height="600" loading="lazy" class="absolute w-auto h-[75%] left-[20%] -translate-x-1/2 -rotate-12 object-contain shadow-2xl z-10 rounded-2xl border border-white/10 transition-all hover:scale-110 lg:hover:scale-125 hover:drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] hover:-translate-y-4 hover:rotate-[-4deg] hover:z-30 duration-500" />
+            <img src="/product/linechart.png" alt="Biểu đồ tiến độ sức mạnh trên Plato" width="300" height="600" loading="lazy" class="absolute w-auto h-[90%] left-1/2 -translate-x-1/2 object-contain shadow-2xl z-20 rounded-2xl border border-white/10 transition-all hover:scale-110 lg:hover:scale-125 hover:drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] hover:-translate-y-4 hover:z-40 duration-500" />
+            <img src="/product/hexagon.png" alt="Biểu đồ cân bằng nhóm cơ trên Plato" width="300" height="600" loading="lazy" class="absolute w-auto h-[75%] left-[80%] -translate-x-1/2 rotate-12 object-contain shadow-2xl z-10 rounded-2xl border border-white/10 transition-all hover:scale-110 lg:hover:scale-125 hover:drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] hover:-translate-y-4 hover:rotate-[4deg] hover:z-30 duration-500" />
           </div>
           <div>
-            <h2 class="text-3xl font-bold mb-4 text-plato-primary">Số liệu thống kê</h2>
+            <h3 class="text-3xl font-bold mb-4 text-plato-primary">Số liệu thống kê</h3>
             <p class="text-gray-300 text-lg leading-relaxed">
               Phân tích toàn diện hiệu quả tập luyện qua hệ thống biểu đồ chuyên sâu: biểu đồ nhiệt (Heatmap) theo dõi tần suất tập luyện, biểu đồ lục giác (Hexagon Radar) đánh giá sự cân bằng của các nhóm cơ, và biểu đồ đường (Linechart) theo dõi tiến độ sức mạnh (1RM, Volume, Max Weight) theo thời gian.
             </p>

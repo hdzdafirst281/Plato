@@ -2,47 +2,33 @@ import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { createIcons, Download, ChevronRight, ChevronLeft, CheckCircle, Smartphone, Moon, Sun, Menu, X, Activity, Target, Shield, ArrowRight, MessageCircle, Music, Globe, Star, Calendar, BarChart2, Zap, Dumbbell, Play, Search, Info, ArrowUp } from 'lucide';
 
-// Khởi tạo AOS với một chút delay để trình duyệt kịp render trạng thái ẩn ban đầu
-// Điều này ngăn chặn lỗi mất animation (trình duyệt bỏ qua transition) khi load trang quá nhanh
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+
 const initAOS = () => {
   AOS.init({
-    duration: 800,
+    duration: 650,
     once: true,
     offset: 20,
+    disable: () => prefersReducedMotion.matches,
   });
-  setTimeout(() => AOS.refresh(), 100);
 };
 
-// Đợi DOM load xong, chờ 300ms để trang ổn định rồi mới bắt đầu animation
 document.addEventListener('DOMContentLoaded', () => {
   const loader = document.getElementById('global-loader');
-  setTimeout(() => {
-    if (loader) {
-      loader.classList.add('opacity-0');
-      // Chờ transition opacity kết thúc rồi ẩn hẳn loader
-      setTimeout(() => {
-        loader.classList.add('hidden');
-      }, 300);
-    }
-    initAOS();
-  }, 300);
+  initAOS();
+  if (loader) {
+    requestAnimationFrame(() => loader.classList.add('opacity-0'));
+    setTimeout(() => loader.classList.add('hidden'), 300);
+  }
 });
 
 window.addEventListener('load', () => {
-  setTimeout(() => AOS.refresh(), 1000);
-});
+  AOS.refresh();
+}, { once: true });
 
 window.addEventListener('pageshow', (event) => {
   if (event.persisted) {
-    // Nếu load từ bộ nhớ đệm bfcache (do bấm Back/Forward hoặc chuyển trang quá nhanh)
-    // Cần reset lại class aos-animate để ép animation chạy lại từ đầu
-    setTimeout(() => {
-      document.querySelectorAll('.aos-animate').forEach(el => {
-        el.classList.remove('aos-animate');
-      });
-      AOS.refreshHard();
-      initAOS();
-    }, 300);
+    AOS.refreshHard();
   }
 });
 
@@ -91,12 +77,14 @@ if (document.documentElement.classList.contains('light-mode')) {
 }
 
 if (themeToggleBtn) {
+  themeToggleBtn.setAttribute('aria-pressed', String(document.documentElement.classList.contains('light-mode')));
   themeToggleBtn.addEventListener('click', () => {
     document.documentElement.classList.toggle('light-mode');
     
     // Save to localStorage
     const isLight = document.documentElement.classList.contains('light-mode');
     localStorage.setItem('theme', isLight ? 'light' : 'dark');
+    themeToggleBtn.setAttribute('aria-pressed', String(isLight));
     
     // Toggle icons
     if (isLight) {
@@ -115,10 +103,13 @@ const mobileMenu = document.getElementById('mobile-menu');
 const navbar = document.getElementById('navbar');
 
 if (mobileMenuBtn && mobileMenu) {
+  mobileMenuBtn.setAttribute('aria-expanded', 'false');
+  mobileMenuBtn.setAttribute('aria-controls', 'mobile-menu');
   mobileMenuBtn.addEventListener('click', (e) => {
     e.stopPropagation();
     mobileMenu.classList.toggle('hidden');
     mobileMenu.classList.toggle('flex');
+    mobileMenuBtn.setAttribute('aria-expanded', String(!mobileMenu.classList.contains('hidden')));
   });
 
   // Click outside to close mobile menu
@@ -127,6 +118,7 @@ if (mobileMenuBtn && mobileMenu) {
       if (!navbar.contains(e.target)) {
         mobileMenu.classList.add('hidden');
         mobileMenu.classList.remove('flex');
+        mobileMenuBtn.setAttribute('aria-expanded', 'false');
       }
     }
   });
@@ -136,13 +128,31 @@ if (mobileMenuBtn && mobileMenu) {
 const slides = document.querySelectorAll('.carousel-slide');
 const prevBtn = document.getElementById('prev-slide');
 const nextBtn = document.getElementById('next-slide');
+const carouselRegion = document.getElementById('carousel-region');
+const carouselToggle = document.getElementById('carousel-toggle');
+const carouselStatus = document.getElementById('carousel-status');
 
 if (slides.length > 0 && prevBtn && nextBtn) {
   let currentSlide = 0;
   let slideInterval;
+  let isPaused = prefersReducedMotion.matches;
+
+  if (isPaused && carouselToggle) {
+    carouselToggle.setAttribute('aria-pressed', 'true');
+    carouselToggle.setAttribute('aria-label', 'Tiếp tục trình chiếu');
+    document.getElementById('carousel-toggle-text').textContent = 'Tiếp tục';
+    document.getElementById('carousel-pause-icon').classList.add('hidden');
+    document.getElementById('carousel-play-icon').classList.remove('hidden');
+  }
 
   const showSlide = (index) => {
+    const nextImage = slides[index];
+    if (nextImage.dataset.src) {
+      nextImage.src = nextImage.dataset.src;
+      delete nextImage.dataset.src;
+    }
     slides.forEach((slide, i) => {
+      slide.setAttribute('aria-hidden', String(i !== index));
       if (i === index) {
         slide.classList.remove('opacity-0');
         slide.classList.add('opacity-100');
@@ -151,6 +161,7 @@ if (slides.length > 0 && prevBtn && nextBtn) {
         slide.classList.add('opacity-0');
       }
     });
+    if (carouselStatus) carouselStatus.textContent = `Hình ${index + 1} trên ${slides.length}`;
   };
 
   const nextSlide = () => {
@@ -164,6 +175,7 @@ if (slides.length > 0 && prevBtn && nextBtn) {
   };
 
   const startAutoSlide = () => {
+    if (isPaused || document.hidden) return;
     slideInterval = setInterval(nextSlide, 3000);
   };
 
@@ -182,27 +194,61 @@ if (slides.length > 0 && prevBtn && nextBtn) {
     resetAutoSlide();
   });
 
+  carouselToggle?.addEventListener('click', () => {
+    isPaused = !isPaused;
+    clearInterval(slideInterval);
+    carouselToggle.setAttribute('aria-pressed', String(isPaused));
+    carouselToggle.setAttribute('aria-label', isPaused ? 'Tiếp tục trình chiếu' : 'Tạm dừng trình chiếu');
+    document.getElementById('carousel-toggle-text').textContent = isPaused ? 'Tiếp tục' : 'Tạm dừng';
+    document.getElementById('carousel-pause-icon').classList.toggle('hidden', isPaused);
+    document.getElementById('carousel-play-icon').classList.toggle('hidden', !isPaused);
+    if (!isPaused) startAutoSlide();
+  });
+
+  carouselRegion?.addEventListener('keydown', (event) => {
+    if (event.key === 'ArrowLeft') {
+      event.preventDefault();
+      prevSlide();
+      resetAutoSlide();
+    }
+    if (event.key === 'ArrowRight') {
+      event.preventDefault();
+      nextSlide();
+      resetAutoSlide();
+    }
+  });
+
   // Start the slideshow automatically
   startAutoSlide();
+
+  document.addEventListener('visibilitychange', () => {
+    clearInterval(slideInterval);
+    if (!document.hidden) startAutoSlide();
+  });
 }
 
 // Scroll to Top Logic
 const scrollToTopBtn = document.getElementById('scrollToTopBtn');
 if (scrollToTopBtn) {
+  let scrollTicking = false;
   window.addEventListener('scroll', () => {
-    if (window.scrollY > 300) {
-      scrollToTopBtn.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-10');
-      scrollToTopBtn.classList.add('opacity-100', 'translate-y-0');
-    } else {
-      scrollToTopBtn.classList.add('opacity-0', 'pointer-events-none', 'translate-y-10');
-      scrollToTopBtn.classList.remove('opacity-100', 'translate-y-0');
-    }
-  });
+    if (scrollTicking) return;
+    scrollTicking = true;
+    requestAnimationFrame(() => {
+      const isVisible = window.scrollY > 300;
+      scrollToTopBtn.classList.toggle('opacity-0', !isVisible);
+      scrollToTopBtn.classList.toggle('pointer-events-none', !isVisible);
+      scrollToTopBtn.classList.toggle('translate-y-10', !isVisible);
+      scrollToTopBtn.classList.toggle('opacity-100', isVisible);
+      scrollToTopBtn.classList.toggle('translate-y-0', isVisible);
+      scrollTicking = false;
+    });
+  }, { passive: true });
 
   scrollToTopBtn.addEventListener('click', () => {
     window.scrollTo({
       top: 0,
-      behavior: 'smooth'
+      behavior: prefersReducedMotion.matches ? 'auto' : 'smooth'
     });
   });
 }
