@@ -4,9 +4,9 @@
 /// To regenerate, run: `dart run slang`
 ///
 /// Locales: 2
-/// Strings: 2858 (1429 per locale)
+/// Strings: 2862 (1431 per locale)
 ///
-/// Built on 2026-10-13 at 13:18 UTC
+/// Built on 2026-10-15 at 06:53 UTC
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -264,6 +264,8 @@ class _StringsCalendarEn {
 	String get view_multi_year => 'Multi-Year';
 	String get view_year => 'Year';
 	String get lbl_week => 'Week';
+	String get heatmap_legend_less => 'Less';
+	String get heatmap_legend_more => 'More';
 }
 
 // Path: common
@@ -1931,6 +1933,8 @@ class _StringsCalendarVi extends _StringsCalendarEn {
 	@override String get view_multi_year => 'Nhiều Năm';
 	@override String get view_year => 'Năm';
 	@override String get lbl_week => 'Tuần';
+	@override String get heatmap_legend_less => 'Ít';
+	@override String get heatmap_legend_more => 'Nhiều';
 }
 
 // Path: common
@@ -2303,7 +2307,7 @@ class _StringsGamificationVi extends _StringsGamificationEn {
 	@override String get title_quest_2 => 'Sức mạnh bùng nổ';
 	@override String get desc_quest_2 => 'Đạt 10.000kg tổng khối lượng tạ';
 	@override String get title_quest_3 => 'Phá vỡ giới hạn';
-	@override String get desc_quest_3 => 'Đạt 1 Kỷ lục cá nhân (PR) mới';
+	@override String get desc_quest_3 => 'Đạt 1 Kỷ lục cá nhân mới';
 	@override String get title_quest_4 => 'Bền bỉ không ngừng';
 	@override String get desc_quest_4 => 'Tập luyện tổng cộng 120 phút';
 	@override String get title_quest_5 => 'Kỷ luật thép';
@@ -3539,6 +3543,8 @@ extension on Translations {
 			case 'calendar.view_multi_year': return 'Multi-Year';
 			case 'calendar.view_year': return 'Year';
 			case 'calendar.lbl_week': return 'Week';
+			case 'calendar.heatmap_legend_less': return 'Less';
+			case 'calendar.heatmap_legend_more': return 'More';
 			case 'common.am': return 'AM';
 			case 'common.pm': return 'PM';
 			case 'common.err_invalid_hour_am': return 'Hours must be 0-11';
@@ -4976,6 +4982,8 @@ extension on _StringsVi {
 			case 'calendar.view_multi_year': return 'Nhiều Năm';
 			case 'calendar.view_year': return 'Năm';
 			case 'calendar.lbl_week': return 'Tuần';
+			case 'calendar.heatmap_legend_less': return 'Ít';
+			case 'calendar.heatmap_legend_more': return 'Nhiều';
 			case 'common.am': return 'SA';
 			case 'common.pm': return 'CH';
 			case 'common.err_invalid_hour_am': return 'Số giờ phải từ 0-11';
@@ -5303,7 +5311,7 @@ extension on _StringsVi {
 			case 'gamification.title_quest_2': return 'Sức mạnh bùng nổ';
 			case 'gamification.desc_quest_2': return 'Đạt 10.000kg tổng khối lượng tạ';
 			case 'gamification.title_quest_3': return 'Phá vỡ giới hạn';
-			case 'gamification.desc_quest_3': return 'Đạt 1 Kỷ lục cá nhân (PR) mới';
+			case 'gamification.desc_quest_3': return 'Đạt 1 Kỷ lục cá nhân mới';
 			case 'gamification.title_quest_4': return 'Bền bỉ không ngừng';
 			case 'gamification.desc_quest_4': return 'Tập luyện tổng cộng 120 phút';
 			case 'gamification.title_quest_5': return 'Kỷ luật thép';

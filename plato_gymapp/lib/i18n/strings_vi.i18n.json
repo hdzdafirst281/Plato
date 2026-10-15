@@ -78,7 +78,9 @@
     "view_month": "Tháng",
     "view_multi_year": "Nhiều Năm",
     "view_year": "Năm",
-    "lbl_week": "Tuần"
+    "lbl_week": "Tuần",
+    "heatmap_legend_less": "Ít",
+    "heatmap_legend_more": "Nhiều"
   },
   "common": {
     "am": "SA",
@@ -416,7 +418,7 @@
     "title_quest_2": "Sức mạnh bùng nổ",
     "desc_quest_2": "Đạt 10.000kg tổng khối lượng tạ",
     "title_quest_3": "Phá vỡ giới hạn",
-    "desc_quest_3": "Đạt 1 Kỷ lục cá nhân (PR) mới",
+    "desc_quest_3": "Đạt 1 Kỷ lục cá nhân mới",
     "title_quest_4": "Bền bỉ không ngừng",
     "desc_quest_4": "Tập luyện tổng cộng 120 phút",
     "title_quest_5": "Kỷ luật thép",

@@ -78,7 +78,9 @@
     "view_month": "Month",
     "view_multi_year": "Multi-Year",
     "view_year": "Year",
-    "lbl_week": "Week"
+    "lbl_week": "Week",
+    "heatmap_legend_less": "Less",
+    "heatmap_legend_more": "More"
   },
   "common": {
     "am": "AM",

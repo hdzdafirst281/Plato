@@ -284,7 +284,6 @@ class _CalendarScreenState extends State<CalendarScreen> {
       if (midnightKey.isAfter(maxFutureDate)) continue;
 
       mappedItems.putIfAbsent(midnightKey, () => []).add(s);
-      yearsSet.add(localDate.year);
     }
 
     _mappedItemsCache = mappedItems;
@@ -3027,11 +3026,23 @@ class _MultiYearHeatmapView extends StatelessWidget {
     // 1. GỌI HELPER ĐỂ LẤY STATS GLOBAL
     final stats = profile_chart_utils.calculateHeatmapStats(pastWorkouts);
 
-    // 2. GIAO DIỆN
-    final reversedYears = activeYears.reversed.toList();
-    final yearRangeText = activeYears.length > 1
-        ? "${activeYears.first} - ${activeYears.last}"
-        : "${activeYears.first}";
+    // 2. LỌC NĂM HIỂN THỊ: Chỉ hiển thị năm hiện tại HOẶC các năm có dữ liệu bài tập
+    final currentYear = DateTime.now().year;
+    final yearsWithData = <int>{currentYear};
+    for (final w in pastWorkouts) {
+      yearsWithData.add(
+        DateTime.fromMillisecondsSinceEpoch(w.startTime).toLocal().year,
+      );
+    }
+    final displayedYears = yearsWithData.toList()..sort();
+
+    if (displayedYears.isEmpty) return const SizedBox();
+
+    // 3. GIAO DIỆN
+    final reversedYears = displayedYears.reversed.toList();
+    final yearRangeText = displayedYears.length > 1
+        ? "${displayedYears.first} - ${displayedYears.last}"
+        : "${displayedYears.first}";
 
     // CHUẨN HÓA TEXT NGẮN GỌN THEO KEY JSON MỚI
     final globalWorkoutLabel = t.calendar.global_workouts(
@@ -3155,6 +3166,7 @@ class _MultiYearHeatmapView extends StatelessWidget {
               year: reversedYears[index],
               mappedItems: mappedItems,
               pastWorkouts: pastWorkouts,
+              showLegend: index == 0,
             );
           },
         ),
@@ -3167,11 +3179,13 @@ class _HevyYearHeatmap extends StatelessWidget {
   final int year;
   final Map<DateTime, List<dynamic>> mappedItems;
   final List<WorkoutSession> pastWorkouts;
+  final bool showLegend;
 
   const _HevyYearHeatmap({
     required this.year,
     required this.mappedItems,
     required this.pastWorkouts,
+    this.showLegend = false,
   });
 
   @override
@@ -3343,8 +3357,11 @@ class _HevyYearHeatmap extends StatelessWidget {
                     bool isOutOfRange =
                         index < emptyLeadingDays ||
                         index >= emptyLeadingDays + daysInYear;
-                    Color cellColor = colorScheme.surfaceContainerHighest
-                        .withValues(alpha: 0.5);
+                    Color cellColor = isOutOfRange
+                        ? Colors.transparent
+                        : colorScheme.surfaceContainerHighest.withValues(
+                            alpha: 0.5,
+                          );
 
                     if (!isOutOfRange) {
                       final dayOffset = index - emptyLeadingDays;
@@ -3354,15 +3371,10 @@ class _HevyYearHeatmap extends StatelessWidget {
                           .whereType<WorkoutSession>()
                           .toList();
 
-                      if (pastSessions.isNotEmpty) {
-                        final maxRpe = pastSessions
-                            .map((s) => s.rpe ?? 0)
-                            .reduce(math.max);
-                        cellColor = _getRpeColor(
-                          context,
-                          maxRpe > 0 ? maxRpe : null,
-                        );
-                      }
+                      cellColor = _getMultiYearCellColor(
+                        context,
+                        pastSessions.length,
+                      );
                     }
 
                     return Container(
@@ -3379,8 +3391,77 @@ class _HevyYearHeatmap extends StatelessWidget {
             },
           ),
         ),
-        const SizedBox(height: 32),
+        if (showLegend) ...[
+          const SizedBox(height: 8),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 16),
+            child: Align(
+              alignment: Alignment.centerRight,
+              child: _HeatmapLegend(),
+            ),
+          ),
+        ],
+        const SizedBox(height: 24),
       ],
+    );
+  }
+}
+
+Color _getMultiYearCellColor(BuildContext context, int workoutCount) {
+  final colorScheme = Theme.of(context).colorScheme;
+  if (workoutCount <= 0) {
+    return colorScheme.surfaceContainerHighest.withValues(alpha: 0.5);
+  } else if (workoutCount == 1) {
+    return colorScheme.primary.withValues(alpha: 0.45);
+  } else {
+    // 2 bài trở lên
+    return colorScheme.primary;
+  }
+}
+
+class _HeatmapLegend extends StatelessWidget {
+  const _HeatmapLegend();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final labelStyle = TextStyle(
+      fontSize: 11,
+      fontWeight: FontWeight.w500,
+      color: colorScheme.onSurfaceVariant,
+    );
+
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        Text(t.calendar.heatmap_legend_less, style: labelStyle),
+        const SizedBox(width: 4),
+        const _HeatmapLegendBox(0),
+        const SizedBox(width: 3),
+        const _HeatmapLegendBox(1),
+        const SizedBox(width: 3),
+        const _HeatmapLegendBox(2),
+        const SizedBox(width: 4),
+        Text(t.calendar.heatmap_legend_more, style: labelStyle),
+      ],
+    );
+  }
+}
+
+class _HeatmapLegendBox extends StatelessWidget {
+  final int count;
+  const _HeatmapLegendBox(this.count);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 10.0,
+      height: 10.0,
+      decoration: BoxDecoration(
+        color: _getMultiYearCellColor(context, count),
+        borderRadius: BorderRadius.circular(2.5),
+      ),
     );
   }
 }
