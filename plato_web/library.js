@@ -13,6 +13,7 @@ const searchIndex = new Map(exercisesData.map((exercise) => [
   removeAccents(`${exercise.name} ${exercise.primaryMuscleVi}`).toLowerCase(),
 ]));
 const exercisesById = new Map(exercisesData.map((exercise) => [exercise.id, exercise]));
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
 document.addEventListener('DOMContentLoaded', () => {
   const grid = document.getElementById('exercise-grid');
@@ -40,6 +41,23 @@ document.addEventListener('DOMContentLoaded', () => {
   let renderedCount = 0;
   let searchTimeout;
   let lastFocusedElement;
+
+  function setCardPreview(card, shouldPlay) {
+    const image = card.querySelector('img[data-gif-src]');
+    if (!image?.dataset.gifSrc) return;
+
+    const nextSource = shouldPlay ? image.dataset.gifSrc : image.dataset.staticSrc;
+    if (image.getAttribute('src') !== nextSource) image.src = nextSource;
+  }
+
+  const previewObserver = !prefersReducedMotion.matches && 'IntersectionObserver' in window
+    ? new IntersectionObserver((entries) => {
+        entries.forEach((entry) => {
+          entry.target.dataset.previewVisible = String(entry.isIntersecting);
+          setCardPreview(entry.target, entry.isIntersecting);
+        });
+      }, { rootMargin: '160px 0px', threshold: 0.15 })
+    : null;
 
   const muscles = [...new Set(exercisesData.map((exercise) => exercise.primaryMuscleVi))].sort();
   const equipments = [...new Set(exercisesData.map((exercise) => exercise.equipmentVi))].sort();
@@ -120,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
     card.setAttribute('aria-label', `Xem hướng dẫn bài tập ${exercise.name}`);
     card.innerHTML = `
       <span class="relative w-full aspect-square bg-white flex items-center justify-center overflow-hidden shrink-0 exercise-media">
-        <img src="${exercise.image || '/logo_plato.png'}" alt="Minh họa bài tập ${exercise.name}" width="480" height="480" ${index < 4 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" class="w-full h-full object-contain transition-transform duration-300 group-hover:scale-[1.03]" data-static-src="${exercise.image || '/logo_plato.png'}" data-gif-src="${exercise.gif || ''}">
+        <img src="${exercise.image || '/logo_plato.png'}" alt="Minh họa bài tập ${exercise.name}" width="480" height="480" ${index < 4 ? 'fetchpriority="high"' : 'loading="lazy"'} decoding="async" class="w-full h-full object-contain transition-transform duration-700 group-hover:scale-105" data-static-src="${exercise.image || '/logo_plato.png'}" data-gif-src="${exercise.gif || ''}">
         ${exercise.gif ? '<span class="exercise-preview-badge"><svg aria-hidden="true" viewBox="0 0 24 24"><polygon points="6 3 20 12 6 21 6 3"/></svg>Xem chuyển động</span>' : ''}
       </span>
       <span class="p-5 flex-1 flex flex-col">
@@ -150,7 +168,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const nextExercises = filteredExercises.slice(renderedCount, renderedCount + PAGE_SIZE);
     const fragment = document.createDocumentFragment();
     nextExercises.forEach((exercise, index) => {
-      fragment.appendChild(createExerciseCard(exercise, renderedCount + index));
+      const card = createExerciseCard(exercise, renderedCount + index);
+      fragment.appendChild(card);
+      if (previewObserver && exercise.gif) previewObserver.observe(card);
     });
     grid.appendChild(fragment);
     renderedCount += nextExercises.length;
@@ -174,6 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
     ));
 
     countSpan.textContent = filteredExercises.length;
+    previewObserver?.disconnect();
     grid.replaceChildren();
     renderedCount = 0;
 
@@ -247,16 +268,27 @@ document.addEventListener('DOMContentLoaded', () => {
     grid.addEventListener('mouseover', (event) => {
       const card = event.target.closest('.exercise-card');
       if (!card || card.contains(event.relatedTarget)) return;
-      const image = card.querySelector('img');
-      if (image.dataset.gifSrc) image.src = image.dataset.gifSrc;
+      setCardPreview(card, true);
     });
     grid.addEventListener('mouseout', (event) => {
       const card = event.target.closest('.exercise-card');
       if (!card || card.contains(event.relatedTarget)) return;
-      const image = card.querySelector('img');
-      image.src = image.dataset.staticSrc;
+      const remainsVisible = card.dataset.previewVisible === 'true' && !prefersReducedMotion.matches;
+      setCardPreview(card, remainsVisible);
     });
   }
+
+  grid.addEventListener('focusin', (event) => {
+    const card = event.target.closest('.exercise-card');
+    if (card) setCardPreview(card, true);
+  });
+
+  grid.addEventListener('focusout', (event) => {
+    const card = event.target.closest('.exercise-card');
+    if (!card) return;
+    const remainsVisible = card.dataset.previewVisible === 'true' && !prefersReducedMotion.matches;
+    setCardPreview(card, remainsVisible);
+  });
 
   searchInput.addEventListener('input', (event) => {
     const value = event.target.value;

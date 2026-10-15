@@ -6,30 +6,46 @@ const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)
 
 const initAOS = () => {
   AOS.init({
-    duration: 650,
+    duration: 800,
     once: true,
     offset: 20,
+    easing: 'ease-out-cubic',
     disable: () => prefersReducedMotion.matches,
   });
+  setTimeout(() => AOS.refresh(), 100);
 };
 
 document.addEventListener('DOMContentLoaded', () => {
   const loader = document.getElementById('global-loader');
-  initAOS();
-  if (loader) {
-    requestAnimationFrame(() => loader.classList.add('opacity-0'));
-    setTimeout(() => loader.classList.add('hidden'), 300);
+  const startPageMotion = () => {
+    if (loader) {
+      loader.classList.add('opacity-0');
+      setTimeout(() => loader.classList.add('hidden'), 300);
+    }
+    initAOS();
+  };
+
+  if (prefersReducedMotion.matches) {
+    startPageMotion();
+  } else {
+    setTimeout(startPageMotion, 300);
   }
 });
 
 window.addEventListener('load', () => {
-  AOS.refresh();
+  setTimeout(() => AOS.refresh(), 1000);
 }, { once: true });
 
 window.addEventListener('pageshow', (event) => {
-  if (event.persisted) {
+  if (!event.persisted || prefersReducedMotion.matches) return;
+
+  setTimeout(() => {
+    document.querySelectorAll('.aos-animate').forEach((element) => {
+      element.classList.remove('aos-animate');
+    });
     AOS.refreshHard();
-  }
+    initAOS();
+  }, 300);
 });
 
 // Initialize Lucide Icons

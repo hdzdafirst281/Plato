@@ -1,4 +1,5 @@
 import 'package:plato_gymapp/core/designsystem/components/gym_snackbar.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/services.dart';
@@ -49,6 +50,7 @@ class FoodEncyclopediaScreen extends StatefulWidget {
 class _FoodEncyclopediaScreenState extends State<FoodEncyclopediaScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   String _searchQuery = "";
+  Timer? _searchDebouncer;
   bool _safeForMeOnly = true;
   
   final Map<FoodResult, double> _selectedFoods = {}; 
@@ -61,7 +63,7 @@ class _FoodEncyclopediaScreenState extends State<FoodEncyclopediaScreen> with Si
   String _quickFat = "";
   double _quickQty = 1.0;
   FoodUnit _quickUnit = FoodUnit.GRAM;
-  List<IngredientDef> _quickSelectedIngredients = []; 
+  final List<IngredientDef> _quickSelectedIngredients = []; 
 
   // Trạng thái Báo lỗi tách biệt (Inline Errors)
   String? _quickNameError;
@@ -78,6 +80,7 @@ class _FoodEncyclopediaScreenState extends State<FoodEncyclopediaScreen> with Si
 
   @override
   void dispose() {
+    _searchDebouncer?.cancel();
     _tabController.dispose();
     super.dispose();
   }
@@ -281,7 +284,15 @@ class _FoodEncyclopediaScreenState extends State<FoodEncyclopediaScreen> with Si
               ),
               child: GymSearchBar(
                 searchQuery: _searchQuery,
-                onSearchChange: (v) => setState(() => _searchQuery = v),
+                onSearchChange: (v) {
+                  if (_searchDebouncer?.isActive ?? false) {
+                    _searchDebouncer?.cancel();
+                  }
+                  _searchDebouncer = Timer(
+                    const Duration(milliseconds: 300),
+                    () => setState(() => _searchQuery = v),
+                  );
+                },
                 placeholderText: t.nutrition.hint_food_search,
               ),
             ),

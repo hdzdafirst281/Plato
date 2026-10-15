@@ -242,12 +242,24 @@ class _CalendarScreenState extends State<CalendarScreen> {
     _yearPageController = PageController(initialPage: _initialYearPage);
   }
 
+  bool _areListsEqual<T>(List<T> a, List<T> b) {
+    if (identical(a, b)) return true;
+    if (a.length != b.length) return false;
+    for (int i = 0; i < a.length; i++) {
+      if (a[i] != b[i]) return false;
+    }
+    return true;
+  }
+
   // [PERF FIX]: Giới hạn tạo Map tương lai 3 năm và cập nhật mảng năm (active years)
   void _updateMappedItemsIfChanged(
     List<WorkoutSession> past,
     List<ScheduledWorkout> future,
   ) {
-    if (_lastPastWorkouts == past && _lastFutureWorkouts == future) return;
+    if (_areListsEqual(_lastPastWorkouts, past) &&
+        _areListsEqual(_lastFutureWorkouts, future)) {
+      return;
+    }
 
     final mappedItems = <DateTime, List<dynamic>>{};
     final now = DateTime.now();
@@ -364,11 +376,14 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final colorScheme = Theme.of(context).colorScheme;
 
     final statsState = context.watch<StatsCubit>().state;
-    final workoutState = context.watch<WorkoutCubit>().state;
+    final scheduledWorkouts =
+        context.select<WorkoutCubit, List<ScheduledWorkout>>(
+          (cubit) => cubit.state.scheduledWorkoutsList,
+        );
 
     _updateMappedItemsIfChanged(
       statsState.workouts,
-      workoutState.scheduledWorkoutsList,
+      scheduledWorkouts,
     );
     if (!_openedInitialSchedule && widget.setupRoutineId != null) {
       _openedInitialSchedule = true;
@@ -398,7 +413,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
           _showDayWorkoutsSheet(context, today, sessions);
         });
       } else {
-        final schedule = workoutState.scheduledWorkoutsList
+        final schedule = scheduledWorkouts
             .where((s) => s.id == widget.initialScheduleId)
             .firstOrNull;
         if (schedule != null) {

@@ -170,9 +170,12 @@ class _UserProfileHeader extends StatelessWidget {
 
     Widget avatarWidget;
     if (userProfile.avatarUrl != null && userProfile.avatarUrl!.isNotEmpty) {
+      final int cachePx = (avatarSize * 3).round();
       avatarWidget = Image.network(
         userProfile.avatarUrl!,
         fit: BoxFit.cover,
+        cacheWidth: cachePx,
+        cacheHeight: cachePx,
         errorBuilder: (context, error, stackTrace) => Text(displayName[0].toUpperCase(), style: TextStyle(color: colorScheme.onSurface, fontWeight: FontWeight.w900, fontSize: avatarSize * 0.4)),
       );
     } else {
@@ -220,6 +223,8 @@ class _UserProfileHeader extends StatelessWidget {
                     padding: const EdgeInsets.all(3),
                     child: Image.asset(
                       _getBadgeAssetPath(activeRankId),
+                      cacheWidth: 84,
+                      cacheHeight: 84,
                       fit: BoxFit.contain,
                     ),
                   ),
@@ -652,7 +657,14 @@ class _PodiumColumn extends StatelessWidget {
 
     Widget avatarWidget = Text(user.name.isNotEmpty ? user.name[0].toUpperCase() : "?", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 24 * scale, color: colorScheme.onSurface));
     if (user.avatarUrl != null && user.avatarUrl!.isNotEmpty) {
-      avatarWidget = Image.network(user.avatarUrl!, fit: BoxFit.cover, errorBuilder: (_, __, ___) => avatarWidget);
+      final int avatarPx = (56 * scale * 3).round();
+      avatarWidget = Image.network(
+        user.avatarUrl!,
+        fit: BoxFit.cover,
+        cacheWidth: avatarPx,
+        cacheHeight: avatarPx,
+        errorBuilder: (_, _, _) => avatarWidget,
+      );
     }
 
     return Padding(
@@ -679,6 +691,8 @@ class _PodiumColumn extends StatelessWidget {
                   // [FIX] Đổi Icon sang Image
                   child: Image.asset(
                     _getBadgeAssetPath(rankId),
+                    cacheWidth: (24 * scale * 3).round(),
+                    cacheHeight: (24 * scale * 3).round(),
                     fit: BoxFit.contain,
                   ),
                 ),
@@ -759,7 +773,13 @@ class _RankItem extends StatelessWidget {
 
     Widget avatarWidget = Text(entry.name.isNotEmpty ? entry.name[0].toUpperCase() : "?", style: TextStyle(fontWeight: FontWeight.w900, fontSize: 16, color: colorScheme.onSurface));
     if (entry.avatarUrl != null && entry.avatarUrl!.isNotEmpty) {
-      avatarWidget = Image.network(entry.avatarUrl!, fit: BoxFit.cover, errorBuilder: (_, __, ___) => avatarWidget);
+      avatarWidget = Image.network(
+        entry.avatarUrl!,
+        fit: BoxFit.cover,
+        cacheWidth: 132,
+        cacheHeight: 132,
+        errorBuilder: (_, _, _) => avatarWidget,
+      );
     }
 
     return Container(
@@ -801,6 +821,8 @@ class _RankItem extends StatelessWidget {
                   // [FIX] Sử dụng ảnh Badge thay vì Icon
                   child: Image.asset(
                     _getBadgeAssetPath(itemRankId),
+                    cacheWidth: 60,
+                    cacheHeight: 60,
                     fit: BoxFit.contain,
                   ),
                 ),

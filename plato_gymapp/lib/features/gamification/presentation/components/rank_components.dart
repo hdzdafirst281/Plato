@@ -125,6 +125,8 @@ class _RankGaugeHeader extends StatelessWidget {
                               _getBadgeAssetPath(currentRank.id),
                               width: 100 * scaleFactor, 
                               height: 100 * scaleFactor,
+                              cacheWidth: (100 * scaleFactor * 3).round(),
+                              cacheHeight: (100 * scaleFactor * 3).round(),
                               fit: BoxFit.contain,
                             ),
                           ),
@@ -325,7 +327,18 @@ class _GaugeChartPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+  bool shouldRepaint(covariant _GaugeChartPainter oldDelegate) {
+    return oldDelegate.currentRatio != currentRatio ||
+        oldDelegate.maintainRatio != maintainRatio ||
+        oldDelegate.promoteRatio != promoteRatio ||
+        oldDelegate.isRank1 != isRank1 ||
+        oldDelegate.isMaxRank != isMaxRank ||
+        oldDelegate.radius != radius ||
+        oldDelegate.safeCenterY != safeCenterY ||
+        oldDelegate.colorDemotion != colorDemotion ||
+        oldDelegate.colorMaintain != colorMaintain ||
+        oldDelegate.colorPromote != colorPromote;
+  }
 }
 
 // ================= JOURNEY TIMELINE =================
@@ -561,6 +574,8 @@ class _JourneyCard extends StatelessWidget {
             ? Icon(Symbols.lock, size: 28, color: colorScheme.onSurfaceVariant)
             : Image.asset(
                 _getBadgeAssetPath(rank.id),
+                cacheWidth: 90,
+                cacheHeight: 90,
                 fit: BoxFit.contain,
               ),
       ),
@@ -952,6 +967,8 @@ class _RankHistoryLineChartDataState extends State<_RankHistoryLineChartData> wi
                           ),
                           child: Image.asset(
                             _getBadgeAssetPath(widget.dataPoints[i].rankId),
+                            cacheWidth: (badgeSize * 3).round(),
+                            cacheHeight: (badgeSize * 3).round(),
                             fit: BoxFit.contain,
                           ),
                         ),

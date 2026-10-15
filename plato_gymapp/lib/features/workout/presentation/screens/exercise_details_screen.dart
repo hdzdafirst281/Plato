@@ -176,6 +176,7 @@ class _OverviewTab extends StatelessWidget {
         child: Image.asset(
           exercise.image!,
           fit: BoxFit.contain, // Giữ tỷ lệ, không làm méo hoặc cắt ảnh
+          cacheHeight: 720,
           errorBuilder: (_, _, _) => _buildNoImageFallback(colorScheme), // Lỗi đọc file -> Về Fallback 3
         ),
       );
@@ -195,6 +196,7 @@ class _OverviewTab extends StatelessWidget {
         child: Image.asset(
           path,
           fit: BoxFit.contain, 
+          cacheHeight: 720,
           errorBuilder: (_, _, _) => _buildStaticImageFallback(colorScheme) // Lỗi đọc file/GIF -> Về Fallback 2
         )
       );
@@ -213,6 +215,7 @@ class _OverviewTab extends StatelessWidget {
           child: Image.file(
             file, 
             fit: BoxFit.cover, // Ảnh custom thì dùng cover cho đẹp khung
+            cacheHeight: 720,
             errorBuilder: (_, _, _) => _buildInstructionFallback(colorScheme) // Lỗi file -> Về luồng chuẩn
           )
         );

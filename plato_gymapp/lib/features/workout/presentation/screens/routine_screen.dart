@@ -1654,6 +1654,8 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
           child: Image.file(
             File(exercise.localImagePath!),
             fit: BoxFit.cover,
+            cacheWidth: (size * 3).round(),
+            cacheHeight: (size * 3).round(),
             errorBuilder: (context, error, stackTrace) =>
                 _buildFallbackText(size, colorScheme, displayName),
           ),
@@ -1673,6 +1675,8 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
           child: Image.asset(
             exercise.image!,
             fit: BoxFit.contain,
+            cacheWidth: (size * 3).round(),
+            cacheHeight: (size * 3).round(),
             errorBuilder: (context, error, stackTrace) =>
                 _buildFallbackText(size, colorScheme, displayName),
           ),

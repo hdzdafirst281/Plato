@@ -345,7 +345,7 @@ const gymColorsLight = GymColors(
 // ==========================================
 class AppTheme {
   // -- Cấu hình Typography (Font Roboto) --
-  static TextTheme get _textTheme => GoogleFonts.robotoTextTheme().copyWith(
+  static final TextTheme _textTheme = GoogleFonts.robotoTextTheme().copyWith(
     displayLarge: const TextStyle(fontWeight: FontWeight.bold, fontSize: 57),
     headlineMedium: const TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
     titleLarge: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
@@ -359,58 +359,54 @@ class AppTheme {
   );
 
   // -- THEME TỐI --
-  static ThemeData get darkTheme {
-    return ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.dark,
-      colorScheme: ColorScheme.dark(
-        primary: primaryBlueDark, // Dùng màu xanh dịu
-        surface: bgDark,
-        surfaceContainer: surfaceDark,
-        surfaceContainerHighest: const Color(0xFF2C2C2C),
-        onPrimary: textWhite,
-        onSurface: textWhite,
-        onSurfaceVariant: textGrayDark,
-        outline: const Color(0xFF8E9296),
-        outlineVariant: Colors.grey.withValues(alpha: 0.2), 
-        error: errorRedDark,
-        onError: textWhite,
-        errorContainer: errorRedDark.withValues(alpha: 0.15), 
-        onErrorContainer: errorRedDark,
-      ),
-      textTheme: _textTheme.apply(bodyColor: textWhite, displayColor: textWhite),
-      extensions: const [gymColorsDark],
-      cardTheme: CardThemeData(shape: AppShapes.medium, color: surfaceDark),
-      dialogTheme: DialogThemeData(shape: AppShapes.large, backgroundColor: surfaceDark),
-    );
-  }
+  static final ThemeData darkTheme = ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.dark,
+    colorScheme: ColorScheme.dark(
+      primary: primaryBlueDark, // Dùng màu xanh dịu
+      surface: bgDark,
+      surfaceContainer: surfaceDark,
+      surfaceContainerHighest: const Color(0xFF2C2C2C),
+      onPrimary: textWhite,
+      onSurface: textWhite,
+      onSurfaceVariant: textGrayDark,
+      outline: const Color(0xFF8E9296),
+      outlineVariant: Colors.grey.withValues(alpha: 0.2), 
+      error: errorRedDark,
+      onError: textWhite,
+      errorContainer: errorRedDark.withValues(alpha: 0.15), 
+      onErrorContainer: errorRedDark,
+    ),
+    textTheme: _textTheme.apply(bodyColor: textWhite, displayColor: textWhite),
+    extensions: const [gymColorsDark],
+    cardTheme: CardThemeData(shape: AppShapes.medium, color: surfaceDark),
+    dialogTheme: DialogThemeData(shape: AppShapes.large, backgroundColor: surfaceDark),
+  );
 
   // -- THEME SÁNG --
-  static ThemeData get lightTheme {
-    return ThemeData(
-      useMaterial3: true,
-      brightness: Brightness.light,
-      colorScheme: ColorScheme.light(
-        primary: primaryBlueLight, // Dùng màu xanh bão hòa cao
-        surface: bgLight,
-        surfaceContainer: surfaceLight,
-        surfaceContainerHighest: const Color(0xFFEEEEEE),
-        onPrimary: textWhite,
-        onSurface: textBlack,
-        onSurfaceVariant: textGrayLight, 
-        outline: const Color(0xFF72777A),
-        outlineVariant: Colors.grey.shade300, 
-        error: errorRedLight,
-        onError: textWhite,
-        errorContainer: errorRedLight.withValues(alpha: 0.1), 
-        onErrorContainer: errorRedLight,
-      ),
-      textTheme: _textTheme.apply(bodyColor: textBlack, displayColor: textBlack),
-      extensions: const [gymColorsLight],
-      cardTheme: CardThemeData(shape: AppShapes.medium, color: surfaceLight),
-      dialogTheme: DialogThemeData(shape: AppShapes.large, backgroundColor: surfaceLight),
-    );
-  }
+  static final ThemeData lightTheme = ThemeData(
+    useMaterial3: true,
+    brightness: Brightness.light,
+    colorScheme: ColorScheme.light(
+      primary: primaryBlueLight, // Dùng màu xanh bão hòa cao
+      surface: bgLight,
+      surfaceContainer: surfaceLight,
+      surfaceContainerHighest: const Color(0xFFEEEEEE),
+      onPrimary: textWhite,
+      onSurface: textBlack,
+      onSurfaceVariant: textGrayLight, 
+      outline: const Color(0xFF72777A),
+      outlineVariant: Colors.grey.shade300, 
+      error: errorRedLight,
+      onError: textWhite,
+      errorContainer: errorRedLight.withValues(alpha: 0.1), 
+      onErrorContainer: errorRedLight,
+    ),
+    textTheme: _textTheme.apply(bodyColor: textBlack, displayColor: textBlack),
+    extensions: const [gymColorsLight],
+    cardTheme: CardThemeData(shape: AppShapes.medium, color: surfaceLight),
+    dialogTheme: DialogThemeData(shape: AppShapes.large, backgroundColor: surfaceLight),
+  );
 }
 
 // ==========================================

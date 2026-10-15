@@ -27,6 +27,7 @@ import '../../features/auth/presentation/screens/auth_otp_screen.dart';
 import '../../features/auth/presentation/screens/custom_splash_screen.dart';
 
 import '../../features/workout/presentation/screens/workout_screen.dart';
+import '../../features/workout/data/models/workout_models.dart';
 import '../../features/workout/presentation/screens/explore_programs_screen.dart';
 import '../../features/workout/presentation/screens/routine_screen.dart';
 import '../../features/workout/presentation/screens/log_workout_screen.dart';
@@ -650,50 +651,15 @@ class _GlobalPlayerWrapperState extends State<_GlobalPlayerWrapper> with TickerP
     }
   }
 
-  Widget _buildFloatingTimerPill(BuildContext context, ActiveSessionState sessionState) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final isResting = sessionState.restTimerSeconds > 0;
-    final time = isResting ? sessionState.restTimerSeconds : sessionState.workoutTimerSeconds;
-
-    final h = time ~/ 3600;
-    final m = (time % 3600) ~/ 60;
-    final s = time % 60;
-    final formattedMS = '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
-
-    final timeStr = h > 0 ? '$h:$formattedMS' : formattedMS;
-
-    final activeBgColor = time > 240 * 60 
-        ? colorScheme.error 
-        : (time > 120 * 60 ? Theme.of(context).gymColors.warning : colorScheme.primary);
-    final bgColor = isResting ? Theme.of(context).gymColors.warning : activeBgColor;
-
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-      decoration: BoxDecoration(
-        color: bgColor,
-        borderRadius: BorderRadius.circular(24),
-        boxShadow: [
-          BoxShadow(color: bgColor.withValues(alpha: 0.4), blurRadius: 12, offset: const Offset(0, 4))
-        ]
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(isResting ? Symbols.timer : Symbols.play_arrow, color: Colors.white, size: 20, fill: 1.0),
-          const SizedBox(width: 8),
-          Text(timeStr, style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 15, fontFeatures: [FontFeature.tabularFigures()])),
-        ]
-      )
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
-    final activeSessionCubit = context.watch<ActiveSessionCubit>();
-    final activeSessionState = activeSessionCubit.state;
-    final activeWorkout = activeSessionState.activeWorkout;
+    final activeWorkout = context.select<ActiveSessionCubit, WorkoutSession?>(
+      (c) => c.state.activeWorkout,
+    );
     final isWorkoutActive = activeWorkout != null;
-    final isMinimized = activeSessionState.isMiniplayerMinimized;
+    final isMinimized = context.select<ActiveSessionCubit, bool>(
+      (c) => c.state.isMiniplayerMinimized,
+    );
     
     final currentPath = widget.state.uri.path;
     final isTablet = ResponsiveBreakpoints.of(context).largerThan(MOBILE);
@@ -757,7 +723,7 @@ class _GlobalPlayerWrapperState extends State<_GlobalPlayerWrapper> with TickerP
                                     scale: 0.8 + (0.2 * val), 
                                     child: Opacity(
                                       opacity: val.clamp(0.0, 1.0),
-                                      child: _buildFloatingTimerPill(context, activeSessionState),
+                                      child: const _FloatingTimerPill(),
                                     ),
                                   ),
                                 ),
@@ -783,7 +749,7 @@ class _GlobalPlayerWrapperState extends State<_GlobalPlayerWrapper> with TickerP
                                       top: false, bottom: false, 
                                       child: WorkoutMiniPlayer(
                                         currentActiveSession: activeWorkout, 
-                                        activeSessionCubit: activeSessionCubit,
+                                        activeSessionCubit: context.read<ActiveSessionCubit>(),
                                         onResumeSessionClick: () => AppRouter.expandWorkoutScreenNotifier.value = true,
                                       ),
                                     ),
@@ -826,6 +792,78 @@ class _GlobalPlayerWrapperState extends State<_GlobalPlayerWrapper> with TickerP
           ],
         ),
       ),
+    );
+  }
+}
+
+class _FloatingTimerPill extends StatelessWidget {
+  const _FloatingTimerPill();
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<ActiveSessionCubit, ActiveSessionState>(
+      buildWhen: (prev, curr) =>
+          prev.workoutTimerSeconds != curr.workoutTimerSeconds ||
+          prev.restTimerSeconds != curr.restTimerSeconds,
+      builder: (context, sessionState) {
+        final colorScheme = Theme.of(context).colorScheme;
+        final isResting = sessionState.restTimerSeconds > 0;
+        final time = isResting
+            ? sessionState.restTimerSeconds
+            : sessionState.workoutTimerSeconds;
+
+        final h = time ~/ 3600;
+        final m = (time % 3600) ~/ 60;
+        final s = time % 60;
+        final formattedMS =
+            '${m.toString().padLeft(2, '0')}:${s.toString().padLeft(2, '0')}';
+
+        final timeStr = h > 0 ? '$h:$formattedMS' : formattedMS;
+
+        final activeBgColor = time > 240 * 60
+            ? colorScheme.error
+            : (time > 120 * 60
+                ? Theme.of(context).gymColors.warning
+                : colorScheme.primary);
+        final bgColor =
+            isResting ? Theme.of(context).gymColors.warning : activeBgColor;
+
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          decoration: BoxDecoration(
+            color: bgColor,
+            borderRadius: BorderRadius.circular(24),
+            boxShadow: [
+              BoxShadow(
+                color: bgColor.withValues(alpha: 0.4),
+                blurRadius: 12,
+                offset: const Offset(0, 4),
+              ),
+            ],
+          ),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                isResting ? Symbols.timer : Symbols.play_arrow,
+                color: Colors.white,
+                size: 20,
+                fill: 1.0,
+              ),
+              const SizedBox(width: 8),
+              Text(
+                timeStr,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 15,
+                  fontFeatures: [FontFeature.tabularFigures()],
+                ),
+              ),
+            ],
+          ),
+        );
+      },
     );
   }
 }

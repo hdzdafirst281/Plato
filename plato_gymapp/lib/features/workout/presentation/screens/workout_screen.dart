@@ -4,6 +4,7 @@ import '../../../notifications/presentation/recovery_recommendations.dart';
 import 'dart:async';
 import 'dart:math' as math;
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -51,6 +52,12 @@ class _WorkoutScreenState extends State<WorkoutScreen>
   Timer? _verticalScrollTimer;
   Timer? _tourDelayTimer;
   final bool forceShowTour = false; // Debug flag
+
+  List<WorkoutSession>? _lastRawRoutines;
+  List<String>? _lastFolderOrder;
+  AppLocale? _lastLocale;
+  List<String> _cachedSortedFolders = [];
+  Map<String, List<WorkoutSession>> _cachedGroupedRoutines = {};
 
   @override
   void initState() {
@@ -355,61 +362,73 @@ class _WorkoutScreenState extends State<WorkoutScreen>
     final rawRoutines = context.select(
       (WorkoutCubit cubit) => cubit.state.userCustomRoutinesList,
     );
-
-    // [i18n Dynamic Resolution] Xử lý trùng tên động dựa trên ngôn ngữ hiện hành
-    final routines = <WorkoutSession>[];
-    final nameCounts = <String, int>{};
-    for (final routine in rawRoutines) {
-      final rawDisplayName = t.translateDynamic(routine.name);
-      if (nameCounts.containsKey(rawDisplayName)) {
-        nameCounts[rawDisplayName] = nameCounts[rawDisplayName]! + 1;
-        routines.add(
-          routine.copyWith(
-            name: '$rawDisplayName (${nameCounts[rawDisplayName]})',
-          ),
-        );
-      } else {
-        nameCounts[rawDisplayName] = 0;
-        routines.add(routine.copyWith(name: rawDisplayName));
-      }
-    }
     final folderOrder = context.select(
       (WorkoutCubit cubit) => cubit.state.folderOrder,
     );
+    final currentLocale = LocaleSettings.currentLocale;
 
-    final groupedRoutines = <String, List<WorkoutSession>>{};
+    if (!identical(_lastRawRoutines, rawRoutines) ||
+        !listEquals(_lastFolderOrder, folderOrder) ||
+        _lastLocale != currentLocale) {
+      _lastRawRoutines = rawRoutines;
+      _lastFolderOrder = folderOrder;
+      _lastLocale = currentLocale;
 
-    // Chỉ khởi tạo các folder có trong folderOrder
-    for (var folder in folderOrder) {
-      groupedRoutines[folder] = [];
-    }
-
-    // Phân loại Routine vào các Folder tương ứng
-    for (var r in routines) {
-      final folderKey = r.programName?.trim() ?? "";
-      final actualKey = folderKey.isNotEmpty
-          ? folderKey
-          : t.workout.lbl_default_folder.trim();
-
-      if (!groupedRoutines.containsKey(actualKey)) {
-        groupedRoutines[actualKey] = [];
+      // [i18n Dynamic Resolution] Xử lý trùng tên động dựa trên ngôn ngữ hiện hành
+      final routines = <WorkoutSession>[];
+      final nameCounts = <String, int>{};
+      for (final routine in rawRoutines) {
+        final rawDisplayName = t.translateDynamic(routine.name);
+        if (nameCounts.containsKey(rawDisplayName)) {
+          nameCounts[rawDisplayName] = nameCounts[rawDisplayName]! + 1;
+          routines.add(
+            routine.copyWith(
+              name: '$rawDisplayName (${nameCounts[rawDisplayName]})',
+            ),
+          );
+        } else {
+          nameCounts[rawDisplayName] = 0;
+          routines.add(routine.copyWith(name: rawDisplayName));
+        }
       }
-      groupedRoutines[actualKey]!.add(r);
-    }
 
-    final sortedFolders = List<String>.from(folderOrder);
+      final groupedRoutines = <String, List<WorkoutSession>>{};
 
-    // Thêm các folder có routine nhưng chưa nằm trong folderOrder (như sample programs)
-    for (var folderKey in groupedRoutines.keys) {
-      if (!sortedFolders.contains(folderKey)) {
-        sortedFolders.add(folderKey);
+      // Chỉ khởi tạo các folder có trong folderOrder
+      for (var folder in folderOrder) {
+        groupedRoutines[folder] = [];
       }
+
+      // Phân loại Routine vào các Folder tương ứng
+      for (var r in routines) {
+        final folderKey = r.programName?.trim() ?? "";
+        final actualKey = folderKey.isNotEmpty
+            ? folderKey
+            : t.workout.lbl_default_folder.trim();
+
+        if (!groupedRoutines.containsKey(actualKey)) {
+          groupedRoutines[actualKey] = [];
+        }
+        groupedRoutines[actualKey]!.add(r);
+      }
+
+      final sortedFolders = List<String>.from(folderOrder);
+
+      // Thêm các folder có routine nhưng chưa nằm trong folderOrder (như sample programs)
+      for (var folderKey in groupedRoutines.keys) {
+        if (!sortedFolders.contains(folderKey)) {
+          sortedFolders.add(folderKey);
+        }
+      }
+
+      _cachedSortedFolders = sortedFolders;
+      _cachedGroupedRoutines = groupedRoutines;
     }
 
     Widget mainList = _buildMainList(
       context: context,
-      sortedFolders: sortedFolders,
-      groupedRoutines: groupedRoutines,
+      sortedFolders: _cachedSortedFolders,
+      groupedRoutines: _cachedGroupedRoutines,
       colorScheme: colorScheme,
       isTablet: isTablet,
     );
@@ -430,6 +449,7 @@ class _WorkoutScreenState extends State<WorkoutScreen>
               : 'assets/logo/logo_themelight.png',
           key: ValueKey(Theme.of(context).brightness),
           height: 36,
+          cacheHeight: 108,
           fit: BoxFit.contain,
         ).animate().fade(duration: 400.ms),
       ),
@@ -1455,14 +1475,14 @@ class _RoutineCard extends StatefulWidget {
 
 class _RoutineCardState extends State<_RoutineCard> {
   Map<MajorMuscleGroup, double>? _cachedDistribution;
-  List<Exercise>? _prevGlobalExercises;
+  Map<String, Exercise>? _prevExerciseMap;
   WorkoutSession? _prevRoutine;
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final globalExercises = context.select(
-      (ExerciseLibraryCubit cubit) => cubit.state.exercises,
+    final exerciseMap = context.select(
+      (ExerciseLibraryCubit cubit) => cubit.exerciseMap,
     );
 
     // THUẬT TOÁN CACHING
@@ -1470,18 +1490,16 @@ class _RoutineCardState extends State<_RoutineCard> {
         _cachedDistribution == null ||
         _prevRoutine?.id != widget.routine.id ||
         _prevRoutine?.updatedAt != widget.routine.updatedAt ||
-        !identical(_prevGlobalExercises, globalExercises);
+        !identical(_prevExerciseMap, exerciseMap);
 
     if (shouldRecompute) {
       _prevRoutine = widget.routine;
-      _prevGlobalExercises = globalExercises;
+      _prevExerciseMap = exerciseMap;
 
-      if (globalExercises.isNotEmpty) {
+      if (exerciseMap.isNotEmpty) {
         final enrichedExercises = widget.routine.exercises.map((workoutEx) {
-          final fullExercise = globalExercises.firstWhere(
-            (e) => e.id == workoutEx.exercise.id,
-            orElse: () => workoutEx.exercise,
-          );
+          final fullExercise =
+              exerciseMap[workoutEx.exercise.id] ?? workoutEx.exercise;
           return workoutEx.copyWith(exercise: fullExercise);
         }).toList();
 
@@ -1494,7 +1512,7 @@ class _RoutineCardState extends State<_RoutineCard> {
     }
 
     final bool isDataLoading =
-        _RoutineCard._debugForceShimmer || globalExercises.isEmpty;
+        _RoutineCard._debugForceShimmer || exerciseMap.isEmpty;
 
     return Container(
       width: widget.cardWidth,

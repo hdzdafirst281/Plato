@@ -409,7 +409,9 @@ class _MainScaffoldState extends State<MainScaffold>
     final isTablet = ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET);
     final colorScheme = Theme.of(context).colorScheme;
 
-    final profile = context.watch<ProfileCubit>().state.userProfile;
+    final avatarUrl = context.select<ProfileCubit, String?>(
+      (c) => c.state.userProfile.avatarUrl,
+    );
 
     final Color barBgColor = colorScheme.onSurface.withValues(alpha: 0.03);
     final Color activeIndicatorColor = colorScheme.primary.withValues(
@@ -421,9 +423,12 @@ class _MainScaffoldState extends State<MainScaffold>
     );
 
     Widget? profileAvatarWidget;
-    if (profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty) {
+    if (avatarUrl != null && avatarUrl.isNotEmpty) {
+      final cacheSize = (24 * MediaQuery.devicePixelRatioOf(context)).round();
       profileAvatarWidget = Image.network(
-        profile.avatarUrl!,
+        avatarUrl,
+        cacheWidth: cacheSize,
+        cacheHeight: cacheSize,
         fit: BoxFit.cover,
         errorBuilder: (context, error, stackTrace) => Icon(
           Symbols.person,
@@ -753,8 +758,8 @@ class _MainScaffoldState extends State<MainScaffold>
                                     left: 0,
                                     right: 0,
                                     bottom: barCurrentBottom,
-                                    child:
-                                        Center(
+                                    child: RepaintBoundary(
+                                      child: Center(
                                               child: Container(
                                                 constraints: BoxConstraints(
                                                   maxWidth: isTablet
@@ -861,7 +866,8 @@ class _MainScaffoldState extends State<MainScaffold>
                                               curve: Curves.easeOutCubic,
                                             )
                                             .slideY(begin: 0.1, end: 0),
-                                  ),
+                                      ),
+                                    ),
                                 ],
                               );
                             },

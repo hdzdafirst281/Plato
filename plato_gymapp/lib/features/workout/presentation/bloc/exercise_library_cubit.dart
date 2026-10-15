@@ -24,6 +24,17 @@ class ExerciseLibraryCubit extends Cubit<ExerciseLibraryState> {
   
   StreamSubscription? _exerciseSubscription;
 
+  Map<String, Exercise>? _exerciseMapCache;
+  List<Exercise>? _lastExercisesForMap;
+
+  Map<String, Exercise> get exerciseMap {
+    if (_exerciseMapCache == null || !identical(_lastExercisesForMap, state.exercises)) {
+      _lastExercisesForMap = state.exercises;
+      _exerciseMapCache = {for (final e in state.exercises) e.id: e};
+    }
+    return _exerciseMapCache!;
+  }
+
   ExerciseLibraryCubit(this._exerciseRepo) : super(const ExerciseLibraryState()) {
     // Tự động lắng nghe thay đổi từ database ngay khi khởi tạo
     _exerciseSubscription = _exerciseRepo.exercisesStream.listen((list) {

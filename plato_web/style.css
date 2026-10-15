@@ -67,7 +67,7 @@
   }
 
   .exercise-card {
-    @apply bg-white/5 border border-white/10 rounded-3xl overflow-hidden cursor-pointer hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(0,0,0,0.5)] hover:border-plato-primary/50 transition-all duration-300 flex flex-col h-full;
+    @apply bg-white/5 border border-white/10 rounded-3xl overflow-hidden cursor-pointer hover:-translate-y-2 hover:shadow-[0_8px_30px_rgb(0,0,0,0.5)] hover:border-plato-primary/50 transition-all duration-300 flex flex-col h-full;
   }
   .light-mode .exercise-card {
     @apply bg-white border-slate-200 shadow-[0_4px_20px_rgba(0,0,0,0.05)] hover:shadow-[0_8px_30px_rgba(0,0,0,0.12)] hover:border-plato-primary;

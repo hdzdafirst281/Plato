@@ -47,6 +47,8 @@ class _ProfileScreenState extends State<ProfileScreen>
     with SingleTickerProviderStateMixin {
   bool _isMenuOpen = false;
   late final AnimationController _marqueeController;
+  List<WorkoutSession>? _lastRawHistory;
+  List<WorkoutSession> _cachedSortedHistory = [];
 
   @override
   void initState() {
@@ -244,8 +246,12 @@ class _ProfileScreenState extends State<ProfileScreen>
     final isStatsLoading = statsState.isLoading; // Lấy flag loading
 
     final rawHistory = statsState.workouts;
-    final history = List<WorkoutSession>.from(rawHistory)
-      ..sort((a, b) => b.startTime.compareTo(a.startTime));
+    if (!identical(_lastRawHistory, rawHistory)) {
+      _lastRawHistory = rawHistory;
+      _cachedSortedHistory = List<WorkoutSession>.from(rawHistory)
+        ..sort((a, b) => b.startTime.compareTo(a.startTime));
+    }
+    final history = _cachedSortedHistory;
 
     final bool hasAvatar =
         profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty;
@@ -255,6 +261,8 @@ class _ProfileScreenState extends State<ProfileScreen>
       avatarImageWidget = Image.network(
         profile.avatarUrl!,
         fit: BoxFit.cover,
+        cacheWidth: 200,
+        cacheHeight: 200,
         errorBuilder: (context, error, stackTrace) => Icon(
           Symbols.person,
           size: 56,
@@ -289,6 +297,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 : 'assets/logo/logo_themelight.png',
             key: ValueKey(Theme.of(context).brightness),
             height: 36,
+            cacheHeight: 108,
             fit: BoxFit.contain,
           ),
         ),
@@ -1165,7 +1174,17 @@ class _ZoneBarPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+  bool shouldRepaint(covariant _ZoneBarPainter oldDelegate) {
+    return oldDelegate.currentRatio != currentRatio ||
+        oldDelegate.maintainRatio != maintainRatio ||
+        oldDelegate.promoteRatio != promoteRatio ||
+        oldDelegate.isRank1 != isRank1 ||
+        oldDelegate.isMaxRank != isMaxRank ||
+        oldDelegate.colorDemotion != colorDemotion ||
+        oldDelegate.colorMaintain != colorMaintain ||
+        oldDelegate.colorPromote != colorPromote ||
+        oldDelegate.colorIndicator != colorIndicator;
+  }
 }
 
 class _MiniHexagonChart extends StatefulWidget {
@@ -1529,6 +1548,8 @@ class RankBadge extends StatelessWidget {
             _getBadgeAssetPath(rankId),
             width: 20, // Size nhỏ nhắn gọn gàng
             height: 20,
+            cacheWidth: 60,
+            cacheHeight: 60,
             fit: BoxFit.contain,
           ),
           const SizedBox(width: 8),

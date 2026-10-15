@@ -2047,7 +2047,12 @@ class _WeightGoalPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+  bool shouldRepaint(covariant _WeightGoalPainter oldDelegate) {
+    return oldDelegate.isMaintain != isMaintain ||
+        oldDelegate.isCut != isCut ||
+        oldDelegate.progress != progress ||
+        oldDelegate.trendColor != trendColor;
+  }
 }
 
 // ========================================================
@@ -3709,7 +3714,12 @@ class _RulerPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
+  bool shouldRepaint(covariant _RulerPainter oldDelegate) {
+    return oldDelegate.value != value ||
+        oldDelegate.minWeight != minWeight ||
+        oldDelegate.maxWeight != maxWeight ||
+        oldDelegate.colorScheme != colorScheme;
+  }
 }
 
 Future<void> showManualWeightInputDialog(

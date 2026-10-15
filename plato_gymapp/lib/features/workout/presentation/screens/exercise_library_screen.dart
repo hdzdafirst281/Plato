@@ -568,7 +568,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
                           searchQuery: _searchQuery,
                           onSearchChange: (v) {
                             if (_debouncer?.isActive ?? false) {
-                              _debouncer!.cancel();
+                              _debouncer?.cancel();
                             }
                             _debouncer = Timer(
                               const Duration(milliseconds: 300),
@@ -1178,6 +1178,8 @@ class _ExerciseCard extends StatelessWidget {
             File(exercise.localImagePath!),
             fit: BoxFit
                 .cover, // Ảnh chụp người dùng nên dùng cover để lấp đầy hình tròn
+            cacheWidth: 144,
+            cacheHeight: 144,
             errorBuilder: (context, error, stackTrace) =>
                 _buildFallbackText(colorScheme, displayName),
           ),
@@ -1198,6 +1200,8 @@ class _ExerciseCard extends StatelessWidget {
           child: Image.asset(
             exercise.image!,
             fit: BoxFit.contain, // Giữ tỷ lệ ảnh mặc định
+            cacheWidth: 144,
+            cacheHeight: 144,
             errorBuilder: (context, error, stackTrace) =>
                 _buildFallbackText(colorScheme, displayName),
           ),
