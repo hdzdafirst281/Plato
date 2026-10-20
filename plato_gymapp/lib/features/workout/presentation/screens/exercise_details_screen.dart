@@ -11,6 +11,8 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
 import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
 import 'package:plato_gymapp/core/utils/search_utils.dart';
+import 'package:plato_gymapp/core/utils/measurement_units.dart';
+import 'package:plato_gymapp/features/profile/presentation/bloc/profile_cubit.dart';
 import 'package:plato_gymapp/features/workout/presentation/bloc/exercise_library_cubit.dart';
 
 import '../../../../core/designsystem/components/gym_top_bar.dart';
@@ -323,6 +325,10 @@ class _ProgressTab extends StatefulWidget {
 }
 
 class _ProgressTabState extends State<_ProgressTab> {
+  MeasurementFormatter get _units => MeasurementFormatter(
+    context.read<ProfileCubit>().state.userProfile.measurementPreferences,
+  );
+
   ChartTimeRange _timeRange = ChartTimeRange.THREE_MONTHS;
   late ExerciseMetric _selectedMetric;
   int _highlightIndex = -1;
@@ -369,12 +375,12 @@ class _ProgressTabState extends State<_ProgressTab> {
       case ExerciseMetric.BEST_WEIGHT: 
       case ExerciseMetric.ONE_RM:
       case ExerciseMetric.BEST_SET_VOL:
-      case ExerciseMetric.SESSION_VOL: return 'kg';
-      case ExerciseMetric.LONGEST_DISTANCE: return 'km';
+      case ExerciseMetric.SESSION_VOL: return _units.weightUnit;
+      case ExerciseMetric.LONGEST_DISTANCE: return _units.distanceUnit;
       case ExerciseMetric.BEST_STEPS: return 'steps';
       case ExerciseMetric.BEST_REPS:
       case ExerciseMetric.SESSION_REPS: return 'reps';
-      case ExerciseMetric.PACE: return 'km/h';
+      case ExerciseMetric.PACE: return _units.speedUnit;
       default: return '';
     }
   }
@@ -419,8 +425,31 @@ class _ProgressTabState extends State<_ProgressTab> {
       }
     }
 
+    double displayValue(double value) {
+      switch (_selectedMetric) {
+        case ExerciseMetric.BEST_WEIGHT:
+        case ExerciseMetric.ONE_RM:
+        case ExerciseMetric.BEST_SET_VOL:
+        case ExerciseMetric.SESSION_VOL:
+          return _units.weightFromKg(value);
+        case ExerciseMetric.LONGEST_DISTANCE:
+          return _units.distanceFromKm(value);
+        case ExerciseMetric.PACE:
+          return _units.speedFromKmh(value);
+        default:
+          return value;
+      }
+    }
+
     final sortedKeys = groupedData.keys.toList()..sort();
-    return sortedKeys.map((k) => _LocalChartPoint(k.millisecondsSinceEpoch, groupedData[k]!)).toList();
+    return sortedKeys
+        .map(
+          (k) => _LocalChartPoint(
+            k.millisecondsSinceEpoch,
+            displayValue(groupedData[k]!),
+          ),
+        )
+        .toList();
   }
 
   String _formatTime(double seconds) {
@@ -645,6 +674,9 @@ class _HistoryTab extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final units = MeasurementFormatter(
+      context.watch<ProfileCubit>().state.userProfile.measurementPreferences,
+    );
 
     if (history.isEmpty) {
       return Center(
@@ -756,9 +788,9 @@ class _HistoryTab extends StatelessWidget {
                               ] else ...[
                                 if (exercise.type != ExerciseType.REPS_ONLY) ...[
                                   Expanded(child: Text(
-                                    exercise.type == ExerciseType.CARDIO_DISTANCE ? "${s.distanceInKm} km" : 
+                                    exercise.type == ExerciseType.CARDIO_DISTANCE ? units.formatDistance(s.distanceInKm) :
                                     exercise.type == ExerciseType.CARDIO_STEPS ? "${s.steps}" : 
-                                    "${s.weight} kg",
+                                    units.formatWeight(s.weight),
                                     textAlign: TextAlign.center, style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: colorScheme.onSurface)
                                   )),
                                 ],

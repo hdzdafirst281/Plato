@@ -1,5 +1,6 @@
 import 'package:plato_gymapp/core/database/entities.dart';
 import 'package:plato_gymapp/core/database/enums.dart';
+import 'package:plato_gymapp/core/utils/measurement_units.dart';
 import 'package:plato_gymapp/features/auth/data/models/user_models.dart';
 import 'package:plato_gymapp/features/gamification/domain/rank_calculator.dart';
 import 'package:plato_gymapp/features/workout/data/models/workout_models.dart';
@@ -78,6 +79,7 @@ class ReminderPlanner {
     }
 
     if (waterEnabled) {
+      final units = MeasurementFormatter(profile.measurementPreferences);
       for (var offset = 0; offset < horizonDays; offset++) {
         final waterAt = DateTime(now.year, now.month, now.day + offset, 16);
         if (!waterAt.isAfter(now)) continue;
@@ -97,10 +99,10 @@ class ReminderPlanner {
             arguments: consumed <= 0
                 ? const {}
                 : {
-                    'consumed': consumed.toStringAsFixed(2),
-                    'target': target.toStringAsFixed(2),
+                    'consumed': units.formatHydration(consumed),
+                    'target': units.formatHydration(target),
                     if (consumed / target >= .5)
-                      'remaining': (target - consumed).toStringAsFixed(2),
+                      'remaining': units.formatHydration(target - consumed),
                   },
             route: '/nutrition?water=1',
             actionLabelKey: 'notifications.cta_open_water',

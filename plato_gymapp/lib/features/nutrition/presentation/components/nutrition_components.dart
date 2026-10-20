@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:plato_gymapp/features/notifications/application/notification_coordinator.dart';
@@ -12,6 +13,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_countdown_text.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_motion.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_top_bar.dart';
 import 'package:plato_gymapp/core/designsystem/theme/colors.dart';
 import 'package:plato_gymapp/features/nutrition/domain/nutrition_calculator.dart';
@@ -22,8 +24,10 @@ import 'dart:ui' as ui;
 
 import '../../../../core/designsystem/theme/app_theme.dart';
 import '../../../../core/database/enums.dart';
+import '../../../../core/utils/measurement_units.dart';
 
 import '../../../auth/data/models/user_models.dart';
+import '../../../profile/presentation/bloc/profile_cubit.dart';
 import '../../data/models/nutrition_models.dart';
 
 // Helper: Format bỏ số 0 vô nghĩa
@@ -46,55 +50,15 @@ String _formatDouble(double value, {int decimals = 1}) {
 // 1. CÁC COMPONENT CƠ BẢN VÀ ANIMATION
 // ========================================================
 
-class FadeInSlide extends StatefulWidget {
+class FadeInSlide extends StatelessWidget {
   final Widget child;
   final int delayIndex;
 
   const FadeInSlide({super.key, required this.child, this.delayIndex = 0});
 
   @override
-  State<FadeInSlide> createState() => _FadeInSlideState();
-}
-
-class _FadeInSlideState extends State<FadeInSlide>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _opacity;
-  late Animation<Offset> _offset;
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 600),
-    );
-    _opacity = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOut));
-    _offset = Tween<Offset>(
-      begin: const Offset(0, 0.2),
-      end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
-
-    Future.delayed(Duration(milliseconds: 100 * widget.delayIndex), () {
-      if (mounted) _controller.forward();
-    });
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: _opacity,
-      child: SlideTransition(position: _offset, child: widget.child),
-    );
+    return GymEntrance(delay: GymMotion.stagger(delayIndex), child: child);
   }
 }
 
@@ -254,8 +218,11 @@ class UniversalFoodStepper extends StatelessWidget {
 
   bool get _isScale => unit == FoodUnit.GRAM || unit == FoodUnit.ML;
 
-  String get _displayValue {
-    double val = _isScale ? consumedAmount * 100 : consumedAmount;
+  String _displayValue(BuildContext context) {
+    var val = _isScale ? consumedAmount * 100 : consumedAmount;
+    if (unit == FoodUnit.GRAM) {
+      val = _units(context).foodMassFromGrams(val);
+    }
     if (val % 1 == 0) return val.toInt().toString();
     String formatted = val.toStringAsFixed(1);
     if (formatted.contains('.')) {
@@ -266,10 +233,14 @@ class UniversalFoodStepper extends StatelessWidget {
     return formatted;
   }
 
-  String get _suffix {
+  MeasurementFormatter _units(BuildContext context) => MeasurementFormatter(
+    context.read<ProfileCubit>().state.userProfile.measurementPreferences,
+  );
+
+  String _suffix(BuildContext context) {
     switch (unit) {
       case FoodUnit.GRAM:
-        return t.nutrition.lbl_unit_gram;
+        return _units(context).foodMassUnit;
       case FoodUnit.ML:
         return t.nutrition.lbl_unit_ml;
       case FoodUnit.QUANTITY:
@@ -326,7 +297,7 @@ class UniversalFoodStepper extends StatelessWidget {
                 alignment: Alignment.center,
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: Text(
-                  "$_displayValue $_suffix",
+                  "${_displayValue(context)} ${_suffix(context)}",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
                     fontSize: 14,
@@ -366,8 +337,9 @@ class UniversalFoodStepper extends StatelessWidget {
   }
 
   void _showInputDialog(BuildContext context) {
+    final units = _units(context);
     final TextEditingController ctrl = TextEditingController(
-      text: _displayValue,
+      text: _displayValue(context),
     );
     final errorNotifier = ValueNotifier<String?>(null);
 
@@ -378,9 +350,15 @@ class UniversalFoodStepper extends StatelessWidget {
         return;
       }
 
+      final canonicalScaleValue = unit == FoodUnit.GRAM
+          ? units.foodMassToGrams(val)
+          : val;
       if (_isScale) {
-        if (val < 1 || val > 5000) {
-          errorNotifier.value = t.nutrition.err_portion_scale;
+        if (canonicalScaleValue < 1 || canonicalScaleValue > 5000) {
+          errorNotifier.value = t.nutrition.err_portion_scale(
+            arg1: unit == FoodUnit.GRAM ? units.formatFoodMass(1) : '1 ml',
+            arg2: unit == FoodUnit.GRAM ? units.formatFoodMass(5000) : '5000 ml',
+          );
           return;
         }
       } else {
@@ -390,7 +368,7 @@ class UniversalFoodStepper extends StatelessWidget {
         }
       }
 
-      double finalAmount = _isScale ? val / 100 : val;
+      double finalAmount = _isScale ? canonicalScaleValue / 100 : val;
       if (validator != null) {
         errorNotifier.value = validator!(finalAmount);
       } else {
@@ -401,7 +379,7 @@ class UniversalFoodStepper extends StatelessWidget {
     GymDialog.showCustom(
       context: context,
       titleWidget: Text(
-        "${t.nutrition.title_input_amount} ($_suffix)",
+        "${t.nutrition.title_input_amount} (${_suffix(context)})",
         style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
         textAlign: TextAlign.center,
       ),
@@ -419,7 +397,7 @@ class UniversalFoodStepper extends StatelessWidget {
             style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             onChanged: validateRealTime,
             decoration: InputDecoration(
-              suffixText: _suffix,
+              suffixText: _suffix(context),
               error: errorMsg != null
                   ? Row(
                       mainAxisSize: MainAxisSize.min,
@@ -502,7 +480,12 @@ class UniversalFoodStepper extends StatelessWidget {
                   : () {
                       final val = double.tryParse(ctrl.text);
                       if (val != null) {
-                        onManualInput!(_isScale ? val / 100 : val);
+                         final canonicalScaleValue = unit == FoodUnit.GRAM
+                             ? units.foodMassToGrams(val)
+                             : val;
+                         onManualInput!(
+                           _isScale ? canonicalScaleValue / 100 : val,
+                         );
                         Navigator.pop(context);
                       }
                     },
@@ -1323,15 +1306,12 @@ class WaterTrackerCard extends StatelessWidget {
     required this.onTapCard,
   });
 
-  String _formatDouble(double value, {int decimals = 1}) {
-    return value
-        .toStringAsFixed(decimals)
-        .replaceAll(RegExp(r"([.]*0+)(?!.*\d)"), "");
-  }
-
   @override
   Widget build(BuildContext context) {
     final gymColors = Theme.of(context).gymColors;
+    final units = MeasurementFormatter(
+      context.watch<ProfileCubit>().state.userProfile.measurementPreferences,
+    );
 
     final Color accentBlue = gymColors.waterAccent;
     final Color emptyDropColor = gymColors.waterEmptyDrop;
@@ -1496,7 +1476,10 @@ class WaterTrackerCard extends StatelessWidget {
                             textBaseline: TextBaseline.alphabetic,
                             children: [
                               Text(
-                                _formatDouble(currentLiters, decimals: 2),
+                                MeasurementFormatter.number(
+                                  units.hydrationFromLiters(currentLiters),
+                                  2,
+                                ),
                                 style: TextStyle(
                                   fontSize: 24,
                                   fontWeight: FontWeight.w900,
@@ -1506,10 +1489,7 @@ class WaterTrackerCard extends StatelessWidget {
                               ),
                               Text(
                                 t.nutrition.fmt_water_target_suffix(
-                                  arg1: _formatDouble(
-                                    targetLiters,
-                                    decimals: 2,
-                                  ),
+                                   arg1: units.formatHydration(targetLiters),
                                 ),
                                 style: TextStyle(
                                   fontSize: 13,
@@ -1733,6 +1713,7 @@ class WeightGoalChartCard extends StatelessWidget {
     final double spaceFooter = isTablet ? 12.0 : 20.0;
     final double btnHeight = isTablet ? 42.0 : 50.0; // Nút nhấn thu hẹp
 
+    final units = MeasurementFormatter(profile.measurementPreferences);
     final currentWt = profile.weightInKg;
     final targetWt = profile.targetGoalWeightKg ?? currentWt;
     final baseWt = profile.startingWeightKg ?? currentWt;
@@ -1913,7 +1894,7 @@ class WeightGoalChartCard extends StatelessWidget {
                       ),
                     ),
                     Text(
-                      t.onboarding.fmt_kg(arg1: _formatDouble(currentWt)),
+                       units.formatWeight(currentWt),
                       style: const TextStyle(
                         fontWeight: FontWeight.w900,
                         fontSize: 16,
@@ -1939,7 +1920,7 @@ class WeightGoalChartCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        t.onboarding.fmt_kg(arg1: _formatDouble(targetWt)),
+                         units.formatWeight(targetWt),
                         style: TextStyle(
                           fontWeight: FontWeight.w900,
                           fontSize: 16,
@@ -2065,7 +2046,12 @@ Future<void> showUpdateWeightDialog(
   required VoidCallback onDismiss,
   required Function(double) onConfirm,
 }) async {
-  final controller = TextEditingController(text: _formatDouble(currentWeight));
+  final units = MeasurementFormatter(
+    context.read<ProfileCubit>().state.userProfile.measurementPreferences,
+  );
+  final controller = TextEditingController(
+    text: _formatDouble(units.weightFromKg(currentWeight)),
+  );
   bool showWarning = false;
   String? errorMsg;
 
@@ -2137,8 +2123,8 @@ Future<void> showUpdateWeightDialog(
               onChanged: (_) => clearErrors(),
               style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               decoration: InputDecoration(
-                labelText: t.nutrition.lbl_wt_input,
-                suffixText: "kg",
+                 labelText: t.nutrition.lbl_wt_input(arg1: units.weightUnit),
+                 suffixText: units.weightUnit,
                 errorText: errorMsg,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -2185,18 +2171,19 @@ Future<void> showUpdateWeightDialog(
                     ),
                   ),
                   onPressed: () {
-                    final val = double.tryParse(controller.text);
+                     final displayValue = double.tryParse(controller.text);
 
-                    if (val == null) {
+                     if (displayValue == null) {
                       setLocalState(
                         () => errorMsg = t.nutrition.err_invalid_number,
                       );
                       return;
                     }
-                    if (val < minWeight) {
+                     final val = units.weightToKg(displayValue);
+                     if (val < minWeight) {
                       setLocalState(
                         () => errorMsg = t.nutrition.err_min_wt(
-                          arg1: _formatDouble(minWeight),
+                           arg1: units.formatWeight(minWeight),
                         ),
                       );
                       return;
@@ -2204,7 +2191,7 @@ Future<void> showUpdateWeightDialog(
                     if (val > maxWeight) {
                       setLocalState(
                         () => errorMsg = t.nutrition.err_max_wt(
-                          arg1: _formatDouble(maxWeight),
+                           arg1: units.formatWeight(maxWeight),
                         ),
                       );
                       return;
@@ -2245,11 +2232,14 @@ Future<void> showWaterSettingsDialog(
   required VoidCallback onDismiss,
   required Function(double, double) onConfirm,
 }) async {
+  final units = MeasurementFormatter(
+    context.read<ProfileCubit>().state.userProfile.measurementPreferences,
+  );
   final currentCtrl = TextEditingController(
-    text: _formatDouble(currentWater, decimals: 2),
+    text: _formatDouble(units.hydrationFromLiters(currentWater), decimals: 2),
   );
   final targetCtrl = TextEditingController(
-    text: _formatDouble(targetWater, decimals: 2),
+    text: _formatDouble(units.hydrationFromLiters(targetWater), decimals: 2),
   );
   String? errorMsg;
   final colorScheme = Theme.of(context).colorScheme;
@@ -2283,7 +2273,7 @@ Future<void> showWaterSettingsDialog(
               },
               decoration: InputDecoration(
                 labelText: t.nutrition.lbl_water_consumed,
-                suffixText: t.nutrition.unit_liters,
+                 suffixText: units.hydrationUnit,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -2308,7 +2298,7 @@ Future<void> showWaterSettingsDialog(
               },
               decoration: InputDecoration(
                 labelText: t.nutrition.lbl_water_target,
-                suffixText: t.nutrition.unit_liters,
+                 suffixText: units.hydrationUnit,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -2396,20 +2386,29 @@ Future<void> showWaterSettingsDialog(
                     ),
                   ),
                   onPressed: () {
-                    final currVal =
-                        double.tryParse(currentCtrl.text) ?? currentWater;
-                    final targetVal =
-                        double.tryParse(targetCtrl.text) ?? targetWater;
+                     final currVal = units.hydrationToLiters(
+                       double.tryParse(currentCtrl.text) ??
+                           units.hydrationFromLiters(currentWater),
+                     );
+                     final targetVal = units.hydrationToLiters(
+                       double.tryParse(targetCtrl.text) ??
+                           units.hydrationFromLiters(targetWater),
+                     );
 
                     if (targetVal < 0.5 || targetVal > 10.0) {
                       setLocalState(
-                        () => errorMsg = t.nutrition.err_water_target,
+                         () => errorMsg = t.nutrition.err_water_target(
+                           arg1: units.formatHydration(0.5),
+                           arg2: units.formatHydration(10),
+                         ),
                       );
                       return;
                     }
                     if (currVal > 10.0) {
                       setLocalState(
-                        () => errorMsg = t.nutrition.err_water_current,
+                         () => errorMsg = t.nutrition.err_water_current(
+                           arg1: units.formatHydration(10),
+                         ),
                       );
                       return;
                     }
@@ -2476,6 +2475,9 @@ class _UpdateGoalDialogState extends State<UpdateGoalDialog> {
 
   String? _errorMsg;
   bool _showWarning = false;
+
+  MeasurementFormatter get _units =>
+      MeasurementFormatter(widget.profile.measurementPreferences);
 
   @override
   void initState() {
@@ -2606,7 +2608,7 @@ class _UpdateGoalDialogState extends State<UpdateGoalDialog> {
             child: Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               child: Text(
-                t.onboarding.fmt_kg(arg1: _formatDouble(_targetWeight)),
+                _units.formatWeight(_targetWeight),
                 style: TextStyle(
                   color: colorScheme.primary,
                   fontSize: 48,
@@ -2623,6 +2625,7 @@ class _UpdateGoalDialogState extends State<UpdateGoalDialog> {
           value: _targetWeight,
           minWeight: _minWeight,
           maxWeight: _maxWeight,
+          formatter: _units,
           onChanged: (v) => setState(() {
             _targetWeight = v;
             if (_paceMode == "CUSTOM") _paceMode = "NORMAL";
@@ -3113,6 +3116,7 @@ Future<void> showGoalReviewDialog(
   required Function(NutritionGoal) onSuccessGoal,
 }) async {
   final colorScheme = Theme.of(context).colorScheme;
+  final units = MeasurementFormatter(profile.measurementPreferences);
   final currentWt = profile.weightInKg;
   final targetWt = profile.targetGoalWeightKg ?? currentWt;
 
@@ -3154,7 +3158,11 @@ Future<void> showGoalReviewDialog(
         if (isMet) ...[
           BMIVisualizer(bmiValue: bmi, title: t.nutrition.bmi_target),
           const SizedBox(height: 16),
-          Text(t.nutrition.fmt_review_congrats(arg1: _formatDouble(currentWt))),
+          Text(
+            t.nutrition.fmt_review_congrats(
+              arg1: units.formatWeight(currentWt),
+            ),
+          ),
           const SizedBox(height: 16),
           Text(
             t.nutrition.fmt_review_bmi_suggestion(arg1: _formatDouble(bmi)),
@@ -3218,8 +3226,8 @@ Future<void> showGoalReviewDialog(
         ] else ...[
           Text(
             t.nutrition.fmt_review_failed(
-              arg1: _formatDouble(currentWt),
-              arg2: _formatDouble(targetWt),
+              arg1: units.formatWeight(currentWt),
+              arg2: units.formatWeight(targetWt),
             ),
           ),
           const SizedBox(height: 16),
@@ -3553,6 +3561,7 @@ class WeightRulerPicker extends StatefulWidget {
   final ValueChanged<double> onChanged;
   final double minWeight;
   final double maxWeight;
+  final MeasurementFormatter formatter;
 
   const WeightRulerPicker({
     super.key,
@@ -3560,6 +3569,7 @@ class WeightRulerPicker extends StatefulWidget {
     required this.onChanged,
     this.minWeight = 30.0,
     this.maxWeight = 650.0,
+    this.formatter = const MeasurementFormatter(MeasurementPreferences()),
   });
 
   @override
@@ -3573,17 +3583,19 @@ class _WeightRulerPickerState extends State<WeightRulerPicker> {
   @override
   void initState() {
     super.initState();
-    _visualValue = widget.value;
-    _emittedValue = widget.value;
+    _visualValue = widget.formatter.weightFromKg(widget.value);
+    _emittedValue = _visualValue;
   }
 
   @override
   void didUpdateWidget(covariant WeightRulerPicker oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.value != oldWidget.value && widget.value != _emittedValue) {
+    final nextValue = widget.formatter.weightFromKg(widget.value);
+    if (nextValue != _emittedValue ||
+        widget.formatter.preferences != oldWidget.formatter.preferences) {
       setState(() {
-        _visualValue = widget.value;
-        _emittedValue = widget.value;
+        _visualValue = nextValue;
+        _emittedValue = nextValue;
       });
     }
   }
@@ -3597,14 +3609,17 @@ class _WeightRulerPickerState extends State<WeightRulerPicker> {
       onHorizontalDragUpdate: (details) {
         setState(() {
           _visualValue -= (details.delta.dx / 12.0) * 0.1;
-          _visualValue = _visualValue.clamp(widget.minWeight, widget.maxWeight);
+          _visualValue = _visualValue.clamp(
+            widget.formatter.weightFromKg(widget.minWeight),
+            widget.formatter.weightFromKg(widget.maxWeight),
+          );
 
           double snappedValue = double.parse(_visualValue.toStringAsFixed(1));
 
           if (snappedValue != _emittedValue) {
             _emittedValue = snappedValue;
             HapticFeedback.selectionClick();
-            widget.onChanged(_emittedValue);
+            widget.onChanged(widget.formatter.weightToKg(_emittedValue));
           }
         });
       },
@@ -3619,8 +3634,8 @@ class _WeightRulerPickerState extends State<WeightRulerPicker> {
         child: CustomPaint(
           painter: _RulerPainter(
             value: _visualValue,
-            minWeight: widget.minWeight,
-            maxWeight: widget.maxWeight,
+            minWeight: widget.formatter.weightFromKg(widget.minWeight),
+            maxWeight: widget.formatter.weightFromKg(widget.maxWeight),
             colorScheme: colorScheme,
           ),
         ),
@@ -3729,8 +3744,11 @@ Future<void> showManualWeightInputDialog(
   double maxWeight,
   ValueChanged<double> onSubmitted,
 ) async {
+  final units = MeasurementFormatter(
+    context.read<ProfileCubit>().state.userProfile.measurementPreferences,
+  );
   TextEditingController ctrl = TextEditingController(
-    text: _formatDouble(currentValue),
+    text: _formatDouble(units.weightFromKg(currentValue)),
   );
   final colorScheme = Theme.of(context).colorScheme;
   String? errorMsg;
@@ -3769,7 +3787,7 @@ Future<void> showManualWeightInputDialog(
                 color: colorScheme.onSurface,
               ),
               decoration: InputDecoration(
-                suffixText: 'kg',
+                suffixText: units.weightUnit,
                 suffixStyle: TextStyle(color: colorScheme.onSurfaceVariant),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -3804,17 +3822,18 @@ Future<void> showManualWeightInputDialog(
                     foregroundColor: colorScheme.onPrimary,
                   ),
                   onPressed: () {
-                    double? val = double.tryParse(ctrl.text);
-                    if (val == null) {
+                    final displayValue = double.tryParse(ctrl.text);
+                    if (displayValue == null) {
                       setLocalState(
                         () => errorMsg = t.nutrition.err_invalid_number,
                       );
                       return;
                     }
+                    final val = units.weightToKg(displayValue);
                     if (val < minWeight) {
                       setLocalState(
                         () => errorMsg = t.nutrition.err_min_wt(
-                          arg1: _formatDouble(minWeight),
+                          arg1: units.formatWeight(minWeight),
                         ),
                       );
                       return;
@@ -3822,7 +3841,7 @@ Future<void> showManualWeightInputDialog(
                     if (val > maxWeight) {
                       setLocalState(
                         () => errorMsg = t.nutrition.err_max_wt(
-                          arg1: _formatDouble(maxWeight),
+                          arg1: units.formatWeight(maxWeight),
                         ),
                       );
                       return;

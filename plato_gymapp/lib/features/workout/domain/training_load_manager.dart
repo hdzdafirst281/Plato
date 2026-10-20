@@ -1,6 +1,7 @@
 import 'dart:math';
 import '../data/models/workout_models.dart';
 import '../../../../core/database/enums.dart';
+import 'recovery_load_calculator.dart';
 
 class SafetyCheckResult {
   final bool isSafe;
@@ -91,8 +92,10 @@ class TrainingLoadManager {
 
     // Lõi tính toán Foster's sRPE cho 1 buổi tập
     double calculateSessionSRPE(WorkoutSession session) {
-      // Fail-safe: Nếu user không nhập RPE, lấy mốc trung bình khá là 7
-      final double rpeValue = (session.rpe != null && session.rpe! > 0) ? session.rpe!.toDouble() : 7.0;
+      // Session RPE là mặc định. Ở Effort nâng cao, dùng trung bình RPE
+      // các set đã nhập; nếu cả hai đều trống mới dùng fail-safe 7.
+      final double rpeValue =
+          RecoveryLoadCalculator.effectiveSessionRpe(session) ?? 7.0;
       
       // Fail-safe: Nếu quên bấm giờ, lấy mốc trung bình là 60 phút
       final double durationMinutes = session.totalDurationSeconds > 0 

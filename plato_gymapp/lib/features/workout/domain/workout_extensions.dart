@@ -2,41 +2,16 @@ import 'dart:math';
 import '../data/models/workout_models.dart';
 import '../../../../core/database/enums.dart';
 import 'muscle_exposure_calculator.dart';
+import 'recovery_load_calculator.dart';
 
 extension WorkoutExerciseX on WorkoutExercise {
   // TÍNH TOÁN LOAD CHUẨN HÓA ($Load_{ex}$)
   // Sử dụng cho thuật toán Dimensionless Relative Load
-  double calculateWorkload({double userBodyWeight = 65.0}) {
-    final completedSets = sets.where((s) => s.isCompleted).toList();
-    if (completedSets.isEmpty) return 0.0;
-
-    switch (exercise.type) {
-      case ExerciseType.WEIGHT_REPS:
-        return completedSets.fold(0.0, (sum, set) {
-          // Xử lý Bodyweight Fallback: Nếu tạ = 0 (Bodyweight) thì lấy cân nặng cơ thể
-          double effectiveWeight = set.weight > 0 ? set.weight : userBodyWeight;
-          return sum + (effectiveWeight * set.reps);
-        });
-
-      case ExerciseType.REPS_ONLY:
-        // Với REPS_ONLY (vd: Pull-up), Capacity của họ chính là số Reps, không cần nhân kg
-        return completedSets.fold(0.0, (sum, set) => sum + set.reps.toDouble());
-
-      case ExerciseType.TIME_ONLY:
-        return completedSets.fold(
-          0.0,
-          (sum, set) => sum + set.durationTimeSeconds.toDouble(),
-        );
-
-      case ExerciseType.CARDIO_DISTANCE:
-        return completedSets.fold(0.0, (sum, set) => sum + set.distanceInKm);
-
-      case ExerciseType.CARDIO_STEPS:
-        return completedSets.fold(
-          0.0,
-          (sum, set) => sum + set.steps.toDouble(),
-        );
-    }
+  double calculateWorkload({double? userBodyWeight}) {
+    return RecoveryLoadCalculator.exerciseVolume(
+      this,
+      userBodyWeight: userBodyWeight,
+    );
   }
 
   // Lấy giá trị Metric cụ thể dùng cho Biểu đồ

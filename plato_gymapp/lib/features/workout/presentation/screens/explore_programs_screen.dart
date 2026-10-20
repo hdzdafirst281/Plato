@@ -8,6 +8,8 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:plato_gymapp/core/database/entities.dart';
 import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
 import 'package:plato_gymapp/features/workout/presentation/bloc/exercise_library_cubit.dart';
+import 'package:plato_gymapp/core/utils/measurement_units.dart';
+import 'package:plato_gymapp/features/profile/presentation/bloc/profile_cubit.dart';
 
 import '../../../../core/designsystem/components/gym_top_bar.dart';
 import '../../../../core/database/enums.dart';
@@ -453,6 +455,9 @@ class _ProgramDetailView extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final globalExercises = context.select<ExerciseLibraryCubit, List<Exercise>>((cubit) => cubit.state.exercises);
+    final units = MeasurementFormatter(
+      context.watch<ProfileCubit>().state.userProfile.measurementPreferences,
+    );
 
     return Stack(
       children: [
@@ -504,7 +509,7 @@ class _ProgramDetailView extends StatelessWidget {
                          if (fullExercise.type == ExerciseType.TIME_ONLY) {
                            targetStr = timeStr;
                          } else if (fullExercise.type == ExerciseType.CARDIO_DISTANCE) {
-                           targetStr = baseSet.distanceInKm > 0 ? "${baseSet.distanceInKm} km" : "";
+                           targetStr = baseSet.distanceInKm > 0 ? units.formatDistance(baseSet.distanceInKm) : "";
                            if (timeStr.isNotEmpty) targetStr += (targetStr.isEmpty ? timeStr : " • $timeStr");
                          } else if (fullExercise.type == ExerciseType.CARDIO_STEPS) {
                            targetStr = baseSet.steps > 0 ? "${baseSet.steps} steps" : "";

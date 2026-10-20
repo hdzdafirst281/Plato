@@ -8,6 +8,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../domain/repositories/auth_repository.dart';
 import '../models/user_models.dart';
 import '../../../../core/database/enums.dart';
+import '../../../../core/utils/measurement_units.dart';
 import '../../../nutrition/data/models/nutrition_models.dart';
 
 @LazySingleton(as: AuthRepository)
@@ -239,9 +240,22 @@ class AuthRepositoryImpl implements AuthRepository {
       final response = await _supabase.from('users').select().eq('id', targetUserId).maybeSingle();
 
       if (response != null) {
-        final prefs = response['workout_preferences'] ?? {};
-        final health = response['health_profile'] ?? {};
-        final targets = response['current_targets'] ?? {};
+        Map<String, dynamic> jsonMap(Object? value) {
+          if (value is Map) return Map<String, dynamic>.from(value);
+          if (value is String && value.trim().isNotEmpty) {
+            try {
+              final decoded = jsonDecode(value);
+              if (decoded is Map) return Map<String, dynamic>.from(decoded);
+            } on FormatException {
+              return <String, dynamic>{};
+            }
+          }
+          return <String, dynamic>{};
+        }
+
+        final prefs = jsonMap(response['workout_preferences']);
+        final health = jsonMap(response['health_profile']);
+        final targets = jsonMap(response['current_targets']);
 
         final historyResponse = await _supabase.from('user_rank_history')
             .select('new_rank_id, event_type, created_at')
@@ -293,6 +307,9 @@ class AuthRepositoryImpl implements AuthRepository {
           targetMacros: Macros.fromJson(targets['target_macros'] ?? const {'c': 0, 'f': 0, 'p': 0, 'cal': 0}),
           isCustomMacros: targets['is_custom_macros'] ?? false,
           weeklyGoalRate: (targets['weekly_goal_rate'])?.toDouble(),
+          measurementPreferences: MeasurementPreferences.fromJson(
+            jsonMap(prefs['measurement_units']),
+          ),
           
           detailedBodyMetrics: const BodyMetrics(),
         );

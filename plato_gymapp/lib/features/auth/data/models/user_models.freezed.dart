@@ -94,6 +94,9 @@ mixin _$UserProfile {
       throw _privateConstructorUsedError;
   @JsonKey(name: 'disable_weekly_weight_reminder')
   bool get disableWeeklyWeightReminder => throw _privateConstructorUsedError;
+  @JsonKey(name: 'measurement_preferences')
+  MeasurementPreferences get measurementPreferences =>
+      throw _privateConstructorUsedError;
 
   Map<String, dynamic> toJson() => throw _privateConstructorUsedError;
   @JsonKey(ignore: true)
@@ -146,7 +149,9 @@ abstract class $UserProfileCopyWith<$Res> {
       @JsonKey(name: 'last_weight_update_millis')
       int? lastWeightUpdateTimestampMillis,
       @JsonKey(name: 'disable_weekly_weight_reminder')
-      bool disableWeeklyWeightReminder});
+      bool disableWeeklyWeightReminder,
+      @JsonKey(name: 'measurement_preferences')
+      MeasurementPreferences measurementPreferences});
 
   $MacrosCopyWith<$Res> get targetMacros;
   $BodyMetricsCopyWith<$Res> get detailedBodyMetrics;
@@ -199,6 +204,7 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
     Object? goalStartTimestampMillis = freezed,
     Object? lastWeightUpdateTimestampMillis = freezed,
     Object? disableWeeklyWeightReminder = null,
+    Object? measurementPreferences = null,
   }) {
     return _then(_value.copyWith(
       id: freezed == id
@@ -338,6 +344,10 @@ class _$UserProfileCopyWithImpl<$Res, $Val extends UserProfile>
           ? _value.disableWeeklyWeightReminder
           : disableWeeklyWeightReminder // ignore: cast_nullable_to_non_nullable
               as bool,
+      measurementPreferences: null == measurementPreferences
+          ? _value.measurementPreferences
+          : measurementPreferences // ignore: cast_nullable_to_non_nullable
+              as MeasurementPreferences,
     ) as $Val);
   }
 
@@ -405,7 +415,9 @@ abstract class _$$UserProfileImplCopyWith<$Res>
       @JsonKey(name: 'last_weight_update_millis')
       int? lastWeightUpdateTimestampMillis,
       @JsonKey(name: 'disable_weekly_weight_reminder')
-      bool disableWeeklyWeightReminder});
+      bool disableWeeklyWeightReminder,
+      @JsonKey(name: 'measurement_preferences')
+      MeasurementPreferences measurementPreferences});
 
   @override
   $MacrosCopyWith<$Res> get targetMacros;
@@ -458,6 +470,7 @@ class __$$UserProfileImplCopyWithImpl<$Res>
     Object? goalStartTimestampMillis = freezed,
     Object? lastWeightUpdateTimestampMillis = freezed,
     Object? disableWeeklyWeightReminder = null,
+    Object? measurementPreferences = null,
   }) {
     return _then(_$UserProfileImpl(
       id: freezed == id
@@ -597,6 +610,10 @@ class __$$UserProfileImplCopyWithImpl<$Res>
           ? _value.disableWeeklyWeightReminder
           : disableWeeklyWeightReminder // ignore: cast_nullable_to_non_nullable
               as bool,
+      measurementPreferences: null == measurementPreferences
+          ? _value.measurementPreferences
+          : measurementPreferences // ignore: cast_nullable_to_non_nullable
+              as MeasurementPreferences,
     ));
   }
 }
@@ -646,7 +663,9 @@ class _$UserProfileImpl implements _UserProfile {
       @JsonKey(name: 'last_weight_update_millis')
       this.lastWeightUpdateTimestampMillis,
       @JsonKey(name: 'disable_weekly_weight_reminder')
-      this.disableWeeklyWeightReminder = false})
+      this.disableWeeklyWeightReminder = false,
+      @JsonKey(name: 'measurement_preferences')
+      this.measurementPreferences = const MeasurementPreferences()})
       : _reportedInjuries = reportedInjuries,
         _dietaryRestrictions = dietaryRestrictions,
         _rankAdvancementHistory = rankAdvancementHistory;
@@ -781,10 +800,13 @@ class _$UserProfileImpl implements _UserProfile {
   @override
   @JsonKey(name: 'disable_weekly_weight_reminder')
   final bool disableWeeklyWeightReminder;
+  @override
+  @JsonKey(name: 'measurement_preferences')
+  final MeasurementPreferences measurementPreferences;
 
   @override
   String toString() {
-    return 'UserProfile(id: $id, displayName: $displayName, avatarUrl: $avatarUrl, gender: $gender, userAge: $userAge, heightInCm: $heightInCm, weightInKg: $weightInKg, bodyFatPercentage: $bodyFatPercentage, workoutGoal: $workoutGoal, nutritionGoal: $nutritionGoal, activityLevel: $activityLevel, trainingDaysPerWeek: $trainingDaysPerWeek, reportedInjuries: $reportedInjuries, dietaryRestrictions: $dietaryRestrictions, environment: $environment, calculatedTdee: $calculatedTdee, targetMacros: $targetMacros, isCustomMacros: $isCustomMacros, weeklyGoalRate: $weeklyGoalRate, experiencePoints: $experiencePoints, currentRp: $currentRp, lastRpSeasonId: $lastRpSeasonId, rankAdvancementHistory: $rankAdvancementHistory, activeRankId: $activeRankId, detailedBodyMetrics: $detailedBodyMetrics, socialFollowersCount: $socialFollowersCount, socialFollowingCount: $socialFollowingCount, experienceLevel: $experienceLevel, dietPlan: $dietPlan, targetGoalWeightKg: $targetGoalWeightKg, startingWeightKg: $startingWeightKg, goalStartTimestampMillis: $goalStartTimestampMillis, lastWeightUpdateTimestampMillis: $lastWeightUpdateTimestampMillis, disableWeeklyWeightReminder: $disableWeeklyWeightReminder)';
+    return 'UserProfile(id: $id, displayName: $displayName, avatarUrl: $avatarUrl, gender: $gender, userAge: $userAge, heightInCm: $heightInCm, weightInKg: $weightInKg, bodyFatPercentage: $bodyFatPercentage, workoutGoal: $workoutGoal, nutritionGoal: $nutritionGoal, activityLevel: $activityLevel, trainingDaysPerWeek: $trainingDaysPerWeek, reportedInjuries: $reportedInjuries, dietaryRestrictions: $dietaryRestrictions, environment: $environment, calculatedTdee: $calculatedTdee, targetMacros: $targetMacros, isCustomMacros: $isCustomMacros, weeklyGoalRate: $weeklyGoalRate, experiencePoints: $experiencePoints, currentRp: $currentRp, lastRpSeasonId: $lastRpSeasonId, rankAdvancementHistory: $rankAdvancementHistory, activeRankId: $activeRankId, detailedBodyMetrics: $detailedBodyMetrics, socialFollowersCount: $socialFollowersCount, socialFollowingCount: $socialFollowingCount, experienceLevel: $experienceLevel, dietPlan: $dietPlan, targetGoalWeightKg: $targetGoalWeightKg, startingWeightKg: $startingWeightKg, goalStartTimestampMillis: $goalStartTimestampMillis, lastWeightUpdateTimestampMillis: $lastWeightUpdateTimestampMillis, disableWeeklyWeightReminder: $disableWeeklyWeightReminder, measurementPreferences: $measurementPreferences)';
   }
 
   @override
@@ -861,7 +883,9 @@ class _$UserProfileImpl implements _UserProfile {
             (identical(other.disableWeeklyWeightReminder,
                     disableWeeklyWeightReminder) ||
                 other.disableWeeklyWeightReminder ==
-                    disableWeeklyWeightReminder));
+                    disableWeeklyWeightReminder) &&
+            (identical(other.measurementPreferences, measurementPreferences) ||
+                other.measurementPreferences == measurementPreferences));
   }
 
   @JsonKey(ignore: true)
@@ -901,7 +925,8 @@ class _$UserProfileImpl implements _UserProfile {
         startingWeightKg,
         goalStartTimestampMillis,
         lastWeightUpdateTimestampMillis,
-        disableWeeklyWeightReminder
+        disableWeeklyWeightReminder,
+        measurementPreferences
       ]);
 
   @JsonKey(ignore: true)
@@ -960,7 +985,9 @@ abstract class _UserProfile implements UserProfile {
       @JsonKey(name: 'last_weight_update_millis')
       final int? lastWeightUpdateTimestampMillis,
       @JsonKey(name: 'disable_weekly_weight_reminder')
-      final bool disableWeeklyWeightReminder}) = _$UserProfileImpl;
+      final bool disableWeeklyWeightReminder,
+      @JsonKey(name: 'measurement_preferences')
+      final MeasurementPreferences measurementPreferences}) = _$UserProfileImpl;
 
   factory _UserProfile.fromJson(Map<String, dynamic> json) =
       _$UserProfileImpl.fromJson;
@@ -1067,6 +1094,9 @@ abstract class _UserProfile implements UserProfile {
   @override
   @JsonKey(name: 'disable_weekly_weight_reminder')
   bool get disableWeeklyWeightReminder;
+  @override
+  @JsonKey(name: 'measurement_preferences')
+  MeasurementPreferences get measurementPreferences;
   @override
   @JsonKey(ignore: true)
   _$$UserProfileImplCopyWith<_$UserProfileImpl> get copyWith =>

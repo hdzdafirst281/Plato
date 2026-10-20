@@ -194,6 +194,7 @@ Future<bool> _executeCoreSyncLogic({
                 'workout_goal': profile.workoutGoal.name, 'experience_level': profile.experienceLevel,
                 'activity_level': profile.activityLevel.name, 'days_available': profile.trainingDaysPerWeek,
                 'environment': profile.environment.name,
+                'measurement_units': profile.measurementPreferences.toJson(),
               },
               'health_profile': { 'injuries': profile.reportedInjuries, 'dietary_restrictions': profile.dietaryRestrictions, },
               'current_targets': {

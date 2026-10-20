@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'gym_motion.dart';
+
 class GymMarqueeText extends StatelessWidget {
   static const cycleDuration = Duration(seconds: 16);
   static const _pauseFraction = 1 / 16;
@@ -40,6 +42,18 @@ class GymMarqueeText extends StatelessWidget {
             style: style,
             maxLines: 1,
             softWrap: false,
+            textAlign: textAlign,
+          );
+        }
+
+        if (GymMotion.reduceMotion(context) ||
+            !TickerMode.valuesOf(context).enabled) {
+          return Text(
+            text,
+            style: style,
+            maxLines: 1,
+            softWrap: false,
+            overflow: TextOverflow.ellipsis,
             textAlign: textAlign,
           );
         }

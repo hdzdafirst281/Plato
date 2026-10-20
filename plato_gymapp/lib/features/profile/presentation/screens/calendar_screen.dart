@@ -24,6 +24,7 @@ import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
 import 'package:plato_gymapp/core/designsystem/theme/colors.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_time_picker.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_motion.dart';
 
 import 'package:plato_gymapp/core/navigation/app_routes.dart';
 import 'package:plato_gymapp/core/utils/tour_keys.dart';
@@ -32,6 +33,7 @@ import 'package:plato_gymapp/features/profile/domain/profile_chart_utils.dart'
 import 'package:plato_gymapp/features/workout/presentation/bloc/editor_cubit.dart';
 
 import 'package:plato_gymapp/features/workout/data/models/workout_models.dart';
+import 'package:plato_gymapp/features/workout/domain/recovery_load_calculator.dart';
 import 'package:plato_gymapp/features/workout/presentation/bloc/workout_cubit.dart';
 import 'package:showcaseview/showcaseview.dart';
 import '../bloc/stats_cubit.dart';
@@ -376,15 +378,12 @@ class _CalendarScreenState extends State<CalendarScreen> {
     final colorScheme = Theme.of(context).colorScheme;
 
     final statsState = context.watch<StatsCubit>().state;
-    final scheduledWorkouts =
-        context.select<WorkoutCubit, List<ScheduledWorkout>>(
+    final scheduledWorkouts = context
+        .select<WorkoutCubit, List<ScheduledWorkout>>(
           (cubit) => cubit.state.scheduledWorkoutsList,
         );
 
-    _updateMappedItemsIfChanged(
-      statsState.workouts,
-      scheduledWorkouts,
-    );
+    _updateMappedItemsIfChanged(statsState.workouts, scheduledWorkouts);
     if (!_openedInitialSchedule && widget.setupRoutineId != null) {
       _openedInitialSchedule = true;
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -553,17 +552,19 @@ class _CalendarScreenState extends State<CalendarScreen> {
           ],
         ),
         actions: [
-          TextButton(
-            onPressed: _onTodayPressed,
-            child: Text(
-              t.stats.btn_cal_today,
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                color: colorScheme.primary,
+          if (_viewMode != CalendarViewMode.MULTI_YEAR) ...[
+            TextButton(
+              onPressed: _onTodayPressed,
+              child: Text(
+                t.stats.btn_cal_today,
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  color: colorScheme.primary,
+                ),
               ),
             ),
-          ),
-          const SizedBox(width: 8),
+            const SizedBox(width: 8),
+          ],
         ],
       ),
       body: SafeArea(
@@ -1768,7 +1769,7 @@ class _RoutinePickerPage extends StatelessWidget {
                       ),
                     )
                     .animate()
-                    .fade(delay: (50 * i).ms)
+                    .fade(delay: GymMotion.stagger(i))
                     .slideX(begin: 0.05, end: 0);
               },
             ),
@@ -2964,19 +2965,28 @@ class _MonthHeatmapItem extends StatelessWidget {
     }
 
     final colorScheme = Theme.of(context).colorScheme;
+    final now = DateTime.now();
+    final isCurrentMonth = (year == now.year && month == now.month);
 
-    return Column(
+    final rawMonthName = DateFormat(
+      "MMMM",
+      TranslationProvider.of(context).flutterLocale.languageCode,
+    ).format(firstDay);
+    final monthName = rawMonthName.isNotEmpty
+        ? '${rawMonthName[0].toUpperCase()}${rawMonthName.substring(1)}'
+        : rawMonthName;
+
+    final monthContent = Column(
       children: [
         Text(
-          DateFormat(
-            "MMMM",
-            TranslationProvider.of(context).flutterLocale.languageCode,
-          ).format(firstDay),
+          monthName,
           style: TextStyle(
-            fontWeight: FontWeight.bold,
+            fontWeight: isCurrentMonth ? FontWeight.w900 : FontWeight.bold,
             fontSize: 12,
-            color: colorScheme.onSurface,
+            color: isCurrentMonth ? colorScheme.primary : colorScheme.onSurface,
           ),
+          maxLines: 1,
+          overflow: TextOverflow.ellipsis,
         ),
         const SizedBox(height: 8),
         Expanded(
@@ -3001,20 +3011,63 @@ class _MonthHeatmapItem extends StatelessWidget {
 
               if (pastSessions.isNotEmpty) {
                 final maxRpe = pastSessions
-                    .map((s) => s.rpe ?? 0)
+                    .map(
+                      (s) =>
+                          RecoveryLoadCalculator.effectiveSessionRpe(
+                            s,
+                          )?.round() ??
+                          0,
+                    )
                     .reduce(math.max);
                 cellColor = _getRpeColor(context, maxRpe > 0 ? maxRpe : null);
               }
+
+              final isToday =
+                  (date.year == now.year &&
+                  date.month == now.month &&
+                  date.day == now.day);
 
               return Container(
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(4),
                   color: cellColor,
+                  border: isToday
+                      ? Border.all(color: colorScheme.primary, width: 1.2)
+                      : null,
                 ),
               );
             },
           ),
         ),
+      ],
+    );
+
+    if (!isCurrentMonth) {
+      return monthContent;
+    }
+
+    return Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Positioned(
+          left: -8,
+          right: -8,
+          top: -6,
+          bottom: 6,
+          child: IgnorePointer(
+            child: Container(
+              decoration: BoxDecoration(
+                color: colorScheme.primary.withValues(alpha: 0.08),
+                borderRadius: BorderRadius.circular(12),
+                border: Border.all(
+                  color: colorScheme.primary.withValues(alpha: 0.35),
+                  width: 1.2,
+                ),
+              ),
+            ),
+          ),
+        ),
+        monthContent,
       ],
     );
   }
@@ -3126,7 +3179,11 @@ class _MultiYearHeatmapView extends StatelessWidget {
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    StreakIcon(streak: stats.maxDaysStreak, size: 18),
+                    Icon(
+                      Symbols.local_fire_department,
+                      size: 18,
+                      color: gymColors.fireHexagon,
+                    ),
                     const SizedBox(width: 6),
                     Expanded(
                       child: Text(
@@ -3286,7 +3343,11 @@ class _HevyYearHeatmap extends StatelessWidget {
                     Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
-                        StreakIcon(streak: stats.maxDaysStreak, size: 14),
+                        Icon(
+                          Symbols.local_fire_department,
+                          size: 14,
+                          color: gymColors.fireHexagon,
+                        ),
                         const SizedBox(width: 4),
                         Text(
                           daysStreakLabel,

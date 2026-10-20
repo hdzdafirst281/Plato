@@ -15,6 +15,7 @@ import '../../../../core/database/enums.dart';
 import '../../../../core/database/entities.dart';
 import '../../../../core/worker/background_workout_service.dart';
 import '../../data/models/workout_models.dart';
+import '../../data/workout_effort_preferences.dart';
 import '../../data/repositories/workout_repository.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../gamification/data/repositories/gamification_repository.dart';
@@ -412,7 +413,9 @@ class ActiveSessionCubit extends Cubit<ActiveSessionState> with WidgetsBindingOb
       sessionPayload: session.sessionPayload.copyWith(exercises: cleanedExercises),
       totalDurationSeconds: finalDuration,
       endTime: DateTime.now().millisecondsSinceEpoch,
-      rpe: isAutoFinish ? (session.rpe ?? 5) : session.rpe,
+      rpe: WorkoutEffortPreferences.advancedEnabled(_prefs)
+          ? null
+          : (isAutoFinish ? (session.rpe ?? 5) : session.rpe),
     );
 
     final finalSession = await _workoutRepo.saveFinishedWorkout(
@@ -481,7 +484,7 @@ class ActiveSessionCubit extends Cubit<ActiveSessionState> with WidgetsBindingOb
   }
   
   void updateSet(String exerciseId, String setId, bool isCompletedFlag, {
-    double? weight, int? reps, double? distance, int? steps, int? time, int? rpe, SetType? type, TimerMode? timerMode
+    double? weight, int? reps, double? distance, int? steps, int? time, int? rpe, bool clearRpe = false, SetType? type, TimerMode? timerMode
   }) {
     final currentSession = state.activeWorkout;
     if (currentSession == null) return;
@@ -504,7 +507,8 @@ class ActiveSessionCubit extends Cubit<ActiveSessionState> with WidgetsBindingOb
               } 
               return set.copyWith(
                 weight: weight ?? set.weight, reps: reps ?? set.reps, distanceInKm: distance ?? set.distanceInKm, 
-                steps: steps ?? set.steps, durationTimeSeconds: time ?? set.durationTimeSeconds, rpe: rpe ?? set.rpe, 
+                steps: steps ?? set.steps, durationTimeSeconds: time ?? set.durationTimeSeconds,
+                rpe: clearRpe ? null : (rpe ?? set.rpe),
                 isCompleted: isCompletedFlag, type: type ?? set.type, timerMode: timerMode ?? set.timerMode,
               );
             }

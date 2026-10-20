@@ -14,6 +14,7 @@ import '../bloc/nutrition_cubit.dart';
 import '../../data/models/nutrition_models.dart';
 import '../components/nutrition_components.dart';
 import '../../../profile/presentation/bloc/profile_cubit.dart';
+import '../../../../core/utils/measurement_units.dart';
 
 class NutritionHistoryScreen extends StatelessWidget {
   const NutritionHistoryScreen({super.key});
@@ -132,6 +133,9 @@ class _HistoryCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final gymColors = Theme.of(context).gymColors;
+    final units = MeasurementFormatter(
+      context.watch<ProfileCubit>().state.userProfile.measurementPreferences,
+    );
     
     DateTime? date;
     try {
@@ -177,7 +181,7 @@ class _HistoryCard extends StatelessWidget {
                   children: [
                     const Icon(Symbols.water_drop, size: 14, color: Colors.blue, fill: 1.0),
                     const SizedBox(width: 4),
-                    Text('${daily.waterConsumedLiters.toStringAsFixed(1)}L', style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 13)),
+                    Text(units.formatHydration(daily.waterConsumedLiters), style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.bold, fontSize: 13)),
                   ],
                 ),
               )

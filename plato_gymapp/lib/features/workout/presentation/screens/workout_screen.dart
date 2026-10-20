@@ -12,12 +12,12 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
 import 'package:plato_gymapp/i18n/translation_helper.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:plato_gymapp/core/bloc/tour/tour_cubit.dart';
 import 'package:plato_gymapp/core/database/entities.dart';
 import 'package:plato_gymapp/core/database/enums.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_motion.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_shake_wrapper.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_shimmer.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_tour_target.dart';
@@ -443,15 +443,19 @@ class _WorkoutScreenState extends State<WorkoutScreen>
         automaticallyImplyLeading: false,
         centerTitle: true,
         titleSpacing: 16,
-        title: Image.asset(
-          Theme.of(context).brightness == Brightness.dark
-              ? 'assets/logo/logo_themedark.png'
-              : 'assets/logo/logo_themelight.png',
-          key: ValueKey(Theme.of(context).brightness),
-          height: 36,
-          cacheHeight: 108,
-          fit: BoxFit.contain,
-        ).animate().fade(duration: 400.ms),
+        title: GymEntrance(
+          offset: const Offset(0, -6),
+          duration: GymMotion.content,
+          child: Image.asset(
+            Theme.of(context).brightness == Brightness.dark
+                ? 'assets/logo/logo_themedark.png'
+                : 'assets/logo/logo_themelight.png',
+            key: ValueKey(Theme.of(context).brightness),
+            height: 36,
+            cacheHeight: 108,
+            fit: BoxFit.contain,
+          ),
+        ),
       ),
       body: Stack(
         children: [
@@ -621,10 +625,10 @@ class _WorkoutScreenState extends State<WorkoutScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        buttonsLayout
-            .animate()
-            .fade(duration: 400.ms)
-            .slideY(begin: -0.1, end: 0),
+        GymEntrance(
+          offset: const Offset(0, -GymMotion.entranceOffset),
+          child: buttonsLayout,
+        ),
 
         const SizedBox(height: 24),
 
@@ -642,27 +646,23 @@ class _WorkoutScreenState extends State<WorkoutScreen>
               final recoveryData = context.select(
                 (WorkoutCubit cubit) => cubit.state.recoveryUIDataList,
               );
-              return recoveryData.isNotEmpty
-                  ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: [
-                        RecoveryBarChart(
-                          recoveryDataList: recoveryData,
-                        ).animate().fade(duration: 500.ms),
-                        const SizedBox(height: 24),
-                        const RecoveryRecommendations(),
-                      ],
-                    )
-                  : Center(
-                      child: Padding(
-                        padding: const EdgeInsets.symmetric(vertical: 32),
-                        child: Text(
-                          t.workout.msg_warn_no_data,
-                          style: TextStyle(color: colorScheme.onSurfaceVariant),
-                          textAlign: TextAlign.center,
+              final isLoading = recoveryData.isEmpty;
+              return GymEntrance(
+                delay: GymMotion.stagger(1),
+                child: GymContentSwitcher(
+                  stateKey: isLoading ? 'loading' : 'content',
+                  child: isLoading
+                      ? const _RecoveryPanelSkeleton()
+                      : Column(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            RecoveryBarChart(recoveryDataList: recoveryData),
+                            const SizedBox(height: 24),
+                            const RecoveryRecommendations(),
+                          ],
                         ),
-                      ),
-                    );
+                ),
+              );
             },
           ),
         ),
@@ -983,6 +983,54 @@ class _GlobalFolderHeader extends StatelessWidget {
           ),
           onPressed: onAddFolder,
           tooltip: t.workout.btn_create_empty_folder,
+        ),
+      ),
+    );
+  }
+}
+
+class _RecoveryPanelSkeleton extends StatelessWidget {
+  const _RecoveryPanelSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return Semantics(
+      label: t.workout.title_recovery_status.trim(),
+      child: GymShimmer(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: GymShimmerBlock(width: 180, height: 24),
+            ),
+            const SizedBox(height: 12),
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: colorScheme.surfaceContainerHighest),
+              ),
+              child: Column(
+                children: List.generate(
+                  6,
+                  (index) => const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 7),
+                    child: Row(
+                      children: [
+                        GymShimmerBlock(width: 76, height: 14),
+                        SizedBox(width: 12),
+                        Expanded(child: GymShimmerBlock(height: 14)),
+                        SizedBox(width: 12),
+                        GymShimmerBlock(width: 36, height: 14),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
       ),
     );

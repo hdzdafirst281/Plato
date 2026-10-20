@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
 
+import 'gym_motion.dart';
+
 /// Core Shimmer wrapper that automatically applies the correct color scheme.
 class GymShimmer extends StatelessWidget {
   final Widget child;
@@ -15,6 +17,10 @@ class GymShimmer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    if (GymMotion.reduceMotion(context) ||
+        !TickerMode.valuesOf(context).enabled) {
+      return child;
+    }
     return Shimmer.fromColors(
       baseColor: colorScheme.surfaceContainerHighest,
       highlightColor: colorScheme.surface,
@@ -39,11 +45,12 @@ class GymShimmerBlock extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: Colors.white, // Shimmer will override this color
+        color: colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(borderRadius),
       ),
     );
@@ -54,18 +61,16 @@ class GymShimmerBlock extends StatelessWidget {
 class GymShimmerCircle extends StatelessWidget {
   final double radius;
 
-  const GymShimmerCircle({
-    super.key,
-    required this.radius,
-  });
+  const GymShimmerCircle({super.key, required this.radius});
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return Container(
       width: radius * 2,
       height: radius * 2,
-      decoration: const BoxDecoration(
-        color: Colors.white,
+      decoration: BoxDecoration(
+        color: colorScheme.surfaceContainerHighest,
         shape: BoxShape.circle,
       ),
     );
@@ -157,6 +162,7 @@ class GymCardShimmer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return GymShimmer(
       child: Container(
         width: width,
@@ -164,9 +170,13 @@ class GymCardShimmer extends StatelessWidget {
         margin: isList ? const EdgeInsets.only(bottom: 16.0) : null,
         padding: const EdgeInsets.all(16.0),
         decoration: BoxDecoration(
-          color: Colors.transparent, // Background should be transparent so we only shimmer the blocks
+          color: Colors
+              .transparent, // Background should be transparent so we only shimmer the blocks
           borderRadius: BorderRadius.circular(16),
-          border: Border.all(color: Colors.white, width: 2), // Outer border shimmer
+          border: Border.all(
+            color: colorScheme.surfaceContainerHighest,
+            width: 2,
+          ),
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,

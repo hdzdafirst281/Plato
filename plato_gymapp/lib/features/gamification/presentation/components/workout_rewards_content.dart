@@ -1,5 +1,6 @@
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:plato_gymapp/core/database/enums.dart';
 import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
@@ -12,6 +13,8 @@ import '../../domain/rank_calculator.dart';
 import '../../domain/reward_progress.dart';
 import 'package:plato_gymapp/core/designsystem/components/streak_icon.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:plato_gymapp/core/utils/measurement_units.dart';
+import 'package:plato_gymapp/features/profile/presentation/bloc/profile_cubit.dart';
 
 class WorkoutRewardsContent extends StatefulWidget {
   final WorkoutSession session;
@@ -431,12 +434,23 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
   String _questUnit(QuestType type) {
     switch (type) {
       case QuestType.TOTAL_VOLUME:
-        return ' ${t.common.unit_kg}';
+        return ' ${MeasurementFormatter(context.read<ProfileCubit>().state.userProfile.measurementPreferences).weightUnit}';
       case QuestType.TOTAL_TIME:
         return ' ${t.workout.lbl_minute.toLowerCase()}';
       default:
         return '';
     }
+  }
+
+  String _questValue(num value, QuestType type) {
+    final numeric = value.toDouble();
+    if (type == QuestType.TOTAL_VOLUME) {
+      final units = MeasurementFormatter(
+        context.read<ProfileCubit>().state.userProfile.measurementPreferences,
+      );
+      return MeasurementFormatter.number(units.weightFromKg(numeric), 1);
+    }
+    return _number(value.toInt());
   }
   String _number(int value) =>
       value >= 1000 && value % 1000 == 0 ? '${value ~/ 1000}k' : '$value';
@@ -528,7 +542,7 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
           message: '${_questTitle(quest)} · $stateText',
           child: Semantics(
             label:
-                '${_questTitle(quest)}, ${quest.current}/${quest.target}, $stateText',
+                '${_questTitle(quest)}, ${_questValue(quest.current, quest.type)}/${_questValue(quest.target, quest.type)}${_questUnit(quest.type)}, $stateText',
             button: ready,
             child: Material(
               textStyle: Theme.of(
@@ -599,7 +613,7 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
                                       children: [
                                         Expanded(
                                           child: Text(
-                                            '${_number(current)}/${_number(quest.target)}${_questUnit(quest.type)}',
+                                            '${_questValue(current, quest.type)}/${_questValue(quest.target, quest.type)}${_questUnit(quest.type)}',
                                             style: TextStyle(
                                               fontSize: 11,
                                               color: colors.onSurfaceVariant,

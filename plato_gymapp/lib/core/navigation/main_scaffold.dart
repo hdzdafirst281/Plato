@@ -4,14 +4,16 @@ import '../../features/notifications/application/notification_coordinator.dart';
 import 'dart:async';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_motion.dart';
 import 'package:plato_gymapp/core/database/enums.dart';
 import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
 import 'package:plato_gymapp/core/navigation/app_router.dart';
+import 'package:plato_gymapp/core/utils/measurement_units.dart';
 import 'package:plato_gymapp/features/profile/presentation/bloc/profile_cubit.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:plato_gymapp/core/worker/background_workout_service.dart';
@@ -187,7 +189,9 @@ class _MainScaffoldState extends State<MainScaffold>
                 const SizedBox(height: 8),
                 _buildResultRow(
                   t.stats.lbl_metric_volume,
-                  '${session.totalVolume} kg',
+                  MeasurementFormatter(
+                    context.read<ProfileCubit>().state.userProfile.measurementPreferences,
+                  ).formatWeight(session.totalVolume),
                   colorScheme,
                 ),
                 const SizedBox(height: 8),
@@ -355,55 +359,6 @@ class _MainScaffoldState extends State<MainScaffold>
     }
   }
 
-  Widget _buildNavItem(
-    int index,
-    IconData unselectedIcon,
-    IconData selectedIcon,
-    Color activeBgColor,
-    Color activeIconColor,
-    Color inactiveIconColor, {
-    Widget? customAvatar,
-    bool isSymbol = false,
-  }) {
-    bool isSelected = _currentBottomBarIndex == index;
-
-    return GestureDetector(
-      onTap: () => _onTapBottomBar(index),
-      behavior: HitTestBehavior.opaque,
-      child: AnimatedContainer(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeOutCubic,
-        height: 48,
-        width: 64,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: isSelected ? activeBgColor : Colors.transparent,
-          borderRadius: BorderRadius.circular(24),
-        ),
-        child: customAvatar != null
-            ? AnimatedContainer(
-                duration: const Duration(milliseconds: 300),
-                width: isSelected ? 30 : 26,
-                height: isSelected ? 30 : 26,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: isSelected ? activeIconColor : Colors.transparent,
-                    width: 1.5,
-                  ),
-                ),
-                child: ClipOval(child: customAvatar),
-              )
-            : Icon(
-                isSelected ? selectedIcon : unselectedIcon,
-                color: isSelected ? activeIconColor : inactiveIconColor,
-                size: 26,
-                fill: isSymbol ? (isSelected ? 1.0 : 0.0) : null,
-              ),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final isTablet = ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET);
@@ -413,18 +368,9 @@ class _MainScaffoldState extends State<MainScaffold>
       (c) => c.state.userProfile.avatarUrl,
     );
 
-    final Color barBgColor = colorScheme.onSurface.withValues(alpha: 0.03);
-    final Color activeIndicatorColor = colorScheme.primary.withValues(
-      alpha: 0.15,
-    );
-    final Color iconColorActive = colorScheme.primary;
-    final Color iconColorInactive = colorScheme.onSurfaceVariant.withValues(
-      alpha: 0.7,
-    );
-
     Widget? profileAvatarWidget;
     if (avatarUrl != null && avatarUrl.isNotEmpty) {
-      final cacheSize = (24 * MediaQuery.devicePixelRatioOf(context)).round();
+      final cacheSize = (32 * MediaQuery.devicePixelRatioOf(context)).round();
       profileAvatarWidget = Image.network(
         avatarUrl,
         cacheWidth: cacheSize,
@@ -576,84 +522,76 @@ class _MainScaffoldState extends State<MainScaffold>
                             minHeight: constraints.maxHeight,
                           ),
                           child: IntrinsicHeight(
-                            child:
-                                NavigationRail(
-                                      groupAlignment: 0.0,
-                                      selectedIndex: _currentBottomBarIndex,
-                                      onDestinationSelected: _onTapBottomBar,
-                                      labelType: NavigationRailLabelType.all,
-                                      backgroundColor: colorScheme.surface,
-                                      indicatorColor: colorScheme.primary
-                                          .withValues(alpha: 0.15),
-                                      selectedIconTheme: IconThemeData(
-                                        color: colorScheme.primary,
-                                      ),
-                                      unselectedIconTheme: IconThemeData(
-                                        color: colorScheme.onSurfaceVariant
-                                            .withValues(alpha: 0.7),
-                                      ),
-                                      selectedLabelTextStyle: TextStyle(
-                                        color: colorScheme.primary,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                      unselectedLabelTextStyle: TextStyle(
-                                        color: colorScheme.onSurfaceVariant,
-                                      ),
-                                      destinations: [
-                                        NavigationRailDestination(
-                                          icon: const Icon(
-                                            Symbols.exercise,
-                                            fill: 0.0,
-                                          ),
-                                          selectedIcon: const Icon(
-                                            Symbols.exercise,
-                                            fill: 1.0,
-                                          ),
-                                          label: Text(t.workout.title_main),
-                                        ),
-                                        NavigationRailDestination(
-                                          icon: const Icon(
-                                            Symbols.nutrition,
-                                            fill: 0.0,
-                                          ),
-                                          selectedIcon: const Icon(
-                                            Symbols.nutrition,
-                                            fill: 1.0,
-                                          ),
-                                          label: Text(t.nutrition.title_main),
-                                        ),
-                                        NavigationRailDestination(
-                                          icon: const Icon(
-                                            Symbols.leaderboard,
-                                            fill: 0.0,
-                                          ),
-                                          selectedIcon: const Icon(
-                                            Symbols.leaderboard,
-                                            fill: 1.0,
-                                          ),
-                                          label: Text(
-                                            t.gamification.title_main,
-                                          ),
-                                        ),
-                                        NavigationRailDestination(
-                                          icon: const Icon(
-                                            Symbols.person,
-                                            fill: 0.0,
-                                          ),
-                                          selectedIcon: const Icon(
-                                            Symbols.person,
-                                            fill: 1.0,
-                                          ),
-                                          label: Text(t.profile.title_main),
-                                        ),
-                                      ],
-                                    )
-                                    .animate()
-                                    .fade(
-                                      duration: 400.ms,
-                                      curve: Curves.easeOutCubic,
-                                    )
-                                    .slideX(begin: -0.1, end: 0),
+                            child: GymEntrance(
+                              offset: const Offset(-10, 0),
+                              child: NavigationRail(
+                                groupAlignment: 0.0,
+                                selectedIndex: _currentBottomBarIndex,
+                                onDestinationSelected: _onTapBottomBar,
+                                labelType: NavigationRailLabelType.all,
+                                backgroundColor: colorScheme.surface,
+                                indicatorColor: colorScheme.primary.withValues(
+                                  alpha: 0.15,
+                                ),
+                                selectedIconTheme: IconThemeData(
+                                  color: colorScheme.primary,
+                                ),
+                                unselectedIconTheme: IconThemeData(
+                                  color: colorScheme.onSurfaceVariant
+                                      .withValues(alpha: 0.7),
+                                ),
+                                selectedLabelTextStyle: TextStyle(
+                                  color: colorScheme.primary,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                                unselectedLabelTextStyle: TextStyle(
+                                  color: colorScheme.onSurfaceVariant,
+                                ),
+                                destinations: [
+                                  NavigationRailDestination(
+                                    icon: const Icon(
+                                      Symbols.exercise,
+                                      fill: 0.0,
+                                    ),
+                                    selectedIcon: const Icon(
+                                      Symbols.exercise,
+                                      fill: 1.0,
+                                    ),
+                                    label: Text(t.workout.title_main),
+                                  ),
+                                  NavigationRailDestination(
+                                    icon: const Icon(
+                                      Symbols.nutrition,
+                                      fill: 0.0,
+                                    ),
+                                    selectedIcon: const Icon(
+                                      Symbols.nutrition,
+                                      fill: 1.0,
+                                    ),
+                                    label: Text(t.nutrition.title_main),
+                                  ),
+                                  NavigationRailDestination(
+                                    icon: const Icon(
+                                      Symbols.leaderboard,
+                                      fill: 0.0,
+                                    ),
+                                    selectedIcon: const Icon(
+                                      Symbols.leaderboard,
+                                      fill: 1.0,
+                                    ),
+                                    label: Text(t.gamification.title_main),
+                                  ),
+                                  NavigationRailDestination(
+                                    icon: const Icon(Symbols.person, fill: 0.0),
+                                    selectedIcon: const Icon(
+                                      Symbols.person,
+                                      fill: 1.0,
+                                    ),
+                                    label: Text(t.profile.title_main),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
                         ),
                       );
@@ -735,142 +673,12 @@ class _MainScaffoldState extends State<MainScaffold>
                         ),
 
                         if (!isTablet)
-                          AnimatedBuilder(
-                            animation: _barAnimController,
-                            builder: (context, child) {
-                              final bottomSafeArea = MediaQuery.of(
-                                context,
-                              ).padding.bottom;
-
-                              final barVisibleOffset = bottomSafeArea > 0
-                                  ? bottomSafeArea + 8.0
-                                  : 16.0;
-                              final barHiddenOffset = -120.0;
-                              final barCurrentBottom = lerpDouble(
-                                barVisibleOffset,
-                                barHiddenOffset,
-                                _barAnimController.value,
-                              )!;
-
-                              return Stack(
-                                children: [
-                                  Positioned(
-                                    left: 0,
-                                    right: 0,
-                                    bottom: barCurrentBottom,
-                                    child: RepaintBoundary(
-                                      child: Center(
-                                              child: Container(
-                                                constraints: BoxConstraints(
-                                                  maxWidth: isTablet
-                                                      ? 420
-                                                      : 320,
-                                                ),
-                                                margin:
-                                                    const EdgeInsets.symmetric(
-                                                      horizontal: 16.0,
-                                                    ),
-                                                height: 60,
-                                                decoration: BoxDecoration(
-                                                  borderRadius:
-                                                      BorderRadius.circular(32),
-                                                  boxShadow: [
-                                                    BoxShadow(
-                                                      color: Colors.black
-                                                          .withValues(
-                                                            alpha: 0.1,
-                                                          ),
-                                                      offset: const Offset(
-                                                        0,
-                                                        3,
-                                                      ),
-                                                      blurRadius: 8,
-                                                    ),
-                                                  ],
-                                                  border: Border.all(
-                                                    color: colorScheme.onSurface
-                                                        .withValues(alpha: 0.3),
-                                                    width: 1.2,
-                                                  ),
-                                                ),
-                                                child: ClipRRect(
-                                                  borderRadius:
-                                                      BorderRadius.circular(32),
-                                                  child: BackdropFilter(
-                                                    filter: ImageFilter.blur(
-                                                      sigmaX: 5,
-                                                      sigmaY: 5,
-                                                    ),
-                                                    child: Container(
-                                                      color: barBgColor,
-                                                      padding:
-                                                          const EdgeInsets.symmetric(
-                                                            horizontal: 8,
-                                                          ),
-                                                      child: Row(
-                                                        mainAxisAlignment:
-                                                            MainAxisAlignment
-                                                                .spaceEvenly,
-                                                        crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .center,
-                                                        children: [
-                                                          _buildNavItem(
-                                                            0,
-                                                            Symbols.exercise,
-                                                            Symbols.exercise,
-                                                            activeIndicatorColor,
-                                                            iconColorActive,
-                                                            iconColorInactive,
-                                                            isSymbol: true,
-                                                          ),
-                                                          _buildNavItem(
-                                                            1,
-                                                            Symbols.nutrition,
-                                                            Symbols.nutrition,
-                                                            activeIndicatorColor,
-                                                            iconColorActive,
-                                                            iconColorInactive,
-                                                            isSymbol: true,
-                                                          ),
-                                                          _buildNavItem(
-                                                            2,
-                                                            Symbols.leaderboard,
-                                                            Symbols.leaderboard,
-                                                            activeIndicatorColor,
-                                                            iconColorActive,
-                                                            iconColorInactive,
-                                                            isSymbol: true,
-                                                          ),
-                                                          _buildNavItem(
-                                                            3,
-                                                            Symbols.person,
-                                                            Symbols.person,
-                                                            activeIndicatorColor,
-                                                            iconColorActive,
-                                                            iconColorInactive,
-                                                            customAvatar:
-                                                                profileAvatarWidget,
-                                                            isSymbol: true,
-                                                          ),
-                                                        ],
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ),
-                                              ),
-                                            )
-                                            .animate()
-                                            .fade(
-                                              duration: 400.ms,
-                                              curve: Curves.easeOutCubic,
-                                            )
-                                            .slideY(begin: 0.1, end: 0),
-                                      ),
-                                    ),
-                                ],
-                              );
-                            },
+                          _FloatingPillBottomBar(
+                            tabController: _tabController,
+                            currentIndex: _currentBottomBarIndex,
+                            barAnimController: _barAnimController,
+                            onTap: _onTapBottomBar,
+                            profileAvatar: profileAvatarWidget,
                           ),
                       ],
                     ),
@@ -880,6 +688,272 @@ class _MainScaffoldState extends State<MainScaffold>
             ],
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _FloatingPillBottomBar extends StatelessWidget {
+  final TabController tabController;
+  final int currentIndex;
+  final AnimationController barAnimController;
+  final ValueChanged<int> onTap;
+  final Widget? profileAvatar;
+
+  const _FloatingPillBottomBar({
+    required this.tabController,
+    required this.currentIndex,
+    required this.barAnimController,
+    required this.onTap,
+    required this.profileAvatar,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final isTablet = ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET);
+
+    final Color barBgColor = colorScheme.onSurface.withValues(alpha: 0.03);
+    final Color activeIndicatorColor = colorScheme.primary.withValues(
+      alpha: 0.15,
+    );
+    final Color iconColorActive = colorScheme.primary;
+    final Color iconColorInactive = colorScheme.onSurfaceVariant.withValues(
+      alpha: 0.7,
+    );
+
+    return AnimatedBuilder(
+      animation: barAnimController,
+      builder: (context, child) {
+        final bottomSafeArea = MediaQuery.paddingOf(context).bottom;
+        final barVisibleOffset = bottomSafeArea > 0
+            ? bottomSafeArea + 8.0
+            : 16.0;
+        const barHiddenOffset = -120.0;
+        final barCurrentBottom = lerpDouble(
+          barVisibleOffset,
+          barHiddenOffset,
+          barAnimController.value,
+        ) ?? barVisibleOffset;
+
+        return Stack(
+          children: [
+            Positioned(
+              left: 0,
+              right: 0,
+              bottom: barCurrentBottom,
+              child: IgnorePointer(
+                ignoring: barAnimController.value > 0.5,
+                child: child,
+              ),
+            ),
+          ],
+        );
+      },
+      child: RepaintBoundary(
+        child: GymEntrance(
+          offset: const Offset(0, 10),
+          child: Center(
+            child: Container(
+              constraints: BoxConstraints(
+                maxWidth: isTablet ? 380 : 288,
+              ),
+              margin: const EdgeInsets.symmetric(horizontal: 16.0),
+              height: 60,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(32),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withValues(alpha: 0.1),
+                    offset: const Offset(0, 3),
+                    blurRadius: 8,
+                  ),
+                ],
+                border: Border.all(
+                  color: colorScheme.onSurface.withValues(alpha: 0.3),
+                  width: 1.2,
+                ),
+              ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(32),
+                child: BackdropFilter(
+                  filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                  child: Container(
+                    color: barBgColor,
+                    padding: const EdgeInsets.symmetric(horizontal: 8),
+                    child: LayoutBuilder(
+                      builder: (context, constraints) {
+                        final totalWidth = constraints.maxWidth;
+                        const tabCount = 4;
+                        final segmentWidth = totalWidth / tabCount;
+                        const indicatorWidth = 64.0;
+                        const indicatorHeight = 48.0;
+
+                        return AnimatedBuilder(
+                          animation: tabController.animation ?? tabController,
+                          builder: (context, _) {
+                            final animVal = tabController.animation?.value ??
+                                currentIndex.toDouble();
+                            final indicatorLeft = (animVal * segmentWidth +
+                                    (segmentWidth - indicatorWidth) / 2)
+                                .clamp(0.0, totalWidth - indicatorWidth);
+
+                            return Stack(
+                              alignment: Alignment.centerLeft,
+                              children: [
+                                // 1. Nền nổi bật trượt mượt mà theo animation chuyển tab
+                                Positioned(
+                                  left: indicatorLeft,
+                                  top: (constraints.maxHeight - indicatorHeight) /
+                                      2,
+                                  width: indicatorWidth,
+                                  height: indicatorHeight,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: activeIndicatorColor,
+                                      borderRadius: BorderRadius.circular(24),
+                                    ),
+                                  ),
+                                ),
+
+                                // 2. Hàng các tab điều hướng
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: _FloatingPillNavItem(
+                                        index: 0,
+                                        animVal: animVal,
+                                        unselectedIcon: Symbols.exercise,
+                                        selectedIcon: Symbols.exercise,
+                                        activeIconColor: iconColorActive,
+                                        inactiveIconColor: iconColorInactive,
+                                        onTap: () => onTap(0),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: _FloatingPillNavItem(
+                                        index: 1,
+                                        animVal: animVal,
+                                        unselectedIcon: Symbols.nutrition,
+                                        selectedIcon: Symbols.nutrition,
+                                        activeIconColor: iconColorActive,
+                                        inactiveIconColor: iconColorInactive,
+                                        onTap: () => onTap(1),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: _FloatingPillNavItem(
+                                        index: 2,
+                                        animVal: animVal,
+                                        unselectedIcon: Symbols.leaderboard,
+                                        selectedIcon: Symbols.leaderboard,
+                                        activeIconColor: iconColorActive,
+                                        inactiveIconColor: iconColorInactive,
+                                        onTap: () => onTap(2),
+                                      ),
+                                    ),
+                                    Expanded(
+                                      child: _FloatingPillNavItem(
+                                        index: 3,
+                                        animVal: animVal,
+                                        unselectedIcon: Symbols.person,
+                                        selectedIcon: Symbols.person,
+                                        activeIconColor: iconColorActive,
+                                        inactiveIconColor: iconColorInactive,
+                                        customAvatar: profileAvatar,
+                                        onTap: () => onTap(3),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
+                            );
+                          },
+                        );
+                      },
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _FloatingPillNavItem extends StatelessWidget {
+  final int index;
+  final double animVal;
+  final IconData unselectedIcon;
+  final IconData selectedIcon;
+  final Color activeIconColor;
+  final Color inactiveIconColor;
+  final VoidCallback onTap;
+  final Widget? customAvatar;
+
+  const _FloatingPillNavItem({
+    required this.index,
+    required this.animVal,
+    required this.unselectedIcon,
+    required this.selectedIcon,
+    required this.activeIconColor,
+    required this.inactiveIconColor,
+    required this.onTap,
+    this.customAvatar,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final distance = (animVal - index).abs();
+    final activeProgress = (1.0 - distance).clamp(0.0, 1.0);
+    final isSelected = distance < 0.5;
+
+    final iconColor = Color.lerp(
+      inactiveIconColor,
+      activeIconColor,
+      activeProgress,
+    ) ?? inactiveIconColor;
+
+    return GestureDetector(
+      onTap: () {
+        HapticFeedback.selectionClick();
+        onTap();
+      },
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        height: 48,
+        width: 64,
+        alignment: Alignment.center,
+        child: customAvatar != null
+            ? AnimatedContainer(
+                duration: const Duration(milliseconds: 200),
+                curve: Curves.easeOutCubic,
+                width: isSelected ? 30 : 26,
+                height: isSelected ? 30 : 26,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Color.lerp(
+                      Colors.transparent,
+                      activeIconColor,
+                      activeProgress,
+                    ) ?? Colors.transparent,
+                    width: 1.5,
+                  ),
+                ),
+                child: ClipOval(child: customAvatar),
+              )
+            : Transform.scale(
+                scale: 1.0 + 0.06 * activeProgress,
+                child: Icon(
+                  isSelected ? selectedIcon : unselectedIcon,
+                  color: iconColor,
+                  size: 26,
+                  fill: activeProgress >= 0.5 ? 1.0 : 0.0,
+                ),
+              ),
       ),
     );
   }

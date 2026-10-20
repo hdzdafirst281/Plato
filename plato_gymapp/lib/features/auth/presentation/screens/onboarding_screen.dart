@@ -31,6 +31,7 @@ import 'package:intl/intl.dart';
 import '../../../workout/data/models/workout_models.dart';
 import '../../../workout/data/program_seeder.dart';
 import '../../../workout/presentation/bloc/workout_cubit.dart';
+import '../../../../core/utils/measurement_units.dart';
 
 class OnboardingState {
   final String name;
@@ -122,6 +123,7 @@ class OnboardingScreen extends StatefulWidget {
 }
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
+  static const _units = MeasurementFormatter(MeasurementPreferences());
   final _uuid = const Uuid();
   final List<ChatMessage> _messages = [];
   final ValueNotifier<double> _targetWeightNotifier = ValueNotifier<double>(0.0);
@@ -251,8 +253,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
         case 0: return _draft.name;
         case 1: return "- ${_draft.gender == Gender.MALE ? t.common.male : t.common.female}\n- $parsedAge ${t.profile.metric_age.toLowerCase()}";
         case 2:
-          String formatVal(double val) => val % 1 == 0 ? val.toInt().toString() : val.toString();
-          return "- ${formatVal(parsedHeight)} cm\n- ${formatVal(parsedWeight)} kg";
+          return "- ${_units.formatHeight(parsedHeight)}\n- ${_units.formatWeight(parsedWeight)}";
         case 3:
           String wGoalStr = _draft.workoutGoal == WorkoutGoal.BULK ? t.profile.goal_bulk : (_draft.workoutGoal == WorkoutGoal.CUT ? t.profile.goal_cut : t.profile.goal_strength);
           String nGoalStr = _draft.nutritionGoal == NutritionGoal.GAIN_WEIGHT ? t.profile.goal_gain_wt : (_draft.nutritionGoal == NutritionGoal.LOSE_WEIGHT ? t.profile.goal_lose_wt : t.profile.goal_maintain_wt);
@@ -265,11 +266,11 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           double tw = parsedTargetWeight;
           int d = parsedTargetDays;
           if (d <= 0 || tw == parsedWeight || _draft.nutritionGoal == NutritionGoal.MAINTAIN_WEIGHT) {
-            return "- ${tw.toStringAsFixed(1)} kg\n- ${t.profile.goal_maintain_wt}";
+            return "- ${_units.formatWeight(tw)}\n- ${t.profile.goal_maintain_wt}";
           } else {
             DateTime now = DateTime.now();
             DateTime targetDate = DateTime(now.year, now.month, now.day).add(Duration(days: d));
-            return "- ${tw.toStringAsFixed(1)} kg\n- ${DateFormat('dd/MM/yy').format(targetDate)}";
+            return "- ${_units.formatWeight(tw)}\n- ${DateFormat('dd/MM/yy').format(targetDate)}";
           }
         case 6:
           String envStr = _draft.environment == WorkoutEnvironment.GYM ? t.profile.env_gym : (_draft.environment == WorkoutEnvironment.HOME_DUMBBELL ? t.profile.env_home_dumbbell : t.profile.env_home_bodyweight);
@@ -379,8 +380,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   String _formatBotText(String text) {
-    String n = _draft.name.trim();
-    if (n.isEmpty) n = t.gamification.leaderboard_you;
+    final n = _draft.name.trim();
     return text.replaceAll("{name}", "<b>$n</b>");
   }
 
@@ -504,11 +504,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           }
 
           String hexStr = indicatorColor.toARGB32().toRadixString(16).substring(2).toUpperCase();
-          String formatVal(double val) => val % 1 == 0 ? val.toInt().toString() : val.toString();
 
           return t.onboarding.msg_chat_3_bmi(
-            height: formatVal(parsedHeight),
-            weight: formatVal(parsedWeight),
+            height: _units.formatHeight(parsedHeight),
+            weight: _units.formatWeight(parsedWeight),
             bmi: '<c_$hexStr>${currentBmi.toStringAsFixed(1)}</c>',
             category: '<c_$hexStr>$healthCategory</c>'
           );
@@ -614,7 +613,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     } else {
       double h = double.tryParse(hText) ?? 0;
       if (h < 100 || h > 250) { // Đồng bộ height với Profile
-        setState(() => _heightError = t.onboarding.msg_err_height_invalid);
+        setState(() => _heightError = t.onboarding.msg_err_height_invalid(
+          arg1: _units.formatHeight(100),
+          arg2: _units.formatHeight(250),
+        ));
         hasError = true;
       } else {
         setState(() => _heightError = null);
@@ -628,7 +630,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
     } else {
       double w = double.tryParse(wText) ?? 0;
       if (w < 30 || w > 650) {
-        setState(() => _weightError = t.onboarding.msg_err_wt_invalid);
+        setState(() => _weightError = t.onboarding.msg_err_wt_invalid(
+          arg1: _units.formatWeight(30),
+          arg2: _units.formatWeight(650),
+        ));
         hasError = true;
       } else {
         setState(() => _weightError = null);
@@ -1388,7 +1393,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(t.profile.metric_height, style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.primary)),
+                      Text(t.profile.metric_height(unit: _units.bodyLengthUnit), style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.primary)),
                       const SizedBox(height: 8),
                       GymShakeWrapper(
                         hasError: _heightError != null,
@@ -1396,7 +1401,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           controller: _heightCtrl, focusNode: _heightFocus, keyboardType: TextInputType.number,
                           onChanged: (_) => setState(() => _heightError = null),
                           decoration: InputDecoration(
-                            hintText: t.onboarding.hint_height, 
+                            hintText: t.onboarding.hint_height(arg1: '170 ${_units.bodyLengthUnit}'),
                             border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none), 
                             errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: colorScheme.error, width: 1.5)),
                             focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: colorScheme.error, width: 1.5)),
@@ -1415,7 +1420,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(t.profile.metric_wt, style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.primary)),
+                      Text(t.profile.metric_wt(unit: _units.weightUnit), style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.primary)),
                       const SizedBox(height: 8),
                       GymShakeWrapper(
                         hasError: _weightError != null,
@@ -1423,7 +1428,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           controller: _weightCtrl, focusNode: _weightFocus, keyboardType: TextInputType.number,
                           onChanged: (_) => setState(() => _weightError = null),
                           decoration: InputDecoration(
-                            hintText: t.onboarding.hint_wt, 
+                            hintText: t.onboarding.hint_wt(arg1: '65 ${_units.weightUnit}'),
                             border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none), 
                             errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: colorScheme.error, width: 1.5)),
                             focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: colorScheme.error, width: 1.5)),
@@ -1597,7 +1602,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                     });
                   },
                   child: Text(
-                    '${tw.toStringAsFixed(1)} kg', 
+                    _units.formatWeight(tw),
                     style: TextStyle(color: Theme.of(context).gymColors.success, fontSize: ResponsiveValue<double>(context, defaultValue: 42.0, conditionalValues: [Condition.smallerThan(name: MOBILE, value: 36.0)]).value, fontWeight: FontWeight.bold), 
                     textAlign: TextAlign.center
                   ),

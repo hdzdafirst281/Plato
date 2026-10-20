@@ -1,6 +1,6 @@
 // ignore_for_file: deprecated_member_use
 import 'dart:async';
-import 'dart:ui'; 
+import 'dart:ui';
 import 'package:plato_gymapp/i18n/strings.g.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -8,6 +8,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_motion.dart';
 import 'package:plato_gymapp/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:plato_gymapp/features/profile/presentation/screens/account_management_screen.dart';
 import 'package:plato_gymapp/features/profile/presentation/screens/settings_screen.dart';
@@ -20,7 +21,7 @@ import '../../../../core/database/entities.dart';
 
 import 'app_routes.dart';
 import 'main_scaffold.dart';
-import '../di/injection.dart'; 
+import '../di/injection.dart';
 
 import '../../features/auth/presentation/screens/onboarding_screen.dart';
 import '../../features/auth/presentation/screens/auth_otp_screen.dart';
@@ -38,7 +39,7 @@ import '../../features/workout/presentation/screens/exercise_details_screen.dart
 
 import '../../features/nutrition/presentation/screens/nutrition_screen.dart';
 import '../../features/nutrition/presentation/screens/food_encyclopedia_screen.dart';
-import '../../features/nutrition/presentation/screens/nutrition_history_screen.dart'; 
+import '../../features/nutrition/presentation/screens/nutrition_history_screen.dart';
 import '../../features/nutrition/presentation/bloc/nutrition_cubit.dart';
 
 import '../../features/gamification/presentation/screens/gamification_screen.dart';
@@ -55,11 +56,14 @@ import '../../features/workout/presentation/bloc/active_session_cubit.dart';
 import '../../features/workout/presentation/components/workout_components.dart';
 
 class AppRouter {
-  static final ValueNotifier<bool> _enableAutoScroll = ValueNotifier<bool>(true);
+  static final ValueNotifier<bool> _enableAutoScroll = ValueNotifier<bool>(
+    true,
+  );
   static final ValueNotifier<int> _currentTourIndex = ValueNotifier<int>(0);
   static final ValueNotifier<bool> isTourActive = ValueNotifier<bool>(false);
-  static final ValueNotifier<bool> expandWorkoutScreenNotifier = ValueNotifier<bool>(false);
-  
+  static final ValueNotifier<bool> expandWorkoutScreenNotifier =
+      ValueNotifier<bool>(false);
+
   static List<GlobalKey> _activeTourKeys = [];
   static int _tourOffset = 0; // [NEW]: Lưu giữ offset để không mất lịch sử
 
@@ -67,24 +71,27 @@ class AppRouter {
   static VoidCallback? _onTourCompleted;
 
   // [FIX]: Thêm tham số onCompleted vào hàm startTour
-  static void startTour(BuildContext context, List<GlobalKey> keys, {VoidCallback? onCompleted}) {
+  static void startTour(
+    BuildContext context,
+    List<GlobalKey> keys, {
+    VoidCallback? onCompleted,
+  }) {
     if (keys.isEmpty) return;
     _activeTourKeys = keys;
-    _tourOffset = 0; 
-    _currentTourIndex.value = 0; 
-    
+    _tourOffset = 0;
+    _currentTourIndex.value = 0;
+
     // Lưu lại callback của màn hình hiện tại
     _onTourCompleted = onCompleted;
-    
-    isTourActive.value = true; 
+
+    isTourActive.value = true;
     ShowCaseWidget.of(context).startShowCase(keys);
   }
 
-
   static void abortTour(BuildContext context) {
-    _onTourCompleted = null; 
-    try { 
-      ShowCaseWidget.of(context).dismiss(); 
+    _onTourCompleted = null;
+    try {
+      ShowCaseWidget.of(context).dismiss();
     } catch (_) {}
     forceAbortTour();
   }
@@ -101,14 +108,26 @@ class AppRouter {
       setAutoScroll(true);
     });
   }
-  
-  static final _appNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'appNav');
-  static final _rootNavigatorKey = GlobalKey<NavigatorState>(debugLabel: 'rootNav');
-  
-  static final _shellNavigatorWorkoutKey = GlobalKey<NavigatorState>(debugLabel: 'shellWorkout');
-  static final _shellNavigatorNutritionKey = GlobalKey<NavigatorState>(debugLabel: 'shellNutrition');
-  static final _shellNavigatorSocialKey = GlobalKey<NavigatorState>(debugLabel: 'shellSocial');
-  static final _shellNavigatorProfileKey = GlobalKey<NavigatorState>(debugLabel: 'shellProfile');
+
+  static final _appNavigatorKey = GlobalKey<NavigatorState>(
+    debugLabel: 'appNav',
+  );
+  static final _rootNavigatorKey = GlobalKey<NavigatorState>(
+    debugLabel: 'rootNav',
+  );
+
+  static final _shellNavigatorWorkoutKey = GlobalKey<NavigatorState>(
+    debugLabel: 'shellWorkout',
+  );
+  static final _shellNavigatorNutritionKey = GlobalKey<NavigatorState>(
+    debugLabel: 'shellNutrition',
+  );
+  static final _shellNavigatorSocialKey = GlobalKey<NavigatorState>(
+    debugLabel: 'shellSocial',
+  );
+  static final _shellNavigatorProfileKey = GlobalKey<NavigatorState>(
+    debugLabel: 'shellProfile',
+  );
 
   static void setAutoScroll(bool enable) {
     _enableAutoScroll.value = enable;
@@ -133,19 +152,19 @@ class AppRouter {
       ),
       GoRoute(
         path: AppRoutes.auth,
-        parentNavigatorKey: _appNavigatorKey, 
+        parentNavigatorKey: _appNavigatorKey,
         builder: (context, state) {
           final flowType = state.extra as AuthFlowType? ?? AuthFlowType.login;
           return AuthOtpScreen(flowType: flowType);
         },
       ),
       GoRoute(
-        path: AppRoutes.sessionSummary, 
+        path: AppRoutes.sessionSummary,
         name: 'session_summary',
         parentNavigatorKey: _appNavigatorKey,
         builder: (context, state) {
           final workoutId = state.extra as String?;
-          return SessionSummaryScreen(workoutId: workoutId); 
+          return SessionSummaryScreen(workoutId: workoutId);
         },
       ),
       GoRoute(
@@ -156,14 +175,19 @@ class AppRouter {
           final request = state.extra;
           return WorkoutRewardsScreen(
             workoutId: request is WorkoutRewardsRequest
-                ? request.workoutId : request as String?,
-            completion: request is WorkoutRewardsRequest ? request.completion : null,
-            beforeQuests: request is WorkoutRewardsRequest ? request.beforeQuests : const [],
+                ? request.workoutId
+                : request as String?,
+            completion: request is WorkoutRewardsRequest
+                ? request.completion
+                : null,
+            beforeQuests: request is WorkoutRewardsRequest
+                ? request.beforeQuests
+                : const [],
           );
         },
       ),
       GoRoute(
-        path: '/exercise_library', 
+        path: '/exercise_library',
         name: 'exercise_library',
         parentNavigatorKey: _appNavigatorKey,
         builder: (context, state) {
@@ -172,8 +196,8 @@ class AppRouter {
             onFinish: () {
               WidgetsBinding.instance.addPostFrameCallback((_) {
                 isTourActive.value = false;
-                _activeTourKeys.clear(); 
-                _tourOffset = 0; 
+                _activeTourKeys.clear();
+                _tourOffset = 0;
                 _onTourCompleted?.call();
                 _onTourCompleted = null;
               });
@@ -182,10 +206,10 @@ class AppRouter {
               mode: extra['mode'] ?? LibraryMode.view,
               preSelectedIds: extra['preSelectedIds'] ?? const [],
               onExercisesSelected: extra['onSelected'],
-              suggestedMuscle: extra['suggestedMuscle'], 
+              suggestedMuscle: extra['suggestedMuscle'],
             ),
           );
-        }
+        },
       ),
       GoRoute(
         path: '/exercise_details',
@@ -199,153 +223,203 @@ class AppRouter {
           );
         },
       ),
-      
+
       ShellRoute(
         navigatorKey: _rootNavigatorKey,
-          builder: (context, state, shellChild) {
-            // [FIX 1]: Binding _enableAutoScroll động để có thể bật/tắt theo từng màn hình
-            return ValueListenableBuilder<bool>(
-              valueListenable: _enableAutoScroll,
-              builder: (context, isAutoScrollEnabled, _) {
-                return ShowCaseWidget(
-                  blurValue: 1,
-                  
-                  // [CRITICAL FIX]: TRẢ LẠI QUYỀN AUTO SCROLL CHO THƯ VIỆN.
-                  // Nhờ MainScaffold đã đổi sang IndexedStack, tính năng này giờ đây 
-                  // sẽ đợi cuộn dọc mượt mà đến đúng Meal Card rồi mới hiện bong bóng 
-                  // mà không lo bị vỡ layout ngang.
-                  enableAutoScroll: true, 
-                  scrollDuration: const Duration(milliseconds: 300), // Ép thời gian cuộn để thư viện chờ
-                  
-                  onStart: (index, key) {
-                    _currentTourIndex.value = _tourOffset + index!;
-                    isTourActive.value = true;
-                    // TUYỆT ĐỐI KHÔNG GỌI HÀM CUỘN CUSTOM NÀO Ở ĐÂY NỮA
-                  },
-                  onComplete: (index, key) {
-                  },
-                  onFinish: () {
-                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                      isTourActive.value = false;
-                      _activeTourKeys.clear(); 
-                      _tourOffset = 0; 
+        builder: (context, state, shellChild) {
+          // [FIX 1]: Binding _enableAutoScroll động để có thể bật/tắt theo từng màn hình
+          return ValueListenableBuilder<bool>(
+            valueListenable: _enableAutoScroll,
+            builder: (context, isAutoScrollEnabled, _) {
+              return ShowCaseWidget(
+                blurValue: 1,
 
-                      _onTourCompleted?.call();
-                      _onTourCompleted = null;
-                    });
-                  },
-                  globalFloatingActionWidget: (showcaseContext) => FloatingActionWidget(
-                    left: 0,
-                    right: 0,
-                    bottom: 0, 
-                    child: LayoutBuilder(
-                      builder: (ctx, constraints) {
-                        final isTablet = constraints.maxWidth >= 600;
-                        final safeBottomPadding = MediaQuery.of(ctx).padding.bottom + 16;
+                // [CRITICAL FIX]: TRẢ LẠI QUYỀN AUTO SCROLL CHO THƯ VIỆN.
+                // Nhờ MainScaffold đã đổi sang IndexedStack, tính năng này giờ đây
+                // sẽ đợi cuộn dọc mượt mà đến đúng Meal Card rồi mới hiện bong bóng
+                // mà không lo bị vỡ layout ngang.
+                enableAutoScroll: true,
+                scrollDuration: const Duration(
+                  milliseconds: 300,
+                ), // Ép thời gian cuộn để thư viện chờ
 
-                        return Padding(
-                          padding: EdgeInsets.only(bottom: safeBottomPadding, left: 16, right: 16),
-                          child: ValueListenableBuilder<int>(
-                            valueListenable: _currentTourIndex,
-                            builder: (context, currentIndex, _) {
-                              final skipBtn = ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Theme.of(context).colorScheme.error,
-                                  foregroundColor: Colors.white, 
-                                  elevation: 4,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                                ),
-                                onPressed: () {
-                                  _onTourCompleted?.call();
-                                  _onTourCompleted = null;
+                onStart: (index, key) {
+                  _currentTourIndex.value = _tourOffset + index!;
+                  isTourActive.value = true;
+                  // TUYỆT ĐỐI KHÔNG GỌI HÀM CUỘN CUSTOM NÀO Ở ĐÂY NỮA
+                },
+                onComplete: (index, key) {},
+                onFinish: () {
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    isTourActive.value = false;
+                    _activeTourKeys.clear();
+                    _tourOffset = 0;
 
-                                  ShowCaseWidget.of(showcaseContext).dismiss();
-                                  isTourActive.value = false;
-                                  AppRouter.setAutoScroll(true);
-                                },
-                                child: Text(t.common.skip, style: const TextStyle(fontWeight: FontWeight.bold)),
-                              );
+                    _onTourCompleted?.call();
+                    _onTourCompleted = null;
+                  });
+                },
+                globalFloatingActionWidget: (showcaseContext) =>
+                    FloatingActionWidget(
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      child: LayoutBuilder(
+                        builder: (ctx, constraints) {
+                          final isTablet = constraints.maxWidth >= 600;
+                          final safeBottomPadding =
+                              MediaQuery.of(ctx).padding.bottom + 16;
 
-                              final backBtn = ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Theme.of(context).colorScheme.primary,
-                                  foregroundColor: Colors.white, 
-                                  elevation: 4,
-                                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-                                  padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                                ),
-                                onPressed: () {
-                                  final internalIndex = currentIndex - _tourOffset;
-                                  if (internalIndex > 0) {
-                                    ShowCaseWidget.of(showcaseContext).previous();
-                                  } else if (currentIndex > 0) {
-                                    _tourOffset = currentIndex - 1;
-                                    final newKeys = _activeTourKeys.sublist(_tourOffset);
-                                    ShowCaseWidget.of(showcaseContext).dismiss();
-                                    WidgetsBinding.instance.addPostFrameCallback((_) {
-                                      ShowCaseWidget.of(showcaseContext).startShowCase(newKeys);
-                                    });
-                                  }
-                                }, 
-                                child: Text(t.common.back, style: const TextStyle(fontWeight: FontWeight.bold)),
-                              );
+                          return Padding(
+                            padding: EdgeInsets.only(
+                              bottom: safeBottomPadding,
+                              left: 16,
+                              right: 16,
+                            ),
+                            child: ValueListenableBuilder<int>(
+                              valueListenable: _currentTourIndex,
+                              builder: (context, currentIndex, _) {
+                                final skipBtn = ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Theme.of(
+                                      context,
+                                    ).colorScheme.error,
+                                    foregroundColor: Colors.white,
+                                    elevation: 4,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(24),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                      vertical: 12,
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    _onTourCompleted?.call();
+                                    _onTourCompleted = null;
 
-                              return isTablet 
-                                  ? Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        if (currentIndex > 0) ...[backBtn, const SizedBox(height: 12)],
-                                        skipBtn,
-                                      ],
-                                    )
-                                  : Row(
-                                      mainAxisAlignment: MainAxisAlignment.start,
-                                      children: [
-                                        skipBtn,
-                                        const SizedBox(width: 16),
-                                        if (currentIndex > 0) backBtn,
-                                      ],
-                                    );
-                            },
-                          ),
-                        );
-                      }
-                    ),
-                  ),
-                  builder: (showcaseContext) => ValueListenableBuilder<bool>(
-                    valueListenable: isTourActive,
-                    builder: (context, isActive, _) {
-                      return PopScope(
-                        canPop: !isActive,
-                        onPopInvokedWithResult: (didPop, result) {
-                          if (didPop) return;
-                          if (isActive) {
-                            AppRouter.abortTour(showcaseContext); // Gọi abortTour an toàn
-                          }
+                                    ShowCaseWidget.of(
+                                      showcaseContext,
+                                    ).dismiss();
+                                    isTourActive.value = false;
+                                    AppRouter.setAutoScroll(true);
+                                  },
+                                  child: Text(
+                                    t.common.skip,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                );
+
+                                final backBtn = ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                    foregroundColor: Colors.white,
+                                    elevation: 4,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(24),
+                                    ),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 20,
+                                      vertical: 12,
+                                    ),
+                                  ),
+                                  onPressed: () {
+                                    final internalIndex =
+                                        currentIndex - _tourOffset;
+                                    if (internalIndex > 0) {
+                                      ShowCaseWidget.of(
+                                        showcaseContext,
+                                      ).previous();
+                                    } else if (currentIndex > 0) {
+                                      _tourOffset = currentIndex - 1;
+                                      final newKeys = _activeTourKeys.sublist(
+                                        _tourOffset,
+                                      );
+                                      ShowCaseWidget.of(
+                                        showcaseContext,
+                                      ).dismiss();
+                                      WidgetsBinding.instance
+                                          .addPostFrameCallback((_) {
+                                            ShowCaseWidget.of(
+                                              showcaseContext,
+                                            ).startShowCase(newKeys);
+                                          });
+                                    }
+                                  },
+                                  child: Text(
+                                    t.common.back,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                );
+
+                                return isTablet
+                                    ? Column(
+                                        mainAxisSize: MainAxisSize.min,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          if (currentIndex > 0) ...[
+                                            backBtn,
+                                            const SizedBox(height: 12),
+                                          ],
+                                          skipBtn,
+                                        ],
+                                      )
+                                    : Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.start,
+                                        children: [
+                                          skipBtn,
+                                          const SizedBox(width: 16),
+                                          if (currentIndex > 0) backBtn,
+                                        ],
+                                      );
+                              },
+                            ),
+                          );
                         },
-                        child: _GlobalPlayerWrapper(
-                          showcaseContext: showcaseContext, 
-                          state: state, 
-                          child: shellChild
-                        ),
-                      );
-                    },
-                  ),
-                );
-              }
-            );
+                      ),
+                    ),
+                builder: (showcaseContext) => ValueListenableBuilder<bool>(
+                  valueListenable: isTourActive,
+                  builder: (context, isActive, _) {
+                    return PopScope(
+                      canPop: !isActive,
+                      onPopInvokedWithResult: (didPop, result) {
+                        if (didPop) return;
+                        if (isActive) {
+                          AppRouter.abortTour(
+                            showcaseContext,
+                          ); // Gọi abortTour an toàn
+                        }
+                      },
+                      child: _GlobalPlayerWrapper(
+                        showcaseContext: showcaseContext,
+                        state: state,
+                        child: shellChild,
+                      ),
+                    );
+                  },
+                ),
+              );
+            },
+          );
         },
         routes: [
           StatefulShellRoute(
             builder: (context, state, navigationShell) {
-              return navigationShell; 
+              return navigationShell;
             },
             navigatorContainerBuilder: (context, navigationShell, children) {
               return MainScaffold(
                 navigationShell: navigationShell,
-                children: children, 
+                children: children,
               );
             },
             branches: [
@@ -358,18 +432,19 @@ class AppRouter {
                     routes: [
                       GoRoute(
                         path: AppRoutes.explorePrograms,
-                        parentNavigatorKey: _rootNavigatorKey, 
-                        builder: (context, state) => const ExploreProgramsScreen(),
+                        parentNavigatorKey: _rootNavigatorKey,
+                        builder: (context, state) =>
+                            const ExploreProgramsScreen(),
                       ),
                       GoRoute(
                         path: AppRoutes.createRoutine,
-                        parentNavigatorKey: _appNavigatorKey, 
+                        parentNavigatorKey: _appNavigatorKey,
                         builder: (context, state) => const RoutineScreen(),
                       ),
                       GoRoute(
                         path: AppRoutes.workoutDetail,
                         name: 'workout_detail',
-                        parentNavigatorKey: _appNavigatorKey, 
+                        parentNavigatorKey: _appNavigatorKey,
                         builder: (context, state) {
                           final id = state.pathParameters['workoutId'] ?? '';
                           return WorkoutDetailScreen(workoutId: id);
@@ -384,24 +459,29 @@ class AppRouter {
                 routes: [
                   GoRoute(
                     path: AppRoutes.nutrition,
-                    builder: (context, state) => NutritionScreen(focusWater: state.uri.queryParameters['water'] == '1'),
+                    builder: (context, state) => NutritionScreen(
+                      focusWater: state.uri.queryParameters['water'] == '1',
+                    ),
                     routes: [
                       GoRoute(
                         path: 'history',
-                        parentNavigatorKey: _rootNavigatorKey, 
-                        builder: (context, state) => const NutritionHistoryScreen(),
+                        parentNavigatorKey: _rootNavigatorKey,
+                        builder: (context, state) =>
+                            const NutritionHistoryScreen(),
                       ),
                       GoRoute(
                         path: AppRoutes.foodEncyclopedia,
-                        parentNavigatorKey: _rootNavigatorKey, 
+                        parentNavigatorKey: _rootNavigatorKey,
                         builder: (context, state) {
-                          final mealTypeStr = state.pathParameters['mealType'] ?? 'BREAKFAST';
+                          final mealTypeStr =
+                              state.pathParameters['mealType'] ?? 'BREAKFAST';
                           final mealType = MealType.values.firstWhere(
-                            (e) => e.name == mealTypeStr, 
-                            orElse: () => MealType.BREAKFAST
+                            (e) => e.name == mealTypeStr,
+                            orElse: () => MealType.BREAKFAST,
                           );
-                          
-                          final nutritionCubit = context.watch<NutritionCubit>();
+
+                          final nutritionCubit = context
+                              .watch<NutritionCubit>();
                           final nutritionState = nutritionCubit.state;
 
                           return FoodEncyclopediaScreen(
@@ -424,10 +504,14 @@ class AppRouter {
                                   allergenTags: food.allergenTags,
                                   dietTags: food.dietTags,
                                 );
-                                nutritionCubit.addFoodToLog(updatedFood, mealType);
+                                nutritionCubit.addFoodToLog(
+                                  updatedFood,
+                                  mealType,
+                                );
                               });
                             },
-                            onQuickAdd: (calories) => nutritionCubit.quickAddCalories(calories, mealType),
+                            onQuickAdd: (calories) => nutritionCubit
+                                .quickAddCalories(calories, mealType),
                             onBack: () => context.pop(),
                           );
                         },
@@ -461,40 +545,46 @@ class AppRouter {
                     routes: [
                       GoRoute(
                         path: AppRoutes.stats,
-                        parentNavigatorKey: _rootNavigatorKey, 
+                        parentNavigatorKey: _rootNavigatorKey,
                         builder: (context, state) {
-                          final initialScreen = state.extra as StatsScreenType? ?? StatsScreenType.DASHBOARD;
+                          final initialScreen =
+                              state.extra as StatsScreenType? ??
+                              StatsScreenType.DASHBOARD;
                           return StatsScreen(initialScreen: initialScreen);
                         },
                       ),
                       GoRoute(
                         path: AppRoutes.calendar,
-                        parentNavigatorKey: _rootNavigatorKey, 
+                        parentNavigatorKey: _rootNavigatorKey,
                         builder: (context, state) => CalendarScreen(
-                          initialScheduleId: state.uri.queryParameters['schedule'],
-                          setupRoutineId: state.uri.queryParameters['setupRoutine'],
+                          initialScheduleId:
+                              state.uri.queryParameters['schedule'],
+                          setupRoutineId:
+                              state.uri.queryParameters['setupRoutine'],
                         ),
                       ),
                       GoRoute(
                         path: AppRoutes.profileSettings,
-                        parentNavigatorKey: _rootNavigatorKey, 
-                        builder: (context, state) => const ProfileSettingsScreen(),
+                        parentNavigatorKey: _rootNavigatorKey,
+                        builder: (context, state) =>
+                            const ProfileSettingsScreen(),
                       ),
                       GoRoute(
                         path: AppRoutes.tutorial,
-                        parentNavigatorKey: _rootNavigatorKey, 
+                        parentNavigatorKey: _rootNavigatorKey,
                         builder: (context, state) => const TutorialScreen(),
                       ),
                       GoRoute(
                         path: AppRoutes.settings,
-                        parentNavigatorKey: _rootNavigatorKey, 
+                        parentNavigatorKey: _rootNavigatorKey,
                         builder: (context, state) => const SettingsScreen(),
                       ),
                       GoRoute(
                         path: 'account_management',
                         name: 'account_management',
-                        parentNavigatorKey: _rootNavigatorKey, 
-                        builder: (context, state) => const AccountManagementScreen(),
+                        parentNavigatorKey: _rootNavigatorKey,
+                        builder: (context, state) =>
+                            const AccountManagementScreen(),
                       ),
                     ],
                   ),
@@ -502,8 +592,8 @@ class AppRouter {
               ),
             ],
           ),
-        ]
-      )
+        ],
+      ),
     ],
   );
 }
@@ -513,7 +603,11 @@ class _GlobalPlayerWrapper extends StatefulWidget {
   final GoRouterState state;
   final BuildContext showcaseContext;
 
-  const _GlobalPlayerWrapper({required this.child, required this.state, required this.showcaseContext,});
+  const _GlobalPlayerWrapper({
+    required this.child,
+    required this.state,
+    required this.showcaseContext,
+  });
 
   @override
   State<_GlobalPlayerWrapper> createState() => _GlobalPlayerWrapperState();
@@ -521,9 +615,14 @@ class _GlobalPlayerWrapper extends StatefulWidget {
 
 enum DragState { none, expanding, minimizing }
 
-class _GlobalPlayerWrapperState extends State<_GlobalPlayerWrapper> with TickerProviderStateMixin, WidgetsBindingObserver {
+class _GlobalPlayerWrapperState extends State<_GlobalPlayerWrapper>
+    with TickerProviderStateMixin, WidgetsBindingObserver {
   late AnimationController _minimizeController;
   late AnimationController _expandController;
+  final GlobalKey _overlayKey = GlobalKey();
+  final GlobalKey _miniPlayerSurfaceKey = GlobalKey();
+  final GlobalKey _timerPillKey = GlobalKey();
+  Rect? _playerRect;
 
   Timer? _resizeDebouncer;
 
@@ -531,25 +630,77 @@ class _GlobalPlayerWrapperState extends State<_GlobalPlayerWrapper> with TickerP
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    final isCurrentlyMinimized = context.read<ActiveSessionCubit>().state.isMiniplayerMinimized;
-    _minimizeController = AnimationController(vsync: this, value: isCurrentlyMinimized ? 1.0 : 0.0, duration: const Duration(milliseconds: 300));
-    _expandController = AnimationController(vsync: this, duration: const Duration(milliseconds: 300));
+    final isCurrentlyMinimized = context
+        .read<ActiveSessionCubit>()
+        .state
+        .isMiniplayerMinimized;
+    _minimizeController = AnimationController(
+      vsync: this,
+      value: isCurrentlyMinimized ? 1.0 : 0.0,
+      duration: const Duration(milliseconds: 300),
+    );
+    _expandController = AnimationController(
+      vsync: this,
+      value: AppRouter.expandWorkoutScreenNotifier.value ? 1.0 : 0.0,
+      duration: const Duration(milliseconds: 420),
+      reverseDuration: const Duration(milliseconds: 320),
+    );
     AppRouter.expandWorkoutScreenNotifier.addListener(_onExpandNotifierChanged);
   }
 
   void _onExpandNotifierChanged() {
-    if (AppRouter.expandWorkoutScreenNotifier.value) {
-      _expandController.forward().then((_) => HapticFeedback.selectionClick());
-    } else {
-      _expandController.reverse();
-      FocusManager.instance.primaryFocus?.unfocus(); 
+    _capturePlayerRect();
+    final reduceMotion = GymMotion.reduceMotion(context);
+
+    if (reduceMotion) {
+      _expandController.value = AppRouter.expandWorkoutScreenNotifier.value
+          ? 1.0
+          : 0.0;
+      if (!AppRouter.expandWorkoutScreenNotifier.value) {
+        FocusManager.instance.primaryFocus?.unfocus();
+      }
+      return;
     }
+
+    if (AppRouter.expandWorkoutScreenNotifier.value) {
+      _expandController.animateTo(1.0, curve: Curves.easeOutCubic).then((_) {
+        if (mounted) HapticFeedback.selectionClick();
+      });
+    } else {
+      _expandController.animateBack(0.0, curve: Curves.easeInOutCubic);
+      FocusManager.instance.primaryFocus?.unfocus();
+    }
+  }
+
+  void _capturePlayerRect() {
+    final isPill = context
+        .read<ActiveSessionCubit>()
+        .state
+        .isMiniplayerMinimized;
+    final playerContext =
+        (isPill ? _timerPillKey : _miniPlayerSurfaceKey).currentContext;
+    final playerBox = playerContext?.findRenderObject() as RenderBox?;
+    final wrapperBox =
+        _overlayKey.currentContext?.findRenderObject() as RenderBox?;
+
+    if (playerBox == null ||
+        wrapperBox == null ||
+        !playerBox.hasSize ||
+        !wrapperBox.hasSize) {
+      _playerRect = null;
+      return;
+    }
+
+    final globalOrigin = playerBox.localToGlobal(Offset.zero);
+    _playerRect = wrapperBox.globalToLocal(globalOrigin) & playerBox.size;
   }
 
   @override
   void dispose() {
     WidgetsBinding.instance.removeObserver(this);
-    AppRouter.expandWorkoutScreenNotifier.removeListener(_onExpandNotifierChanged);
+    AppRouter.expandWorkoutScreenNotifier.removeListener(
+      _onExpandNotifierChanged,
+    );
     _expandController.dispose();
     _minimizeController.dispose();
     _resizeDebouncer?.cancel();
@@ -559,8 +710,9 @@ class _GlobalPlayerWrapperState extends State<_GlobalPlayerWrapper> with TickerP
   @override
   void didChangeMetrics() {
     super.didChangeMetrics();
-    
-    if (!AppRouter.isTourActive.value || AppRouter._activeTourKeys.isEmpty) return;
+
+    if (!AppRouter.isTourActive.value || AppRouter._activeTourKeys.isEmpty)
+      return;
 
     // [FIX 1]: Tắt Tour lập tức khi bắt đầu xoay để tránh Highlight vẽ sai tọa độ
     ShowCaseWidget.of(widget.showcaseContext).dismiss();
@@ -574,9 +726,9 @@ class _GlobalPlayerWrapperState extends State<_GlobalPlayerWrapper> with TickerP
 
   void _handleSettledLayoutShift() {
     final currentIndex = AppRouter._currentTourIndex.value;
-    
+
     if (currentIndex < AppRouter._activeTourKeys.length) {
-      AppRouter._tourOffset = currentIndex; 
+      AppRouter._tourOffset = currentIndex;
       final remainingKeys = AppRouter._activeTourKeys.sublist(currentIndex);
 
       if (mounted && AppRouter.isTourActive.value) {
@@ -598,14 +750,15 @@ class _GlobalPlayerWrapperState extends State<_GlobalPlayerWrapper> with TickerP
 
     if (_minimizeController.value > 0.0 && _minimizeController.value < 1.0) {
       if (isPill) {
-        _minimizeController.value -= delta / 150.0; 
+        _minimizeController.value -= delta / 150.0;
       } else {
-        _minimizeController.value += delta / 150.0; 
+        _minimizeController.value += delta / 150.0;
       }
       return;
     }
 
     if (delta < 0) {
+      _capturePlayerRect();
       _expandController.value -= delta / screenHeight;
     } else {
       if (isPill) {
@@ -620,30 +773,30 @@ class _GlobalPlayerWrapperState extends State<_GlobalPlayerWrapper> with TickerP
     final activeCubit = context.read<ActiveSessionCubit>();
     final isPill = activeCubit.state.isMiniplayerMinimized;
     final velocity = details.primaryVelocity ?? 0;
-    
-    if (_expandController.value > 0.0 && _expandController.value < 1.0) {
-      final bool shouldExpand = velocity < -300 || _expandController.value > 0.2;
+
+    if (_expandController.value > 0.0) {
+      final bool shouldExpand =
+          velocity < -300 || _expandController.value > 0.2;
       if (shouldExpand) {
-         _expandController.forward().then((_) => HapticFeedback.selectionClick());
-         AppRouter.expandWorkoutScreenNotifier.value = true;
+        AppRouter.expandWorkoutScreenNotifier.value = true;
       } else {
-         _expandController.reverse();
-         AppRouter.expandWorkoutScreenNotifier.value = false;
-         FocusManager.instance.primaryFocus?.unfocus();
+        _expandController.animateBack(0.0, curve: Curves.easeOutCubic);
+        AppRouter.expandWorkoutScreenNotifier.value = false;
+        FocusManager.instance.primaryFocus?.unfocus();
       }
-      return; 
+      return;
     }
 
     if (_minimizeController.value > 0.0 && _minimizeController.value < 1.0) {
       if (isPill) {
         if (velocity > 300 || _minimizeController.value < 0.7) {
-          activeCubit.maximizeMiniplayer(); 
+          activeCubit.maximizeMiniplayer();
         } else {
           _minimizeController.animateTo(1.0, curve: Curves.easeOutCubic);
         }
       } else {
         if (velocity > 300 || _minimizeController.value > 0.3) {
-          activeCubit.minimizeMiniplayer(); 
+          activeCubit.minimizeMiniplayer();
         } else {
           _minimizeController.animateTo(0.0, curve: Curves.easeOutCubic);
         }
@@ -660,19 +813,23 @@ class _GlobalPlayerWrapperState extends State<_GlobalPlayerWrapper> with TickerP
     final isMinimized = context.select<ActiveSessionCubit, bool>(
       (c) => c.state.isMiniplayerMinimized,
     );
-    
+
     final currentPath = widget.state.uri.path;
     final isTablet = ResponsiveBreakpoints.of(context).largerThan(MOBILE);
 
-    final isHiddenScreen = currentPath.contains('exercise_library') || 
-                           currentPath.contains('exercise_details');
+    final isHiddenScreen =
+        currentPath.contains('exercise_library') ||
+        currentPath.contains('exercise_details');
 
-    final hasBottomBar = !isTablet && ['/workout', '/nutrition', '/social', '/profile'].contains(currentPath);
+    final hasBottomBar =
+        !isTablet &&
+        ['/workout', '/nutrition', '/social', '/profile'].contains(currentPath);
 
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: BlocListener<ActiveSessionCubit, ActiveSessionState>(
-        listenWhen: (prev, curr) => prev.isMiniplayerMinimized != curr.isMiniplayerMinimized,
+        listenWhen: (prev, curr) =>
+            prev.isMiniplayerMinimized != curr.isMiniplayerMinimized,
         listener: (context, state) {
           HapticFeedback.heavyImpact();
 
@@ -683,6 +840,7 @@ class _GlobalPlayerWrapperState extends State<_GlobalPlayerWrapper> with TickerP
           }
         },
         child: Stack(
+          key: _overlayKey,
           children: [
             widget.child,
             if (isWorkoutActive && !isHiddenScreen)
@@ -690,40 +848,65 @@ class _GlobalPlayerWrapperState extends State<_GlobalPlayerWrapper> with TickerP
                 valueListenable: globalBottomBarAnimationProgress,
                 builder: (context, animValue, _) {
                   final bottomSafeArea = MediaQuery.of(context).padding.bottom;
-                  
+
                   double maxPlayerBottom;
                   if (isTablet) {
                     maxPlayerBottom = bottomSafeArea + 4.0;
                   } else if (hasBottomBar) {
-                    maxPlayerBottom = lerpDouble(80.0 + bottomSafeArea, bottomSafeArea + 4.0, animValue) ?? (bottomSafeArea + 4.0);
+                    maxPlayerBottom =
+                        lerpDouble(
+                          58.0 + bottomSafeArea,
+                          bottomSafeArea + 4.0,
+                          animValue,
+                        ) ??
+                        (bottomSafeArea + 4.0);
                   } else {
-                    maxPlayerBottom = bottomSafeArea + 4.0; 
+                    maxPlayerBottom = bottomSafeArea + 4.0;
                   }
 
                   return AnimatedBuilder(
-                    animation: _minimizeController,
+                    animation: Listenable.merge([
+                      _minimizeController,
+                      _expandController,
+                    ]),
                     builder: (context, _) {
                       final val = _minimizeController.value;
-                      
+                      final expandVal = _expandController.value;
+                      final playerOpacity = (1.0 - expandVal * 4.0).clamp(
+                        0.0,
+                        1.0,
+                      );
+
                       return Stack(
                         children: [
                           Positioned(
-                            bottom: maxPlayerBottom + 12, 
+                            bottom: maxPlayerBottom + 12,
                             right: 24,
                             child: IgnorePointer(
-                              ignoring: !isMinimized,
+                              ignoring: !isMinimized || expandVal > 0.0,
                               child: GestureDetector(
                                 behavior: HitTestBehavior.opaque,
-                                onVerticalDragUpdate: (d) => _handleDragUpdate(d),
+                                onVerticalDragUpdate: (d) =>
+                                    _handleDragUpdate(d),
                                 onVerticalDragEnd: (d) => _handleDragEnd(d),
-                                onTap: () => AppRouter.expandWorkoutScreenNotifier.value = true,
+                                onTap: () =>
+                                    AppRouter
+                                            .expandWorkoutScreenNotifier
+                                            .value =
+                                        true,
                                 child: Transform.translate(
-                                  offset: Offset(0, 50.0 * (1.0 - val)), 
+                                  offset: Offset(0, 50.0 * (1.0 - val)),
                                   child: Transform.scale(
-                                    scale: 0.8 + (0.2 * val), 
+                                    scale: 0.8 + (0.2 * val),
                                     child: Opacity(
-                                      opacity: val.clamp(0.0, 1.0),
-                                      child: const _FloatingTimerPill(),
+                                      opacity: (val * playerOpacity).clamp(
+                                        0.0,
+                                        1.0,
+                                      ),
+                                      child: RepaintBoundary(
+                                        key: _timerPillKey,
+                                        child: const _FloatingTimerPill(),
+                                      ),
                                     ),
                                   ),
                                 ),
@@ -732,25 +915,34 @@ class _GlobalPlayerWrapperState extends State<_GlobalPlayerWrapper> with TickerP
                           ),
 
                           Positioned(
-                            bottom: maxPlayerBottom, 
+                            bottom: maxPlayerBottom,
                             left: 0,
                             right: 0,
                             child: IgnorePointer(
-                              ignoring: isMinimized, 
+                              ignoring: isMinimized || expandVal > 0.0,
                               child: GestureDetector(
-                                behavior: HitTestBehavior.opaque, 
-                                onVerticalDragUpdate: (d) => _handleDragUpdate(d),
+                                behavior: HitTestBehavior.opaque,
+                                onVerticalDragUpdate: (d) =>
+                                    _handleDragUpdate(d),
                                 onVerticalDragEnd: (d) => _handleDragEnd(d),
                                 child: Transform.translate(
-                                  offset: Offset(0, val * 100.0), 
+                                  offset: Offset(0, val * 100.0),
                                   child: Opacity(
-                                    opacity: (1.0 - val).clamp(0.0, 1.0),
+                                    opacity: ((1.0 - val) * playerOpacity)
+                                        .clamp(0.0, 1.0),
                                     child: SafeArea(
-                                      top: false, bottom: false, 
+                                      top: false,
+                                      bottom: false,
                                       child: WorkoutMiniPlayer(
-                                        currentActiveSession: activeWorkout, 
-                                        activeSessionCubit: context.read<ActiveSessionCubit>(),
-                                        onResumeSessionClick: () => AppRouter.expandWorkoutScreenNotifier.value = true,
+                                        currentActiveSession: activeWorkout,
+                                        activeSessionCubit: context
+                                            .read<ActiveSessionCubit>(),
+                                        onResumeSessionClick: () =>
+                                            AppRouter
+                                                    .expandWorkoutScreenNotifier
+                                                    .value =
+                                                true,
+                                        surfaceKey: _miniPlayerSurfaceKey,
                                       ),
                                     ),
                                   ),
@@ -768,24 +960,73 @@ class _GlobalPlayerWrapperState extends State<_GlobalPlayerWrapper> with TickerP
               AnimatedBuilder(
                 animation: _expandController,
                 builder: (context, child) {
-                  final val = _expandController.value;
-                  if (val == 0.0) return const Offstage(); 
-                  return Offstage(
-                    offstage: val == 0.0,
-                    child: SlideTransition(
-                      position: Tween<Offset>(
-                        begin: const Offset(0, 1), 
-                        end: Offset.zero, 
-                      ).animate(CurvedAnimation(
-                        parent: _expandController,
-                        curve: Curves.easeOutCubic,
-                      )),
-                      child: child,
+                  final rawValue = _expandController.value;
+                  if (rawValue == 0.0) return const Offstage();
+
+                  final size = MediaQuery.sizeOf(context);
+                  final bottomInset = MediaQuery.paddingOf(context).bottom;
+                  final fallbackRect = Rect.fromLTWH(
+                    16,
+                    size.height - bottomInset - 88,
+                    size.width - 32,
+                    76,
+                  );
+                  final startRect = _playerRect ?? fallbackRect;
+                  final progress = rawValue;
+                  final currentRect = Rect.lerp(
+                    startRect,
+                    Offset.zero & size,
+                    progress,
+                  )!;
+                  final contentOpacity = ((progress - 0.06) / 0.20).clamp(
+                    0.0,
+                    1.0,
+                  );
+
+                  return Positioned.fill(
+                    child: IgnorePointer(
+                      ignoring: rawValue < 1.0,
+                      child: Stack(
+                        children: [
+                          Positioned.fromRect(
+                            rect: currentRect,
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(
+                                24 * (1.0 - progress),
+                              ),
+                              child: ColoredBox(
+                                color: Color.lerp(
+                                  Theme.of(
+                                    context,
+                                  ).colorScheme.surfaceContainerHighest,
+                                  Theme.of(context).colorScheme.surface,
+                                  progress,
+                                )!,
+                                child: OverflowBox(
+                                  alignment: Alignment.topLeft,
+                                  minWidth: size.width,
+                                  maxWidth: size.width,
+                                  minHeight: size.height,
+                                  maxHeight: size.height,
+                                  child: SizedBox.fromSize(
+                                    size: size,
+                                    child: Opacity(
+                                      opacity: contentOpacity,
+                                      child: RepaintBoundary(child: child!),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   );
                 },
                 child: LogWorkoutScreen(
-                  onMinimize: () => AppRouter.expandWorkoutScreenNotifier.value = false,
+                  onMinimize: () =>
+                      AppRouter.expandWorkoutScreenNotifier.value = false,
                   isExpandedNotifier: AppRouter.expandWorkoutScreenNotifier,
                 ),
               ),
@@ -823,10 +1064,11 @@ class _FloatingTimerPill extends StatelessWidget {
         final activeBgColor = time > 240 * 60
             ? colorScheme.error
             : (time > 120 * 60
-                ? Theme.of(context).gymColors.warning
-                : colorScheme.primary);
-        final bgColor =
-            isResting ? Theme.of(context).gymColors.warning : activeBgColor;
+                  ? Theme.of(context).gymColors.warning
+                  : colorScheme.primary);
+        final bgColor = isResting
+            ? Theme.of(context).gymColors.warning
+            : activeBgColor;
 
         return Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),

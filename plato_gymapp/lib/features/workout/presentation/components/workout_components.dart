@@ -1316,12 +1316,14 @@ class WorkoutMiniPlayer extends StatelessWidget {
   final WorkoutSession currentActiveSession;
   final ActiveSessionCubit activeSessionCubit;
   final VoidCallback onResumeSessionClick;
+  final Key? surfaceKey;
 
   const WorkoutMiniPlayer({
     super.key,
     required this.currentActiveSession,
     required this.activeSessionCubit,
     required this.onResumeSessionClick,
+    this.surfaceKey,
   });
 
   void _showCancelDialog(BuildContext context) async {
@@ -1406,6 +1408,7 @@ class WorkoutMiniPlayer extends StatelessWidget {
             ],
           ),
           child: Stack(
+            key: surfaceKey,
             children: [
               Material(
                 color: Colors.transparent,

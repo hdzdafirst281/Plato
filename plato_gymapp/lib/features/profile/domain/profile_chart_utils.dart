@@ -154,7 +154,7 @@ class ProfileChartUtils {
               primary != MuscleGroup.CARDIO) {
             scores[primary] =
                 (scores[primary] ?? 0.0) +
-                hardSetsCompleted; // Tỷ lệ 1.0 cho cơ chính
+                hardSetsCompleted * MuscleExposureCalculator.primaryCoefficient;
           }
           for (var secondary
               in (we.exercise.secondaryMuscles ?? [])
@@ -164,7 +164,8 @@ class ProfileChartUtils {
                 secondary != MuscleGroup.CARDIO) {
               scores[secondary] =
                   (scores[secondary] ?? 0.0) +
-                  (hardSetsCompleted / 3.0); // Tỷ lệ 1/3 cho cơ phụ
+                  hardSetsCompleted *
+                      MuscleExposureCalculator.secondaryCoefficient;
             }
           }
         }

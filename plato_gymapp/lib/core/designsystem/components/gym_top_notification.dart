@@ -210,7 +210,8 @@ class _TopNotificationOverlayState extends State<_TopNotificationOverlay>
   void initState() {
     super.initState();
     _reduceMotion =
-        PlatformDispatcher.instance.accessibilityFeatures.disableAnimations;
+        PlatformDispatcher.instance.accessibilityFeatures.disableAnimations ||
+        PlatformDispatcher.instance.accessibilityFeatures.reduceMotion;
     _controller = AnimationController(
       vsync: this,
       duration: _reduceMotion

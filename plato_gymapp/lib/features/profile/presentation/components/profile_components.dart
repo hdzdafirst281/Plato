@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:plato_gymapp/core/utils/measurement_units.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -266,9 +267,18 @@ class _TimeRangeSelectorButtonState extends State<TimeRangeSelectorButton> {
 // UTILS FORMATS & MATH
 // =========================================================================
 
-String getFunComparisonText(BarChartMetric metricType, double totalVal, ChartTimeRange range) {
+String getFunComparisonText(
+  BarChartMetric metricType,
+  double totalVal,
+  ChartTimeRange range, [
+  MeasurementFormatter units = const MeasurementFormatter(
+    MeasurementPreferences(),
+  ),
+]) {
   final timeLabel = range.getLocalizedLabel().toLowerCase();
-  final fmtVal = formatCompactNumber(totalVal);
+  final fmtVal = metricType == BarChartMetric.VOLUME
+      ? '${formatCompactNumber(units.weightFromKg(totalVal))} ${units.weightUnit}'
+      : formatCompactNumber(totalVal);
 
   switch (metricType) {
     case BarChartMetric.VOLUME:

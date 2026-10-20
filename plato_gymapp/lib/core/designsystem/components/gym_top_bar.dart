@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_motion.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_tour_target.dart';
 
 class GymTopBar extends StatelessWidget implements PreferredSizeWidget {
@@ -59,33 +60,37 @@ class GymTopBar extends StatelessWidget implements PreferredSizeWidget {
 
     return AppBar(
       backgroundColor: backgroundColor ?? colorScheme.surfaceContainerHighest,
-      scrolledUnderElevation: 0, 
+      scrolledUnderElevation: 0,
       centerTitle: true,
       elevation: 0,
       leading: leadingWidget,
-      title: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Text(
-            title,
-            style: textTheme.titleLarge?.copyWith(
-              color: colorScheme.onSurface,
-              fontWeight: FontWeight.bold,
-            ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
-          if (subtitle != null) ...[
+      title: GymEntrance(
+        offset: const Offset(0, -6),
+        duration: GymMotion.content,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
             Text(
-              subtitle!,
-              style: textTheme.labelMedium?.copyWith(
-                color: colorScheme.primary,
+              title,
+              style: textTheme.titleLarge?.copyWith(
+                color: colorScheme.onSurface,
+                fontWeight: FontWeight.bold,
               ),
               maxLines: 1,
               overflow: TextOverflow.ellipsis,
             ),
+            if (subtitle != null) ...[
+              Text(
+                subtitle!,
+                style: textTheme.labelMedium?.copyWith(
+                  color: colorScheme.primary,
+                ),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ],
           ],
-        ],
+        ),
       ),
       actions: actions,
       bottom: bottom,
@@ -93,5 +98,6 @@ class GymTopBar extends StatelessWidget implements PreferredSizeWidget {
   }
 
   @override
-  Size get preferredSize => Size.fromHeight(kToolbarHeight + (bottom?.preferredSize.height ?? 0.0));
+  Size get preferredSize =>
+      Size.fromHeight(kToolbarHeight + (bottom?.preferredSize.height ?? 0.0));
 }

@@ -7,10 +7,14 @@ import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/database/enums.dart';
+import '../../../../core/di/injection.dart';
 import 'dart:math' as math;
 import '../../data/models/workout_models.dart';
+import '../../data/workout_effort_preferences.dart';
+import '../../domain/muscle_exposure_calculator.dart';
 import '../bloc/workout_cubit.dart';
 import '../../domain/training_load_manager.dart'; 
 import '../../../profile/presentation/bloc/profile_cubit.dart';
@@ -41,6 +45,7 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
   // khi FutureBuilder cố truy cập trước lúc Route Animation hoàn tất.
   Future<LoadAnalysis>? _loadAnalysisFuture;
   late final AnimationController _lottieController;
+  late final bool _advancedEffortEnabled;
 
   LottieComposition? _confettiComposition;
   bool _isLottieReady = false;
@@ -48,6 +53,9 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
   @override
   void initState() {
     super.initState();
+    _advancedEffortEnabled = WorkoutEffortPreferences.advancedEnabled(
+      getIt<SharedPreferences>(),
+    );
     
     _preloadLottieComposition();
     _lottieController = AnimationController(vsync: this);
@@ -127,7 +135,9 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
   } 
 
   void _handleGoHome() {
-    if (_targetSession != null && _targetSession!.id.isNotEmpty) {
+    if (!_advancedEffortEnabled &&
+        _targetSession != null &&
+        _targetSession!.id.isNotEmpty) {
       context.read<WorkoutCubit>().updateSessionRpe(
         _targetSession!.id, 
         (_rpeValue ?? 5.0).clamp(1.0, 10.0).toInt()
@@ -320,7 +330,9 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
                           session: _targetSession!,
                         );
                         
-                        final rpeCard = _buildRpeCard(colorScheme, currentRpe);
+                        final rpeCard = _advancedEffortEnabled
+                            ? const SizedBox.shrink()
+                            : _buildRpeCard(colorScheme, currentRpe);
                         
                         final acwrCard = FutureBuilder<LoadAnalysis>(
                           future: _loadAnalysisFuture,
@@ -365,8 +377,10 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
                                             duration: const Duration(milliseconds: 300),
                                             child: Column(
                                               children: [
-                                                rpeCard,
-                                                const SizedBox(height: 24),
+                                                if (!_advancedEffortEnabled) ...[
+                                                  rpeCard,
+                                                  const SizedBox(height: 24),
+                                                ],
                                                 acwrCard,
                                               ],
                                             ),
@@ -401,8 +415,10 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
                                   children: [
                                     heatmapCard,
                                     const SizedBox(height: 32),
-                                    rpeCard,
-                                    const SizedBox(height: 24),
+                                    if (!_advancedEffortEnabled) ...[
+                                      rpeCard,
+                                      const SizedBox(height: 24),
+                                    ],
                                     acwrCard,
                                   ],
                                 ),
@@ -630,17 +646,28 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
     
     final Map<MuscleGroup, double> muscleScores = {};
     for (var workoutEx in session.exercises) {
-      int completedSets = workoutEx.sets.where((s) => s.isCompleted).length;
+      int completedSets = workoutEx.sets
+          .where(
+            (s) =>
+                s.isCompleted && MuscleExposureCalculator.isWorkingSet(s),
+          )
+          .length;
       if (completedSets == 0) continue;
 
       final primary = workoutEx.exercise.primaryMuscle;
       if (primary != null) {
-        muscleScores[primary] = (muscleScores[primary] ?? 0) + completedSets;
+        muscleScores[primary] =
+            (muscleScores[primary] ?? 0) +
+            completedSets * MuscleExposureCalculator.primaryCoefficient;
       }
 
-      final secondaries = workoutEx.exercise.secondaryMuscles ?? [];
+      final secondaries = (workoutEx.exercise.secondaryMuscles ?? [])
+          .where((muscle) => muscle != primary)
+          .toSet();
       for (var secondary in secondaries) {
-        muscleScores[secondary] = (muscleScores[secondary] ?? 0) + (completedSets * 0.5);
+        muscleScores[secondary] =
+            (muscleScores[secondary] ?? 0) +
+            completedSets * MuscleExposureCalculator.secondaryCoefficient;
       }
     }
 

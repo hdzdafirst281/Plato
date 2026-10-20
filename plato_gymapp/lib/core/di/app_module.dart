@@ -25,7 +25,7 @@ abstract class AppModule {
         await database.rawQuery('PRAGMA journal_mode=WAL');
         debugPrint("🛠️ [DEBUG DB] 2. Callback onOpen được gọi!");
         try {
-          const int currentSqlVersion = 4; // ĐÃ CẬP NHẬT LÊN VERSION 4
+          const int currentSqlVersion = 5;
           final int savedSqlVersion = sharedPrefs.getInt('sql_seed_version') ?? 0;
 
           debugPrint("🛠️ [DEBUG DB] -> Phiên bản SQL trong máy: $savedSqlVersion | Phiên bản yêu cầu: $currentSqlVersion");

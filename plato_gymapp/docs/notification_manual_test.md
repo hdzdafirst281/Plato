@@ -33,19 +33,7 @@
 4. Khóa màn hình và đợi ít nhất 2–3 phút vì Android dùng lịch inexact.
 5. Kỳ vọng: notification thử vẫn xuất hiện. Chạm notification hoặc CTA phải mở Plato đúng route.
 
-Có thể thu thập bằng chứng trước và sau khi đợi:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File tool/notification_manual_test.ps1 -WaitSeconds 180
-```
-
-Để mô phỏng process bị Android thu hồi mà không dùng Force stop:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File tool/notification_manual_test.ps1 -WaitSeconds 180 -KillAppProcess
-```
-
-Script lưu permission, alarm, notification, WorkManager, Doze và logcat vào `build/notification-manual-test/<timestamp>`. Không dùng `am force-stop` và không xóa dữ liệu.
+Để kiểm tra khi app bị đóng, bấm Home hoặc vuốt Plato khỏi Recent Apps rồi chờ notification. Không dùng Force stop vì Android sẽ chặn alarm và background work cho đến khi app được mở lại.
 
 ## 4. Scheduled Workout Reminder
 

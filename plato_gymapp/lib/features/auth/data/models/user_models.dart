@@ -1,5 +1,6 @@
 import 'package:freezed_annotation/freezed_annotation.dart';
 import '../../../../core/database/enums.dart';
+import '../../../../core/utils/measurement_units.dart';
 import '../../../nutrition/data/models/nutrition_models.dart'; 
 
 part 'user_models.freezed.dart';
@@ -56,6 +57,9 @@ class UserProfile with _$UserProfile {
     @JsonKey(name: 'start_date_millis') int? goalStartTimestampMillis,
     @JsonKey(name: 'last_weight_update_millis') int? lastWeightUpdateTimestampMillis,
     @JsonKey(name: 'disable_weekly_weight_reminder') @Default(false) bool disableWeeklyWeightReminder,
+    @JsonKey(name: 'measurement_preferences')
+    @Default(MeasurementPreferences())
+    MeasurementPreferences measurementPreferences,
   }) = _UserProfile;
 
   factory UserProfile.fromJson(Map<String, dynamic> json) => _$UserProfileFromJson(json);

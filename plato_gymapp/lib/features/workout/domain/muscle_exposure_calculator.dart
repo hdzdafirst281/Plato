@@ -7,6 +7,8 @@ import 'package:plato_gymapp/features/workout/data/models/workout_models.dart';
 /// training-balance tie breaker, and history charts.
 class MuscleExposureCalculator {
   static const displayBaselinePercent = 1.0;
+  static const primaryCoefficient = 1.0;
+  static const secondaryCoefficient = 1.0 / 3.0;
 
   static const majorMuscles = <MajorMuscleGroup>[
     MajorMuscleGroup.CHEST,
@@ -34,6 +36,23 @@ class MuscleExposureCalculator {
         (set) => isWorkingSet(set) && (!onlyCompletedSets || set.isCompleted),
       )
       .length;
+
+  static Map<MuscleGroup, double> detailedCoefficients(
+    WorkoutExercise exercise,
+  ) {
+    final result = <MuscleGroup, double>{};
+    final primary = exercise.exercise.primaryMuscle;
+    if (primary != null) result[primary] = primaryCoefficient;
+
+    final secondaries =
+        (exercise.exercise.secondaryMuscles ?? const <MuscleGroup>[])
+            .where((muscle) => muscle != primary)
+            .toSet();
+    for (final secondary in secondaries) {
+      result[secondary] = secondaryCoefficient;
+    }
+    return result;
+  }
 
   /// Primary work is worth three parts and each distinct secondary major
   /// group one part. A secondary tag never double-counts the primary major or
@@ -145,7 +164,8 @@ class MuscleExposureCalculator {
         if (setCount == 0) continue;
         final primary = workoutExercise.exercise.primaryMuscle;
         if (primary != null && majorMuscles.contains(primary.major)) {
-          result[primary] = (result[primary] ?? 0) + setCount * decay;
+          result[primary] =
+              (result[primary] ?? 0) + setCount * primaryCoefficient * decay;
         }
         final secondaries =
             (workoutExercise.exercise.secondaryMuscles ?? const <MuscleGroup>[])
@@ -155,7 +175,9 @@ class MuscleExposureCalculator {
                 )
                 .toSet();
         for (final secondary in secondaries) {
-          result[secondary] = (result[secondary] ?? 0) + setCount / 3 * decay;
+          result[secondary] =
+              (result[secondary] ?? 0) +
+              setCount * secondaryCoefficient * decay;
         }
       }
     }

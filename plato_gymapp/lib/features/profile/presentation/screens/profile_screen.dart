@@ -18,6 +18,9 @@ import 'package:plato_gymapp/core/database/enums.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_countdown_text.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_marquee_text.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_motion.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_shimmer.dart';
+import 'package:plato_gymapp/core/utils/measurement_units.dart';
 
 import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
 import 'package:plato_gymapp/features/workout/domain/workout_extensions.dart';
@@ -289,16 +292,20 @@ class _ProfileScreenState extends State<ProfileScreen>
         automaticallyImplyLeading: false,
         centerTitle: false,
         titleSpacing: 24,
-        title: AnimatedSwitcher(
-          duration: const Duration(milliseconds: 300),
-          child: Image.asset(
-            Theme.of(context).brightness == Brightness.dark
-                ? 'assets/logo/logo_themedark.png'
-                : 'assets/logo/logo_themelight.png',
-            key: ValueKey(Theme.of(context).brightness),
-            height: 36,
-            cacheHeight: 108,
-            fit: BoxFit.contain,
+        title: GymEntrance(
+          offset: const Offset(0, -6),
+          duration: GymMotion.content,
+          child: AnimatedSwitcher(
+            duration: GymMotion.content,
+            child: Image.asset(
+              Theme.of(context).brightness == Brightness.dark
+                  ? 'assets/logo/logo_themedark.png'
+                  : 'assets/logo/logo_themelight.png',
+              key: ValueKey(Theme.of(context).brightness),
+              height: 36,
+              cacheHeight: 108,
+              fit: BoxFit.contain,
+            ),
           ),
         ),
         actions: [
@@ -593,24 +600,17 @@ class _ProfileScreenState extends State<ProfileScreen>
 
     Widget rankProgressContent;
     if (isStatsLoading) {
-      rankProgressContent =
-          Container(
-                height: 96,
-                decoration: BoxDecoration(
-                  color: colorScheme.surfaceContainerHighest.withValues(
-                    alpha: 0.3,
-                  ),
-                  borderRadius: const BorderRadius.vertical(
-                    bottom: Radius.circular(20),
-                  ),
-                ),
-              )
-              .animate(onPlay: (controller) => controller.repeat())
-              .shimmer(
-                duration: 1200.ms,
-                color: colorScheme.surface.withValues(alpha: 0.5),
-              )
-              .fade(duration: 400.ms);
+      rankProgressContent = GymShimmer(
+        child: Container(
+          height: 96,
+          decoration: BoxDecoration(
+            color: colorScheme.surfaceContainerHighest,
+            borderRadius: const BorderRadius.vertical(
+              bottom: Radius.circular(20),
+            ),
+          ),
+        ),
+      );
     } else {
       final rankInfo = RankConfig.getRankById(profile.activeRankId);
       final isMaxRank = profile.activeRankId == RankConfig.hierarchy.last.id;
@@ -748,71 +748,73 @@ class _ProfileScreenState extends State<ProfileScreen>
       clipBehavior: Clip.none,
       children: [
         // Main Card
-        Container(
-              margin: EdgeInsets.only(
-                top: avatarSize * 0.75,
-              ), // Pushed card down so only 1/4 overlaps
-              decoration: BoxDecoration(
-                color: isLight
-                    ? Colors.white
-                    : colorScheme.surfaceContainerLowest,
-                borderRadius: BorderRadius.circular(20),
-                border: Border.all(
+        GymEntrance(
+          delay: GymMotion.stagger(1),
+          child: Container(
+            margin: EdgeInsets.only(
+              top: avatarSize * 0.75,
+            ), // Pushed card down so only 1/4 overlaps
+            decoration: BoxDecoration(
+              color: isLight
+                  ? Colors.white
+                  : colorScheme.surfaceContainerLowest,
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(
+                color: colorScheme.outlineVariant.withValues(
+                  alpha: isLight ? 0.8 : 0.6,
+                ),
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: isLight ? 0.15 : 0.3),
+                  offset: const Offset(0, 6),
+                  blurRadius: 16,
+                ),
+              ],
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                hexagonSection,
+                Divider(
+                  height: 1,
+                  thickness: 1,
                   color: colorScheme.outlineVariant.withValues(
-                    alpha: isLight ? 0.8 : 0.6,
+                    alpha: isLight ? 0.8 : 0.5,
                   ),
                 ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withValues(alpha: isLight ? 0.15 : 0.3),
-                    offset: const Offset(0, 6),
-                    blurRadius: 16,
-                  ),
-                ],
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  hexagonSection,
-                  Divider(
-                    height: 1,
-                    thickness: 1,
-                    color: colorScheme.outlineVariant.withValues(
-                      alpha: isLight ? 0.8 : 0.5,
-                    ),
-                  ),
-                  rankProgressContent,
-                ],
-              ),
-            )
-            .animate(delay: 50.ms)
-            .fade(duration: 400.ms, curve: Curves.easeOutCubic)
-            .slideY(begin: 0.1, end: 0),
+                rankProgressContent,
+              ],
+            ),
+          ),
+        ),
 
         // Avatar and Username
         Positioned(
           top: 0,
           left: 16, // Shifted slightly to the left
           right: 16,
-          child: Row(
-            crossAxisAlignment:
-                CrossAxisAlignment.center, // Canh giữa theo chiều dọc
-            children: [
-              avatarSection,
-              const SizedBox(width: 16),
-              Expanded(
-                child: GymMarqueeText(
-                  profile.displayName,
-                  animation: _marqueeController,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w900,
-                    fontSize: 24,
+          child: GymEntrance(
+            child: Row(
+              crossAxisAlignment:
+                  CrossAxisAlignment.center, // Canh giữa theo chiều dọc
+              children: [
+                avatarSection,
+                const SizedBox(width: 16),
+                Expanded(
+                  child: GymMarqueeText(
+                    profile.displayName,
+                    animation: _marqueeController,
+                    style: const TextStyle(
+                      fontWeight: FontWeight.w900,
+                      fontSize: 24,
+                    ),
+                    textAlign: TextAlign.left,
                   ),
-                  textAlign: TextAlign.left,
                 ),
-              ),
-            ],
-          ).animate().fade(duration: 400.ms).slideY(begin: 0.1, end: 0),
+              ],
+            ),
+          ),
         ),
       ],
     );
@@ -822,58 +824,57 @@ class _ProfileScreenState extends State<ProfileScreen>
     BuildContext context,
     List<WorkoutSession> history,
   ) {
-    return Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Expanded(
-              child: Text(
-                t.profile.title_recent_history,
-                style: const TextStyle(
-                  fontWeight: FontWeight.w900,
-                  fontSize: 20,
+    return GymEntrance(
+      delay: GymMotion.stagger(2),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Expanded(
+            child: Text(
+              t.profile.title_recent_history,
+              style: const TextStyle(fontWeight: FontWeight.w900, fontSize: 20),
+              softWrap: true,
+            ),
+          ),
+          if (history.length > 7)
+            Flexible(
+              child: TextButton(
+                onPressed: () => context.push('/profile/${AppRoutes.calendar}'),
+                child: Text(
+                  t.profile.btn_history_see_all(
+                    arg1: history.length.toString(),
+                  ),
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                  textAlign: TextAlign.right,
                 ),
-                softWrap: true,
               ),
             ),
-            if (history.length > 7)
-              Flexible(
-                child: TextButton(
-                  onPressed: () =>
-                      context.push('/profile/${AppRoutes.calendar}'),
-                  child: Text(
-                    t.profile.btn_history_see_all(
-                      arg1: history.length.toString(),
-                    ),
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 14,
-                    ),
-                    textAlign: TextAlign.right,
-                  ),
-                ),
-              ),
-          ],
-        )
-        .animate(delay: 300.ms)
-        .fade(duration: 400.ms, curve: Curves.easeOutCubic)
-        .slideY(begin: 0.1, end: 0);
+        ],
+      ),
+    );
   }
 
   Widget _buildHistoryList(BuildContext context, List<WorkoutSession> history) {
     if (history.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 48),
-          child: Text(
-            t.profile.msg_history_empty,
-            style: TextStyle(
-              color: Theme.of(context).colorScheme.onSurfaceVariant,
-              fontSize: 16,
+      return GymEntrance(
+        delay: GymMotion.stagger(3),
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 48),
+            child: Text(
+              t.profile.msg_history_empty,
+              style: TextStyle(
+                color: Theme.of(context).colorScheme.onSurfaceVariant,
+                fontSize: 16,
+              ),
             ),
           ),
         ),
-      ).animate(delay: 400.ms).fade(duration: 400.ms);
+      );
     }
 
     final itemCount = history.length > 7 ? 7 : history.length;
@@ -882,46 +883,45 @@ class _ProfileScreenState extends State<ProfileScreen>
       children: history.take(itemCount).toList().asMap().entries.map((entry) {
         final index = entry.key;
         final session = entry.value;
-        return _HistoryCard(
-              session: session,
-              onTap: () =>
-                  context.push('/workout/workout_detail/${session.id}'),
-              onDelete: () async {
-                final confirm = await GymDialog.showDestructive(
-                  context: context,
-                  title: t.common.title_delete_dialog_main,
-                  message: t.common.msg_delete_dialog_warn,
-                  cancelText: t.common.cancel,
-                );
+        return GymEntrance(
+          delay: GymMotion.stagger(index + 3),
+          child: _HistoryCard(
+            session: session,
+            onTap: () => context.push('/workout/workout_detail/${session.id}'),
+            onDelete: () async {
+              final confirm = await GymDialog.showDestructive(
+                context: context,
+                title: t.common.title_delete_dialog_main,
+                message: t.common.msg_delete_dialog_warn,
+                cancelText: t.common.cancel,
+              );
 
-                if (confirm == true && context.mounted) {
-                  try {
-                    context.read<StatsCubit>().deleteWorkout(session.id);
+              if (confirm == true && context.mounted) {
+                try {
+                  context.read<StatsCubit>().deleteWorkout(session.id);
 
-                    if (!context.mounted) return;
+                  if (!context.mounted) return;
 
-                    GymSnackbar.show(
-                      context,
-                      message: t.gamification.msg_workout_deleted,
-                      icon: Symbols.check_circle,
-                      accentColor: Theme.of(context).colorScheme.primary,
-                      duration: const Duration(seconds: 2),
-                    );
-                  } catch (e) {
-                    if (!context.mounted) return;
-                    GymSnackbar.show(
-                      context,
-                      message: t.common.error_generic,
-                      icon: Symbols.error,
-                      accentColor: Theme.of(context).colorScheme.error,
-                    );
-                  }
+                  GymSnackbar.show(
+                    context,
+                    message: t.gamification.msg_workout_deleted,
+                    icon: Symbols.check_circle,
+                    accentColor: Theme.of(context).colorScheme.primary,
+                    duration: const Duration(seconds: 2),
+                  );
+                } catch (e) {
+                  if (!context.mounted) return;
+                  GymSnackbar.show(
+                    context,
+                    message: t.common.error_generic,
+                    icon: Symbols.error,
+                    accentColor: Theme.of(context).colorScheme.error,
+                  );
                 }
-              },
-            )
-            .animate(delay: (400 + index * 100).ms)
-            .fade(duration: 400.ms, curve: Curves.easeOutCubic)
-            .slideY(begin: 0.1, end: 0);
+              }
+            },
+          ),
+        );
       }).toList(),
     );
   }
@@ -964,7 +964,9 @@ class _BMIStyleZoneBar extends StatelessWidget {
         return Column(
           children: [
             Animate(key: ValueKey(points)).custom(
-              duration: 1500.ms,
+              duration: GymMotion.reduceMotion(context)
+                  ? Duration.zero
+                  : GymMotion.emphasized,
               curve: Curves.easeOutCubic,
               end: targetRatio,
               builder: (context, value, child) {
@@ -1596,11 +1598,12 @@ class _HistoryCard extends StatelessWidget {
       "dd MMM, HH:mm",
       TranslationProvider.of(context).flutterLocale.languageCode,
     ).format(DateTime.fromMillisecondsSinceEpoch(session.startTime));
+    final units = MeasurementFormatter(
+      context.watch<ProfileCubit>().state.userProfile.measurementPreferences,
+    );
 
     IconData statIcon = Symbols.exercise;
-    String statValue = t.onboarding.fmt_kg(
-      arg1: session.totalVolume.toInt().toString(),
-    );
+    String statValue = units.formatWeight(session.totalVolume);
     if (session.totalVolume <= 0 && session.totalSets > 0) {
       statIcon = Symbols.repeat;
       statValue = '${session.totalSets} Sets';

@@ -62,6 +62,10 @@ _$UserProfileImpl _$$UserProfileImplFromJson(Map<String, dynamic> json) =>
           (json['last_weight_update_millis'] as num?)?.toInt(),
       disableWeeklyWeightReminder:
           json['disable_weekly_weight_reminder'] as bool? ?? false,
+      measurementPreferences: json['measurement_preferences'] == null
+          ? const MeasurementPreferences()
+          : MeasurementPreferences.fromJson(
+              json['measurement_preferences'] as Map<String, dynamic>?),
     );
 
 Map<String, dynamic> _$$UserProfileImplToJson(_$UserProfileImpl instance) =>
@@ -98,6 +102,7 @@ Map<String, dynamic> _$$UserProfileImplToJson(_$UserProfileImpl instance) =>
       'start_date_millis': instance.goalStartTimestampMillis,
       'last_weight_update_millis': instance.lastWeightUpdateTimestampMillis,
       'disable_weekly_weight_reminder': instance.disableWeeklyWeightReminder,
+      'measurement_preferences': instance.measurementPreferences,
     };
 
 const _$GenderEnumMap = {

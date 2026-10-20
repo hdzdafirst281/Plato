@@ -162,7 +162,7 @@ class _UserProfileHeader extends StatelessWidget {
       conditionalValues: [const Condition.smallerThan(name: MOBILE, value: 48.0)],
     ).value;
     
-    final displayName = userProfile.displayName.isNotEmpty ? userProfile.displayName : t.gamification.leaderboard_you;
+    final displayName = userProfile.displayName;
 
     final List<Color> xpGradient = isDark 
         ? const [xpGradientStartDark, xpGradientEndDark]
@@ -458,6 +458,17 @@ class _QuestItem extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final units = MeasurementFormatter(
+      context.watch<ProfileCubit>().state.userProfile.measurementPreferences,
+    );
+    final description = quest.type == QuestType.TOTAL_VOLUME
+        ? t.gamification.desc_quest_2(
+            arg1: units.formatWeight(quest.target.toDouble()),
+          )
+        : t.translateDynamic(quest.description);
+    final progressText = quest.type == QuestType.TOTAL_VOLUME
+        ? '${units.formatWeight(quest.current.toDouble())} / ${units.formatWeight(quest.target.toDouble())}'
+        : '${quest.current}/${quest.target}';
 
     dynamic iconData = Symbols.star;
     if (quest.iconKey == "workout_count") iconData = Symbols.date_range;
@@ -505,7 +516,7 @@ class _QuestItem extends StatelessWidget {
                 children: [
                   Text(t.translateDynamic(quest.title), style: TextStyle(fontWeight: FontWeight.w800, fontSize: 15, color: colorScheme.onSurface), maxLines: 2, softWrap: true),
                   const SizedBox(height: 4),
-                  Text(t.translateDynamic(quest.description), style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant), maxLines: 3, softWrap: true),
+                  Text(description, style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant), maxLines: 3, softWrap: true),
                   const SizedBox(height: 10),
                   SizedBox(
                     height: 14,
@@ -520,7 +531,7 @@ class _QuestItem extends StatelessWidget {
                         if (!quest.isCompleted)
                           Center(
                             child: Text(
-                              "${quest.current}/${quest.target}",
+                              progressText,
                               style: TextStyle(color: colorScheme.onSurface, fontSize: 10, fontWeight: FontWeight.bold),
                             ),
                           )
@@ -699,10 +710,45 @@ class _PodiumColumn extends StatelessWidget {
               ),
               if (rank == 1)
                 Positioned(
-                  top: -12, right: -10,
+                  top: -14, right: -12,
                   child: Transform.rotate(
                     angle: 15 * math.pi / 180, 
-                    child: SvgPicture.asset('assets/svg/icons/trophy_fill.svg', width: 30, height: 30, colorFilter: ColorFilter.mode(Theme.of(context).gymColors.goldRank, BlendMode.srcIn)),
+                    child: Stack(
+                      alignment: Alignment.center,
+                      clipBehavior: Clip.none,
+                      children: [
+                        // Glow aura for rank 1 trophy
+                        Container(
+                          width: 22,
+                          height: 22,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            boxShadow: [
+                              BoxShadow(
+                                color: Theme.of(context).gymColors.goldRank.withValues(alpha: 0.9),
+                                blurRadius: 16,
+                                spreadRadius: 4,
+                              ),
+                              BoxShadow(
+                                color: Theme.of(context).gymColors.goldRank.withValues(alpha: 0.45),
+                                blurRadius: 28,
+                                spreadRadius: 8,
+                              ),
+                            ],
+                          ),
+                        ).animate(onPlay: (c) => c.repeat(reverse: true))
+                         .scale(begin: const Offset(0.85, 0.85), end: const Offset(1.2, 1.2), duration: 1500.ms, curve: Curves.easeInOut),
+                        SvgPicture.asset(
+                          'assets/svg/icons/trophy_fill.svg',
+                          width: 32,
+                          height: 32,
+                          colorFilter: ColorFilter.mode(
+                            Theme.of(context).gymColors.goldRank,
+                            BlendMode.srcIn,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 )
             ],
@@ -712,7 +758,7 @@ class _PodiumColumn extends StatelessWidget {
           SizedBox(
             width: 86 * scale,
             child: GymMarqueeText(
-              user.isUser ? t.gamification.fmt_user_name_badge(arg1: user.name) : user.name,
+              user.name,
               animation: marqueeAnimation,
               style: TextStyle(fontSize: 12, fontWeight: FontWeight.w900, color: user.isUser ? colorScheme.primary : colorScheme.onSurface),
               textAlign: TextAlign.center,
@@ -832,7 +878,7 @@ class _RankItem extends StatelessWidget {
           const SizedBox(width: 16),
           Expanded(
             child: GymMarqueeText(
-              entry.isUser ? t.gamification.fmt_user_name_badge(arg1: entry.name) : entry.name,
+              entry.name,
               animation: marqueeAnimation,
               style: TextStyle(fontWeight: entry.isUser ? FontWeight.w900 : FontWeight.w600, fontSize: 15, color: entry.isUser ? colorScheme.primary : colorScheme.onSurface),
             ),

@@ -1,7 +1,7 @@
-import 'dart:math' as math; 
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:flutter_bloc/flutter_bloc.dart'; 
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
 import 'package:plato_gymapp/i18n/translation_helper.dart';
 import 'package:go_router/go_router.dart';
@@ -12,19 +12,22 @@ import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
 import 'package:plato_gymapp/core/designsystem/theme/colors.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
-import '../../../../core/navigation/app_routes.dart'; 
+import '../../../../core/navigation/app_routes.dart';
+import '../../../../core/database/enums.dart';
 import '../../../../core/designsystem/components/gym_animated_progress_bar.dart';
 import '../../../../core/designsystem/components/gym_marquee_text.dart';
+import '../../../../core/designsystem/components/gym_motion.dart';
 import '../../../../core/designsystem/components/gym_shimmer.dart';
 import '../../../../core/designsystem/components/streak_icon.dart';
 import '../../../../core/navigation/main_scaffold.dart';
+import '../../../../core/utils/measurement_units.dart';
 
-import '../../../../core/worker/sync_manager.dart'; 
+import '../../../../core/worker/sync_manager.dart';
 
-import '../../data/models/gamification_models.dart'; 
+import '../../data/models/gamification_models.dart';
 import '../../../auth/data/models/user_models.dart';
-import '../../domain/rank_calculator.dart'; 
-import '../bloc/gamification_cubit.dart'; 
+import '../../domain/rank_calculator.dart';
+import '../bloc/gamification_cubit.dart';
 import '../../../profile/presentation/bloc/profile_cubit.dart';
 import '../../../profile/presentation/bloc/stats_cubit.dart';
 import '../../../workout/presentation/bloc/workout_cubit.dart';
@@ -37,9 +40,11 @@ class GamificationScreen extends StatefulWidget {
   State<GamificationScreen> createState() => _GamificationScreenState();
 }
 
-class _GamificationScreenState extends State<GamificationScreen> with TickerProviderStateMixin {
-  final bool debugForceLoading = false; // TODO(Debug): Đổi thành false khi build Production
-  
+class _GamificationScreenState extends State<GamificationScreen>
+    with TickerProviderStateMixin {
+  final bool debugForceLoading =
+      false; // TODO(Debug): Đổi thành false khi build Production
+
   late TabController _tabController;
   late final AnimationController _marqueeController;
 
@@ -47,10 +52,13 @@ class _GamificationScreenState extends State<GamificationScreen> with TickerProv
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
-    _marqueeController = AnimationController(vsync: this, duration: GymMarqueeText.cycleDuration);
+    _marqueeController = AnimationController(
+      vsync: this,
+      duration: GymMarqueeText.cycleDuration,
+    );
     globalActiveTabIndex.addListener(_syncMarquee);
     _syncMarquee();
-    
+
     // Load leaderboard lần đầu khi mở màn hình
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) {
@@ -76,7 +84,7 @@ class _GamificationScreenState extends State<GamificationScreen> with TickerProv
   }
 
   void _showChestRewardDialog(BuildContext context) {
-    showDialog( 
+    showDialog(
       context: context,
       barrierDismissible: false,
       builder: (ctx) => _ChestRewardDialog(
@@ -96,7 +104,10 @@ class _GamificationScreenState extends State<GamificationScreen> with TickerProv
   Future<void> _handleRefresh() async {
     await SyncManager.syncNow();
     if (mounted) {
-      final workoutHistory = context.read<WorkoutCubit>().state.historicalWorkoutSessionsList;
+      final workoutHistory = context
+          .read<WorkoutCubit>()
+          .state
+          .historicalWorkoutSessionsList;
       context.read<GamificationCubit>().refreshWeeklyQuests(workoutHistory);
       context.read<ProfileCubit>().refreshProfile();
       context.read<GamificationCubit>().loadLeaderboard(forceRefresh: true);
@@ -113,11 +124,11 @@ class _GamificationScreenState extends State<GamificationScreen> with TickerProv
     final profileState = context.watch<ProfileCubit>().state;
     final userProfile = profileState.userProfile;
 
-    final currentWeeklyStreak = context.watch<StatsCubit>().state.weeklyStreak; 
+    final currentWeeklyStreak = context.watch<StatsCubit>().state.weeklyStreak;
 
     // Sử dụng ResponsiveBreakpoints thay vì MediaQuery cứng
     final isTablet = ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET);
-    
+
     // Tự động giãn chiều cao AppBar nếu màn hình Mobile quá hẹp, đề phòng text bên trong bị rớt dòng
     final toolbarHeight = ResponsiveValue<double>(
       context,
@@ -130,7 +141,8 @@ class _GamificationScreenState extends State<GamificationScreen> with TickerProv
     return MultiBlocListener(
       listeners: [
         BlocListener<ProfileCubit, ProfileState>(
-          listenWhen: (previous, current) => previous.userProfile != current.userProfile,
+          listenWhen: (previous, current) =>
+              previous.userProfile != current.userProfile,
           listener: (context, state) {
             context.read<GamificationCubit>().refreshStateFromPrefs();
           },
@@ -139,7 +151,7 @@ class _GamificationScreenState extends State<GamificationScreen> with TickerProv
       child: Scaffold(
         backgroundColor: colorScheme.surface,
         appBar: AppBar(
-          toolbarHeight: toolbarHeight, 
+          toolbarHeight: toolbarHeight,
           backgroundColor: colorScheme.surface,
           elevation: 0,
           scrolledUnderElevation: 0,
@@ -149,58 +161,75 @@ class _GamificationScreenState extends State<GamificationScreen> with TickerProv
           title: Center(
             child: ConstrainedBox(
               constraints: const BoxConstraints(maxWidth: 1200),
-              child: _UserProfileHeader(
-                userStats: userStats,
-                userProfile: userProfile,
-                streak: currentWeeklyStreak, 
-                isTablet: isTablet,
-                marqueeAnimation: _marqueeController,
-                onAvatarClick: () => context.push('/social/${AppRoutes.rank}'), 
+              child: GymEntrance(
+                offset: const Offset(0, -6),
+                duration: GymMotion.content,
+                child: _UserProfileHeader(
+                  userStats: userStats,
+                  userProfile: userProfile,
+                  streak: currentWeeklyStreak,
+                  isTablet: isTablet,
+                  marqueeAnimation: _marqueeController,
+                  onAvatarClick: () =>
+                      context.push('/social/${AppRoutes.rank}'),
+                ),
               ),
             ),
           ),
         ),
         body: SafeArea(
-          child: isTablet 
-            ? _buildTabletLayout(colorScheme, userStats, userProfile)
-            : Column(
-                children: [
-                  TabBar(
-                    controller: _tabController,
-                    labelColor: colorScheme.primary,
-                    unselectedLabelColor: colorScheme.onSurfaceVariant,
-                    indicatorColor: colorScheme.primary,
-                    dividerColor: colorScheme.outlineVariant.withValues(alpha: 0.5),
-                    labelStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                    tabs: [
-                      Tab(text: t.gamification.tab_quests),
-                      Tab(text: t.gamification.tab_leaderboard),
-                    ],
-                  ),
-                  Expanded(
-                    child: TabBarView(
+          child: isTablet
+              ? _buildTabletLayout(colorScheme, userStats, userProfile)
+              : Column(
+                  children: [
+                    TabBar(
                       controller: _tabController,
-                      physics: const NeverScrollableScrollPhysics(),
-                      children: [
-                        RefreshIndicator(
-                          onRefresh: _handleRefresh,
-                          child: _buildQuestTab(userStats, isTablet: false),
-                        ),
-                        RefreshIndicator(
-                          onRefresh: _handleRefresh,
-                          child: _buildLeaderboardTab(userProfile, isTablet: false),
-                        ),
+                      labelColor: colorScheme.primary,
+                      unselectedLabelColor: colorScheme.onSurfaceVariant,
+                      indicatorColor: colorScheme.primary,
+                      dividerColor: colorScheme.outlineVariant.withValues(
+                        alpha: 0.5,
+                      ),
+                      labelStyle: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                      tabs: [
+                        Tab(text: t.gamification.tab_quests),
+                        Tab(text: t.gamification.tab_leaderboard),
                       ],
                     ),
-                  ),
-                ],
-              ),
+                    Expanded(
+                      child: TabBarView(
+                        controller: _tabController,
+                        physics: const NeverScrollableScrollPhysics(),
+                        children: [
+                          RefreshIndicator(
+                            onRefresh: _handleRefresh,
+                            child: _buildQuestTab(userStats, isTablet: false),
+                          ),
+                          RefreshIndicator(
+                            onRefresh: _handleRefresh,
+                            child: _buildLeaderboardTab(
+                              userProfile,
+                              isTablet: false,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
         ),
       ),
     );
   }
 
-  Widget _buildTabletLayout(ColorScheme colorScheme, UserGamificationStats stats, UserProfile profile) {
+  Widget _buildTabletLayout(
+    ColorScheme colorScheme,
+    UserGamificationStats stats,
+    UserProfile profile,
+  ) {
     return Center(
       child: ConstrainedBox(
         constraints: const BoxConstraints(maxWidth: 1200),
@@ -216,7 +245,12 @@ class _GamificationScreenState extends State<GamificationScreen> with TickerProv
                   children: [
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      child: Text(t.gamification.tab_quests, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                      child: Text(
+                        t.gamification.tab_quests,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                     Expanded(
                       child: RefreshIndicator(
@@ -235,7 +269,12 @@ class _GamificationScreenState extends State<GamificationScreen> with TickerProv
                   children: [
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 16),
-                      child: Text(t.gamification.tab_leaderboard, style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold)),
+                      child: Text(
+                        t.gamification.tab_leaderboard,
+                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                     Expanded(
                       child: RefreshIndicator(
@@ -254,100 +293,136 @@ class _GamificationScreenState extends State<GamificationScreen> with TickerProv
   }
 
   Widget _buildQuestTab(UserGamificationStats stats, {required bool isTablet}) {
-    final completedCount = stats.weeklyQuests.where((q) => q.isCompleted).length;
+    final completedCount = stats.weeklyQuests
+        .where((q) => q.isCompleted)
+        .length;
 
     return ListView(
-      shrinkWrap: false, 
+      shrinkWrap: false,
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       children: [
-        _WeeklyChestBanner(
-          completedQuests: completedCount,
-          targetQuests: 5,
-          isClaimed: stats.isChestClaimed,
-          onClaim: () => _showChestRewardDialog(context),
-        ).animate().fade(duration: 400.ms, curve: Curves.easeOutCubic).slideY(begin: 0.1, end: 0), 
-        
+        GymEntrance(
+          child: _WeeklyChestBanner(
+            completedQuests: completedCount,
+            targetQuests: 5,
+            isClaimed: stats.isChestClaimed,
+            onClaim: () => _showChestRewardDialog(context),
+          ),
+        ),
+
         const SizedBox(height: 24),
-        Text(t.gamification.title_weekly_quests, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18))
-          .animate().fade(duration: 400.ms, curve: Curves.easeOutCubic).slideY(begin: 0.1, end: 0),
+        GymEntrance(
+          delay: GymMotion.stagger(1),
+          child: Text(
+            t.gamification.title_weekly_quests,
+            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
+        ),
         const SizedBox(height: 16),
 
         if (stats.weeklyQuests.isEmpty)
-          Padding(
-            padding: const EdgeInsets.only(top: 24),
-            child: Center(child: Text(t.gamification.msg_no_quests, style: TextStyle(color: Theme.of(context).colorScheme.onSurfaceVariant))),
-          ).animate().fade(duration: 400.ms, curve: Curves.easeOutCubic)
+          GymEntrance(
+            delay: GymMotion.stagger(2),
+            child: Padding(
+              padding: const EdgeInsets.only(top: 24),
+              child: Center(
+                child: Text(
+                  t.gamification.msg_no_quests,
+                  style: TextStyle(
+                    color: Theme.of(context).colorScheme.onSurfaceVariant,
+                  ),
+                ),
+              ),
+            ),
+          )
         else
           ...stats.weeklyQuests.asMap().entries.map((entry) {
-            return _QuestItem(
-              quest: entry.value, 
-              onClaim: (id) async {
-                 await context.read<GamificationCubit>().claimQuestReward(id);
-                 if (mounted) {
-                   context.read<ProfileCubit>().refreshProfile();
-                 }
-              }
-            ).animate(delay: (entry.key * 100).ms).fade(duration: 400.ms, curve: Curves.easeOutCubic).slideY(begin: 0.1, end: 0);
+            return GymEntrance(
+              delay: GymMotion.stagger(entry.key + 2),
+              child: _QuestItem(
+                quest: entry.value,
+                onClaim: (id) async {
+                  await context.read<GamificationCubit>().claimQuestReward(id);
+                  if (mounted) {
+                    context.read<ProfileCubit>().refreshProfile();
+                  }
+                },
+              ),
+            );
           }),
       ],
     );
   }
 
-  Widget _buildLeaderboardTab(UserProfile userProfile, {required bool isTablet}) {
+  Widget _buildLeaderboardTab(
+    UserProfile userProfile, {
+    required bool isTablet,
+  }) {
     final state = context.watch<GamificationCubit>().state;
-    
-    if ((state.isLeaderboardLoading && state.leaderboard == null) || debugForceLoading) {
+
+    if ((state.isLeaderboardLoading && state.leaderboard == null) ||
+        debugForceLoading) {
       return const _GamificationLeaderboardShimmer();
     }
 
     final serverLeaderboard = state.leaderboard ?? [];
-    
-    final displayName = userProfile.displayName.isNotEmpty ? userProfile.displayName : t.gamification.leaderboard_you;
+
     final me = LeaderboardEntry(
-      id: "me", 
-      name: displayName, 
+      id: "me",
+      name: userProfile.displayName,
       avatarUrl: userProfile.avatarUrl,
-      xp: userProfile.experiencePoints, 
+      xp: userProfile.experiencePoints,
       isUser: true,
       currentRankId: userProfile.activeRankId,
     );
-    
-    // Loại bỏ user hiện tại khỏi list nếu bị trùng (trong trường hợp Guest thì không bị trùng, 
+
+    // Loại bỏ user hiện tại khỏi list nếu bị trùng (trong trường hợp Guest thì không bị trùng,
     // trong trường hợp User thật, ta thay thế bằng data mới nhất ở local để điểm XP luôn real-time trên máy)
     final otherUsers = serverLeaderboard.where((e) => e.id != userProfile.id);
 
     final all = [...otherUsers, me]..sort((a, b) => b.xp.compareTo(a.xp));
 
     return ListView(
-      shrinkWrap: false, 
+      shrinkWrap: false,
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.only(bottom: 24, top: 16),
       children: [
         if (all.length >= 3) ...[
-          _PodiumView(top3: all.take(3).toList(), activeRankId: userProfile.activeRankId, marqueeAnimation: _marqueeController)
-            .animate().fade(duration: 400.ms, curve: Curves.easeOutCubic).slideY(begin: 0.1, end: 0),
-          
-          const SizedBox(height: 32),
-          ...all.skip(3).toList().asMap().entries.map((entry) {
-            return _RankItem(
-              entry: entry.value,
-              rankPlacement: entry.key + 4,
+          GymEntrance(
+            child: _PodiumView(
+              top3: all.take(3).toList(),
               activeRankId: userProfile.activeRankId,
               marqueeAnimation: _marqueeController,
-            ).animate(delay: (entry.key * 100).ms).fade(duration: 400.ms, curve: Curves.easeOutCubic).slideY(begin: 0.1, end: 0);
+            ),
+          ),
+
+          const SizedBox(height: 32),
+          ...all.skip(3).toList().asMap().entries.map((entry) {
+            return GymEntrance(
+              delay: GymMotion.stagger(entry.key + 1),
+              child: _RankItem(
+                entry: entry.value,
+                rankPlacement: entry.key + 4,
+                activeRankId: userProfile.activeRankId,
+                marqueeAnimation: _marqueeController,
+              ),
+            );
           }),
         ] else ...[
           const SizedBox(height: 32),
           ...all.asMap().entries.map((entry) {
-            return _RankItem(
-              entry: entry.value,
-              rankPlacement: entry.key + 1,
-              activeRankId: userProfile.activeRankId,
-              marqueeAnimation: _marqueeController,
-            ).animate(delay: (entry.key * 100).ms).fade(duration: 400.ms, curve: Curves.easeOutCubic).slideY(begin: 0.1, end: 0);
+            return GymEntrance(
+              delay: GymMotion.stagger(entry.key),
+              child: _RankItem(
+                entry: entry.value,
+                rankPlacement: entry.key + 1,
+                activeRankId: userProfile.activeRankId,
+                marqueeAnimation: _marqueeController,
+              ),
+            );
           }),
-        ]
+        ],
       ],
     );
   }
@@ -365,10 +440,13 @@ class _GamificationLeaderboardShimmer extends StatelessWidget {
         const SizedBox(height: 32),
         GymShimmer(
           child: Column(
-            children: List.generate(4, (index) => const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 16),
-              child: GymListTileShimmer(hasAvatar: true),
-            )),
+            children: List.generate(
+              4,
+              (index) => const Padding(
+                padding: EdgeInsets.symmetric(horizontal: 16),
+                child: GymListTileShimmer(hasAvatar: true),
+              ),
+            ),
           ),
         ),
       ],
@@ -380,13 +458,30 @@ class _GamificationLeaderboardShimmer extends StatelessWidget {
     final scaleResponsive = ResponsiveValue<double>(
       context,
       defaultValue: 1.0,
-      conditionalValues: [const Condition.smallerThan(name: MOBILE, value: 0.8)],
+      conditionalValues: [
+        const Condition.smallerThan(name: MOBILE, value: 0.8),
+      ],
     ).value;
 
     final order = [
-      (rank: 2, height: 100.0 * scaleResponsive, scale: 0.9 * scaleResponsive, colors: [gymColors.podiumSilverStart, gymColors.podiumSilverEnd]),
-      (rank: 1, height: 140.0 * scaleResponsive, scale: 1.1 * scaleResponsive, colors: [gymColors.podiumGoldStart, gymColors.podiumGoldEnd]),
-      (rank: 3, height: 80.0 * scaleResponsive, scale: 0.85 * scaleResponsive, colors: [gymColors.podiumBronzeStart, gymColors.podiumBronzeEnd]),
+      (
+        rank: 2,
+        height: 100.0 * scaleResponsive,
+        scale: 0.9 * scaleResponsive,
+        colors: [gymColors.podiumSilverStart, gymColors.podiumSilverEnd],
+      ),
+      (
+        rank: 1,
+        height: 140.0 * scaleResponsive,
+        scale: 1.1 * scaleResponsive,
+        colors: [gymColors.podiumGoldStart, gymColors.podiumGoldEnd],
+      ),
+      (
+        rank: 3,
+        height: 80.0 * scaleResponsive,
+        scale: 0.85 * scaleResponsive,
+        colors: [gymColors.podiumBronzeStart, gymColors.podiumBronzeEnd],
+      ),
     ];
 
     return Container(
@@ -405,17 +500,41 @@ class _GamificationLeaderboardShimmer extends StatelessWidget {
               children: [
                 GymShimmer(child: GymShimmerCircle(radius: 28 * item.scale)),
                 const SizedBox(height: 12),
-                GymShimmer(child: GymShimmerBlock(width: 50 * item.scale, height: 12, borderRadius: 4)),
+                GymShimmer(
+                  child: GymShimmerBlock(
+                    width: 50 * item.scale,
+                    height: 12,
+                    borderRadius: 4,
+                  ),
+                ),
                 const SizedBox(height: 6),
-                GymShimmer(child: GymShimmerBlock(width: 30 * item.scale, height: 10, borderRadius: 4)),
+                GymShimmer(
+                  child: GymShimmerBlock(
+                    width: 30 * item.scale,
+                    height: 10,
+                    borderRadius: 4,
+                  ),
+                ),
                 const SizedBox(height: 10),
                 Container(
                   width: 86 * item.scale,
                   height: item.height,
                   decoration: BoxDecoration(
-                    borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-                    gradient: LinearGradient(colors: item.colors, begin: Alignment.topCenter, end: Alignment.bottomCenter),
-                    boxShadow: [BoxShadow(color: item.colors.last.withValues(alpha: 0.3), blurRadius: 10, offset: const Offset(0, -4))]
+                    borderRadius: const BorderRadius.vertical(
+                      top: Radius.circular(16),
+                    ),
+                    gradient: LinearGradient(
+                      colors: item.colors,
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                    ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: item.colors.last.withValues(alpha: 0.3),
+                        blurRadius: 10,
+                        offset: const Offset(0, -4),
+                      ),
+                    ],
                   ),
                 ),
               ],

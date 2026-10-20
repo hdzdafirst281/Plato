@@ -16,6 +16,7 @@ import '../../../../core/designsystem/components/gym_top_bar.dart';
 import '../../../../core/designsystem/components/gym_search_bar.dart';
 import '../../../../core/database/enums.dart';
 import '../../../../core/database/entities.dart';
+import '../../../../core/utils/measurement_units.dart';
 
 import '../bloc/nutrition_cubit.dart';
 import '../components/nutrition_components.dart';
@@ -233,7 +234,10 @@ class _FoodEncyclopediaScreenState extends State<FoodEncyclopediaScreen> with Si
 
   String _translateFoodUnit(FoodUnit unit) {
     switch (unit) {
-      case FoodUnit.GRAM: return t.nutrition.lbl_unit_gram;
+      case FoodUnit.GRAM:
+        return MeasurementFormatter(
+          context.read<ProfileCubit>().state.userProfile.measurementPreferences,
+        ).foodMassUnit;
       case FoodUnit.ML: return t.nutrition.lbl_unit_ml;
       case FoodUnit.QUANTITY: return t.nutrition.lbl_unit_quantity;
       case FoodUnit.SERVING: return t.nutrition.lbl_unit_serving;
@@ -677,8 +681,11 @@ class _FoodEncyclopediaScreenState extends State<FoodEncyclopediaScreen> with Si
     final isExisting = existingItem != null;
     final qty = isExisting ? existingItem.consumedAmount : (_selectedFoods[food] ?? 0.0);
 
-    final unitLabel = (food.measurementUnit == FoodUnit.GRAM) ? t.nutrition.lbl_food_unit_100g :
-                      (food.measurementUnit == FoodUnit.ML) ? t.nutrition.lbl_food_unit_100ml :
+    final units = MeasurementFormatter(
+      context.read<ProfileCubit>().state.userProfile.measurementPreferences,
+    );
+    final unitLabel = (food.measurementUnit == FoodUnit.GRAM) ? t.nutrition.lbl_food_unit_100g(arg1: units.formatFoodMass(100)) :
+                      (food.measurementUnit == FoodUnit.ML) ? t.nutrition.lbl_food_unit_100ml(arg1: '100 ml') :
                       t.nutrition.fmt_food_unit_pieces(arg1: _translateFoodUnit(food.measurementUnit));
 
     final userProfile = context.read<ProfileCubit>().state.userProfile;
@@ -1300,8 +1307,13 @@ class UniversalFoodStepper extends StatelessWidget {
 
   bool get _isScale => unit == FoodUnit.GRAM || unit == FoodUnit.ML;
 
-  String get _displayValue {
-    double val = _isScale ? consumedAmount * 100 : consumedAmount;
+  MeasurementFormatter _units(BuildContext context) => MeasurementFormatter(
+    context.read<ProfileCubit>().state.userProfile.measurementPreferences,
+  );
+
+  String _displayValue(BuildContext context) {
+    var val = _isScale ? consumedAmount * 100 : consumedAmount;
+    if (unit == FoodUnit.GRAM) val = _units(context).foodMassFromGrams(val);
     if (val % 1 == 0) return val.toInt().toString();
     String formatted = val.toStringAsFixed(1);
     if (formatted.contains('.')) {
@@ -1310,9 +1322,9 @@ class UniversalFoodStepper extends StatelessWidget {
     return formatted;
   }
 
-  String get _suffix {
+  String _suffix(BuildContext context) {
     switch (unit) {
-      case FoodUnit.GRAM: return t.nutrition.lbl_unit_gram;
+      case FoodUnit.GRAM: return _units(context).foodMassUnit;
       case FoodUnit.ML: return t.nutrition.lbl_unit_ml;
       case FoodUnit.QUANTITY: return t.nutrition.lbl_unit_quantity;
       case FoodUnit.SERVING: return t.nutrition.lbl_unit_serving;
@@ -1350,7 +1362,7 @@ class UniversalFoodStepper extends StatelessWidget {
                 alignment: Alignment.center,
                 padding: const EdgeInsets.symmetric(horizontal: 8),
                 child: Text(
-                  "$_displayValue $_suffix", 
+                  "${_displayValue(context)} ${_suffix(context)}",
                   style: TextStyle(
                     fontWeight: FontWeight.bold, 
                     fontSize: 14, 
@@ -1374,14 +1386,15 @@ class UniversalFoodStepper extends StatelessWidget {
   }
 
   Future<void> _showInputDialog(BuildContext context) async {
-    final TextEditingController ctrl = TextEditingController(text: _displayValue);
+    final units = _units(context);
+    final TextEditingController ctrl = TextEditingController(text: _displayValue(context));
     final colorScheme = Theme.of(context).colorScheme;
     String? errorMsg;
 
     await GymDialog.showCustom(
       context: context,
       titleWidget: Text(
-        "${t.nutrition.title_input_amount} ($_suffix)", 
+        "${t.nutrition.title_input_amount} (${_suffix(context)})",
         style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)
       ),
       content: StatefulBuilder(
@@ -1396,9 +1409,15 @@ class UniversalFoodStepper extends StatelessWidget {
             }
             
             // 1. Kiểm tra Scale Min/Max cơ bản
+            final canonicalScaleValue = unit == FoodUnit.GRAM
+                ? units.foodMassToGrams(val)
+                : val;
             if (_isScale) {
-              if (val < 1 || val > 5000) {
-                setLocalState(() => errorMsg = t.nutrition.err_portion_scale);
+              if (canonicalScaleValue < 1 || canonicalScaleValue > 5000) {
+                setLocalState(() => errorMsg = t.nutrition.err_portion_scale(
+                  arg1: unit == FoodUnit.GRAM ? units.formatFoodMass(1) : '1 ml',
+                  arg2: unit == FoodUnit.GRAM ? units.formatFoodMass(5000) : '5000 ml',
+                ));
                 return;
               }
             } else {
@@ -1409,7 +1428,7 @@ class UniversalFoodStepper extends StatelessWidget {
             }
             
             // 2. Chạy Custom Validator (Giới hạn 20K Calo / 1K Macros)
-            double finalAmount = _isScale ? val / 100 : val;
+            double finalAmount = _isScale ? canonicalScaleValue / 100 : val;
             if (validator != null) {
                setLocalState(() => errorMsg = validator!(finalAmount));
             } else {
@@ -1429,7 +1448,7 @@ class UniversalFoodStepper extends StatelessWidget {
                 style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                 onChanged: validateRealTime, // Gắn bắt lỗi tại đây
                 decoration: InputDecoration(
-                  suffixText: _suffix,
+                  suffixText: _suffix(context),
                   
                   // HIỂN THỊ ERROR NGAY BÊN DƯỚI ĐƯỜNG VIỀN INPUT
                   error: errorMsg != null
@@ -1479,7 +1498,10 @@ class UniversalFoodStepper extends StatelessWidget {
                     onPressed: errorMsg != null ? null : () {
                       final val = double.tryParse(ctrl.text);
                       if (val != null) {
-                        double finalAmount = _isScale ? val / 100 : val;
+                        final canonicalScaleValue = unit == FoodUnit.GRAM
+                            ? units.foodMassToGrams(val)
+                            : val;
+                        double finalAmount = _isScale ? canonicalScaleValue / 100 : val;
                         onManualInput!(finalAmount);
                         Navigator.pop(context);
                       }

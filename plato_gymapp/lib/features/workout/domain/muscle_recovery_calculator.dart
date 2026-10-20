@@ -2,6 +2,7 @@ import 'dart:math';
 import '../data/models/workout_models.dart';
 import '../../../../core/database/enums.dart';
 import 'muscle_exposure_calculator.dart';
+import 'recovery_load_calculator.dart';
 import 'recovery_scale.dart';
 
 class MuscleRecoveryStatus {
@@ -52,6 +53,7 @@ class MuscleRecoveryCalculator {
 
     // Bộ nhớ tạm cho EMA (Exponential Moving Average)
     Map<String, double> exerciseCapacities = {};
+    Map<String, double> exerciseIntensityBaselines = {};
     double targetMuscleCapacity = 0.0;
 
     double cumulativeFatigue = 0.0;
@@ -62,41 +64,59 @@ class MuscleRecoveryCalculator {
       // ---------------------------------------------------------
       // GIAI ĐOẠN 1 & 2: TÍNH TOÁN LOAD BÀI TẬP & NHÓM CƠ (MSL)
       // ---------------------------------------------------------
-      Map<MuscleGroup, double> sessionMuscleLoads = {};
+      final sessionMuscleLoads = <MuscleGroup, double>{};
+      final sessionMuscleRpeLoads = <MuscleGroup, double>{};
 
       for (var we in session.exercises) {
-        // Sử dụng hàm tính Load nội bộ, không dùng workout_extensions
-        double loadEx = _calculateStandardizedLoad(
+        final loadEx = RecoveryLoadCalculator.exerciseVolume(
           we,
           userBodyWeight: userBodyWeight,
         );
         if (loadEx <= 0) continue;
 
-        String exId = we.exercise.id;
+        final exId = we.exercise.id;
 
         // B1: Lấy hoặc khởi tạo Capacity của bài tập
-        double capEx = exerciseCapacities[exId] ?? loadEx;
+        final capEx = exerciseCapacities[exId] ?? loadEx;
 
         // B2: Tính Relative Load (RL) & Clamp Max 1.5
-        double rlEx = capEx > 0 ? min(loadEx / capEx, 1.5) : 1.0;
+        final relativeVolume = capEx > 0 ? min(loadEx / capEx, 1.5) : 1.0;
 
-        // B3: Cập nhật Capacity bài tập bằng EMA
-        exerciseCapacities[exId] = (capEx * 0.75) + (loadEx * 0.25);
+        // Ưu tiên intensity khách quan khi bài có đủ dữ liệu.
+        final objectiveMetric = RecoveryLoadCalculator.objectiveMetric(we);
+        final objectiveIntensity = RecoveryLoadCalculator.objectiveIntensity(
+          currentMetric: objectiveMetric,
+          baselineMetric: exerciseIntensityBaselines[exId],
+        );
+        final adjustedRelativeLoad = min(
+          relativeVolume * objectiveIntensity,
+          RecoveryLoadCalculator.maxAdjustedRelativeLoad,
+        );
 
-        // Phân bổ RL vào Nhóm Cơ Chính (Primary = 100%) - FIX LỖI TYPE
-        MuscleGroup? primary = we.exercise.primaryMuscle;
-        if (primary != null) {
-          sessionMuscleLoads[primary] =
-              (sessionMuscleLoads[primary] ?? 0.0) + (rlEx * 1.0);
+        final exerciseRpe = RecoveryLoadCalculator.exerciseRpe(
+          we,
+          sessionRpe: session.rpe,
+          userBodyWeight: userBodyWeight,
+        );
+
+        // Chỉ cập nhật baseline sau khi đã tính tải hiện tại.
+        exerciseCapacities[exId] =
+            RecoveryLoadCalculator.updateEma(capEx, loadEx);
+        if (objectiveMetric != null) {
+          exerciseIntensityBaselines[exId] = RecoveryLoadCalculator.updateEma(
+            exerciseIntensityBaselines[exId],
+            objectiveMetric,
+          );
         }
 
-        // Phân bổ RL vào Nhóm Cơ Phụ (Secondary = 33.3%)
-        if (we.exercise.secondaryMuscles != null) {
-          for (var sec in we.exercise.secondaryMuscles!) {
-            // Check null an toàn cho các phần tử trong list enum
-            sessionMuscleLoads[sec] =
-                (sessionMuscleLoads[sec] ?? 0.0) + (rlEx * (1.0 / 3.0));
-          }
+        for (final entry
+            in MuscleExposureCalculator.detailedCoefficients(we).entries) {
+          final contribution = adjustedRelativeLoad * entry.value;
+          sessionMuscleLoads[entry.key] =
+              (sessionMuscleLoads[entry.key] ?? 0.0) + contribution;
+          sessionMuscleRpeLoads[entry.key] =
+              (sessionMuscleRpeLoads[entry.key] ?? 0.0) +
+              contribution * exerciseRpe;
         }
       }
 
@@ -110,16 +130,20 @@ class MuscleRecoveryCalculator {
       // GIAI ĐOẠN 3: PHÂN BỔ RPE & TÍNH MỆT MỎI (F_new)
       // ---------------------------------------------------------
 
-      // Tìm nhóm cơ bị cày ải nặng nhất (Max MSL) để làm chuẩn RPE
-      double mslMax = sessionMuscleLoads.values.reduce(max);
-      double impactFactor = mslTarget / mslMax;
-
-      double sessionRpe = session.rpe?.toDouble() ?? 8.0;
-      double effectiveRpe = max(1.0, sessionRpe * impactFactor);
+      // Effort của nhóm cơ chỉ đến từ các bài tác động lên chính nhóm cơ đó.
+      final effectiveRpe = (
+        (sessionMuscleRpeLoads[targetMuscle] ??
+                mslTarget * RecoveryLoadCalculator.defaultRecoveryRpe) /
+            mslTarget
+      ).clamp(1.0, 10.0);
 
       // Suy giảm mệt mỏi cũ từ buổi trước (Decay)
+      final sessionEndTime = _sessionEndTime(session);
       if (lastTrainedTime > 0 && previousLambda > 0.0) {
-        final hoursBetween = (session.startTime - lastTrainedTime) / 3600000.0;
+        final hoursBetween = max(
+          0.0,
+          (sessionEndTime - lastTrainedTime) / 3600000.0,
+        );
         cumulativeFatigue =
             cumulativeFatigue * exp(-previousLambda * hoursBetween);
       }
@@ -144,7 +168,7 @@ class MuscleRecoveryCalculator {
       targetMuscleCapacity = (targetMuscleCapacity * 0.75) + (mslTarget * 0.25);
 
       // Tính Lambda phục hồi cho chặng tiếp theo
-      lastTrainedTime = session.startTime;
+      lastTrainedTime = sessionEndTime;
       final lambdaRange = _getLambdaRange(targetMuscle);
       previousLambda =
           lambdaRange.$1 +
@@ -201,46 +225,13 @@ class MuscleRecoveryCalculator {
   // HELPER MENTHODS (KHÔNG SỬ DỤNG EXTENSION BÊN NGOÀI)
   // =========================================================
 
-  /// Tính toán Tải Trọng Bài Tập (Load_ex)
-  /// Xử lý an toàn bodyweight fallback và đa loại hình tập
-  static double _calculateStandardizedLoad(
-    WorkoutExercise we, {
-    double? userBodyWeight,
-  }) {
-    final completedSets = we.sets
-        .where(
-          (set) =>
-              set.isCompleted && MuscleExposureCalculator.isWorkingSet(set),
-        )
-        .toList();
-    if (completedSets.isEmpty) return 0.0;
-
-    // Giả định `Exercise` entity có biến type. Nếu property name khác, bạn update lại ở đây.
-    switch (we.exercise.type) {
-      case ExerciseType.WEIGHT_REPS:
-        return completedSets.fold(0.0, (sum, set) {
-          // When profile weight is unavailable, one normalized unit keeps
-          // relative-load history stable without assuming every user is 65kg.
-          double effectiveWeight = set.weight > 0
-              ? set.weight
-              : (userBodyWeight ?? 1.0);
-          return sum + (effectiveWeight * set.reps);
-        });
-      case ExerciseType.REPS_ONLY:
-        return completedSets.fold(0.0, (sum, set) => sum + set.reps.toDouble());
-      case ExerciseType.TIME_ONLY:
-        return completedSets.fold(
-          0.0,
-          (sum, set) => sum + set.durationTimeSeconds.toDouble(),
-        );
-      case ExerciseType.CARDIO_DISTANCE:
-        return completedSets.fold(0.0, (sum, set) => sum + set.distanceInKm);
-      case ExerciseType.CARDIO_STEPS:
-        return completedSets.fold(
-          0.0,
-          (sum, set) => sum + set.steps.toDouble(),
-        );
+  static int _sessionEndTime(WorkoutSession session) {
+    final endTime = session.endTime;
+    if (endTime != null && endTime >= session.startTime) return endTime;
+    if (session.totalDurationSeconds > 0) {
+      return session.startTime + session.totalDurationSeconds * 1000;
     }
+    return session.startTime;
   }
 
   /// Dải hằng số phục hồi theo độ lớn nhóm cơ

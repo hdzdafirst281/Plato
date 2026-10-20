@@ -17,7 +17,6 @@ import '../../../../core/worker/background_workout_service.dart';
 import '../../application/notification_coordinator.dart';
 import '../../data/notification_copy.dart';
 import '../../data/notification_preferences.dart';
-import 'notification_diagnostics_screen.dart';
 
 class NotificationSettingsScreen extends StatefulWidget {
   const NotificationSettingsScreen({super.key});
@@ -345,16 +344,6 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                     kind: NotificationPreferenceKind.rank,
                   ),
                 ]),
-                const SizedBox(height: 12),
-                OutlinedButton.icon(
-                  onPressed: () => Navigator.of(context).push(
-                    MaterialPageRoute<void>(
-                      builder: (_) => const NotificationDiagnosticsScreen(),
-                    ),
-                  ),
-                  icon: const Icon(Symbols.troubleshoot),
-                  label: Text(_copy('notifications.title_diagnostics')),
-                ),
               ],
             ),
     );

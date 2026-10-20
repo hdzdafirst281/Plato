@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import 'gym_motion.dart';
+
 class GymAnimatedProgressBar extends StatelessWidget {
   final double progress; // Giá trị từ 0.0 đến 1.0
   final Color color;
@@ -31,8 +33,10 @@ class GymAnimatedProgressBar extends StatelessWidget {
       alignment: Alignment.centerLeft, // Đảm bảo thanh chạy từ trái qua phải
       child: TweenAnimationBuilder<double>(
         tween: Tween<double>(begin: 0.0, end: clampedProgress),
-        duration: Duration(milliseconds: animationDuration),
-        curve: Curves.easeOutCubic, // Hiệu ứng chậm dần ở cuối
+        duration: GymMotion.reduceMotion(context)
+            ? Duration.zero
+            : Duration(milliseconds: animationDuration),
+        curve: GymMotion.enterCurve,
         builder: (context, value, child) {
           return FractionallySizedBox(
             widthFactor: value, // Lấp đầy % chiều rộng theo animation

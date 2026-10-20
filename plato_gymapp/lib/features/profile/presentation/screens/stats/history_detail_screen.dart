@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
 import 'package:plato_gymapp/i18n/translation_helper.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -8,6 +9,7 @@ import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
+import 'package:plato_gymapp/core/utils/measurement_units.dart';
 
 import '../../../../../core/designsystem/components/gym_top_bar.dart';
 import '../../../../../core/designsystem/theme/shapes.dart';
@@ -15,6 +17,7 @@ import '../../../../../core/designsystem/theme/shapes.dart';
 import '../../../../workout/data/models/workout_models.dart';
 import '../../../domain/profile_chart_utils.dart';
 import '../../components/profile_components.dart';
+import '../../bloc/profile_cubit.dart';
 import 'package:intl/intl.dart';
 
 extension BarChartMetricExt on BarChartMetric {
@@ -26,9 +29,10 @@ extension BarChartMetricExt on BarChartMetric {
     }
   }
 
-  String getLocalizedUnit() {
+  String getLocalizedUnit([MeasurementFormatter? units]) {
     switch (this) {
-      case BarChartMetric.VOLUME: return t.common.unit_kg;
+      case BarChartMetric.VOLUME:
+        return units?.weightUnit ?? t.common.unit_kg;
       case BarChartMetric.DURATION: return ''; 
       case BarChartMetric.REPS: return t.common.reps.toLowerCase();
     }
@@ -152,15 +156,29 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    final units = MeasurementFormatter(
+      context.watch<ProfileCubit>().state.userProfile.measurementPreferences,
+    );
 
     final nowMillis = DateTime.now().millisecondsSinceEpoch;
     final limitMillis = _timeRange == ChartTimeRange.ALL_TIME ? 0 : nowMillis - (_timeRange.days * 86400000);
     final filteredWorkouts = widget.workouts.where((w) => w.startTime >= limitMillis).toList()..sort((a, b) => a.startTime.compareTo(b.startTime));
     
-    final dataPoints = ProfileChartUtils.aggregateStatsByTimeRange(filteredWorkouts, _timeRange, TranslationProvider.of(context).flutterLocale.languageCode);
+    final canonicalDataPoints = ProfileChartUtils.aggregateStatsByTimeRange(filteredWorkouts, _timeRange, TranslationProvider.of(context).flutterLocale.languageCode);
+    final dataPoints = canonicalDataPoints
+        .map(
+          (point) => StatPoint(
+            point.timestamp,
+            point.label,
+            units.weightFromKg(point.volume),
+            point.durationHours,
+            point.reps,
+          ),
+        )
+        .toList(growable: false);
 
     double totalMetricVal = 0.0;
-    for (var d in dataPoints) {
+    for (var d in canonicalDataPoints) {
       if (_activeMetric == BarChartMetric.VOLUME) {
         totalMetricVal += d.volume;
       } else if (_activeMetric == BarChartMetric.DURATION) totalMetricVal += d.durationHours;
@@ -285,7 +303,12 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
                           const SizedBox(width: 16),
                           Expanded(
                             child: Text(
-                              getFunComparisonText(_activeMetric, totalMetricVal, _timeRange), 
+                              getFunComparisonText(
+                                _activeMetric,
+                                totalMetricVal,
+                                _timeRange,
+                                units,
+                              ),
                               style: TextStyle(
                                 height: 1.5, 
                                 color: colorScheme.onPrimaryContainer, 
@@ -308,6 +331,7 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
                         timeRange: _timeRange, 
                         selectedIndex: _highlightIndex,
                         onSelect: (i) => setState(() => _highlightIndex = i),
+                        unitLabel: _activeMetric.getLocalizedUnit(units),
                       ),
                     ).animate(delay: 300.ms).fade(duration: 600.ms)
                   else
@@ -338,6 +362,7 @@ class _ImprovedBarChart extends StatefulWidget {
   final ChartTimeRange timeRange;
   final int selectedIndex;
   final Function(int) onSelect;
+  final String unitLabel;
 
   const _ImprovedBarChart({
     required this.dataPoints, 
@@ -345,6 +370,7 @@ class _ImprovedBarChart extends StatefulWidget {
     required this.timeRange,
     required this.selectedIndex, 
     required this.onSelect,
+    required this.unitLabel,
   });
 
   @override
@@ -423,6 +449,7 @@ class _ImprovedBarChartState extends State<_ImprovedBarChart> with SingleTickerP
                 progress: _growthAnim.value,
                 colorScheme: colorScheme,
                 langCode: currentLangCode,
+                unitLabel: widget.unitLabel,
               ),
               size: Size.infinite,
             ),
@@ -442,6 +469,7 @@ class _HistoryBarPainter extends CustomPainter {
   final double progress;
   final ColorScheme colorScheme;
   final String langCode;
+  final String unitLabel;
 
   _HistoryBarPainter({
     required this.data, 
@@ -451,7 +479,8 @@ class _HistoryBarPainter extends CustomPainter {
     required this.selectedIndex, 
     required this.progress, 
     required this.colorScheme, 
-    required this.langCode
+    required this.langCode,
+    required this.unitLabel,
   });
 
   // HÀM CUSTOM FORMAT SỐ LIỆU CHO TRỤC Y - ĐÃ ĐƯỢC TỐI ƯU HÓA LÀM TRÒN
@@ -588,9 +617,9 @@ class _HistoryBarPainter extends CustomPainter {
           m: mins.toString().padLeft(2, '0') 
         );
       } else if (metric == BarChartMetric.REPS) {
-        valStr = "${val.toInt()} ${metric.getLocalizedUnit()}";
+        valStr = "${val.toInt()} $unitLabel";
       } else {
-        valStr = "${val.toStringAsFixed(1)} ${metric.getLocalizedUnit()}";
+        valStr = "${val.toStringAsFixed(1)} $unitLabel";
       }
 
       final textSpan = TextSpan(

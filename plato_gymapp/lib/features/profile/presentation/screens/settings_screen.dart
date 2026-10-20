@@ -18,12 +18,14 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/designsystem/components/gym_top_bar.dart';
 import '../../../../core/designsystem/theme/theme_cubit.dart';
 import '../../../../core/navigation/app_routes.dart';
+import '../../../../core/utils/measurement_units.dart';
 import '../../../auth/presentation/bloc/auth_cubit.dart';
 import '../bloc/profile_cubit.dart';
 import '../../../notifications/presentation/screens/notification_settings_screen.dart';
 import '../../../notifications/presentation/screens/notification_diagnostics_screen.dart';
 import '../../../notifications/application/notification_coordinator.dart';
 import '../../../notifications/data/notification_copy.dart';
+import '../../../workout/data/workout_effort_preferences.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -35,6 +37,8 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   int _versionTapCount = 0;
   DateTime? _lastVersionTapAt;
+  bool _advancedEffortEnabled = false;
+  EffortInputScale _effortInputScale = EffortInputScale.rpe;
 
   String _notificationCountLabel(int count) =>
       NotificationCopy.text('settings.fmt_notifications_enabled', {
@@ -45,6 +49,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     super.initState();
+    _loadEffortPreferences();
+  }
+
+  Future<void> _loadEffortPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    if (!mounted) return;
+    setState(() {
+      _advancedEffortEnabled = WorkoutEffortPreferences.advancedEnabled(prefs);
+      _effortInputScale = WorkoutEffortPreferences.inputScale(prefs);
+    });
+  }
+
+  Future<void> _setAdvancedEffort(bool enabled) async {
+    setState(() => _advancedEffortEnabled = enabled);
+    final prefs = await SharedPreferences.getInstance();
+    await WorkoutEffortPreferences.setAdvancedEnabled(prefs, enabled);
+  }
+
+  Future<void> _setEffortScale(EffortInputScale scale) async {
+    setState(() => _effortInputScale = scale);
+    final prefs = await SharedPreferences.getInstance();
+    await WorkoutEffortPreferences.setInputScale(prefs, scale);
   }
 
   void _sendSupportEmail() async {
@@ -173,6 +199,158 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
+  void _showMeasurementUnitsDialog(
+    BuildContext context,
+    MeasurementPreferences current,
+  ) {
+    var draft = current;
+
+    GymDialog.showCustom(
+      context: context,
+      useRootNavigator: false,
+      titleWidget: Text(
+        t.settings.title_measurement_units,
+        style: const TextStyle(fontWeight: FontWeight.bold),
+      ),
+      content: StatefulBuilder(
+        builder: (context, setDialogState) {
+          Widget unitChoice({
+            required String label,
+            required String metricLabel,
+            required String imperialLabel,
+            required bool imperial,
+            required ValueChanged<bool> onChanged,
+          }) => Padding(
+            padding: const EdgeInsets.only(bottom: 16),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: const TextStyle(fontWeight: FontWeight.w700)),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: SegmentedButton<bool>(
+                    segments: [
+                      ButtonSegment(value: false, label: Text(metricLabel)),
+                      ButtonSegment(value: true, label: Text(imperialLabel)),
+                    ],
+                    selected: {imperial},
+                    onSelectionChanged: (values) => onChanged(values.first),
+                  ),
+                ),
+              ],
+            ),
+          );
+
+          return ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 440),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(t.settings.desc_measurement_units),
+                  const SizedBox(height: 20),
+                  unitChoice(
+                    label: t.settings.lbl_weight_unit,
+                    metricLabel: t.common.unit_kg,
+                    imperialLabel: t.common.unit_lb,
+                    imperial: draft.weight == WeightUnit.pound,
+                    onChanged: (imperial) => setDialogState(
+                      () => draft = draft.copyWith(
+                        weight: imperial
+                            ? WeightUnit.pound
+                            : WeightUnit.kilogram,
+                      ),
+                    ),
+                  ),
+                  unitChoice(
+                    label: t.settings.lbl_hydration_unit,
+                    metricLabel: t.common.unit_l,
+                    imperialLabel: t.common.unit_us_gal,
+                    imperial: draft.hydration == HydrationUnit.usGallon,
+                    onChanged: (imperial) => setDialogState(
+                      () => draft = draft.copyWith(
+                        hydration: imperial
+                            ? HydrationUnit.usGallon
+                            : HydrationUnit.liter,
+                      ),
+                    ),
+                  ),
+                  unitChoice(
+                    label: t.settings.lbl_distance_unit,
+                    metricLabel: t.common.unit_km,
+                    imperialLabel: t.common.unit_mi,
+                    imperial: draft.distance == DistanceUnit.mile,
+                    onChanged: (imperial) => setDialogState(
+                      () => draft = draft.copyWith(
+                        distance: imperial
+                            ? DistanceUnit.mile
+                            : DistanceUnit.kilometer,
+                      ),
+                    ),
+                  ),
+                  unitChoice(
+                    label: t.settings.lbl_body_length_unit,
+                    metricLabel: t.common.unit_cm,
+                    imperialLabel: '${t.common.unit_ft} / ${t.common.unit_in}',
+                    imperial: draft.bodyLength == BodyLengthUnit.imperial,
+                    onChanged: (imperial) => setDialogState(
+                      () => draft = draft.copyWith(
+                        bodyLength: imperial
+                            ? BodyLengthUnit.imperial
+                            : BodyLengthUnit.metric,
+                      ),
+                    ),
+                  ),
+                  unitChoice(
+                    label: t.settings.lbl_food_mass_unit,
+                    metricLabel: t.common.unit_g,
+                    imperialLabel: t.common.unit_oz,
+                    imperial: draft.foodMass == FoodMassUnit.ounce,
+                    onChanged: (imperial) => setDialogState(
+                      () => draft = draft.copyWith(
+                        foodMass: imperial
+                            ? FoodMassUnit.ounce
+                            : FoodMassUnit.gram,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    '${t.settings.lbl_speed_unit}: '
+                    '${draft.distance == DistanceUnit.kilometer ? t.common.unit_kmh : t.common.unit_mph}. '
+                    '${t.settings.desc_speed_unit_auto}',
+                    style: Theme.of(context).textTheme.bodySmall,
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.of(context).pop(),
+          child: Text(t.common.cancel),
+        ),
+        FilledButton(
+          onPressed: () async {
+            await context.read<ProfileCubit>().updateMeasurementPreferences(draft);
+            if (!context.mounted) return;
+            Navigator.of(context).pop();
+            GymSnackbar.show(
+              context,
+              message: t.settings.msg_measurement_units_saved,
+              icon: Symbols.check_circle,
+              accentColor: Theme.of(context).colorScheme.primary,
+            );
+          },
+          child: Text(t.common.save),
+        ),
+      ],
+    );
+  }
+
   void _handleLogout(BuildContext context) async {
     final confirm = await GymDialog.showDestructive(
       context: context,
@@ -210,6 +388,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
         TranslationProvider.of(context).flutterLocale.languageCode == 'vi'
         ? "Tiếng Việt"
         : "English";
+    final isVietnamese =
+        TranslationProvider.of(context).flutterLocale.languageCode == 'vi';
 
     // Tối ưu Responsive: Tự động nới lỏng padding trên màn hình Tablet/Desktop
     final itemPadding = ResponsiveValue<EdgeInsets>(
@@ -307,6 +487,52 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           );
                         },
                       ),
+                    ),
+
+                    SwitchListTile.adaptive(
+                      contentPadding: itemPadding,
+                      secondary: const Icon(Symbols.speed),
+                      title: Text(
+                        isVietnamese
+                            ? 'Ghi nhận mức độ gắng sức'
+                            : 'Effort tracking',
+                        style: titleStyle,
+                      ),
+                      subtitle: Text(
+                        isVietnamese
+                            ? 'Tùy chọn nâng cao: nhập RPE/RIR cho từng set để tăng độ chính xác Recovery.'
+                            : 'Optional: record RPE/RIR per set for more accurate Recovery.',
+                        style: subtitleStyle,
+                      ),
+                      value: _advancedEffortEnabled,
+                      onChanged: _setAdvancedEffort,
+                    ),
+                    AnimatedSize(
+                      duration: const Duration(milliseconds: 200),
+                      alignment: Alignment.topCenter,
+                      child: !_advancedEffortEnabled
+                          ? const SizedBox.shrink()
+                          : Padding(
+                              padding: EdgeInsets.only(
+                                left: itemPadding.left + 56,
+                                right: itemPadding.right,
+                                bottom: 12,
+                              ),
+                              child: Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: EffortInputScale.values
+                                    .map((scale) {
+                                      return ChoiceChip(
+                                        label: Text(scale.name.toUpperCase()),
+                                        selected: _effortInputScale == scale,
+                                        onSelected: (_) =>
+                                            _setEffortScale(scale),
+                                      );
+                                    })
+                                    .toList(growable: false),
+                              ),
+                            ),
                     ),
 
                     // 1.5. Notification & Background Settings
@@ -418,6 +644,31 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       subtitle: Text(currentLang, style: subtitleStyle),
                       trailing: const Icon(Symbols.chevron_right),
                       onTap: () => _showLanguageDialog(context),
+                    ),
+
+                    ListTile(
+                      contentPadding: itemPadding,
+                      leading: const Icon(Symbols.straighten),
+                      title: Text(
+                        t.settings.title_measurement_units,
+                        style: titleStyle,
+                      ),
+                      subtitle: Text(
+                        (() {
+                          final units = MeasurementFormatter(
+                            profileState.userProfile.measurementPreferences,
+                          );
+                          return '${units.weightUnit} · ${units.hydrationUnit} · '
+                              '${units.distanceUnit} · ${units.bodyLengthUnit} · '
+                              '${units.foodMassUnit}';
+                        })(),
+                        style: subtitleStyle,
+                      ),
+                      trailing: const Icon(Symbols.chevron_right),
+                      onTap: () => _showMeasurementUnitsDialog(
+                        context,
+                        profileState.userProfile.measurementPreferences,
+                      ),
                     ),
 
                     // 5. Contact & Help

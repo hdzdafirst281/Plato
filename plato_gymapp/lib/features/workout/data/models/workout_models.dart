@@ -47,9 +47,6 @@ class WorkoutExercise with _$WorkoutExercise {
 
   factory WorkoutExercise.fromJson(Map<String, dynamic> json) => _$WorkoutExerciseFromJson(json);
 
-  double calculateWorkload() {
-    return sets.where((s) => s.isCompleted).fold(0.0, (sum, s) => sum + (s.weight * s.reps));
-  }
 }
 
 @freezed

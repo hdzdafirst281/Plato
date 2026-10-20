@@ -20,6 +20,8 @@ import 'package:plato_gymapp/core/designsystem/components/gym_tour_target.dart';
 import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
 import 'package:plato_gymapp/core/navigation/app_router.dart';
 import 'package:plato_gymapp/core/utils/tour_keys.dart';
+import 'package:plato_gymapp/core/utils/measurement_units.dart';
+import 'package:plato_gymapp/features/profile/presentation/bloc/profile_cubit.dart';
 import 'package:plato_gymapp/features/workout/domain/workout_extensions.dart';
 import 'package:plato_gymapp/features/workout/presentation/bloc/exercise_library_cubit.dart';
 import 'package:responsive_framework/responsive_framework.dart';
@@ -53,6 +55,10 @@ class LogWorkoutScreen extends StatefulWidget {
 }
 
 class _LogWorkoutScreenState extends State<LogWorkoutScreen> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
+  MeasurementFormatter get _units => MeasurementFormatter(
+    context.read<ProfileCubit>().state.userProfile.measurementPreferences,
+  );
+
   final bool debugForceLoading = false; // TODO(Debug): Đổi thành false khi build Production
   bool _isReorderMode = false;
   final ScrollController _scrollController = ScrollController();
@@ -498,7 +504,7 @@ class _LogWorkoutScreenState extends State<LogWorkoutScreen> with SingleTickerPr
             child: FittedBox(
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerLeft,
-              child: Text('${_fmtDouble(_cachedTotalVol)}kg', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: colorScheme.onSurface)),
+              child: Text(_units.formatWeight(_cachedTotalVol), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: colorScheme.onSurface)),
             ),
           ),
         ]
@@ -531,7 +537,7 @@ class _LogWorkoutScreenState extends State<LogWorkoutScreen> with SingleTickerPr
             child: FittedBox(
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerLeft,
-              child: Text('${_fmtDouble(_cachedTotalDist)}km', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: colorScheme.onSurface)),
+              child: Text(_units.formatDistance(_cachedTotalDist), style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: colorScheme.onSurface)),
             ),
           ),
         ]
@@ -786,8 +792,6 @@ class _LogWorkoutScreenState extends State<LogWorkoutScreen> with SingleTickerPr
     );
   }
 
-  String _fmtDouble(double v) => v % 1 == 0 ? v.toInt().toString() : v.toStringAsFixed(1).replaceAll(RegExp(r'\.0$'), '');
-
   void _showExtraStatsSheet(BuildContext context, List<Map<String, dynamic>> extraStats) {
     final colorScheme = Theme.of(context).colorScheme;
     final activeCubit = context.read<ActiveSessionCubit>(); 
@@ -927,10 +931,10 @@ _calculateStatsOnce(currentSession);
     final double workoutProgress = totalSetsCount == 0 ? 0.0 : (completedSetsCount / totalSetsCount);
 
     List<Map<String, dynamic>> extraStats = [];
-    if (_cachedTotalVol > 0) extraStats.add({'label': t.stats.lbl_metric_volume, 'value': '${_fmtDouble(_cachedTotalVol)} kg', 'icon': Symbols.exercise});
+    if (_cachedTotalVol > 0) extraStats.add({'label': t.stats.lbl_metric_volume, 'value': _units.formatWeight(_cachedTotalVol), 'icon': Symbols.exercise});
     if (_cachedTotalSets > 0) extraStats.add({'label': t.workout.lbl_dtl_stat_sets, 'value': '$_cachedTotalSets', 'icon': Symbols.format_list_numbered});
     if (_cachedTotalReps > 0) extraStats.add({'label': t.stats.lbl_metric_reps, 'value': '$_cachedTotalReps', 'icon': Symbols.repeat});
-    if (_cachedTotalDist > 0) extraStats.add({'label': t.common.distance, 'value': '${_fmtDouble(_cachedTotalDist)} km', 'icon': Symbols.directions_run});
+    if (_cachedTotalDist > 0) extraStats.add({'label': t.common.distance, 'value': _units.formatDistance(_cachedTotalDist), 'icon': Symbols.directions_run});
     if (_cachedTotalSteps > 0) extraStats.add({'label': t.common.steps, 'value': '$_cachedTotalSteps', 'icon': Symbols.directions_walk});
     if (_cachedTotalExercises > 0) extraStats.add({'label': t.profile.btn_menu_exercises, 'value': '$_cachedTotalExercises', 'icon': Symbols.format_list_bulleted});
     if (_cachedTotalPRs > 0) extraStats.add({'label': t.gamification.title_main, 'value': '$_cachedTotalPRs', 'icon': 'assets/svg/icons/trophy.svg'});
@@ -947,10 +951,10 @@ _calculateStatsOnce(currentSession);
           _calculateStatsOnce(session);
 
           List<Map<String, dynamic>> extraStats = [];
-          if (_cachedTotalVol > 0) extraStats.add({'label': t.stats.lbl_metric_volume, 'value': '${_fmtDouble(_cachedTotalVol)} kg', 'icon': Symbols.exercise});
+          if (_cachedTotalVol > 0) extraStats.add({'label': t.stats.lbl_metric_volume, 'value': _units.formatWeight(_cachedTotalVol), 'icon': Symbols.exercise});
           if (_cachedTotalSets > 0) extraStats.add({'label': t.workout.lbl_dtl_stat_sets, 'value': '$_cachedTotalSets', 'icon': Symbols.format_list_numbered});
           if (_cachedTotalReps > 0) extraStats.add({'label': t.stats.lbl_metric_reps, 'value': '$_cachedTotalReps', 'icon': Symbols.repeat});
-          if (_cachedTotalDist > 0) extraStats.add({'label': t.common.distance, 'value': '${_fmtDouble(_cachedTotalDist)} km', 'icon': Symbols.directions_run});
+          if (_cachedTotalDist > 0) extraStats.add({'label': t.common.distance, 'value': _units.formatDistance(_cachedTotalDist), 'icon': Symbols.directions_run});
           if (_cachedTotalSteps > 0) extraStats.add({'label': t.common.steps, 'value': '$_cachedTotalSteps', 'icon': Symbols.directions_walk});
           if (_cachedTotalExercises > 0) extraStats.add({'label': t.profile.btn_menu_exercises, 'value': '$_cachedTotalExercises', 'icon': Symbols.format_list_bulleted});
           if (_cachedTotalPRs > 0) extraStats.add({'label': t.gamification.title_main, 'value': '$_cachedTotalPRs', 'icon': 'assets/svg/icons/trophy.svg'});
@@ -958,8 +962,8 @@ _calculateStatsOnce(currentSession);
       final showMoreBtn = extraStats.length > 2;
       Map<String, dynamic>? midStat;
           if (_cachedTotalVol > 0) {
-            midStat = {'label': t.stats.lbl_metric_volume, 'value': '${_fmtDouble(_cachedTotalVol)} kg', 'icon': Symbols.exercise};
-          } else if (_cachedTotalDist > 0) midStat = {'label': t.common.distance, 'value': '${_fmtDouble(_cachedTotalDist)} km', 'icon': Symbols.directions_run};
+            midStat = {'label': t.stats.lbl_metric_volume, 'value': _units.formatWeight(_cachedTotalVol), 'icon': Symbols.exercise};
+          } else if (_cachedTotalDist > 0) midStat = {'label': t.common.distance, 'value': _units.formatDistance(_cachedTotalDist), 'icon': Symbols.directions_run};
           else if (_cachedTotalSteps > 0) midStat = {'label': t.common.steps, 'value': '$_cachedTotalSteps', 'icon': Symbols.directions_walk};
           else if (_cachedTotalReps > 0) midStat = {'label': t.stats.lbl_metric_reps, 'value': '$_cachedTotalReps', 'icon': Symbols.repeat};
 
@@ -984,9 +988,9 @@ _calculateStatsOnce(currentSession);
         );
         allStatWidgets.add(WorkoutStatItem(label: t.common.set.toUpperCase(), value: "$_cachedTotalSets", icon: Symbols.format_list_numbered));
         
-        if (_cachedTotalVol > 0) allStatWidgets.add(WorkoutStatItem(label: t.stats.lbl_metric_volume, value: '${_fmtDouble(_cachedTotalVol)} kg', icon: Symbols.exercise));
+        if (_cachedTotalVol > 0) allStatWidgets.add(WorkoutStatItem(label: t.stats.lbl_metric_volume, value: _units.formatWeight(_cachedTotalVol), icon: Symbols.exercise));
         if (_cachedTotalReps > 0) allStatWidgets.add(WorkoutStatItem(label: t.stats.lbl_metric_reps, value: '$_cachedTotalReps', icon: Symbols.repeat));
-        if (_cachedTotalDist > 0) allStatWidgets.add(WorkoutStatItem(label: t.common.distance, value: '${_fmtDouble(_cachedTotalDist)} km', icon: Symbols.directions_run));
+        if (_cachedTotalDist > 0) allStatWidgets.add(WorkoutStatItem(label: t.common.distance, value: _units.formatDistance(_cachedTotalDist), icon: Symbols.directions_run));
         if (_cachedTotalSteps > 0) allStatWidgets.add(WorkoutStatItem(label: t.common.steps, value: '$_cachedTotalSteps', icon: Symbols.directions_walk));
         
         if (_cachedTotalPRs > 0) {

@@ -13,6 +13,7 @@ import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:plato_gymapp/core/bloc/tour/tour_cubit.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_motion.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_tour_target.dart';
 
 import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
@@ -21,11 +22,11 @@ import 'package:plato_gymapp/core/navigation/main_scaffold.dart';
 import 'package:plato_gymapp/core/utils/tour_keys.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:showcaseview/showcaseview.dart';
 
 import '../../../../core/database/enums.dart';
 import '../../../../core/database/entities.dart';
+import '../../../../core/utils/measurement_units.dart';
 
 import '../../../profile/presentation/bloc/profile_cubit.dart';
 import '../bloc/nutrition_cubit.dart';
@@ -170,8 +171,6 @@ class _NutritionScreenState extends State<NutritionScreen> {
     final dailyData = nutritionState.nutritionToday;
     final isTablet = ResponsiveBreakpoints.of(context).largerThan(MOBILE);
 
-    int animIndex = 0;
-
     final mealWidgets =
         [
           MealType.BREAKFAST,
@@ -221,13 +220,13 @@ class _NutritionScreenState extends State<NutritionScreen> {
             );
           }
 
-          return Padding(
-                padding: const EdgeInsets.only(bottom: 20),
-                child: cardWidget,
-              )
-              .animate(delay: (animIndex++ * 100).ms)
-              .fade(duration: 400.ms, curve: Curves.easeOutCubic)
-              .slideY(begin: 0.1, end: 0);
+          return GymEntrance(
+            delay: GymMotion.stagger(index + 2),
+            child: Padding(
+              padding: const EdgeInsets.only(bottom: 20),
+              child: cardWidget,
+            ),
+          );
         }).toList();
 
     // Tối ưu Padding cho NARROW_MOBILE
@@ -339,7 +338,11 @@ class _NutritionScreenState extends State<NutritionScreen> {
                         icon: Symbols.water_drop,
                         iconColor: Theme.of(context).colorScheme.primary,
                         title: t.nutrition.title_water_limit,
-                        message: t.nutrition.err_water_current,
+                        message: t.nutrition.err_water_current(
+                          arg1: MeasurementFormatter(
+                            profile.measurementPreferences,
+                          ).formatHydration(10),
+                        ),
                         buttonText: t.common.confirm,
                       );
                     }
@@ -366,87 +369,78 @@ class _NutritionScreenState extends State<NutritionScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (isTablet) ...[
-            dashboardWidget
-                .animate(delay: 0.ms)
-                .fade(duration: 400.ms, curve: Curves.easeOutCubic)
-                .slideY(begin: 0.1, end: 0),
+            GymEntrance(child: dashboardWidget),
             const SizedBox(height: 16),
-            waterWidget
-                .animate(delay: 50.ms)
-                .fade(duration: 400.ms, curve: Curves.easeOutCubic)
-                .slideY(begin: 0.1, end: 0),
+            GymEntrance(delay: GymMotion.stagger(1), child: waterWidget),
           ] else ...[
-            IntrinsicHeight(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Expanded(child: dashboardWidget),
-                      const SizedBox(width: 16),
-                      Expanded(child: waterWidget),
-                    ],
-                  ),
-                )
-                .animate(delay: 0.ms)
-                .fade(duration: 400.ms, curve: Curves.easeOutCubic)
-                .slideY(begin: 0.1, end: 0),
+            GymEntrance(
+              child: IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(child: dashboardWidget),
+                    const SizedBox(width: 16),
+                    Expanded(child: waterWidget),
+                  ],
+                ),
+              ),
+            ),
           ],
 
           const SizedBox(height: 24),
 
-          GymTourTarget(
-                isActive:
-                    !context.read<TourCubit>().state.hasSeenNutrition ||
-                    forceShowTour,
-                tourKey: TourKeys.nutritionWeightGoal,
-                title: t.tour.nutrition_wt_title,
-                description: t.tour.nutrition_wt_desc,
-                tooltipPosition: isTablet ? TooltipPosition.right : null,
-                borderRadius: 24.0,
-                targetPadding: EdgeInsets.zero,
-                child: WeightGoalChartCard(
-                  profile: profile,
-                  onUpdateWeight: () {
-                    showUpdateWeightDialog(
-                      context,
-                      currentWeight: profile.weightInKg,
-                      onDismiss: () {},
-                      onConfirm: (val) {
-                        context.read<ProfileCubit>().updateCurrentWeight(val);
-                      },
-                    );
-                  },
-                  onEditGoal: () {
-                    Navigator.of(context, rootNavigator: true).push(
-                      MaterialPageRoute(
-                        fullscreenDialog: true,
-                        builder: (navContext) => UpdateGoalDialog(
-                          profile: profile,
-                          onDismiss: () => Navigator.of(
-                            navContext,
-                            rootNavigator: true,
-                          ).pop(),
-                          onConfirm: (wt, days) {
-                            if (profile.isCustomMacros) {
-                              context
-                                  .read<ProfileCubit>()
-                                  .updateTargetWeightKeepCustomMacros(wt);
-                            } else {
-                              context.read<ProfileCubit>().updateGoalParameters(
-                                wt,
-                                days,
-                              );
-                            }
-                            Navigator.of(navContext, rootNavigator: true).pop();
-                          },
-                        ),
+          GymEntrance(
+            delay: GymMotion.stagger(2),
+            child: GymTourTarget(
+              isActive:
+                  !context.read<TourCubit>().state.hasSeenNutrition ||
+                  forceShowTour,
+              tourKey: TourKeys.nutritionWeightGoal,
+              title: t.tour.nutrition_wt_title,
+              description: t.tour.nutrition_wt_desc,
+              tooltipPosition: isTablet ? TooltipPosition.right : null,
+              borderRadius: 24.0,
+              targetPadding: EdgeInsets.zero,
+              child: WeightGoalChartCard(
+                profile: profile,
+                onUpdateWeight: () {
+                  showUpdateWeightDialog(
+                    context,
+                    currentWeight: profile.weightInKg,
+                    onDismiss: () {},
+                    onConfirm: (val) {
+                      context.read<ProfileCubit>().updateCurrentWeight(val);
+                    },
+                  );
+                },
+                onEditGoal: () {
+                  Navigator.of(context, rootNavigator: true).push(
+                    MaterialPageRoute(
+                      fullscreenDialog: true,
+                      builder: (navContext) => UpdateGoalDialog(
+                        profile: profile,
+                        onDismiss: () =>
+                            Navigator.of(navContext, rootNavigator: true).pop(),
+                        onConfirm: (wt, days) {
+                          if (profile.isCustomMacros) {
+                            context
+                                .read<ProfileCubit>()
+                                .updateTargetWeightKeepCustomMacros(wt);
+                          } else {
+                            context.read<ProfileCubit>().updateGoalParameters(
+                              wt,
+                              days,
+                            );
+                          }
+                          Navigator.of(navContext, rootNavigator: true).pop();
+                        },
                       ),
-                    );
-                  },
-                ),
-              )
-              .animate()
-              .fade(duration: 400.ms, curve: Curves.easeOutCubic)
-              .slideY(begin: 0.1, end: 0),
+                    ),
+                  );
+                },
+              ),
+            ),
+          ),
         ],
       );
     }
@@ -459,12 +453,16 @@ class _NutritionScreenState extends State<NutritionScreen> {
         elevation: 0,
         scrolledUnderElevation: 0,
         automaticallyImplyLeading: false,
-        title: Text(
-          t.nutrition.title_main,
-          style: TextStyle(
-            fontWeight: FontWeight.w900,
-            fontSize: 25,
-            color: colorScheme.onSurface,
+        title: GymEntrance(
+          offset: const Offset(0, -6),
+          duration: GymMotion.content,
+          child: Text(
+            t.nutrition.title_main,
+            style: TextStyle(
+              fontWeight: FontWeight.w900,
+              fontSize: 25,
+              color: colorScheme.onSurface,
+            ),
           ),
         ),
         actions: [
@@ -869,6 +867,7 @@ class _FoodItemRowState extends State<_FoodItemRow> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final userProfile = context.read<ProfileCubit>().state.userProfile;
+    final units = MeasurementFormatter(userProfile.measurementPreferences);
 
     final String localizedName = t.translateDynamic(widget.food.foodName);
     final String avatarLetter = localizedName.isNotEmpty
@@ -878,9 +877,12 @@ class _FoodItemRowState extends State<_FoodItemRow> {
     final bool isScale =
         widget.food.measurementUnit == FoodUnit.GRAM ||
         widget.food.measurementUnit == FoodUnit.ML;
-    final double displayAmount = isScale
+    double displayAmount = isScale
         ? widget.food.consumedAmount * 100
         : widget.food.consumedAmount;
+    if (widget.food.measurementUnit == FoodUnit.GRAM) {
+      displayAmount = units.foodMassFromGrams(displayAmount);
+    }
 
     String amountStr;
     if (displayAmount % 1 == 0) {
@@ -897,7 +899,7 @@ class _FoodItemRowState extends State<_FoodItemRow> {
     String unitName;
     switch (widget.food.measurementUnit) {
       case FoodUnit.GRAM:
-        unitName = t.nutrition.lbl_unit_gram;
+        unitName = units.foodMassUnit;
         break;
       case FoodUnit.ML:
         unitName = t.nutrition.lbl_unit_ml;

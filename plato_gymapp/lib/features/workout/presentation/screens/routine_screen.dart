@@ -18,9 +18,12 @@ import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
 import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
 import 'package:plato_gymapp/core/navigation/app_router.dart';
 import 'package:plato_gymapp/core/utils/search_utils.dart';
+import 'package:plato_gymapp/core/utils/measurement_units.dart';
+import 'package:plato_gymapp/features/profile/presentation/bloc/profile_cubit.dart';
 import 'package:plato_gymapp/features/workout/presentation/bloc/exercise_library_cubit.dart';
 import 'package:uuid/uuid.dart';
 import 'package:flutter_animate/flutter_animate.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_motion.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../../core/designsystem/components/gym_top_bar.dart';
@@ -694,9 +697,12 @@ class _RoutineScreenState extends State<RoutineScreen>
           onSelected: (value) {
             if (value == 'schedule') {
               if (_routeRoutine != null) {
-                Navigator.of(context, rootNavigator: true).push(MaterialPageRoute(
-                  builder: (_) => CalendarScreen(setupRoutineId: _routeRoutine.id),
-                ));
+                Navigator.of(context, rootNavigator: true).push(
+                  MaterialPageRoute(
+                    builder: (_) =>
+                        CalendarScreen(setupRoutineId: _routeRoutine.id),
+                  ),
+                );
               }
             } else if (value == 'edit') {
               setState(() => _currentIsViewMode = false);
@@ -923,7 +929,7 @@ class _RoutineScreenState extends State<RoutineScreen>
                                     ],
                                   ),
                                 )
-                                .animate(delay: (index * 100).ms)
+                                .animate(delay: GymMotion.stagger(index))
                                 .fade(
                                   duration: 400.ms,
                                   curve: Curves.easeOutCubic,
@@ -1456,7 +1462,7 @@ class _RoutineScreenState extends State<RoutineScreen>
                                             )
                                             .animate(
                                               key: ValueKey(item.id),
-                                              delay: (index * 100).ms,
+                                              delay: GymMotion.stagger(index),
                                             )
                                             .fade(
                                               duration: 400.ms,
@@ -1591,6 +1597,10 @@ class _RoutineExerciseCard extends StatefulWidget {
 }
 
 class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
+  MeasurementFormatter get _units => MeasurementFormatter(
+    context.read<ProfileCubit>().state.userProfile.measurementPreferences,
+  );
+
   final Map<String, String> _setErrors = {};
 
   late TextEditingController _noteController;
@@ -1716,13 +1726,9 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
   String _formatHistoryString(ExerciseSet? previousSet, ExerciseType exType) {
     if (previousSet == null) return "-";
 
-    final w = previousSet.weight % 1 == 0
-        ? previousSet.weight.toInt().toString()
-        : previousSet.weight.toString();
+    final w = _units.formatWeight(previousSet.weight);
     final r = previousSet.reps.toString();
-    final d = previousSet.distanceInKm % 1 == 0
-        ? previousSet.distanceInKm.toInt().toString()
-        : previousSet.distanceInKm.toString();
+    final d = _units.formatDistance(previousSet.distanceInKm);
     final st = previousSet.steps.toString();
     final timeStr = GymTimerHelper.formatCardioTime(
       previousSet.durationTimeSeconds,
@@ -1731,7 +1737,7 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
     switch (exType) {
       case ExerciseType.WEIGHT_REPS:
         if (previousSet.weight == 0 && previousSet.reps == 0) return "-";
-        return "${w}kg x $r";
+        return "$w x $r";
       case ExerciseType.REPS_ONLY:
         if (previousSet.reps == 0) return "-";
         return "x $r";
@@ -1795,7 +1801,9 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
         errorValidationKey = t.workout.err_invalid_wt;
       } else if (fillWeight >= 2000.0) {
         isValid = false;
-        errorValidationKey = t.workout.err_invalid_wt_max;
+        errorValidationKey = t.workout.err_invalid_wt_max(
+          arg1: _units.formatWeight(2000),
+        );
       }
     } else if (exType == ExerciseType.REPS_ONLY) {
       if (fillReps < 0) {
@@ -1822,7 +1830,9 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
           double speedKmH = fillDistance / (fillTime / 3600.0);
           if (speedKmH >= 45.0) {
             isValid = false;
-            errorValidationKey = t.workout.err_invalid_speed_max;
+            errorValidationKey = t.workout.err_invalid_speed_max(
+              arg1: _units.formatSpeed(45),
+            );
           }
         }
       }
@@ -2419,10 +2429,10 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
                         alignment: Alignment.center,
                         child: Text(
                           exType == ExerciseType.CARDIO_DISTANCE
-                              ? t.common.unit_km.toUpperCase().toUpperCase()
+                              ? _units.distanceUnit.toUpperCase()
                               : exType == ExerciseType.CARDIO_STEPS
                               ? t.common.steps.toUpperCase().toUpperCase()
-                              : t.common.unit_kg.toUpperCase().toUpperCase(),
+                              : _units.weightUnit.toUpperCase(),
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.bold,
@@ -2784,24 +2794,20 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
                                                       ExerciseType
                                                           .CARDIO_DISTANCE
                                                 ? (setData.distanceInKm > 0
-                                                      ? (setData.distanceInKm %
-                                                                    1 ==
-                                                                0
-                                                            ? setData
-                                                                  .distanceInKm
-                                                                  .toInt()
-                                                                  .toString()
-                                                            : setData
-                                                                  .distanceInKm
-                                                                  .toString())
+                                                      ? MeasurementFormatter.number(
+                                                          _units.distanceFromKm(
+                                                            setData.distanceInKm,
+                                                          ),
+                                                          2,
+                                                        )
                                                       : "")
                                                 : (setData.weight > 0
-                                                      ? (setData.weight % 1 == 0
-                                                            ? setData.weight
-                                                                  .toInt()
-                                                                  .toString()
-                                                            : setData.weight
-                                                                  .toString())
+                                                      ? MeasurementFormatter.number(
+                                                          _units.weightFromKg(
+                                                            setData.weight,
+                                                          ),
+                                                          1,
+                                                        )
                                                       : ""),
                                             placeholder: "-",
                                             isInteger:
@@ -2835,7 +2841,9 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
                                                       (val.isNotEmpty &&
                                                           parsed == null)
                                                       ? -1.0
-                                                      : (parsed ?? 0.0),
+                                                      : _units.distanceToKm(
+                                                          parsed ?? 0.0,
+                                                        ),
                                                 );
                                               } else {
                                                 final parsed = double.tryParse(
@@ -2848,7 +2856,9 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
                                                       (val.isNotEmpty &&
                                                           parsed == null)
                                                       ? -1.0
-                                                      : (parsed ?? 0.0),
+                                                      : _units.weightToKg(
+                                                          parsed ?? 0.0,
+                                                        ),
                                                 );
                                               }
                                             },
@@ -2931,7 +2941,11 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
                                                                       45.0) {
                                                                     return t
                                                                         .workout
-                                                                        .err_invalid_speed_max;
+                                                                        .err_invalid_speed_max(
+                                                                          arg1: _units.formatSpeed(
+                                                                            45,
+                                                                          ),
+                                                                        );
                                                                   }
                                                                 }
                                                                 return null;
@@ -3031,7 +3045,7 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
                     ),
                   );
                 },
-              ).animate(key: ValueKey(setData.id), delay: (setIndex * 100).ms).fade(duration: 400.ms, curve: Curves.easeOutCubic).slideY(begin: 0.1, end: 0);
+              ).animate(key: ValueKey(setData.id), delay: GymMotion.stagger(setIndex)).fade(duration: 400.ms, curve: Curves.easeOutCubic).slideY(begin: 0.1, end: 0);
             }),
 
             if (!widget.isViewMode)

@@ -14,6 +14,7 @@ import '../../../../core/designsystem/components/gym_top_bar.dart';
 import '../../../../core/designsystem/components/gym_selection_components.dart';
 import '../../../../core/database/enums.dart';
 import '../../../../core/worker/sync_manager.dart'; 
+import '../../../../core/utils/measurement_units.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_shake_wrapper.dart';
 
@@ -47,6 +48,8 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   // Raw Input Strings to handle empty states without forcing 0
   late String _ageStr;
   late String _heightStr;
+  late String _heightFeetStr;
+  late String _heightInchesStr;
   late String _weightStr;
 
   // Raw Input Strings for Body Metrics
@@ -72,6 +75,9 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   
   bool _forcePop = false;
 
+  MeasurementFormatter get _units =>
+      MeasurementFormatter(_draftProfile.measurementPreferences);
+
   @override
   void initState() {
     super.initState();
@@ -81,24 +87,40 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     _draftMetrics = currentProfile.detailedBodyMetrics;
 
     _ageStr = currentProfile.userAge > 0 ? currentProfile.userAge.toString() : "";
-    _heightStr = currentProfile.heightInCm > 0 ? _formatDouble(currentProfile.heightInCm) : "";
-    _weightStr = currentProfile.weightInKg > 0 ? _formatDouble(currentProfile.weightInKg) : "";
+    final units = MeasurementFormatter(currentProfile.measurementPreferences);
+    _heightStr = currentProfile.heightInCm > 0
+        ? _formatDouble(units.bodyLengthFromCm(currentProfile.heightInCm))
+        : "";
+    final totalHeightInches = currentProfile.heightInCm > 0
+        ? currentProfile.heightInCm * MeasurementFormatter.inchesPerCentimeter
+        : 0.0;
+    _heightFeetStr = totalHeightInches > 0
+        ? (totalHeightInches ~/ 12).toString()
+        : "";
+    _heightInchesStr = totalHeightInches > 0
+        ? _formatDouble(totalHeightInches % 12)
+        : "";
+    _weightStr = currentProfile.weightInKg > 0
+        ? _formatDouble(units.weightFromKg(currentProfile.weightInKg))
+        : "";
 
     // Khởi tạo trạng thái Rỗng nếu bằng 0
     _bodyFatStr = (_draftProfile.bodyFatPercentage != null && _draftProfile.bodyFatPercentage! > 0) 
         ? _formatDouble(_draftProfile.bodyFatPercentage!) 
         : "";
-    _neckStr = _draftMetrics.neckCm > 0 ? _formatDouble(_draftMetrics.neckCm) : "";
-    _shouldersStr = _draftMetrics.shouldersCm > 0 ? _formatDouble(_draftMetrics.shouldersCm) : "";
-    _chestStr = _draftMetrics.chestCm > 0 ? _formatDouble(_draftMetrics.chestCm) : "";
-    _waistStr = _draftMetrics.waistCm > 0 ? _formatDouble(_draftMetrics.waistCm) : "";
-    _hipsStr = _draftMetrics.hipsCm > 0 ? _formatDouble(_draftMetrics.hipsCm) : "";
-    _bicepsLStr = _draftMetrics.bicepsLeftCm > 0 ? _formatDouble(_draftMetrics.bicepsLeftCm) : "";
-    _bicepsRStr = _draftMetrics.bicepsRightCm > 0 ? _formatDouble(_draftMetrics.bicepsRightCm) : "";
-    _thighsLStr = _draftMetrics.thighLeftCm > 0 ? _formatDouble(_draftMetrics.thighLeftCm) : "";
-    _thighsRStr = _draftMetrics.thighRightCm > 0 ? _formatDouble(_draftMetrics.thighRightCm) : "";
-    _calvesLStr = _draftMetrics.calfLeftCm > 0 ? _formatDouble(_draftMetrics.calfLeftCm) : "";
-    _calvesRStr = _draftMetrics.calfRightCm > 0 ? _formatDouble(_draftMetrics.calfRightCm) : "";
+    String lengthInput(double cm) =>
+        cm > 0 ? _formatDouble(units.bodyLengthFromCm(cm)) : "";
+    _neckStr = lengthInput(_draftMetrics.neckCm);
+    _shouldersStr = lengthInput(_draftMetrics.shouldersCm);
+    _chestStr = lengthInput(_draftMetrics.chestCm);
+    _waistStr = lengthInput(_draftMetrics.waistCm);
+    _hipsStr = lengthInput(_draftMetrics.hipsCm);
+    _bicepsLStr = lengthInput(_draftMetrics.bicepsLeftCm);
+    _bicepsRStr = lengthInput(_draftMetrics.bicepsRightCm);
+    _thighsLStr = lengthInput(_draftMetrics.thighLeftCm);
+    _thighsRStr = lengthInput(_draftMetrics.thighRightCm);
+    _calvesLStr = lengthInput(_draftMetrics.calfLeftCm);
+    _calvesRStr = lengthInput(_draftMetrics.calfRightCm);
 
     _selectedInjuries = currentProfile.reportedInjuries.where((id) => injuriesKeys.contains(id)).toSet();
     if (_selectedInjuries.isEmpty) {
@@ -136,10 +158,30 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   String? _validateMeasurement(String val, double min, double max) {
     if (val.trim().isEmpty) return null; // Cho phép rỗng
     double? parsed = double.tryParse(val);
-    if (parsed == null || parsed < min || parsed > max) {
-      return t.profile.err_invalid_measurement; // Nằm ngoài phạm vi vật lý
+    final centimeters = parsed == null ? null : _units.bodyLengthToCm(parsed);
+    if (centimeters == null || centimeters < min || centimeters > max) {
+      return t.profile.err_invalid_measurement(
+        arg1: _units.formatBodyLength(min),
+        arg2: _units.formatBodyLength(max),
+      );
     }
     return null;
+  }
+
+  double? get _parsedHeightCm {
+    if (_draftProfile.measurementPreferences.bodyLength ==
+        BodyLengthUnit.metric) {
+      final value = double.tryParse(_heightStr);
+      return value == null ? null : _units.bodyLengthToCm(value);
+    }
+    final feet = int.tryParse(_heightFeetStr);
+    final inches = _heightInchesStr.trim().isEmpty
+        ? 0.0
+        : double.tryParse(_heightInchesStr);
+    if (feet == null || inches == null || feet < 0 || inches < 0 || inches >= 12) {
+      return null;
+    }
+    return (feet * 12 + inches) / MeasurementFormatter.inchesPerCentimeter;
   }
 
   void _validateForm() {
@@ -168,13 +210,20 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     }
 
     // Height
-    if (_heightStr.trim().isEmpty) {
+    final heightIsEmpty = _draftProfile.measurementPreferences.bodyLength ==
+            BodyLengthUnit.metric
+        ? _heightStr.trim().isEmpty
+        : _heightFeetStr.trim().isEmpty && _heightInchesStr.trim().isEmpty;
+    if (heightIsEmpty) {
       _heightError = t.onboarding.msg_err_height_empty;
       valid = false;
     } else {
-      double? h = double.tryParse(_heightStr);
+      final h = _parsedHeightCm;
       if (h == null || h < 100 || h > 250) {
-        _heightError = t.onboarding.msg_err_height_invalid;
+        _heightError = t.onboarding.msg_err_height_invalid(
+          arg1: _units.formatHeight(100),
+          arg2: _units.formatHeight(250),
+        );
         valid = false;
       } else {
         _heightError = null;
@@ -186,9 +235,13 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
       _weightError = t.onboarding.msg_err_wt_empty;
       valid = false;
     } else {
-      double? w = double.tryParse(_weightStr);
+      final displayWeight = double.tryParse(_weightStr);
+      final w = displayWeight == null ? null : _units.weightToKg(displayWeight);
       if (w == null || w < 30 || w > 650) {
-        _weightError = t.onboarding.msg_err_wt_invalid;
+        _weightError = t.onboarding.msg_err_wt_invalid(
+          arg1: _units.formatWeight(30),
+          arg2: _units.formatWeight(650),
+        );
         valid = false;
       } else {
         _weightError = null;
@@ -196,7 +249,11 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     }
 
     // BodyFat & Measurements
-    _bfError = _validateMeasurement(_bodyFatStr, 3, 100) != null ? t.profile.err_invalid_body_fat : null;
+    final bodyFat = double.tryParse(_bodyFatStr);
+    _bfError = _bodyFatStr.trim().isNotEmpty &&
+            (bodyFat == null || bodyFat < 3 || bodyFat > 100)
+        ? t.profile.err_invalid_body_fat
+        : null;
     _neckError = _validateMeasurement(_neckStr, 10, 500);
     _shouldersError = _validateMeasurement(_shouldersStr, 10, 500);
     _chestError = _validateMeasurement(_chestStr, 10, 500);
@@ -232,24 +289,27 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     }
 
     // Apply raw string values back to domain model safely (Rỗng -> 0)
-    double currentWeight = double.tryParse(_weightStr) ?? _draftProfile.weightInKg;
+    final displayWeight = double.tryParse(_weightStr);
+    final currentWeight = displayWeight == null
+        ? _draftProfile.weightInKg
+        : _units.weightToKg(displayWeight);
     final targetWt = _draftProfile.targetGoalWeightKg ?? currentWeight;
     NutritionGoal newNutritionGoal = NutritionGoal.MAINTAIN_WEIGHT;
     if (targetWt > currentWeight) newNutritionGoal = NutritionGoal.GAIN_WEIGHT;
     if (targetWt < currentWeight) newNutritionGoal = NutritionGoal.LOSE_WEIGHT;
 
     BodyMetrics updatedMetrics = _draftMetrics.copyWith(
-      neckCm: double.tryParse(_neckStr) ?? 0.0,
-      shouldersCm: double.tryParse(_shouldersStr) ?? 0.0,
-      chestCm: double.tryParse(_chestStr) ?? 0.0,
-      waistCm: double.tryParse(_waistStr) ?? 0.0,
-      hipsCm: double.tryParse(_hipsStr) ?? 0.0,
-      bicepsLeftCm: double.tryParse(_bicepsLStr) ?? 0.0,
-      bicepsRightCm: double.tryParse(_bicepsRStr) ?? 0.0,
-      thighLeftCm: double.tryParse(_thighsLStr) ?? 0.0,
-      thighRightCm: double.tryParse(_thighsRStr) ?? 0.0,
-      calfLeftCm: double.tryParse(_calvesLStr) ?? 0.0,
-      calfRightCm: double.tryParse(_calvesRStr) ?? 0.0,
+      neckCm: _units.bodyLengthToCm(double.tryParse(_neckStr) ?? 0.0),
+      shouldersCm: _units.bodyLengthToCm(double.tryParse(_shouldersStr) ?? 0.0),
+      chestCm: _units.bodyLengthToCm(double.tryParse(_chestStr) ?? 0.0),
+      waistCm: _units.bodyLengthToCm(double.tryParse(_waistStr) ?? 0.0),
+      hipsCm: _units.bodyLengthToCm(double.tryParse(_hipsStr) ?? 0.0),
+      bicepsLeftCm: _units.bodyLengthToCm(double.tryParse(_bicepsLStr) ?? 0.0),
+      bicepsRightCm: _units.bodyLengthToCm(double.tryParse(_bicepsRStr) ?? 0.0),
+      thighLeftCm: _units.bodyLengthToCm(double.tryParse(_thighsLStr) ?? 0.0),
+      thighRightCm: _units.bodyLengthToCm(double.tryParse(_thighsRStr) ?? 0.0),
+      calfLeftCm: _units.bodyLengthToCm(double.tryParse(_calvesLStr) ?? 0.0),
+      calfRightCm: _units.bodyLengthToCm(double.tryParse(_calvesRStr) ?? 0.0),
     );
 
     double? newBodyFat = double.tryParse(_bodyFatStr);
@@ -259,7 +319,7 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
 
     return _draftProfile.copyWith(
       userAge: int.tryParse(_ageStr) ?? _draftProfile.userAge,
-      heightInCm: double.tryParse(_heightStr) ?? _draftProfile.heightInCm,
+      heightInCm: _parsedHeightCm ?? _draftProfile.heightInCm,
       weightInKg: currentWeight,
       bodyFatPercentage: newBodyFat,
       reportedInjuries: finalInjuries,
@@ -277,10 +337,22 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     final initialAgeStr = original.userAge > 0 ? original.userAge.toString() : "";
     if (_ageStr != initialAgeStr) return true;
 
-    final initialHeightStr = original.heightInCm > 0 ? _formatDouble(original.heightInCm) : "";
-    if (_heightStr != initialHeightStr) return true;
+    final originalUnits = MeasurementFormatter(original.measurementPreferences);
+    if (original.measurementPreferences.bodyLength == BodyLengthUnit.metric) {
+      final initialHeightStr = original.heightInCm > 0
+          ? _formatDouble(originalUnits.bodyLengthFromCm(original.heightInCm))
+          : "";
+      if (_heightStr != initialHeightStr) return true;
+    } else {
+      final totalInches =
+          original.heightInCm * MeasurementFormatter.inchesPerCentimeter;
+      if (_heightFeetStr != (totalInches ~/ 12).toString()) return true;
+      if (_heightInchesStr != _formatDouble(totalInches % 12)) return true;
+    }
 
-    final initialWeightStr = original.weightInKg > 0 ? _formatDouble(original.weightInKg) : "";
+    final initialWeightStr = original.weightInKg > 0
+        ? _formatDouble(originalUnits.weightFromKg(original.weightInKg))
+        : "";
     if (_weightStr != initialWeightStr) return true;
 
     final initialBodyFatStr = (original.bodyFatPercentage != null && original.bodyFatPercentage! > 0) 
@@ -290,17 +362,19 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
 
     // Compare Body Metrics
     final metrics = original.detailedBodyMetrics;
-    if (_neckStr != (metrics.neckCm > 0 ? _formatDouble(metrics.neckCm) : "")) return true;
-    if (_shouldersStr != (metrics.shouldersCm > 0 ? _formatDouble(metrics.shouldersCm) : "")) return true;
-    if (_chestStr != (metrics.chestCm > 0 ? _formatDouble(metrics.chestCm) : "")) return true;
-    if (_waistStr != (metrics.waistCm > 0 ? _formatDouble(metrics.waistCm) : "")) return true;
-    if (_hipsStr != (metrics.hipsCm > 0 ? _formatDouble(metrics.hipsCm) : "")) return true;
-    if (_bicepsLStr != (metrics.bicepsLeftCm > 0 ? _formatDouble(metrics.bicepsLeftCm) : "")) return true;
-    if (_bicepsRStr != (metrics.bicepsRightCm > 0 ? _formatDouble(metrics.bicepsRightCm) : "")) return true;
-    if (_thighsLStr != (metrics.thighLeftCm > 0 ? _formatDouble(metrics.thighLeftCm) : "")) return true;
-    if (_thighsRStr != (metrics.thighRightCm > 0 ? _formatDouble(metrics.thighRightCm) : "")) return true;
-    if (_calvesLStr != (metrics.calfLeftCm > 0 ? _formatDouble(metrics.calfLeftCm) : "")) return true;
-    if (_calvesRStr != (metrics.calfRightCm > 0 ? _formatDouble(metrics.calfRightCm) : "")) return true;
+    String initialLength(double cm) =>
+        cm > 0 ? _formatDouble(originalUnits.bodyLengthFromCm(cm)) : "";
+    if (_neckStr != initialLength(metrics.neckCm)) return true;
+    if (_shouldersStr != initialLength(metrics.shouldersCm)) return true;
+    if (_chestStr != initialLength(metrics.chestCm)) return true;
+    if (_waistStr != initialLength(metrics.waistCm)) return true;
+    if (_hipsStr != initialLength(metrics.hipsCm)) return true;
+    if (_bicepsLStr != initialLength(metrics.bicepsLeftCm)) return true;
+    if (_bicepsRStr != initialLength(metrics.bicepsRightCm)) return true;
+    if (_thighsLStr != initialLength(metrics.thighLeftCm)) return true;
+    if (_thighsRStr != initialLength(metrics.thighRightCm)) return true;
+    if (_calvesLStr != initialLength(metrics.calfLeftCm)) return true;
+    if (_calvesRStr != initialLength(metrics.calfRightCm)) return true;
 
     // Compare enum and non-string fields in draftProfile
     if (original.displayName != _draftProfile.displayName) return true;
@@ -434,9 +508,12 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
       "profile.diet_plan_dash",
     ];
 
-    double currentWeight = double.tryParse(_weightStr) ?? _draftProfile.weightInKg;
-    double heightMeters = double.tryParse(_heightStr) ?? _draftProfile.heightInCm;
-    heightMeters = heightMeters > 0 ? heightMeters / 100 : 1.0;
+    final displayWeight = double.tryParse(_weightStr);
+    final currentWeight = displayWeight == null
+        ? _draftProfile.weightInKg
+        : _units.weightToKg(displayWeight);
+    final heightCm = _parsedHeightCm ?? _draftProfile.heightInCm;
+    final heightMeters = heightCm > 0 ? heightCm / 100 : 1.0;
     
     double currentBMI = (_draftProfile.targetGoalWeightKg ?? currentWeight) / math.pow(heightMeters, 2);
 
@@ -547,22 +624,59 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                child: _ProfileTextField(
-                  label: t.profile.metric_height, 
-                  value: _heightStr, 
-                  isNumber: true, 
-                  errorText: _heightError,
-                  onChanged: (v) => setState(() {
-                    _heightStr = v;
-                    _validateForm();
-                  })
+              if (_draftProfile.measurementPreferences.bodyLength ==
+                  BodyLengthUnit.metric)
+                Expanded(
+                  child: _ProfileTextField(
+                    label: t.profile.metric_height(unit: _units.heightUnit),
+                    value: _heightStr,
+                    isNumber: true,
+                    errorText: _heightError,
+                    onChanged: (v) => setState(() {
+                      _heightStr = v;
+                      _validateForm();
+                    }),
+                  ),
                 )
-              ),
+              else
+                Expanded(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: _ProfileTextField(
+                          label: t.profile.metric_height(
+                            unit: t.common.unit_ft,
+                          ),
+                          value: _heightFeetStr,
+                          isNumber: true,
+                          isInteger: true,
+                          errorText: _heightError,
+                          onChanged: (v) => setState(() {
+                            _heightFeetStr = v;
+                            _validateForm();
+                          }),
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      Expanded(
+                        child: _ProfileTextField(
+                          label: t.common.unit_in,
+                          value: _heightInchesStr,
+                          isNumber: true,
+                          onChanged: (v) => setState(() {
+                            _heightInchesStr = v;
+                            _validateForm();
+                          }),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               const SizedBox(width: 12),
               Expanded(
                 child: _ProfileTextField(
-                  label: t.profile.metric_wt, 
+                  label: t.profile.metric_wt(unit: _units.weightUnit),
                   value: _weightStr, 
                   isNumber: true, 
                   errorText: _weightError,
@@ -624,7 +738,7 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
                 );
               },
               child: Text(
-                t.onboarding.fmt_kg(arg1: _formatDouble(_draftProfile.targetGoalWeightKg ?? currentWeight)), 
+                 _units.formatWeight(_draftProfile.targetGoalWeightKg ?? currentWeight),
                 style: TextStyle(color: Theme.of(context).gymColors.success, fontSize: 42, fontWeight: FontWeight.bold), 
                 textAlign: TextAlign.center
               ),
@@ -635,6 +749,7 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
             value: _draftProfile.targetGoalWeightKg ?? currentWeight,
             minWeight: 30.0,
             maxWeight: 650.0,
+             formatter: _units,
             onChanged: (v) => setState(() => _draftProfile = _draftProfile.copyWith(targetGoalWeightKg: double.parse(v.toStringAsFixed(1)))),
           )
         ],
@@ -649,19 +764,19 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
           Row(children: [
             Expanded(child: _ProfileTextField(label: t.profile.metric_body_fat, value: _bodyFatStr, errorText: _bfError, isNumber: true, onChanged: (v) => setState(() { _bodyFatStr = v; _validateForm(); }))),
             const SizedBox(width: 16),
-            Expanded(child: _ProfileTextField(label: t.profile.measure_neck, value: _neckStr, errorText: _neckError, isNumber: true, onChanged: (v) => setState(() { _neckStr = v; _validateForm(); }))),
+            Expanded(child: _ProfileTextField(label: t.profile.measure_neck(unit: _units.bodyLengthUnit), value: _neckStr, errorText: _neckError, isNumber: true, onChanged: (v) => setState(() { _neckStr = v; _validateForm(); }))),
           ]),
           const SizedBox(height: 16),
           Row(children: [
-            Expanded(child: _ProfileTextField(label: t.profile.measure_shoulders, value: _shouldersStr, errorText: _shouldersError, isNumber: true, onChanged: (v) => setState(() { _shouldersStr = v; _validateForm(); }))),
+            Expanded(child: _ProfileTextField(label: t.profile.measure_shoulders(unit: _units.bodyLengthUnit), value: _shouldersStr, errorText: _shouldersError, isNumber: true, onChanged: (v) => setState(() { _shouldersStr = v; _validateForm(); }))),
             const SizedBox(width: 16),
-            Expanded(child: _ProfileTextField(label: t.profile.measure_chest, value: _chestStr, errorText: _chestError, isNumber: true, onChanged: (v) => setState(() { _chestStr = v; _validateForm(); }))),
+            Expanded(child: _ProfileTextField(label: t.profile.measure_chest(unit: _units.bodyLengthUnit), value: _chestStr, errorText: _chestError, isNumber: true, onChanged: (v) => setState(() { _chestStr = v; _validateForm(); }))),
           ]),
           const SizedBox(height: 16),
           Row(children: [
-            Expanded(child: _ProfileTextField(label: t.profile.measure_waist, value: _waistStr, errorText: _waistError, isNumber: true, onChanged: (v) => setState(() { _waistStr = v; _validateForm(); }))),
+            Expanded(child: _ProfileTextField(label: t.profile.measure_waist(unit: _units.bodyLengthUnit), value: _waistStr, errorText: _waistError, isNumber: true, onChanged: (v) => setState(() { _waistStr = v; _validateForm(); }))),
             const SizedBox(width: 16),
-            Expanded(child: _ProfileTextField(label: t.profile.measure_hips, value: _hipsStr, errorText: _hipsError, isNumber: true, onChanged: (v) => setState(() { _hipsStr = v; _validateForm(); }))),
+            Expanded(child: _ProfileTextField(label: t.profile.measure_hips(unit: _units.bodyLengthUnit), value: _hipsStr, errorText: _hipsError, isNumber: true, onChanged: (v) => setState(() { _hipsStr = v; _validateForm(); }))),
           ]),
           
           Padding(
@@ -669,7 +784,7 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
             child: Divider(color: colorScheme.outlineVariant.withValues(alpha: 0.5), height: 1),
           ),
 
-          Text(t.profile.measure_biceps, style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12)),
+          Text(t.profile.measure_biceps(unit: _units.bodyLengthUnit), style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12)),
           const SizedBox(height: 8),
           Row(children: [
             Expanded(child: _ProfileTextField(label: t.profile.side_left, value: _bicepsLStr, errorText: _bicepsLError, isNumber: true, onChanged: (v) => setState(() { _bicepsLStr = v; _validateForm(); }))),
@@ -678,7 +793,7 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
           ]),
           
           const SizedBox(height: 16),
-          Text(t.profile.measure_thighs, style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12)),
+          Text(t.profile.measure_thighs(unit: _units.bodyLengthUnit), style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12)),
           const SizedBox(height: 8),
           Row(children: [
             Expanded(child: _ProfileTextField(label: t.profile.side_left, value: _thighsLStr, errorText: _thighsLError, isNumber: true, onChanged: (v) => setState(() { _thighsLStr = v; _validateForm(); }))),
@@ -687,7 +802,7 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
           ]),
           
           const SizedBox(height: 16),
-          Text(t.profile.measure_calves, style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12)),
+          Text(t.profile.measure_calves(unit: _units.bodyLengthUnit), style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 12)),
           const SizedBox(height: 8),
           Row(children: [
             Expanded(child: _ProfileTextField(label: t.profile.side_left, value: _calvesLStr, errorText: _calvesLError, isNumber: true, onChanged: (v) => setState(() { _calvesLStr = v; _validateForm(); }))),

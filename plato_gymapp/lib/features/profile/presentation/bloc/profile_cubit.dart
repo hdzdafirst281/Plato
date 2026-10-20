@@ -10,6 +10,7 @@ import '../../../workout/data/repositories/workout_repository.dart';
 import '../../../workout/data/models/workout_models.dart';
 import '../../../gamification/data/repositories/gamification_repository.dart';
 import '../../../../core/database/enums.dart';
+import '../../../../core/utils/measurement_units.dart';
 
 import '../../../nutrition/domain/nutrition_calculator.dart';
 import '../../../nutrition/data/models/nutrition_models.dart';
@@ -118,6 +119,16 @@ class ProfileCubit extends Cubit<ProfileState> {
     final finalized = _authRepo.recalculatePhysiologicalStats(updatedProfileData);
     await _authRepo.saveProfile(finalized);
     emit(state.copyWith(userProfile: finalized));
+  }
+
+  Future<void> updateMeasurementPreferences(
+    MeasurementPreferences preferences,
+  ) async {
+    final updatedProfile = state.userProfile.copyWith(
+      measurementPreferences: preferences,
+    );
+    await _authRepo.saveProfile(updatedProfile);
+    SyncManager.syncNow(pushOnly: true).ignore();
   }
 
   Future<void> updateAvatar(List<int>? imageBytes) async {
