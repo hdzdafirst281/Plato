@@ -1,31 +1,33 @@
-import 'package:plato_gymapp/core/designsystem/components/gym_snackbar.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:plato_gymapp/i18n/strings.g.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
-import 'package:plato_gymapp/features/gamification/presentation/bloc/gamification_cubit.dart';
-import 'package:plato_gymapp/features/profile/presentation/bloc/stats_cubit.dart';
-import 'package:plato_gymapp/features/profile/presentation/screens/account_management_screen.dart';
-import 'package:plato_gymapp/features/workout/presentation/bloc/workout_cubit.dart';
-import 'package:responsive_framework/responsive_framework.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_motion.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_snackbar.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_top_bar.dart';
+import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
+import 'package:plato_gymapp/core/designsystem/theme/theme_cubit.dart';
+import 'package:plato_gymapp/core/di/injection.dart';
+import 'package:plato_gymapp/core/navigation/app_routes.dart';
+import 'package:plato_gymapp/core/utils/measurement_units.dart';
+import 'package:plato_gymapp/features/auth/presentation/bloc/auth_cubit.dart';
+import 'package:plato_gymapp/features/gamification/presentation/bloc/gamification_cubit.dart';
+import 'package:plato_gymapp/features/notifications/application/notification_coordinator.dart';
+import 'package:plato_gymapp/features/notifications/data/notification_copy.dart';
+import 'package:plato_gymapp/features/notifications/presentation/screens/notification_settings_screen.dart';
+import 'package:plato_gymapp/features/profile/presentation/bloc/profile_cubit.dart';
+import 'package:plato_gymapp/features/profile/presentation/bloc/stats_cubit.dart';
+import 'package:plato_gymapp/features/profile/presentation/screens/about_screen.dart';
+import 'package:plato_gymapp/features/profile/presentation/screens/account_management_screen.dart';
+import 'package:plato_gymapp/features/workout/data/workout_effort_preferences.dart';
+import 'package:plato_gymapp/features/workout/presentation/bloc/workout_cubit.dart';
+import 'package:plato_gymapp/features/workout/presentation/screens/workout_settings_screen.dart';
+import 'package:plato_gymapp/i18n/strings.g.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import '../../../../core/designsystem/components/gym_top_bar.dart';
-import '../../../../core/designsystem/theme/theme_cubit.dart';
-import '../../../../core/navigation/app_routes.dart';
-import '../../../../core/utils/measurement_units.dart';
-import '../../../auth/presentation/bloc/auth_cubit.dart';
-import '../bloc/profile_cubit.dart';
-import '../../../notifications/presentation/screens/notification_settings_screen.dart';
-import '../../../notifications/presentation/screens/notification_diagnostics_screen.dart';
-import '../../../notifications/application/notification_coordinator.dart';
-import '../../../notifications/data/notification_copy.dart';
-import '../../../workout/data/workout_effort_preferences.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -35,8 +37,6 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  int _versionTapCount = 0;
-  DateTime? _lastVersionTapAt;
   bool _advancedEffortEnabled = false;
   EffortInputScale _effortInputScale = EffortInputScale.rpe;
 
@@ -46,14 +46,22 @@ class _SettingsScreenState extends State<SettingsScreen> {
       }) ??
       '$count ${t.settings.lbl_item_notification.toLowerCase()}';
 
+  String get _workoutEffortSubtitle {
+    if (!_advancedEffortEnabled) {
+      return t.settings.desc_item_workout_settings;
+    }
+    final scaleName = _effortInputScale.name.toUpperCase();
+    return '${t.settings.lbl_effort_tracking} ($scaleName)';
+  }
+
   @override
   void initState() {
     super.initState();
     _loadEffortPreferences();
   }
 
-  Future<void> _loadEffortPreferences() async {
-    final prefs = await SharedPreferences.getInstance();
+  void _loadEffortPreferences() {
+    final prefs = getIt<SharedPreferences>();
     if (!mounted) return;
     setState(() {
       _advancedEffortEnabled = WorkoutEffortPreferences.advancedEnabled(prefs);
@@ -61,81 +69,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     });
   }
 
-  Future<void> _setAdvancedEffort(bool enabled) async {
-    setState(() => _advancedEffortEnabled = enabled);
-    final prefs = await SharedPreferences.getInstance();
-    await WorkoutEffortPreferences.setAdvancedEnabled(prefs, enabled);
-  }
-
-  Future<void> _setEffortScale(EffortInputScale scale) async {
-    setState(() => _effortInputScale = scale);
-    final prefs = await SharedPreferences.getInstance();
-    await WorkoutEffortPreferences.setInputScale(prefs, scale);
-  }
-
   void _sendSupportEmail() async {
     final subjectText = t.settings.msg_intent_email_subject;
     final Uri emailLaunchUri = Uri(
       scheme: 'mailto',
       path: 'support.plato@zenithas.vn',
-      // Sử dụng Uri.encodeComponent để mã hóa khoảng trắng thành '%20' thay vì '+'
       query: 'subject=${Uri.encodeComponent(subjectText)}',
     );
 
     if (!await launchUrl(emailLaunchUri)) {
       debugPrint('Không thể mở ứng dụng Email');
-    }
-  }
-
-  void _handleVersionTap() {
-    final now = DateTime.now();
-    if (_lastVersionTapAt == null ||
-        now.difference(_lastVersionTapAt!) > const Duration(seconds: 5)) {
-      _versionTapCount = 0;
-    }
-    _lastVersionTapAt = now;
-    _versionTapCount++;
-    if (_versionTapCount < 7) return;
-    _versionTapCount = 0;
-    _lastVersionTapAt = null;
-    Navigator.of(context, rootNavigator: false).push(
-      MaterialPageRoute<void>(
-        builder: (_) => const NotificationDiagnosticsScreen(),
-      ),
-    );
-  }
-
-  void _launchSocialUrl(String webUrl, {String? nativeUrl}) async {
-    if (webUrl.isEmpty) return;
-
-    // 1. Thử mở bằng Native App URL (custom scheme như fb://, instagram://) nếu được cung cấp
-    if (nativeUrl != null && nativeUrl.isNotEmpty) {
-      final Uri nativeUri = Uri.parse(nativeUrl);
-      try {
-        if (await launchUrl(nativeUri, mode: LaunchMode.externalApplication)) {
-          return; // Thành công mở qua custom scheme
-        }
-      } catch (e) {
-        debugPrint('Lỗi mở nativeUrl: $e');
-      }
-    }
-
-    // 2. Thử mở Universal Link (ép mở app qua link https, không dùng trình duyệt)
-    final Uri webUri = Uri.parse(webUrl);
-    try {
-      if (await launchUrl(
-        webUri,
-        mode: LaunchMode.externalNonBrowserApplication,
-      )) {
-        return; // Thành công mở qua app (Universal Link/App Link)
-      }
-    } catch (e) {
-      debugPrint('Lỗi mở externalNonBrowserApplication: $e');
-    }
-
-    // 3. Fallback cuối cùng: Mở bằng trình duyệt web
-    if (!await launchUrl(webUri, mode: LaunchMode.externalApplication)) {
-      debugPrint('Không thể mở liên kết: $webUrl');
     }
   }
 
@@ -162,9 +105,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   : null,
               onTap: () {
                 LocaleSettings.setLocaleRaw("vi");
-                SharedPreferences.getInstance().then(
-                  (prefs) => prefs.setString('app_lang', 'vi'),
-                );
+                getIt<SharedPreferences>().setString('app_lang', 'vi');
                 Navigator.of(context, rootNavigator: false).pop();
               },
             ),
@@ -178,9 +119,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   : null,
               onTap: () {
                 LocaleSettings.setLocaleRaw("en");
-                SharedPreferences.getInstance().then(
-                  (prefs) => prefs.setString('app_lang', 'en'),
-                );
+                getIt<SharedPreferences>().setString('app_lang', 'en');
                 Navigator.of(context, rootNavigator: false).pop();
               },
             ),
@@ -204,14 +143,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
     MeasurementPreferences current,
   ) {
     var draft = current;
+    final colorScheme = Theme.of(context).colorScheme;
 
     GymDialog.showCustom(
       context: context,
       useRootNavigator: false,
       titleWidget: Text(
         t.settings.title_measurement_units,
-        style: const TextStyle(fontWeight: FontWeight.bold),
+        style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
       ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
       content: StatefulBuilder(
         builder: (context, setDialogState) {
           Widget unitChoice({
@@ -230,6 +171,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 SizedBox(
                   width: double.infinity,
                   child: SegmentedButton<bool>(
+                    style: SegmentedButton.styleFrom(
+                      selectedBackgroundColor: colorScheme.primary,
+                      selectedForegroundColor: colorScheme.onPrimary,
+                    ),
                     segments: [
                       ButtonSegment(value: false, label: Text(metricLabel)),
                       ButtonSegment(value: true, label: Text(imperialLabel)),
@@ -244,110 +189,143 @@ class _SettingsScreenState extends State<SettingsScreen> {
 
           return ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 440),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(t.settings.desc_measurement_units),
-                  const SizedBox(height: 20),
-                  unitChoice(
-                    label: t.settings.lbl_weight_unit,
-                    metricLabel: t.common.unit_kg,
-                    imperialLabel: t.common.unit_lb,
-                    imperial: draft.weight == WeightUnit.pound,
-                    onChanged: (imperial) => setDialogState(
-                      () => draft = draft.copyWith(
-                        weight: imperial
-                            ? WeightUnit.pound
-                            : WeightUnit.kilogram,
-                      ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  t.settings.desc_measurement_units,
+                  style: TextStyle(
+                    color: colorScheme.onSurfaceVariant,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 20),
+                unitChoice(
+                  label: t.settings.lbl_weight_unit,
+                  metricLabel: t.common.unit_kg,
+                  imperialLabel: t.common.unit_lb,
+                  imperial: draft.weight == WeightUnit.pound,
+                  onChanged: (imperial) => setDialogState(
+                    () => draft = draft.copyWith(
+                      weight: imperial
+                          ? WeightUnit.pound
+                          : WeightUnit.kilogram,
                     ),
                   ),
-                  unitChoice(
-                    label: t.settings.lbl_hydration_unit,
-                    metricLabel: t.common.unit_l,
-                    imperialLabel: t.common.unit_us_gal,
-                    imperial: draft.hydration == HydrationUnit.usGallon,
-                    onChanged: (imperial) => setDialogState(
-                      () => draft = draft.copyWith(
-                        hydration: imperial
-                            ? HydrationUnit.usGallon
-                            : HydrationUnit.liter,
-                      ),
+                ),
+                unitChoice(
+                  label: t.settings.lbl_hydration_unit,
+                  metricLabel: t.common.unit_l,
+                  imperialLabel: t.common.unit_us_gal,
+                  imperial: draft.hydration == HydrationUnit.usGallon,
+                  onChanged: (imperial) => setDialogState(
+                    () => draft = draft.copyWith(
+                      hydration: imperial
+                          ? HydrationUnit.usGallon
+                          : HydrationUnit.liter,
                     ),
                   ),
-                  unitChoice(
-                    label: t.settings.lbl_distance_unit,
-                    metricLabel: t.common.unit_km,
-                    imperialLabel: t.common.unit_mi,
-                    imperial: draft.distance == DistanceUnit.mile,
-                    onChanged: (imperial) => setDialogState(
-                      () => draft = draft.copyWith(
-                        distance: imperial
-                            ? DistanceUnit.mile
-                            : DistanceUnit.kilometer,
-                      ),
+                ),
+                unitChoice(
+                  label: t.settings.lbl_distance_unit,
+                  metricLabel: t.common.unit_km,
+                  imperialLabel: t.common.unit_mi,
+                  imperial: draft.distance == DistanceUnit.mile,
+                  onChanged: (imperial) => setDialogState(
+                    () => draft = draft.copyWith(
+                      distance: imperial
+                          ? DistanceUnit.mile
+                          : DistanceUnit.kilometer,
                     ),
                   ),
-                  unitChoice(
-                    label: t.settings.lbl_body_length_unit,
-                    metricLabel: t.common.unit_cm,
-                    imperialLabel: '${t.common.unit_ft} / ${t.common.unit_in}',
-                    imperial: draft.bodyLength == BodyLengthUnit.imperial,
-                    onChanged: (imperial) => setDialogState(
-                      () => draft = draft.copyWith(
-                        bodyLength: imperial
-                            ? BodyLengthUnit.imperial
-                            : BodyLengthUnit.metric,
-                      ),
+                ),
+                unitChoice(
+                  label: t.settings.lbl_body_length_unit,
+                  metricLabel: t.common.unit_cm,
+                  imperialLabel: '${t.common.unit_ft} / ${t.common.unit_in}',
+                  imperial: draft.bodyLength == BodyLengthUnit.imperial,
+                  onChanged: (imperial) => setDialogState(
+                    () => draft = draft.copyWith(
+                      bodyLength: imperial
+                          ? BodyLengthUnit.imperial
+                          : BodyLengthUnit.metric,
                     ),
                   ),
-                  unitChoice(
-                    label: t.settings.lbl_food_mass_unit,
-                    metricLabel: t.common.unit_g,
-                    imperialLabel: t.common.unit_oz,
-                    imperial: draft.foodMass == FoodMassUnit.ounce,
-                    onChanged: (imperial) => setDialogState(
-                      () => draft = draft.copyWith(
-                        foodMass: imperial
-                            ? FoodMassUnit.ounce
-                            : FoodMassUnit.gram,
-                      ),
+                ),
+                unitChoice(
+                  label: t.settings.lbl_food_mass_unit,
+                  metricLabel: t.common.unit_g,
+                  imperialLabel: t.common.unit_oz,
+                  imperial: draft.foodMass == FoodMassUnit.ounce,
+                  onChanged: (imperial) => setDialogState(
+                    () => draft = draft.copyWith(
+                      foodMass: imperial
+                          ? FoodMassUnit.ounce
+                          : FoodMassUnit.gram,
                     ),
                   ),
-                  Text(
-                    '${t.settings.lbl_speed_unit}: '
-                    '${draft.distance == DistanceUnit.kilometer ? t.common.unit_kmh : t.common.unit_mph}. '
-                    '${t.settings.desc_speed_unit_auto}',
-                    style: Theme.of(context).textTheme.bodySmall,
+                ),
+                Text(
+                  '${t.settings.lbl_speed_unit}: '
+                  '${draft.distance == DistanceUnit.kilometer ? t.common.unit_kmh : t.common.unit_mph}. '
+                  '${t.settings.desc_speed_unit_auto}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    color: colorScheme.onSurfaceVariant,
                   ),
-                ],
-              ),
+                ),
+                const SizedBox(height: 24),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.end,
+                  children: [
+                    TextButton(
+                      onPressed: () => Navigator.of(context, rootNavigator: false).pop(),
+                      child: Text(
+                        t.common.cancel,
+                        style: TextStyle(
+                          color: colorScheme.onSurfaceVariant,
+                          fontSize: 15,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: colorScheme.primary,
+                        foregroundColor: colorScheme.onPrimary,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onPressed: () async {
+                        await context
+                            .read<ProfileCubit>()
+                            .updateMeasurementPreferences(draft);
+                        if (!context.mounted) return;
+                        Navigator.of(context, rootNavigator: false).pop();
+                        GymSnackbar.show(
+                          context,
+                          message: t.settings.msg_measurement_units_saved,
+                          icon: Symbols.check_circle,
+                          accentColor: colorScheme.primary,
+                        );
+                      },
+                      child: Text(
+                        t.common.save,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
             ),
           );
         },
       ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context).pop(),
-          child: Text(t.common.cancel),
-        ),
-        FilledButton(
-          onPressed: () async {
-            await context.read<ProfileCubit>().updateMeasurementPreferences(draft);
-            if (!context.mounted) return;
-            Navigator.of(context).pop();
-            GymSnackbar.show(
-              context,
-              message: t.settings.msg_measurement_units_saved,
-              icon: Symbols.check_circle,
-              accentColor: Theme.of(context).colorScheme.primary,
-            );
-          },
-          child: Text(t.common.save),
-        ),
-      ],
     );
   }
 
@@ -364,7 +342,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     if (confirm == true && context.mounted) {
       await context.read<AuthCubit>().logoutUser();
       if (context.mounted) {
-        // 🚀 CRITIC FIX: Đồng bộ combo dọn RAM giống như màn Delete Account
         context.read<ProfileCubit>().refreshProfile();
         context.read<GamificationCubit>().resetGamification();
         context.read<WorkoutCubit>().resetWorkoutState();
@@ -380,454 +357,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final notificationService = NotificationCoordinator.instance;
-    final currentLang =
-        TranslationProvider.of(context).flutterLocale.languageCode == 'vi'
-        ? "Tiếng Việt"
-        : "English";
-    final isVietnamese =
-        TranslationProvider.of(context).flutterLocale.languageCode == 'vi';
-
-    // Tối ưu Responsive: Tự động nới lỏng padding trên màn hình Tablet/Desktop
-    final itemPadding = ResponsiveValue<EdgeInsets>(
-      context,
-      defaultValue: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
-      conditionalValues: [
-        Condition.largerThan(
-          name: MOBILE,
-          value: const EdgeInsets.symmetric(horizontal: 48, vertical: 12),
-        ),
-      ],
-    ).value;
-
-    final titleStyle = TextStyle(
-      color: colorScheme.onSurface,
-      fontSize: 16,
-      fontWeight: FontWeight.bold,
-    );
-    final subtitleStyle = TextStyle(
-      color: colorScheme.onSurfaceVariant,
-      fontSize: 14,
-    );
-
-    return Scaffold(
-      backgroundColor: colorScheme.surface,
-      appBar: GymTopBar(
-        title: t.settings.title_dialog_main,
-        onBackClick: () => context.pop(),
-      ),
-      body: BlocBuilder<ProfileCubit, ProfileState>(
-        builder: (context, profileState) {
-          final isLinked = profileState.isUserLoggedIn;
-
-          // Tối ưu Cấp độ 1: Center & ConstrainedBox chống dãn tràn layout trên màn hình rộng
-          return Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 800),
-              child: SingleChildScrollView(
-                physics: const BouncingScrollPhysics(),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 16),
-
-                    // 1. Theme Section
-                    ListTile(
-                      contentPadding: itemPadding,
-                      leading: const Icon(Symbols.routine),
-                      title: Text(
-                        t.settings.title_theme_section,
-                        style: titleStyle,
-                      ),
-                      subtitle: BlocBuilder<ThemeCubit, ThemeMode>(
-                        builder: (context, currentThemeMode) {
-                          return Padding(
-                            padding: const EdgeInsets.only(top: 8),
-                            // BỌC THÊM INTRINSIC HEIGHT Ở ĐÂY
-                            child: IntrinsicHeight(
-                              child: Row(
-                                // ÉP CÁC BUTTON BÊN TRONG DÃN ĐỀU CHIỀU CAO
-                                crossAxisAlignment: CrossAxisAlignment.stretch,
-                                children: [
-                                  Expanded(
-                                    child: _buildThemeButton(
-                                      context: context,
-                                      mode: ThemeMode.system,
-                                      currentMode: currentThemeMode,
-                                      icon: Symbols.brightness_auto,
-                                      label: t.settings.btn_theme_system,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: _buildThemeButton(
-                                      context: context,
-                                      mode: ThemeMode.light,
-                                      currentMode: currentThemeMode,
-                                      icon: Symbols.light_mode,
-                                      label: t.settings.btn_theme_light,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: _buildThemeButton(
-                                      context: context,
-                                      mode: ThemeMode.dark,
-                                      currentMode: currentThemeMode,
-                                      icon: Symbols.dark_mode,
-                                      label: t.settings.btn_theme_dark,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-
-                    SwitchListTile.adaptive(
-                      contentPadding: itemPadding,
-                      secondary: const Icon(Symbols.speed),
-                      title: Text(
-                        isVietnamese
-                            ? 'Ghi nhận mức độ gắng sức'
-                            : 'Effort tracking',
-                        style: titleStyle,
-                      ),
-                      subtitle: Text(
-                        isVietnamese
-                            ? 'Tùy chọn nâng cao: nhập RPE/RIR cho từng set để tăng độ chính xác Recovery.'
-                            : 'Optional: record RPE/RIR per set for more accurate Recovery.',
-                        style: subtitleStyle,
-                      ),
-                      value: _advancedEffortEnabled,
-                      onChanged: _setAdvancedEffort,
-                    ),
-                    AnimatedSize(
-                      duration: const Duration(milliseconds: 200),
-                      alignment: Alignment.topCenter,
-                      child: !_advancedEffortEnabled
-                          ? const SizedBox.shrink()
-                          : Padding(
-                              padding: EdgeInsets.only(
-                                left: itemPadding.left + 56,
-                                right: itemPadding.right,
-                                bottom: 12,
-                              ),
-                              child: Wrap(
-                                spacing: 8,
-                                runSpacing: 8,
-                                children: EffortInputScale.values
-                                    .map((scale) {
-                                      return ChoiceChip(
-                                        label: Text(scale.name.toUpperCase()),
-                                        selected: _effortInputScale == scale,
-                                        onSelected: (_) =>
-                                            _setEffortScale(scale),
-                                      );
-                                    })
-                                    .toList(growable: false),
-                              ),
-                            ),
-                    ),
-
-                    // 1.5. Notification & Background Settings
-                    ListTile(
-                      contentPadding: itemPadding,
-                      leading: const Icon(Symbols.notifications),
-                      title: Text(
-                        t.settings.lbl_item_notification,
-                        style: titleStyle,
-                      ),
-                      subtitle: notificationService == null
-                          ? Text(
-                              _notificationCountLabel(0),
-                              style: subtitleStyle.copyWith(
-                                color: colorScheme.primary,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            )
-                          : ListenableBuilder(
-                              listenable: notificationService,
-                              builder: (context, _) => Text(
-                                _notificationCountLabel(
-                                  notificationService.enabledCategoryCount,
-                                ),
-                                style: subtitleStyle.copyWith(
-                                  color: colorScheme.primary,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                      trailing: const Icon(Symbols.chevron_right),
-                      onTap: () {
-                        Navigator.of(context, rootNavigator: false).push(
-                          MaterialPageRoute(
-                            builder: (_) => const NotificationSettingsScreen(),
-                          ),
-                        );
-                      },
-                    ),
-
-                    // 2. Account Management Hub
-                    ListTile(
-                      contentPadding: itemPadding,
-                      onTap: () {
-                        Navigator.of(context, rootNavigator: false).push(
-                          MaterialPageRoute(
-                            builder: (_) => const AccountManagementScreen(),
-                          ),
-                        );
-                      },
-                      leading: Icon(Symbols.manage_accounts),
-                      title: Text(
-                        t.settings.title_account_management,
-                        style: titleStyle,
-                      ),
-                      subtitle: Text(
-                        isLinked
-                            ? t.settings.msg_auth_linked
-                            : t.settings.msg_auth_unlinked,
-                        style: TextStyle(
-                          color: isLinked
-                              ? Theme.of(context).gymColors.success
-                              : colorScheme.onSurfaceVariant,
-                          fontSize: 13,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                      trailing: const Icon(Symbols.chevron_right),
-                    ),
-
-                    // 3. Tutorial
-                    ListTile(
-                      contentPadding: itemPadding,
-                      leading: SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: OverflowBox(
-                          maxWidth: 28,
-                          maxHeight: 28,
-                          child: SvgPicture.asset(
-                            'assets/svg/icons/tutorial.svg',
-                            width: 28,
-                            height: 28,
-                            colorFilter: ColorFilter.mode(
-                              colorScheme.onSurfaceVariant,
-                              BlendMode.srcIn,
-                            ),
-                          ),
-                        ),
-                      ),
-                      title: Text(t.common.tutorial_title, style: titleStyle),
-                      subtitle: Text(
-                        t.settings.desc_item_tutorial,
-                        style: subtitleStyle,
-                      ),
-                      trailing: const Icon(Symbols.chevron_right),
-                      onTap: () =>
-                          context.push('/profile/${AppRoutes.tutorial}'),
-                    ),
-
-                    // 4. Language
-                    ListTile(
-                      contentPadding: itemPadding,
-                      leading: const Icon(Symbols.language),
-                      title: Text(
-                        t.settings.lbl_item_language,
-                        style: titleStyle,
-                      ),
-                      subtitle: Text(currentLang, style: subtitleStyle),
-                      trailing: const Icon(Symbols.chevron_right),
-                      onTap: () => _showLanguageDialog(context),
-                    ),
-
-                    ListTile(
-                      contentPadding: itemPadding,
-                      leading: const Icon(Symbols.straighten),
-                      title: Text(
-                        t.settings.title_measurement_units,
-                        style: titleStyle,
-                      ),
-                      subtitle: Text(
-                        (() {
-                          final units = MeasurementFormatter(
-                            profileState.userProfile.measurementPreferences,
-                          );
-                          return '${units.weightUnit} · ${units.hydrationUnit} · '
-                              '${units.distanceUnit} · ${units.bodyLengthUnit} · '
-                              '${units.foodMassUnit}';
-                        })(),
-                        style: subtitleStyle,
-                      ),
-                      trailing: const Icon(Symbols.chevron_right),
-                      onTap: () => _showMeasurementUnitsDialog(
-                        context,
-                        profileState.userProfile.measurementPreferences,
-                      ),
-                    ),
-
-                    // 5. Contact & Help
-                    ListTile(
-                      contentPadding: itemPadding,
-                      leading: const Icon(Symbols.mail),
-                      title: Text(
-                        t.settings.lbl_item_contact,
-                        style: titleStyle,
-                      ),
-                      subtitle: Text(
-                        "support.plato@zenithas.vn",
-                        style: subtitleStyle,
-                      ),
-                      trailing: const Icon(Symbols.chevron_right),
-                      onTap: _sendSupportEmail,
-                    ),
-
-                    // 6. Terms of Use
-                    ListTile(
-                      contentPadding: itemPadding,
-                      leading: const Icon(Symbols.description),
-                      title: Text(
-                        t.onboarding.lbl_terms_link,
-                        style: titleStyle,
-                      ),
-                      subtitle: Text(
-                        t.settings.desc_terms_link,
-                        style: subtitleStyle,
-                      ),
-                      trailing: const Icon(Symbols.chevron_right),
-                      onTap: () => _showTermsDialog(context),
-                    ),
-
-                    // 7. EULA Agreement
-                    ListTile(
-                      contentPadding: itemPadding,
-                      leading: const Icon(Symbols.contract),
-                      title: Text(
-                        t.onboarding.lbl_eula_link,
-                        style: titleStyle,
-                      ),
-                      subtitle: Text(
-                        t.settings.desc_eula_link,
-                        style: subtitleStyle,
-                      ),
-                      trailing: const Icon(Symbols.chevron_right),
-                      onTap: () => _showEulaDialog(context),
-                    ),
-
-                    // 8. Version
-                    ListTile(
-                      contentPadding: itemPadding,
-                      leading: const Icon(Symbols.info),
-                      title: Text(
-                        t.settings.lbl_item_version,
-                        style: titleStyle,
-                      ),
-                      subtitle: Text("1.1.1", style: subtitleStyle),
-                      onTap: _handleVersionTap,
-                    ),
-
-                    // 9. Đăng xuất
-                    if (isLinked) ...[
-                      ListTile(
-                        contentPadding: itemPadding,
-                        leading: Icon(Symbols.logout, color: colorScheme.error),
-                        title: Text(
-                          t.common.logout,
-                          style: titleStyle.copyWith(color: colorScheme.error),
-                        ),
-                        onTap: () => _handleLogout(context),
-                      ),
-                    ],
-
-                    const SizedBox(height: 32),
-
-                    // 10. SOCIAL LINKS SECTION
-                    Center(
-                      child: Column(
-                        children: [
-                          Text(
-                            t.common.about_us,
-                            style: TextStyle(
-                              color: colorScheme.onSurfaceVariant,
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              _buildSocialIcon(
-                                FaIcon(
-                                  FontAwesomeIcons.instagram,
-                                  size: 22,
-                                  color: colorScheme.onSurface,
-                                ),
-                                colorScheme,
-                                () => _launchSocialUrl(
-                                  'https://www.instagram.com/plato.zenithas/',
-                                  nativeUrl:
-                                      'instagram://user?username=plato.zenithas',
-                                ),
-                              ),
-                              const SizedBox(width: 20),
-                              _buildSocialIcon(
-                                FaIcon(
-                                  FontAwesomeIcons.facebookF,
-                                  size: 22,
-                                  color: colorScheme.onSurface,
-                                ),
-                                colorScheme,
-                                () => _launchSocialUrl(
-                                  'https://www.facebook.com/profile.php?id=61592005979928',
-                                  nativeUrl: 'fb://profile/61592005979928',
-                                ),
-                              ),
-                              const SizedBox(width: 20),
-                              _buildSocialIcon(
-                                FaIcon(
-                                  FontAwesomeIcons.threads,
-                                  size: 22,
-                                  color: colorScheme.onSurface,
-                                ),
-                                colorScheme,
-                                () => _launchSocialUrl(
-                                  'https://www.threads.com/@plato.zenithas',
-                                ),
-                              ),
-                              const SizedBox(width: 20),
-                              _buildSocialIcon(
-                                FaIcon(
-                                  FontAwesomeIcons.tiktok,
-                                  size: 22,
-                                  color: colorScheme.onSurface,
-                                ),
-                                colorScheme,
-                                () => _launchSocialUrl(
-                                  'https://www.tiktok.com/@plato.zenithas?_r=1&_t=ZS-990YzsfNfXO',
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 64),
-                  ],
-                ),
-              ),
-            ),
-          );
-        },
-      ),
-    );
-  }
-
   Widget _buildThemeButton({
     required BuildContext context,
     required ThemeMode mode,
@@ -841,7 +370,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
     return OutlinedButton(
       onPressed: () => context.read<ThemeCubit>().changeTheme(mode),
       style: OutlinedButton.styleFrom(
-        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 4),
+        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
         backgroundColor: isSelected
             ? colorScheme.primary.withValues(alpha: 0.1)
@@ -869,7 +398,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
             alignment: Alignment.center,
             child: Text(
               label,
-              // [FIX CORE]: Ép Text không được xuống dòng để IntrinsicHeight tính toán chuẩn xác
               maxLines: 1,
               softWrap: false,
               style: TextStyle(
@@ -887,235 +415,367 @@ class _SettingsScreenState extends State<SettingsScreen> {
     );
   }
 
-  Widget _buildSocialIcon(
-    Widget iconWidget,
-    ColorScheme colorScheme,
-    VoidCallback onTap,
-  ) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(24),
-      child: Container(
-        width: 48,
-        height: 48,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    final notificationService = NotificationCoordinator.instance;
+    final currentLang =
+        TranslationProvider.of(context).flutterLocale.languageCode == 'vi'
+        ? "Tiếng Việt"
+        : "English";
+
+    final itemPadding = ResponsiveValue<EdgeInsets>(
+      context,
+      defaultValue: const EdgeInsets.symmetric(horizontal: 24, vertical: 4),
+      conditionalValues: [
+        Condition.largerThan(
+          name: MOBILE,
+          value: const EdgeInsets.symmetric(horizontal: 48, vertical: 8),
         ),
-        child: Center(child: iconWidget),
+      ],
+    ).value;
+
+    final titleStyle = TextStyle(
+      color: colorScheme.onSurface,
+      fontSize: 16,
+      fontWeight: FontWeight.bold,
+    );
+    final subtitleStyle = TextStyle(
+      color: colorScheme.onSurfaceVariant,
+      fontSize: 14,
+    );
+
+    return Scaffold(
+      backgroundColor: colorScheme.surface,
+      appBar: GymTopBar(
+        title: t.settings.title_dialog_main,
+        onBackClick: () => context.pop(),
+      ),
+      body: Center(
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 800),
+          child: SingleChildScrollView(
+            physics: const BouncingScrollPhysics(),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const SizedBox(height: 20),
+
+                // Brand Logo Header (matching presentation from WorkoutScreen)
+                Center(
+                  child: GymEntrance(
+                    offset: const Offset(0, -6),
+                    duration: GymMotion.content,
+                    child: AnimatedSwitcher(
+                      duration: GymMotion.content,
+                      child: Image.asset(
+                        Theme.of(context).brightness == Brightness.dark
+                            ? 'assets/logo/logo_themedark.png'
+                            : 'assets/logo/logo_themelight.png',
+                        key: ValueKey(Theme.of(context).brightness),
+                        height: 40,
+                        cacheHeight: 120,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 14),
+
+                // 1. Account Management Hub (Placed at the top per user request)
+                BlocSelector<ProfileCubit, ProfileState, bool>(
+                  selector: (state) => state.isUserLoggedIn,
+                  builder: (context, isLinked) {
+                    return ListTile(
+                      contentPadding: itemPadding,
+                      onTap: () {
+                        Navigator.of(context, rootNavigator: false).push(
+                          MaterialPageRoute(
+                            builder: (_) => const AccountManagementScreen(),
+                          ),
+                        );
+                      },
+                      leading: const Icon(Symbols.manage_accounts),
+                      title: Text(
+                        t.settings.title_account_management,
+                        style: titleStyle,
+                      ),
+                      subtitle: Text(
+                        isLinked
+                            ? t.settings.msg_auth_linked
+                            : t.settings.msg_auth_unlinked,
+                        style: TextStyle(
+                          color: isLinked
+                              ? Theme.of(context).gymColors.success
+                              : colorScheme.onSurfaceVariant,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      trailing: const Icon(Symbols.chevron_right),
+                    );
+                  },
+                ),
+
+                // 2. Workout Settings
+                ListTile(
+                  contentPadding: itemPadding,
+                  leading: const Icon(Symbols.exercise),
+                  title: Text(
+                    t.settings.lbl_item_workout_settings,
+                    style: titleStyle,
+                  ),
+                  subtitle: Text(
+                    _workoutEffortSubtitle,
+                    style: subtitleStyle.copyWith(
+                      color: _advancedEffortEnabled
+                          ? colorScheme.primary
+                          : colorScheme.onSurfaceVariant,
+                      fontWeight: _advancedEffortEnabled
+                          ? FontWeight.w600
+                          : FontWeight.normal,
+                    ),
+                  ),
+                  trailing: const Icon(Symbols.chevron_right),
+                  onTap: () async {
+                    await Navigator.of(context, rootNavigator: false).push(
+                      MaterialPageRoute(
+                        builder: (_) => const WorkoutSettingsScreen(),
+                      ),
+                    );
+                    _loadEffortPreferences();
+                  },
+                ),
+
+                // 3. Notification & Background Settings
+                ListTile(
+                  contentPadding: itemPadding,
+                  leading: const Icon(Symbols.notifications),
+                  title: Text(
+                    t.settings.lbl_item_notification,
+                    style: titleStyle,
+                  ),
+                  subtitle: notificationService == null
+                      ? Text(
+                          _notificationCountLabel(0),
+                          style: subtitleStyle.copyWith(
+                            color: colorScheme.primary,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        )
+                      : ListenableBuilder(
+                          listenable: notificationService,
+                          builder: (context, _) => Text(
+                            _notificationCountLabel(
+                              notificationService.enabledCategoryCount,
+                            ),
+                            style: subtitleStyle.copyWith(
+                              color: colorScheme.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                  trailing: const Icon(Symbols.chevron_right),
+                  onTap: () {
+                    Navigator.of(context, rootNavigator: false).push(
+                      MaterialPageRoute(
+                        builder: (_) => const NotificationSettingsScreen(),
+                      ),
+                    );
+                  },
+                ),
+
+                // 4. Theme Section
+                ListTile(
+                  contentPadding: itemPadding,
+                  leading: const Icon(Symbols.routine),
+                  title: Text(
+                    t.settings.title_theme_section,
+                    style: titleStyle,
+                  ),
+                  subtitle: BlocBuilder<ThemeCubit, ThemeMode>(
+                    builder: (context, currentThemeMode) {
+                      return Padding(
+                        padding: const EdgeInsets.only(top: 6),
+                        child: IntrinsicHeight(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Expanded(
+                                child: _buildThemeButton(
+                                  context: context,
+                                  mode: ThemeMode.system,
+                                  currentMode: currentThemeMode,
+                                  icon: Symbols.brightness_auto,
+                                  label: t.settings.btn_theme_system,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: _buildThemeButton(
+                                  context: context,
+                                  mode: ThemeMode.light,
+                                  currentMode: currentThemeMode,
+                                  icon: Symbols.light_mode,
+                                  label: t.settings.btn_theme_light,
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: _buildThemeButton(
+                                  context: context,
+                                  mode: ThemeMode.dark,
+                                  currentMode: currentThemeMode,
+                                  icon: Symbols.dark_mode,
+                                  label: t.settings.btn_theme_dark,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                ),
+
+                // 5. Measurement Units
+                BlocSelector<ProfileCubit, ProfileState, MeasurementPreferences>(
+                  selector: (state) => state.userProfile.measurementPreferences,
+                  builder: (context, measurementPrefs) {
+                    final units = MeasurementFormatter(measurementPrefs);
+                    final unitsSummary =
+                        '${units.weightUnit} · ${units.hydrationUnit} · '
+                        '${units.distanceUnit} · ${units.bodyLengthUnit} · '
+                        '${units.foodMassUnit}';
+                    return ListTile(
+                      contentPadding: itemPadding,
+                      leading: const Icon(Symbols.straighten),
+                      title: Text(
+                        t.settings.title_measurement_units,
+                        style: titleStyle,
+                      ),
+                      subtitle: Text(unitsSummary, style: subtitleStyle),
+                      trailing: const Icon(Symbols.chevron_right),
+                      onTap: () => _showMeasurementUnitsDialog(
+                        context,
+                        measurementPrefs,
+                      ),
+                    );
+                  },
+                ),
+
+                // 6. Language
+                ListTile(
+                  contentPadding: itemPadding,
+                  leading: const Icon(Symbols.language),
+                  title: Text(
+                    t.settings.lbl_item_language,
+                    style: titleStyle,
+                  ),
+                  subtitle: Text(currentLang, style: subtitleStyle),
+                  trailing: const Icon(Symbols.chevron_right),
+                  onTap: () => _showLanguageDialog(context),
+                ),
+
+                // 7. Tutorial
+                ListTile(
+                  contentPadding: itemPadding,
+                  leading: SizedBox(
+                    width: 24,
+                    height: 24,
+                    child: OverflowBox(
+                      maxWidth: 28,
+                      maxHeight: 28,
+                      child: SvgPicture.asset(
+                        'assets/svg/icons/tutorial.svg',
+                        width: 28,
+                        height: 28,
+                        colorFilter: ColorFilter.mode(
+                          colorScheme.onSurfaceVariant,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                    ),
+                  ),
+                  title: Text(t.common.tutorial_title, style: titleStyle),
+                  subtitle: Text(
+                    t.settings.desc_item_tutorial,
+                    style: subtitleStyle,
+                  ),
+                  trailing: const Icon(Symbols.chevron_right),
+                  onTap: () => context.push('/profile/${AppRoutes.tutorial}'),
+                ),
+
+                // 8. Contact & Help
+                ListTile(
+                  contentPadding: itemPadding,
+                  leading: const Icon(Symbols.mail),
+                  title: Text(
+                    t.settings.lbl_item_contact,
+                    style: titleStyle,
+                  ),
+                  subtitle: Text(
+                    "support.plato@zenithas.vn",
+                    style: subtitleStyle,
+                  ),
+                  trailing: const Icon(Symbols.chevron_right),
+                  onTap: _sendSupportEmail,
+                ),
+
+                // 9. About Plato (Dedicated screen for Terms, EULA, Version diagnostics, and Social Media)
+                ListTile(
+                  contentPadding: itemPadding,
+                  leading: SvgPicture.asset(
+                    'assets/svg/icons/logo_p.svg',
+                    width: 24,
+                    height: 24,
+                    colorFilter: ColorFilter.mode(
+                      colorScheme.onSurfaceVariant,
+                      BlendMode.srcIn,
+                    ),
+                  ),
+                  title: Text(
+                    t.settings.lbl_item_about,
+                    style: titleStyle,
+                  ),
+                  subtitle: Text(
+                    t.settings.desc_item_about,
+                    style: subtitleStyle,
+                  ),
+                  trailing: const Icon(Symbols.chevron_right),
+                  onTap: () {
+                    Navigator.of(context, rootNavigator: false).push(
+                      MaterialPageRoute(
+                        builder: (_) => const AboutScreen(),
+                      ),
+                    );
+                  },
+                ),
+
+                // 10. Logout (If logged in)
+                BlocSelector<ProfileCubit, ProfileState, bool>(
+                  selector: (state) => state.isUserLoggedIn,
+                  builder: (context, isLinked) {
+                    if (!isLinked) return const SizedBox.shrink();
+                    return ListTile(
+                      contentPadding: itemPadding,
+                      leading: Icon(Symbols.logout, color: colorScheme.error),
+                      title: Text(
+                        t.common.logout,
+                        style: titleStyle.copyWith(color: colorScheme.error),
+                      ),
+                      onTap: () => _handleLogout(context),
+                    );
+                  },
+                ),
+
+                const SizedBox(height: 32),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
-}
-
-List<TextSpan> _buildRichSpans(String text, ColorScheme colorScheme) {
-  final String appName = t.app_name;
-  final String brandName = t.company_name;
-  final List<TextSpan> spans = [];
-
-  final regex = RegExp(r'(\{app\}|\{brand\})');
-  final matches = regex.allMatches(text);
-
-  int lastIndex = 0;
-  for (final match in matches) {
-    if (match.start > lastIndex) {
-      spans.add(TextSpan(text: text.substring(lastIndex, match.start)));
-    }
-    final tag = match.group(0);
-    if (tag == '{app}') {
-      spans.add(
-        TextSpan(
-          text: appName,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: colorScheme.onSurface,
-          ),
-        ),
-      );
-    } else if (tag == '{brand}') {
-      spans.add(
-        TextSpan(
-          text: brandName,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: colorScheme.onSurface,
-          ),
-        ),
-      );
-    }
-    lastIndex = match.end;
-  }
-  if (lastIndex < text.length) {
-    spans.add(TextSpan(text: text.substring(lastIndex)));
-  }
-  return spans;
-}
-
-void _showTermsDialog(BuildContext context) {
-  final colorScheme = Theme.of(context).colorScheme;
-  GymDialog.showCustom(
-    context: context,
-    useRootNavigator: false,
-    titleWidget: RichText(
-      text: TextSpan(
-        style: TextStyle(
-          fontWeight: FontWeight.w900,
-          fontSize: 20,
-          color: colorScheme.onSurface,
-        ),
-        children: _buildRichSpans(
-          t.onboarding.title_terms(app: "{app}"),
-          colorScheme,
-        ),
-      ),
-    ),
-    content: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _buildTermsSection(t.onboarding.terms_p1_title, [
-          t.onboarding.terms_p1_desc1(app: "{app}"),
-          t.onboarding.terms_p1_desc2,
-          t.onboarding.terms_p1_desc3(app: "{app}"),
-        ], colorScheme),
-        _buildTermsSection(t.onboarding.terms_p2_title, [
-          t.onboarding.terms_p2_desc1,
-          t.onboarding.terms_p2_desc2,
-          t.onboarding.terms_p2_desc3,
-        ], colorScheme),
-      ],
-    ),
-    actions: [
-      TextButton(
-        onPressed: () => Navigator.of(context, rootNavigator: false).pop(),
-        child: Text(t.common.close),
-      ),
-    ],
-  );
-}
-
-void _showEulaDialog(BuildContext context) {
-  final colorScheme = Theme.of(context).colorScheme;
-  GymDialog.showCustom(
-    context: context,
-    useRootNavigator: false,
-    titleWidget: RichText(
-      text: TextSpan(
-        style: TextStyle(
-          fontWeight: FontWeight.w900,
-          fontSize: 18,
-          color: colorScheme.onSurface,
-        ),
-        children: _buildRichSpans(
-          t.onboarding.title_eula(app: "{app}"),
-          colorScheme,
-        ),
-      ),
-    ),
-    content: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          t.onboarding.eula_updated,
-          style: TextStyle(
-            fontSize: 12,
-            fontStyle: FontStyle.italic,
-            color: colorScheme.onSurfaceVariant,
-          ),
-        ),
-        const SizedBox(height: 12),
-        RichText(
-          text: TextSpan(
-            style: TextStyle(
-              fontSize: 13,
-              height: 1.5,
-              color: colorScheme.onSurfaceVariant,
-            ),
-            children: _buildRichSpans(
-              t.onboarding.eula_intro(app: "{app}", brand: "{brand}"),
-              colorScheme,
-            ),
-          ),
-        ),
-        const SizedBox(height: 16),
-        _buildTermsSection(t.onboarding.eula_p1_title, [
-          t.onboarding.eula_p1_desc(app: "{app}"),
-        ], colorScheme),
-        _buildTermsSection(t.onboarding.eula_p2_title, [
-          t.onboarding.eula_p2_desc1(app: "{app}"),
-          t.onboarding.eula_p2_item1,
-          t.onboarding.eula_p2_item2(app: "{app}", brand: "{brand}"),
-          t.onboarding.eula_p2_item3,
-          t.onboarding.eula_p2_desc2(brand: "{brand}"),
-        ], colorScheme),
-        _buildTermsSection(t.onboarding.eula_p3_title, [
-          t.onboarding.eula_p3_desc1,
-          t.onboarding.eula_p3_item1,
-          t.onboarding.eula_p3_item2(app: "{app}"),
-          t.onboarding.eula_p3_item3,
-        ], colorScheme),
-        _buildTermsSection(t.onboarding.eula_p4_title, [
-          t.onboarding.eula_p4_desc,
-        ], colorScheme),
-        _buildTermsSection(t.onboarding.eula_p5_title, [
-          t.onboarding.eula_p5_item1(app: "{app}"),
-          t.onboarding.eula_p5_item2,
-          t.onboarding.eula_p5_item3,
-        ], colorScheme),
-        _buildTermsSection(t.onboarding.eula_p6_title, [
-          t.onboarding.eula_p6_desc,
-        ], colorScheme),
-      ],
-    ),
-    actions: [
-      TextButton(
-        onPressed: () => Navigator.of(context, rootNavigator: false).pop(),
-        child: Text(
-          t.common.close,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: colorScheme.primary,
-          ),
-        ),
-      ),
-    ],
-  );
-}
-
-Widget _buildTermsSection(
-  String title,
-  List<String> paragraphs,
-  ColorScheme colorScheme,
-) {
-  return Padding(
-    padding: const EdgeInsets.only(bottom: 24.0),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-            color: colorScheme.primary,
-          ),
-        ),
-        const SizedBox(height: 8),
-        ...paragraphs.map(
-          (p) => Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: RichText(
-              text: TextSpan(
-                style: TextStyle(
-                  fontSize: 14,
-                  height: 1.5,
-                  color: colorScheme.onSurfaceVariant,
-                ),
-                children: _buildRichSpans(p, colorScheme),
-              ),
-            ),
-          ),
-        ),
-      ],
-    ),
-  );
 }

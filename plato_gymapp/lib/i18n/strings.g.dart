@@ -4,9 +4,9 @@
 /// To regenerate, run: `dart run slang`
 ///
 /// Locales: 2
-/// Strings: 2906 (1453 per locale)
+/// Strings: 2944 (1472 per locale)
 ///
-/// Built on 2026-10-19 at 09:17 UTC
+/// Built on 2026-10-20 at 15:12 UTC
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -1290,8 +1290,6 @@ class _StringsSettingsEn {
 	String get lbl_speed_unit => 'Speed';
 	String get lbl_body_length_unit => 'Body measurements';
 	String get lbl_food_mass_unit => 'Food mass';
-	String get option_metric => 'Metric';
-	String get option_imperial => 'Imperial (US)';
 	String get desc_speed_unit_auto => 'Speed follows your distance unit.';
 	String get msg_measurement_units_saved => 'Measurement units updated.';
 	String get desc_item_tutorial => 'Review feature tutorial videos';
@@ -1314,6 +1312,27 @@ class _StringsSettingsEn {
 	String get tutorial_workout_title => 'Manage your workout routine';
 	String get desc_eula_link => 'End user license agreement and usage rights';
 	String get desc_terms_link => 'Terms of Use and Privacy Policy';
+	String get lbl_item_workout_settings => 'Workout Settings';
+	String get desc_item_workout_settings => 'Customize RPE/RIR, workout progress';
+	String get title_workout_settings => 'Workout Settings';
+	String get section_effort_tracking => 'Effort Tracking';
+	String get lbl_effort_tracking => 'Effort tracking';
+	String get desc_effort_tracking => 'Optional: record RPE/RIR per set for more accurate Recovery.';
+	String get lbl_effort_scale => 'Effort Scale';
+	String get desc_effort_scale => 'Choose your preferred scale when recording set intensity.';
+	String get lbl_scale_rpe => 'RPE (1 - 10)';
+	String get lbl_scale_rir => 'RIR (0 - 5+)';
+	String get title_rpe_info => 'RPE Scale (Rating of Perceived Exertion)';
+	String get desc_rpe_info => 'Rate effort intensity on a scale from 1 to 10:\n• RPE 10: Maximum effort, no reps left\n• RPE 9: 1 rep left in reserve\n• RPE 8: 2 reps left in reserve\n• RPE 7: 3 reps left in reserve';
+	String get title_rir_info => 'RIR Scale (Reps in Reserve)';
+	String get desc_rir_info => 'Number of reps you could still perform before failure:\n• RIR 0: Complete muscle failure (0 reps left)\n• RIR 1: Exactly 1 rep left in reserve\n• RIR 2: 2 reps left in reserve\n• RIR 3+: Light to moderate intensity';
+	String get title_workout_bg => 'Background & Progress';
+	String get title_workout_guide => 'Recovery Optimization';
+	String get desc_workout_guide => 'Effort metrics help Plato accurately calculate muscle Recovery and Strain scores for your body.';
+	String get lbl_item_about => 'About Plato';
+	String get desc_item_about => 'Version, Terms & Social';
+	String get title_about_screen => 'About Plato';
+	String get desc_about_plato => 'Smart workout & nutrition companion';
 }
 
 // Path: stats
@@ -2981,8 +3000,6 @@ class _StringsSettingsVi extends _StringsSettingsEn {
 	@override String get lbl_speed_unit => 'Vận tốc';
 	@override String get lbl_body_length_unit => 'Số đo cơ thể';
 	@override String get lbl_food_mass_unit => 'Khối lượng thực phẩm';
-	@override String get option_metric => 'Hệ mét';
-	@override String get option_imperial => 'Hệ Anh (Mỹ)';
 	@override String get desc_speed_unit_auto => 'Đơn vị vận tốc tự động theo đơn vị quãng đường.';
 	@override String get msg_measurement_units_saved => 'Đã cập nhật đơn vị đo lường.';
 	@override String get desc_item_tutorial => 'Xem lại các video hướng dẫn tính năng';
@@ -3005,6 +3022,27 @@ class _StringsSettingsVi extends _StringsSettingsEn {
 	@override String get tutorial_workout_title => 'Quản lý chương trình tập';
 	@override String get desc_eula_link => 'Thỏa thuận cấp phép và quyền sử dụng';
 	@override String get desc_terms_link => 'Điều khoản và Chính sách bảo mật';
+	@override String get lbl_item_workout_settings => 'Cài đặt buổi tập';
+	@override String get desc_item_workout_settings => 'Tùy chỉnh RPE/RIR, tiến trình tập luyện';
+	@override String get title_workout_settings => 'Cài đặt tập luyện';
+	@override String get section_effort_tracking => 'Mức độ gắng sức';
+	@override String get lbl_effort_tracking => 'Ghi nhận mức độ gắng sức';
+	@override String get desc_effort_tracking => 'Tùy chọn nâng cao: nhập RPE/RIR cho từng set để tăng độ chính xác Recovery.';
+	@override String get lbl_effort_scale => 'Thang đo gắng sức';
+	@override String get desc_effort_scale => 'Chọn định dạng bạn muốn dùng khi ghi nhận cường độ mỗi hiệp.';
+	@override String get lbl_scale_rpe => 'RPE (1 - 10)';
+	@override String get lbl_scale_rir => 'RIR (0 - 5+)';
+	@override String get title_rpe_info => 'Thang đo RPE (Rating of Perceived Exertion)';
+	@override String get desc_rpe_info => 'Đánh giá mức độ nặng theo thang điểm 1 đến 10:\n• RPE 10: Hết sức, không thể làm thêm rep nào\n• RPE 9: Còn sức thực hiện đúng 1 rep\n• RPE 8: Còn sức thực hiện thêm 2 reps\n• RPE 7: Còn sức thực hiện thêm 3 reps';
+	@override String get title_rir_info => 'Thang đo RIR (Reps in Reserve)';
+	@override String get desc_rir_info => 'Số lần lặp bạn còn có thể làm được trước khi kiệt sức:\n• RIR 0: Thất bại hoàn toàn (không còn rep nào)\n• RIR 1: Còn sức cho đúng 1 rep nữa\n• RIR 2: Còn sức cho 2 reps nữa\n• RIR 3+: Mức tạ tương đối nhẹ nhàng';
+	@override String get title_workout_bg => 'Chạy nền & Tiến trình';
+	@override String get title_workout_guide => 'Tối ưu hóa phục hồi';
+	@override String get desc_workout_guide => 'Dữ liệu gắng sức giúp Plato tính toán điểm Phục hồi (Recovery) và Tải trọng (Strain) chính xác hơn cho cơ bắp của bạn.';
+	@override String get lbl_item_about => 'Về Plato';
+	@override String get desc_item_about => 'Phiên bản, Điều khoản & Mạng xã hội';
+	@override String get title_about_screen => 'Giới thiệu về Plato';
+	@override String get desc_about_plato => 'Ứng dụng đồng hành tập luyện & dinh dưỡng thông minh';
 }
 
 // Path: stats
@@ -4487,8 +4525,6 @@ extension on Translations {
 			case 'settings.lbl_speed_unit': return 'Speed';
 			case 'settings.lbl_body_length_unit': return 'Body measurements';
 			case 'settings.lbl_food_mass_unit': return 'Food mass';
-			case 'settings.option_metric': return 'Metric';
-			case 'settings.option_imperial': return 'Imperial (US)';
 			case 'settings.desc_speed_unit_auto': return 'Speed follows your distance unit.';
 			case 'settings.msg_measurement_units_saved': return 'Measurement units updated.';
 			case 'settings.desc_item_tutorial': return 'Review feature tutorial videos';
@@ -4511,6 +4547,27 @@ extension on Translations {
 			case 'settings.tutorial_workout_title': return 'Manage your workout routine';
 			case 'settings.desc_eula_link': return 'End user license agreement and usage rights';
 			case 'settings.desc_terms_link': return 'Terms of Use and Privacy Policy';
+			case 'settings.lbl_item_workout_settings': return 'Workout Settings';
+			case 'settings.desc_item_workout_settings': return 'Customize RPE/RIR, workout progress';
+			case 'settings.title_workout_settings': return 'Workout Settings';
+			case 'settings.section_effort_tracking': return 'Effort Tracking';
+			case 'settings.lbl_effort_tracking': return 'Effort tracking';
+			case 'settings.desc_effort_tracking': return 'Optional: record RPE/RIR per set for more accurate Recovery.';
+			case 'settings.lbl_effort_scale': return 'Effort Scale';
+			case 'settings.desc_effort_scale': return 'Choose your preferred scale when recording set intensity.';
+			case 'settings.lbl_scale_rpe': return 'RPE (1 - 10)';
+			case 'settings.lbl_scale_rir': return 'RIR (0 - 5+)';
+			case 'settings.title_rpe_info': return 'RPE Scale (Rating of Perceived Exertion)';
+			case 'settings.desc_rpe_info': return 'Rate effort intensity on a scale from 1 to 10:\n• RPE 10: Maximum effort, no reps left\n• RPE 9: 1 rep left in reserve\n• RPE 8: 2 reps left in reserve\n• RPE 7: 3 reps left in reserve';
+			case 'settings.title_rir_info': return 'RIR Scale (Reps in Reserve)';
+			case 'settings.desc_rir_info': return 'Number of reps you could still perform before failure:\n• RIR 0: Complete muscle failure (0 reps left)\n• RIR 1: Exactly 1 rep left in reserve\n• RIR 2: 2 reps left in reserve\n• RIR 3+: Light to moderate intensity';
+			case 'settings.title_workout_bg': return 'Background & Progress';
+			case 'settings.title_workout_guide': return 'Recovery Optimization';
+			case 'settings.desc_workout_guide': return 'Effort metrics help Plato accurately calculate muscle Recovery and Strain scores for your body.';
+			case 'settings.lbl_item_about': return 'About Plato';
+			case 'settings.desc_item_about': return 'Version, Terms & Social';
+			case 'settings.title_about_screen': return 'About Plato';
+			case 'settings.desc_about_plato': return 'Smart workout & nutrition companion';
 			case 'stats.lbl_cal_rest_title': return 'Rest Days';
 			case 'stats.lbl_cal_streak_title': return 'Week Streak';
 			case 'stats.btn_cal_today': return 'Today';
@@ -5948,8 +6005,6 @@ extension on _StringsVi {
 			case 'settings.lbl_speed_unit': return 'Vận tốc';
 			case 'settings.lbl_body_length_unit': return 'Số đo cơ thể';
 			case 'settings.lbl_food_mass_unit': return 'Khối lượng thực phẩm';
-			case 'settings.option_metric': return 'Hệ mét';
-			case 'settings.option_imperial': return 'Hệ Anh (Mỹ)';
 			case 'settings.desc_speed_unit_auto': return 'Đơn vị vận tốc tự động theo đơn vị quãng đường.';
 			case 'settings.msg_measurement_units_saved': return 'Đã cập nhật đơn vị đo lường.';
 			case 'settings.desc_item_tutorial': return 'Xem lại các video hướng dẫn tính năng';
@@ -5972,6 +6027,27 @@ extension on _StringsVi {
 			case 'settings.tutorial_workout_title': return 'Quản lý chương trình tập';
 			case 'settings.desc_eula_link': return 'Thỏa thuận cấp phép và quyền sử dụng';
 			case 'settings.desc_terms_link': return 'Điều khoản và Chính sách bảo mật';
+			case 'settings.lbl_item_workout_settings': return 'Cài đặt buổi tập';
+			case 'settings.desc_item_workout_settings': return 'Tùy chỉnh RPE/RIR, tiến trình tập luyện';
+			case 'settings.title_workout_settings': return 'Cài đặt tập luyện';
+			case 'settings.section_effort_tracking': return 'Mức độ gắng sức';
+			case 'settings.lbl_effort_tracking': return 'Ghi nhận mức độ gắng sức';
+			case 'settings.desc_effort_tracking': return 'Tùy chọn nâng cao: nhập RPE/RIR cho từng set để tăng độ chính xác Recovery.';
+			case 'settings.lbl_effort_scale': return 'Thang đo gắng sức';
+			case 'settings.desc_effort_scale': return 'Chọn định dạng bạn muốn dùng khi ghi nhận cường độ mỗi hiệp.';
+			case 'settings.lbl_scale_rpe': return 'RPE (1 - 10)';
+			case 'settings.lbl_scale_rir': return 'RIR (0 - 5+)';
+			case 'settings.title_rpe_info': return 'Thang đo RPE (Rating of Perceived Exertion)';
+			case 'settings.desc_rpe_info': return 'Đánh giá mức độ nặng theo thang điểm 1 đến 10:\n• RPE 10: Hết sức, không thể làm thêm rep nào\n• RPE 9: Còn sức thực hiện đúng 1 rep\n• RPE 8: Còn sức thực hiện thêm 2 reps\n• RPE 7: Còn sức thực hiện thêm 3 reps';
+			case 'settings.title_rir_info': return 'Thang đo RIR (Reps in Reserve)';
+			case 'settings.desc_rir_info': return 'Số lần lặp bạn còn có thể làm được trước khi kiệt sức:\n• RIR 0: Thất bại hoàn toàn (không còn rep nào)\n• RIR 1: Còn sức cho đúng 1 rep nữa\n• RIR 2: Còn sức cho 2 reps nữa\n• RIR 3+: Mức tạ tương đối nhẹ nhàng';
+			case 'settings.title_workout_bg': return 'Chạy nền & Tiến trình';
+			case 'settings.title_workout_guide': return 'Tối ưu hóa phục hồi';
+			case 'settings.desc_workout_guide': return 'Dữ liệu gắng sức giúp Plato tính toán điểm Phục hồi (Recovery) và Tải trọng (Strain) chính xác hơn cho cơ bắp của bạn.';
+			case 'settings.lbl_item_about': return 'Về Plato';
+			case 'settings.desc_item_about': return 'Phiên bản, Điều khoản & Mạng xã hội';
+			case 'settings.title_about_screen': return 'Giới thiệu về Plato';
+			case 'settings.desc_about_plato': return 'Ứng dụng đồng hành tập luyện & dinh dưỡng thông minh';
 			case 'stats.lbl_cal_rest_title': return 'Số ngày nghỉ';
 			case 'stats.lbl_cal_streak_title': return 'Chuỗi tuần';
 			case 'stats.btn_cal_today': return 'Hôm nay';

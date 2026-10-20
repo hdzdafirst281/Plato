@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart'; 
+import 'package:google_fonts/google_fonts.dart';
 import 'colors.dart';
 import 'shapes.dart';
 
@@ -12,7 +12,7 @@ class GymColors extends ThemeExtension<GymColors> {
   final Color chartLine;
   final Color success;
   final Color warning;
-  
+
   // Màu nền Heatmap
   final Color heatmapBase;
   final Color heatmapUnused;
@@ -23,11 +23,11 @@ class GymColors extends ThemeExtension<GymColors> {
   final Color heatmapMed;
   final Color heatmapHigh;
   final Color heatmapExtreme;
-  
+
   // ĐÃ FIX: Bổ sung 2 màu còn thiếu để UI gọi được
   final Color heatmapFreqDone;
   final Color heatmapSelected;
-  
+
   final Color accentTeal;
   final Color accentPurple;
 
@@ -48,7 +48,7 @@ class GymColors extends ThemeExtension<GymColors> {
   final Color podiumSilverEnd;
   final Color podiumBronzeStart;
   final Color podiumBronzeEnd;
-  
+
   final Color chestBannerStart;
   final Color chestBannerEnd;
 
@@ -121,20 +121,52 @@ class GymColors extends ThemeExtension<GymColors> {
 
   @override
   ThemeExtension<GymColors> copyWith({
-    Color? goldRank, Color? chartLine, Color? success, Color? warning,
-    Color? heatmapBase, Color? heatmapUnused, Color? heatmapBorder,
-    Color? heatmapLow, Color? heatmapMed, Color? heatmapHigh, Color? heatmapExtreme,
-    Color? heatmapFreqDone, Color? heatmapSelected,
-    Color? accentTeal, Color? accentPurple,
-    Color? fireHexagon, Color? rankBronze,
-    Color? rankSilver, Color? rankGold, Color? rankDiamond,
-    Color? waterBgStart, Color? waterBgEnd, Color? waterEmptyDrop, Color? waterAccent,
-    Color? podiumGoldStart, Color? podiumGoldEnd, Color? podiumSilverStart, Color? podiumSilverEnd, Color? podiumBronzeStart, Color? podiumBronzeEnd,
-    Color? chestBannerStart, Color? chestBannerEnd,
-    Color? streakGradientStart, Color? streakGradientEnd, Color? restGradientStart, Color? restGradientEnd,
-    Color? fire2Start, Color? fire2End, Color? fire3Start, Color? fire3End, Color? fireBreakColor,
-    Color? xpGradientStart, Color? xpGradientEnd,
-    Color? nutritionBgStart, Color? nutritionBgEnd, Color? nutritionEmpty,
+    Color? goldRank,
+    Color? chartLine,
+    Color? success,
+    Color? warning,
+    Color? heatmapBase,
+    Color? heatmapUnused,
+    Color? heatmapBorder,
+    Color? heatmapLow,
+    Color? heatmapMed,
+    Color? heatmapHigh,
+    Color? heatmapExtreme,
+    Color? heatmapFreqDone,
+    Color? heatmapSelected,
+    Color? accentTeal,
+    Color? accentPurple,
+    Color? fireHexagon,
+    Color? rankBronze,
+    Color? rankSilver,
+    Color? rankGold,
+    Color? rankDiamond,
+    Color? waterBgStart,
+    Color? waterBgEnd,
+    Color? waterEmptyDrop,
+    Color? waterAccent,
+    Color? podiumGoldStart,
+    Color? podiumGoldEnd,
+    Color? podiumSilverStart,
+    Color? podiumSilverEnd,
+    Color? podiumBronzeStart,
+    Color? podiumBronzeEnd,
+    Color? chestBannerStart,
+    Color? chestBannerEnd,
+    Color? streakGradientStart,
+    Color? streakGradientEnd,
+    Color? restGradientStart,
+    Color? restGradientEnd,
+    Color? fire2Start,
+    Color? fire2End,
+    Color? fire3Start,
+    Color? fire3End,
+    Color? fireBreakColor,
+    Color? xpGradientStart,
+    Color? xpGradientEnd,
+    Color? nutritionBgStart,
+    Color? nutritionBgEnd,
+    Color? nutritionEmpty,
   }) {
     return GymColors(
       goldRank: goldRank ?? this.goldRank,
@@ -216,15 +248,39 @@ class GymColors extends ThemeExtension<GymColors> {
       waterAccent: Color.lerp(waterAccent, other.waterAccent, t)!,
       podiumGoldStart: Color.lerp(podiumGoldStart, other.podiumGoldStart, t)!,
       podiumGoldEnd: Color.lerp(podiumGoldEnd, other.podiumGoldEnd, t)!,
-      podiumSilverStart: Color.lerp(podiumSilverStart, other.podiumSilverStart, t)!,
+      podiumSilverStart: Color.lerp(
+        podiumSilverStart,
+        other.podiumSilverStart,
+        t,
+      )!,
       podiumSilverEnd: Color.lerp(podiumSilverEnd, other.podiumSilverEnd, t)!,
-      podiumBronzeStart: Color.lerp(podiumBronzeStart, other.podiumBronzeStart, t)!,
+      podiumBronzeStart: Color.lerp(
+        podiumBronzeStart,
+        other.podiumBronzeStart,
+        t,
+      )!,
       podiumBronzeEnd: Color.lerp(podiumBronzeEnd, other.podiumBronzeEnd, t)!,
-      chestBannerStart: Color.lerp(chestBannerStart, other.chestBannerStart, t)!,
+      chestBannerStart: Color.lerp(
+        chestBannerStart,
+        other.chestBannerStart,
+        t,
+      )!,
       chestBannerEnd: Color.lerp(chestBannerEnd, other.chestBannerEnd, t)!,
-      streakGradientStart: Color.lerp(streakGradientStart, other.streakGradientStart, t)!,
-      streakGradientEnd: Color.lerp(streakGradientEnd, other.streakGradientEnd, t)!,
-      restGradientStart: Color.lerp(restGradientStart, other.restGradientStart, t)!,
+      streakGradientStart: Color.lerp(
+        streakGradientStart,
+        other.streakGradientStart,
+        t,
+      )!,
+      streakGradientEnd: Color.lerp(
+        streakGradientEnd,
+        other.streakGradientEnd,
+        t,
+      )!,
+      restGradientStart: Color.lerp(
+        restGradientStart,
+        other.restGradientStart,
+        t,
+      )!,
       restGradientEnd: Color.lerp(restGradientEnd, other.restGradientEnd, t)!,
       fire2Start: Color.lerp(fire2Start, other.fire2Start, t)!,
       fire2End: Color.lerp(fire2End, other.fire2End, t)!,
@@ -233,7 +289,11 @@ class GymColors extends ThemeExtension<GymColors> {
       fireBreakColor: Color.lerp(fireBreakColor, other.fireBreakColor, t)!,
       xpGradientStart: Color.lerp(xpGradientStart, other.xpGradientStart, t)!,
       xpGradientEnd: Color.lerp(xpGradientEnd, other.xpGradientEnd, t)!,
-      nutritionBgStart: Color.lerp(nutritionBgStart, other.nutritionBgStart, t)!,
+      nutritionBgStart: Color.lerp(
+        nutritionBgStart,
+        other.nutritionBgStart,
+        t,
+      )!,
       nutritionBgEnd: Color.lerp(nutritionBgEnd, other.nutritionBgEnd, t)!,
       nutritionEmpty: Color.lerp(nutritionEmpty, other.nutritionEmpty, t)!,
     );
@@ -349,13 +409,21 @@ class AppTheme {
     displayLarge: const TextStyle(fontWeight: FontWeight.bold, fontSize: 57),
     headlineMedium: const TextStyle(fontWeight: FontWeight.bold, fontSize: 28),
     titleLarge: const TextStyle(fontWeight: FontWeight.bold, fontSize: 22),
-    titleMedium: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16), 
-    bodyLarge: const TextStyle(fontWeight: FontWeight.normal, fontSize: 16, height: 1.5),
+    titleMedium: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+    bodyLarge: const TextStyle(
+      fontWeight: FontWeight.normal,
+      fontSize: 16,
+      height: 1.5,
+    ),
     bodyMedium: const TextStyle(fontWeight: FontWeight.normal, fontSize: 14),
     bodySmall: const TextStyle(fontWeight: FontWeight.normal, fontSize: 12),
-    labelLarge: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14), 
+    labelLarge: const TextStyle(fontWeight: FontWeight.w500, fontSize: 14),
     labelMedium: const TextStyle(fontWeight: FontWeight.w500, fontSize: 12),
-    labelSmall: const TextStyle(fontWeight: FontWeight.w500, fontSize: 11, letterSpacing: 0.5),
+    labelSmall: const TextStyle(
+      fontWeight: FontWeight.w500,
+      fontSize: 11,
+      letterSpacing: 0.5,
+    ),
   );
 
   // -- THEME TỐI --
@@ -371,16 +439,25 @@ class AppTheme {
       onSurface: textWhite,
       onSurfaceVariant: textGrayDark,
       outline: const Color(0xFF8E9296),
-      outlineVariant: Colors.grey.withValues(alpha: 0.2), 
+      outlineVariant: Colors.grey.withValues(alpha: 0.2),
       error: errorRedDark,
       onError: textWhite,
-      errorContainer: errorRedDark.withValues(alpha: 0.15), 
+      errorContainer: errorRedDark.withValues(alpha: 0.15),
       onErrorContainer: errorRedDark,
     ),
     textTheme: _textTheme.apply(bodyColor: textWhite, displayColor: textWhite),
     extensions: const [gymColorsDark],
     cardTheme: CardThemeData(shape: AppShapes.medium, color: surfaceDark),
-    dialogTheme: DialogThemeData(shape: AppShapes.large, backgroundColor: surfaceDark),
+    dialogTheme: DialogThemeData(
+      shape: AppShapes.large,
+      backgroundColor: surfaceDark,
+    ),
+    segmentedButtonTheme: SegmentedButtonThemeData(
+      style: SegmentedButton.styleFrom(
+        selectedBackgroundColor: primaryBlueDark,
+        selectedForegroundColor: textWhite,
+      ),
+    ),
   );
 
   // -- THEME SÁNG --
@@ -394,18 +471,27 @@ class AppTheme {
       surfaceContainerHighest: const Color(0xFFEEEEEE),
       onPrimary: textWhite,
       onSurface: textBlack,
-      onSurfaceVariant: textGrayLight, 
+      onSurfaceVariant: textGrayLight,
       outline: const Color(0xFF72777A),
-      outlineVariant: Colors.grey.shade300, 
+      outlineVariant: Colors.grey.shade300,
       error: errorRedLight,
       onError: textWhite,
-      errorContainer: errorRedLight.withValues(alpha: 0.1), 
+      errorContainer: errorRedLight.withValues(alpha: 0.1),
       onErrorContainer: errorRedLight,
     ),
     textTheme: _textTheme.apply(bodyColor: textBlack, displayColor: textBlack),
     extensions: const [gymColorsLight],
     cardTheme: CardThemeData(shape: AppShapes.medium, color: surfaceLight),
-    dialogTheme: DialogThemeData(shape: AppShapes.large, backgroundColor: surfaceLight),
+    dialogTheme: DialogThemeData(
+      shape: AppShapes.large,
+      backgroundColor: surfaceLight,
+    ),
+    segmentedButtonTheme: SegmentedButtonThemeData(
+      style: SegmentedButton.styleFrom(
+        selectedBackgroundColor: primaryBlueLight,
+        selectedForegroundColor: textWhite,
+      ),
+    ),
   );
 }
 

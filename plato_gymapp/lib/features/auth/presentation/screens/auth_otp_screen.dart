@@ -481,7 +481,10 @@ class _AuthOtpScreenState extends State<AuthOtpScreen> {
       ),
       const SizedBox(height: 16),
       Wrap(
-        alignment: WrapAlignment.center, crossAxisAlignment: WrapCrossAlignment.center,
+        alignment: WrapAlignment.center,
+        crossAxisAlignment: WrapCrossAlignment.center,
+        spacing: 6,
+        runSpacing: 4,
         children: [
           Text(t.auth.desc_did_not_get_code, style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant)),
           GestureDetector(

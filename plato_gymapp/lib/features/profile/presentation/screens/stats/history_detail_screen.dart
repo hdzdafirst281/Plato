@@ -69,7 +69,7 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
                 TextSpan(
                   style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 13),
                   children: [
-                    TextSpan(text: t.translateDynamic(label), style: const TextStyle(fontWeight: FontWeight.bold)),
+                    TextSpan(text: '${t.translateDynamic(label)}: ', style: const TextStyle(fontWeight: FontWeight.bold)),
                     TextSpan(text: t.translateDynamic(desc)),
                   ],
                 ),
@@ -110,9 +110,9 @@ class _HistoryDetailScreenState extends State<HistoryDetailScreen> {
                   children: [
                     Text(t.stats.lbl_history_info_metrics_title, style: TextStyle(fontWeight: FontWeight.bold, color: colorScheme.primary, fontSize: 14)),
                     const SizedBox(height: 8),
-                    buildMetricRow(Symbols.weight, 'stats.label_history_info_metrics_volume', 'stats.desc_history_info_metrics_volume'),
-                    buildMetricRow(Symbols.timer, 'stats.label_history_info_metrics_duration', 'stats.desc_history_info_metrics_duration'),
-                    buildMetricRow(Symbols.autorenew, 'stats.label_history_info_metrics_reps', 'stats.desc_history_info_metrics_reps'),
+                    buildMetricRow(Symbols.weight, 'stats.lbl_metric_volume', 'stats.desc_history_info_metrics_volume'),
+                    buildMetricRow(Symbols.timer, 'stats.lbl_metric_duration', 'stats.desc_history_info_metrics_duration'),
+                    buildMetricRow(Symbols.autorenew, 'stats.lbl_metric_reps', 'stats.desc_history_info_metrics_reps'),
                   ],
                 ),
               ),

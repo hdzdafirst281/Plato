@@ -1237,13 +1237,13 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                   text: TextSpan(
                     style: TextStyle(fontSize: 13, color: colorScheme.onSurfaceVariant),
                     children: [
-                      TextSpan(text: t.onboarding.lbl_agree_terms),
+                      TextSpan(text: '${t.onboarding.lbl_agree_terms} '),
                       TextSpan(
                         text: t.onboarding.lbl_terms_link,
                         style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold, decoration: TextDecoration.underline),
                         recognizer: TapGestureRecognizer()..onTap = () => _showTermsDialog(context),
                       ),
-                      TextSpan(text: t.onboarding.lbl_and),
+                      TextSpan(text: ' ${t.onboarding.lbl_and} '),
                       TextSpan(
                         text: t.onboarding.lbl_eula_link,
                         style: TextStyle(color: colorScheme.primary, fontWeight: FontWeight.bold, decoration: TextDecoration.underline),

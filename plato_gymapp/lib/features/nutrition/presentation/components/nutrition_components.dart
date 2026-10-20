@@ -903,7 +903,7 @@ class NutritionDashboard extends StatelessWidget {
         t.nutrition.title_cust_macros,
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
       ),
-      contentPadding: const EdgeInsets.fromLTRB(24, 20, 24, 20),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
       content: StatefulBuilder(
         builder: (context, setLocalState) {
           void clearErrors() {
@@ -1021,191 +1021,147 @@ class NutritionDashboard extends StatelessWidget {
                 buildField(fatCtrl, t.onboarding.lbl_macro_fat, 'g', fatError),
 
                 const SizedBox(height: 8),
-                Builder(
-                  builder: (context) {
-                    final double btnTextSize = ResponsiveValue<double>(
-                      context,
-                      defaultValue: 14.0,
-                      conditionalValues: [
-                        Condition.smallerThan(name: TABLET, value: 12.0),
-                      ],
-                    ).value;
-                    final double btnIconSize = ResponsiveValue<double>(
-                      context,
-                      defaultValue: 18.0,
-                      conditionalValues: [
-                        Condition.smallerThan(name: TABLET, value: 16.0),
-                      ],
-                    ).value;
-                    final double btnPadding = ResponsiveValue<double>(
-                      context,
-                      defaultValue: 16.0,
-                      conditionalValues: [
-                        Condition.smallerThan(name: TABLET, value: 12.0),
-                      ],
-                    ).value;
-                    final double systemBtnPadding = ResponsiveValue<double>(
-                      context,
-                      defaultValue: 8.0,
-                      conditionalValues: [
-                        Condition.smallerThan(name: TABLET, value: 4.0),
-                      ],
-                    ).value;
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    return FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.center,
+                      child: SizedBox(
+                        width: constraints.maxWidth,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            if (isCustomMacros && onRevert != null)
+                              TextButton.icon(
+                                style: TextButton.styleFrom(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
+                                    vertical: 8,
+                                  ),
+                                ),
+                                onPressed: () {
+                                  onRevert();
+                                  Navigator.pop(context);
+                                },
+                                icon: Icon(
+                                  Symbols.settings_backup_restore,
+                                  size: 18,
+                                  color: colorScheme.primary,
+                                ),
+                                label: Text(
+                                  t.settings.btn_theme_system,
+                                  style: TextStyle(
+                                    color: colorScheme.primary,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 14,
+                                  ),
+                                ),
+                              )
+                            else
+                              const SizedBox.shrink(),
 
-                    return LayoutBuilder(
-                      builder: (context, constraints) {
-                        return FittedBox(
-                          fit: BoxFit.scaleDown,
-                          alignment: Alignment.center,
-                          child: SizedBox(
-                            width: constraints.maxWidth,
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            Row(
+                              mainAxisSize: MainAxisSize.min,
+                              mainAxisAlignment: MainAxisAlignment.end,
                               children: [
-                                if (isCustomMacros && onRevert != null)
-                                  TextButton.icon(
-                                    style: TextButton.styleFrom(
-                                      padding: EdgeInsets.only(
-                                        right: systemBtnPadding,
-                                        top: 8,
-                                        bottom: 8,
-                                      ),
+                                TextButton(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: Text(
+                                    t.common.cancel,
+                                    style: TextStyle(
+                                      color: colorScheme.onSurfaceVariant,
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                    onPressed: () {
-                                      onRevert();
-                                      Navigator.pop(context);
-                                    },
-                                    icon: Icon(
-                                      Symbols.settings_backup_restore,
-                                      size: btnIconSize,
-                                      color: colorScheme.primary,
+                                  ),
+                                ),
+                                const SizedBox(width: 8),
+                                ElevatedButton(
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: colorScheme.primary,
+                                    foregroundColor: colorScheme.onPrimary,
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(12),
                                     ),
-                                    label: Text(
-                                      t.settings.btn_theme_system,
-                                      style: TextStyle(
-                                        color: colorScheme.primary,
-                                        fontWeight: FontWeight.w600,
-                                        fontSize: btnTextSize - 1,
+                                  ),
+                                  onPressed: () {
+                                    final cal =
+                                        int.tryParse(calCtrl.text) ?? 0;
+                                    final p =
+                                        int.tryParse(proCtrl.text) ?? 0;
+                                    final c =
+                                        int.tryParse(carbCtrl.text) ?? 0;
+                                    final f =
+                                        int.tryParse(fatCtrl.text) ?? 0;
+
+                                    bool hasValidationError = false;
+
+                                    if (cal < 500 || cal > 20000) {
+                                      calError =
+                                          t.nutrition.err_macro_cal_target;
+                                      hasValidationError = true;
+                                    }
+                                    if (p < 0 || p > 1000) {
+                                      proError =
+                                          t.nutrition.err_macro_pcf_target;
+                                      hasValidationError = true;
+                                    }
+                                    if (c < 0 || c > 1000) {
+                                      carbError =
+                                          t.nutrition.err_macro_pcf_target;
+                                      hasValidationError = true;
+                                    }
+                                    if (f < 0 || f > 1000) {
+                                      fatError =
+                                          t.nutrition.err_macro_pcf_target;
+                                      hasValidationError = true;
+                                    }
+
+                                    if (hasValidationError) {
+                                      setLocalState(() {});
+                                      return;
+                                    }
+
+                                    int calculatedCal =
+                                        (p * 4) + (c * 4) + (f * 9);
+                                    double diff = cal > 0
+                                        ? (calculatedCal - cal).abs() / cal
+                                        : 0;
+
+                                    if (diff > 0.20 &&
+                                        !isSoftWarningConfirmed) {
+                                      setLocalState(() {
+                                        generalWarning = t
+                                            .nutrition
+                                            .err_macro_warn_target;
+                                        isSoftWarningConfirmed = true;
+                                      });
+                                      return;
+                                    }
+
+                                    onSave(
+                                      Macros(
+                                        calories: cal,
+                                        protein: p,
+                                        carbs: c,
+                                        fat: f,
                                       ),
+                                    );
+                                    Navigator.pop(context);
+                                  },
+                                  child: Text(
+                                    t.common.save,
+                                    style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 15,
                                     ),
-                                  )
-                                else
-                                  const SizedBox.shrink(),
-
-                                Row(
-                                  mainAxisSize: MainAxisSize.min,
-                                  mainAxisAlignment: MainAxisAlignment.end,
-                                  children: [
-                                    TextButton(
-                                      style: TextButton.styleFrom(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: systemBtnPadding,
-                                        ),
-                                      ),
-                                      onPressed: () => Navigator.pop(context),
-                                      child: Text(
-                                        t.common.cancel,
-                                        style: TextStyle(
-                                          color: colorScheme.onSurfaceVariant,
-                                          fontWeight: FontWeight.w600,
-                                          fontSize: btnTextSize,
-                                        ),
-                                      ),
-                                    ),
-                                    const SizedBox(width: 4),
-                                    FilledButton(
-                                      style: FilledButton.styleFrom(
-                                        padding: EdgeInsets.symmetric(
-                                          horizontal: btnPadding,
-                                        ),
-                                        backgroundColor: colorScheme.primary,
-                                        foregroundColor: colorScheme.onPrimary,
-                                        shape: RoundedRectangleBorder(
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                        ),
-                                      ),
-                                      onPressed: () {
-                                        final cal =
-                                            int.tryParse(calCtrl.text) ?? 0;
-                                        final p =
-                                            int.tryParse(proCtrl.text) ?? 0;
-                                        final c =
-                                            int.tryParse(carbCtrl.text) ?? 0;
-                                        final f =
-                                            int.tryParse(fatCtrl.text) ?? 0;
-
-                                        bool hasValidationError = false;
-
-                                        if (cal < 500 || cal > 20000) {
-                                          calError =
-                                              t.nutrition.err_macro_cal_target;
-                                          hasValidationError = true;
-                                        }
-                                        if (p < 0 || p > 1000) {
-                                          proError =
-                                              t.nutrition.err_macro_pcf_target;
-                                          hasValidationError = true;
-                                        }
-                                        if (c < 0 || c > 1000) {
-                                          carbError =
-                                              t.nutrition.err_macro_pcf_target;
-                                          hasValidationError = true;
-                                        }
-                                        if (f < 0 || f > 1000) {
-                                          fatError =
-                                              t.nutrition.err_macro_pcf_target;
-                                          hasValidationError = true;
-                                        }
-
-                                        if (hasValidationError) {
-                                          setLocalState(() {});
-                                          return;
-                                        }
-
-                                        int calculatedCal =
-                                            (p * 4) + (c * 4) + (f * 9);
-                                        double diff = cal > 0
-                                            ? (calculatedCal - cal).abs() / cal
-                                            : 0;
-
-                                        if (diff > 0.20 &&
-                                            !isSoftWarningConfirmed) {
-                                          setLocalState(() {
-                                            generalWarning = t
-                                                .nutrition
-                                                .err_macro_warn_target;
-                                            isSoftWarningConfirmed = true;
-                                          });
-                                          return;
-                                        }
-
-                                        onSave(
-                                          Macros(
-                                            calories: cal,
-                                            protein: p,
-                                            carbs: c,
-                                            fat: f,
-                                          ),
-                                        );
-                                        Navigator.pop(context);
-                                      },
-                                      child: Text(
-                                        t.common.save,
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: btnTextSize,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
+                                  ),
                                 ),
                               ],
                             ),
-                          ),
-                        );
-                      },
+                          ],
+                        ),
+                      ),
                     );
                   },
                 ),
@@ -3356,12 +3312,12 @@ class BMIVisualizer extends StatelessWidget {
         ),
         const SizedBox(height: 4),
         Wrap(
+          spacing: 4,
           children: [
             Text(
               t.nutrition.desc_bmi_prefix,
               style: TextStyle(color: colorScheme.onSurface, fontSize: 14),
             ),
-            const SizedBox(width: 4),
             Text(
               healthCategory,
               style: TextStyle(
