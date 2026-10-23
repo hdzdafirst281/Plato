@@ -5,6 +5,7 @@ import 'package:plato_gymapp/i18n/strings.g.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../core/designsystem/components/gym_top_bar.dart';
+import '../../../../core/designsystem/components/gym_motion.dart';
 
 class TutorialScreen extends StatelessWidget {
   const TutorialScreen({super.key});
@@ -21,8 +22,10 @@ class TutorialScreen extends StatelessWidget {
           title: t.common.tutorial_title,
           onBackClick: () => context.pop(),
         ),
-        body: SafeArea(
-          child: Column(
+        body: GymMotionItem(
+          stage: 1,
+          child: SafeArea(
+            child: Column(
             children: [
               TabBar(
                 isScrollable: true, // Thêm isScrollable để tránh bị ép chữ nếu màn hình nhỏ
@@ -67,6 +70,7 @@ class TutorialScreen extends StatelessWidget {
                 ),
               ),
             ],
+          ),
           ),
         ),
       ),

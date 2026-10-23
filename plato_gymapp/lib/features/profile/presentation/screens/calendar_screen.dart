@@ -460,367 +460,414 @@ class _CalendarScreenState extends State<CalendarScreen> {
       CalendarViewMode.MULTI_YEAR => t.calendar.view_multi_year,
     };
 
-    return Scaffold(
-      backgroundColor: colorScheme.surface,
-      appBar: AppBar(
+    return GymMotionScope(
+      child: Scaffold(
         backgroundColor: colorScheme.surface,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        leading: IconButton(
-          icon: Icon(Symbols.arrow_back, color: colorScheme.onSurface),
-          onPressed: () {
-            // ignore: deprecated_member_use
-            _showcaseState?.dismiss(); // Tắt guide tour trước khi pop
-            context.pop();
-          },
-        ),
-        titleSpacing: 0,
-        centerTitle: true,
-        // [UI/UX FIX]: Thay thế Row bằng Center để hấp thụ constraint từ AppBar.
-        title: Row(
-          mainAxisSize:
-              MainAxisSize.min, // Quan trọng: Ép Row co lại nhỏ nhất có thể
-          children: [
-            GymTourTarget(
-              isActive:
-                  !context.read<TourCubit>().state.hasSeenCalendar ||
-                  forceShowTour,
-              tourKey: TourKeys.calendarViewToggleBtn,
-              title: t.tour.cal_toggle_title,
-              description: t.tour.cal_toggle_desc,
-              borderRadius: 12.0,
-              targetPadding: EdgeInsets.zero,
-              child: Theme(
-                data: Theme.of(context).copyWith(
-                  splashColor: Colors.transparent,
-                  highlightColor: Colors.transparent,
-                ),
-                child: PopupMenuButton<CalendarViewMode>(
-                  initialValue: _viewMode,
-                  onSelected: (CalendarViewMode result) {
-                    setState(() {
-                      _viewMode = result;
-                    });
-                  },
-                  offset: const Offset(0, 40),
-                  color: colorScheme.surface,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                    side: BorderSide(
-                      color: colorScheme.outline.withValues(alpha: 0.3),
+        appBar: AppBar(
+          backgroundColor: colorScheme.surface,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          leading: IconButton(
+            icon: Icon(Symbols.arrow_back, color: colorScheme.onSurface),
+            onPressed: () {
+              // ignore: deprecated_member_use
+              _showcaseState?.dismiss(); // Tắt guide tour trước khi pop
+              context.pop();
+            },
+          ),
+          titleSpacing: 0,
+          centerTitle: true,
+          // [UI/UX FIX]: Thay thế Row bằng Center để hấp thụ constraint từ AppBar.
+          title: GymMotionItem(
+            effect: GymMotionEffect.fadeDown,
+            child: Row(
+              mainAxisSize:
+                  MainAxisSize.min, // Quan trọng: Ép Row co lại nhỏ nhất có thể
+              children: [
+                GymTourTarget(
+                  isActive:
+                      !context.read<TourCubit>().state.hasSeenCalendar ||
+                      forceShowTour,
+                  tourKey: TourKeys.calendarViewToggleBtn,
+                  title: t.tour.cal_toggle_title,
+                  description: t.tour.cal_toggle_desc,
+                  borderRadius: 12.0,
+                  targetPadding: EdgeInsets.zero,
+                  child: Theme(
+                    data: Theme.of(context).copyWith(
+                      splashColor: Colors.transparent,
+                      highlightColor: Colors.transparent,
                     ),
-                  ),
-                  itemBuilder: (BuildContext context) =>
-                      <PopupMenuEntry<CalendarViewMode>>[
-                        PopupMenuItem<CalendarViewMode>(
-                          value: CalendarViewMode.MONTH,
-                          child: Text(t.calendar.view_month),
+                    child: PopupMenuButton<CalendarViewMode>(
+                      initialValue: _viewMode,
+                      onSelected: (CalendarViewMode result) {
+                        setState(() {
+                          _viewMode = result;
+                        });
+                      },
+                      offset: const Offset(0, 40),
+                      color: colorScheme.surface,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                        side: BorderSide(
+                          color: colorScheme.outline.withValues(alpha: 0.3),
                         ),
-                        PopupMenuItem<CalendarViewMode>(
-                          value: CalendarViewMode.YEAR,
-                          child: Text(t.calendar.view_year),
-                        ),
-                        PopupMenuItem<CalendarViewMode>(
-                          value: CalendarViewMode.MULTI_YEAR,
-                          child: Text(t.calendar.view_multi_year),
-                        ),
-                      ],
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 8.0,
-                      vertical: 4.0,
-                    ),
-                    child: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Text(
-                          viewModeLabel,
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                            color: colorScheme.onSurface,
-                          ),
-                        ),
-                        const SizedBox(width: 4),
-                        Icon(Symbols.expand_more, color: colorScheme.onSurface),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          if (_viewMode != CalendarViewMode.MULTI_YEAR) ...[
-            TextButton(
-              onPressed: _onTodayPressed,
-              child: Text(
-                t.stats.btn_cal_today,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: colorScheme.primary,
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-          ],
-        ],
-      ),
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            final isDesktop = ResponsiveBreakpoints.of(
-              context,
-            ).largerOrEqualTo(TABLET);
-
-            final double cellWidth = (constraints.maxWidth - 32) / 7;
-            const double childAspectRatio = 0.45;
-            final double cellHeight = cellWidth / childAspectRatio;
-            final double calculatedGridHeight = cellHeight * 6 + 56;
-
-            Widget calendarContent = SingleChildScrollView(
-              physics: const BouncingScrollPhysics(),
-              child: Column(
-                children: [
-                  Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Builder(
-                      builder: (context) {
-                        final isDark =
-                            Theme.of(context).brightness == Brightness.dark;
-                        final gymColors = Theme.of(context).gymColors;
-
-                        int currentStreak = statsState.weeklyStreak;
-                        List<Color> streakColors;
-                        if (currentStreak == 0) {
-                          streakColors = [
-                            gymColors.fireBreakColor,
-                            gymColors.fireBreakColor,
-                          ];
-                        } else if (currentStreak < 50) {
-                          streakColors = [
-                            gymColors.streakGradientStart,
-                            gymColors.streakGradientEnd,
-                          ];
-                        } else if (currentStreak < 100) {
-                          streakColors = [
-                            gymColors.fire2Start,
-                            gymColors.fire2End,
-                          ];
-                        } else {
-                          streakColors = [
-                            gymColors.fire3Start,
-                            gymColors.fire3End,
-                          ];
-                        }
-
-                        return Row(
-                          children: [
-                            Expanded(
-                              child: _CompactStatCard(
-                                customIcon: StreakIcon(
-                                  streak: currentStreak,
-                                  size: 24,
-                                ),
-                                gradientColors: streakColors,
-                                title: t.stats.lbl_cal_streak_title,
-                                value: "$currentStreak",
-                                iconBackgroundColor: Colors.white.withValues(
-                                  alpha: 0.4,
-                                ),
-                              ),
+                      ),
+                      itemBuilder: (BuildContext context) =>
+                          <PopupMenuEntry<CalendarViewMode>>[
+                            PopupMenuItem<CalendarViewMode>(
+                              value: CalendarViewMode.MONTH,
+                              child: Text(t.calendar.view_month),
                             ),
-                            const SizedBox(width: 16),
-                            Expanded(
-                              child: _CompactStatCard(
-                                icon: Symbols.bedtime,
-                                gradientColors: isDark
-                                    ? const [
-                                        restGradientStartDark,
-                                        restGradientEndDark,
-                                      ]
-                                    : const [
-                                        restGradientStartLight,
-                                        restGradientEndLight,
-                                      ],
-                                title: t.stats.lbl_cal_rest_title,
-                                value: "${statsState.restDays}",
-                                iconBackgroundColor: Colors.white.withValues(
-                                  alpha: 0.4,
-                                ),
-                              ),
+                            PopupMenuItem<CalendarViewMode>(
+                              value: CalendarViewMode.YEAR,
+                              child: Text(t.calendar.view_year),
+                            ),
+                            PopupMenuItem<CalendarViewMode>(
+                              value: CalendarViewMode.MULTI_YEAR,
+                              child: Text(t.calendar.view_multi_year),
                             ),
                           ],
-                        );
-                      },
-                    ),
-                  ),
-
-                  // Chỉ hiển thị mũi tên ở Month và Year
-                  if (_viewMode != CalendarViewMode.MULTI_YEAR)
-                    Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          IconButton(
-                            icon: Icon(
-                              Symbols.arrow_left,
-                              color: isLeftArrowActive
-                                  ? null
-                                  : colorScheme.onSurface.withValues(
-                                      alpha: 0.38,
-                                    ),
-                            ),
-                            onPressed: isLeftArrowActive
-                                ? () => _onArrowPressed(false)
-                                : null,
-                          ),
-                          AnimatedSwitcher(
-                            duration: const Duration(milliseconds: 200),
-                            child: Text(
-                              titleLabel.toUpperCase(),
-                              key: ValueKey(titleLabel),
-                              style: const TextStyle(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8.0,
+                          vertical: 4.0,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Text(
+                              viewModeLabel,
+                              style: TextStyle(
                                 fontWeight: FontWeight.bold,
-                                fontSize: 16,
+                                fontSize: 18,
+                                color: colorScheme.onSurface,
                               ),
                             ),
-                          ),
-                          IconButton(
-                            icon: const Icon(Symbols.arrow_right),
-                            onPressed: () => _onArrowPressed(true),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                  const SizedBox(height: 8),
-
-                  AnimatedSwitcher(
-                    duration: const Duration(milliseconds: 300),
-                    child: _viewMode == CalendarViewMode.MONTH
-                        ? SizedBox(
-                            height: calculatedGridHeight,
-                            child: PageView.builder(
-                              key: const ValueKey("month_view"),
-                              controller: _monthPageController,
-                              onPageChanged: (idx) =>
-                                  setState(() => _currentMonthIndex = idx),
-                              itemBuilder: (context, index) {
-                                final offset = index + _earliestMonthOffset;
-                                final date = DateTime(
-                                  DateTime.now().year,
-                                  DateTime.now().month + offset,
-                                  1,
-                                );
-                                return _MonthCalendarGrid(
-                                  activeDate: date,
-                                  mappedItems: _mappedItemsCache,
-                                  isDesktop: isDesktop,
-                                  childAspectRatio: childAspectRatio,
-                                  forceShowTour: forceShowTour,
-                                  onDaySelected:
-                                      (d, sessions, {bool startTour = false}) {
-                                        if (isDesktop) {
-                                          setState(() {
-                                            _selectedTabletDate = d;
-                                            _selectedTabletSessions = sessions;
-                                          });
-                                        } else {
-                                          _showDayWorkoutsSheet(
-                                            context,
-                                            d,
-                                            sessions,
-                                          );
-                                        }
-                                      },
-                                );
-                              },
+                            const SizedBox(width: 4),
+                            Icon(
+                              Symbols.expand_more,
+                              color: colorScheme.onSurface,
                             ),
-                          )
-                        : (_viewMode == CalendarViewMode.YEAR
-                              ? SizedBox(
-                                  height: 600,
-                                  child: PageView.builder(
-                                    key: const ValueKey("year_view"),
-                                    controller: _yearPageController,
-                                    onPageChanged: (idx) =>
-                                        setState(() => _currentYearIndex = idx),
-                                    itemBuilder: (context, index) {
-                                      final offset =
-                                          index + _earliestYearOffset;
-                                      final year = DateTime.now().year + offset;
-                                      return _YearHeatmapView(
-                                        year: year,
-                                        mappedItems: _mappedItemsCache,
-                                      );
-                                    },
-                                  ),
-                                )
-                              : _MultiYearHeatmapView(
-                                  activeYears: _activeYears,
-                                  mappedItems: _mappedItemsCache,
-                                  pastWorkouts:
-                                      statsState.workouts, // Thêm dòng này
-                                )),
-                  ),
-                  const SizedBox(height: 32),
-                ],
-              ),
-            );
-
-            if (isDesktop) {
-              return Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1200),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(flex: 6, child: calendarContent),
-                      Expanded(
-                        flex: 4,
-                        child: Container(
-                          margin: const EdgeInsets.only(
-                            top: 16,
-                            right: 16,
-                            bottom: 16,
-                          ),
-                          decoration: BoxDecoration(
-                            color: colorScheme.surfaceContainerHighest
-                                .withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(16),
-                            border: Border.all(
-                              color: colorScheme.outlineVariant.withValues(
-                                alpha: 0.3,
-                              ),
-                            ),
-                          ),
-                          child: _selectedTabletDate != null
-                              ? _buildDayDetailsInline(
-                                  context,
-                                  _selectedTabletDate!,
-                                  _selectedTabletSessions ?? [],
-                                )
-                              : Center(
-                                  child: Text(
-                                    t.calendar.select_day_prompt,
-                                    style: TextStyle(
-                                      color: colorScheme.onSurfaceVariant,
-                                    ),
-                                  ),
-                                ),
+                          ],
                         ),
                       ),
-                    ],
+                    ),
                   ),
                 ),
-              );
-            }
+              ],
+            ),
+          ),
+          actions: [
+            if (_viewMode != CalendarViewMode.MULTI_YEAR) ...[
+              TextButton(
+                onPressed: _onTodayPressed,
+                child: Text(
+                  t.stats.btn_cal_today,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: colorScheme.primary,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+            ],
+          ],
+        ),
+        body: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              final isDesktop = ResponsiveBreakpoints.of(
+                context,
+              ).largerOrEqualTo(TABLET);
 
-            return calendarContent;
-          },
+              final double cellWidth = (constraints.maxWidth - 32) / 7;
+              const double childAspectRatio = 0.45;
+              final double cellHeight = cellWidth / childAspectRatio;
+              final double calculatedGridHeight = cellHeight * 6 + 56;
+
+              Widget calendarContent = SingleChildScrollView(
+                physics: const BouncingScrollPhysics(),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Builder(
+                        builder: (context) {
+                          final isDark =
+                              Theme.of(context).brightness == Brightness.dark;
+                          final gymColors = Theme.of(context).gymColors;
+
+                          int currentStreak = statsState.weeklyStreak;
+                          List<Color> streakColors;
+                          if (currentStreak == 0) {
+                            streakColors = [
+                              gymColors.fireBreakColor,
+                              gymColors.fireBreakColor,
+                            ];
+                          } else if (currentStreak < 50) {
+                            streakColors = [
+                              gymColors.streakGradientStart,
+                              gymColors.streakGradientEnd,
+                            ];
+                          } else if (currentStreak < 100) {
+                            streakColors = [
+                              gymColors.fire2Start,
+                              gymColors.fire2End,
+                            ];
+                          } else {
+                            streakColors = [
+                              gymColors.fire3Start,
+                              gymColors.fire3End,
+                            ];
+                          }
+
+                          return GymMotionItem(
+                            stage: 1,
+                            effect: GymMotionEffect.fadeScale,
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: _CompactStatCard(
+                                    customIcon: StreakIcon(
+                                      streak: currentStreak,
+                                      size: 24,
+                                    ),
+                                    gradientColors: streakColors,
+                                    title: t.stats.lbl_cal_streak_title,
+                                    value: "$currentStreak",
+                                    iconBackgroundColor: Colors.white
+                                        .withValues(alpha: 0.4),
+                                  ),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: _CompactStatCard(
+                                    icon: Symbols.bedtime,
+                                    gradientColors: isDark
+                                        ? const [
+                                            restGradientStartDark,
+                                            restGradientEndDark,
+                                          ]
+                                        : const [
+                                            restGradientStartLight,
+                                            restGradientEndLight,
+                                          ],
+                                    title: t.stats.lbl_cal_rest_title,
+                                    value: "${statsState.restDays}",
+                                    iconBackgroundColor: Colors.white
+                                        .withValues(alpha: 0.4),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+
+                    // Chỉ hiển thị mũi tên ở Month và Year
+                    if (_viewMode != CalendarViewMode.MULTI_YEAR)
+                      GymMotionItem(
+                        stage: 2,
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(horizontal: 16),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              IconButton(
+                                icon: Icon(
+                                  Symbols.arrow_left,
+                                  color: isLeftArrowActive
+                                      ? null
+                                      : colorScheme.onSurface.withValues(
+                                          alpha: 0.38,
+                                        ),
+                                ),
+                                onPressed: isLeftArrowActive
+                                    ? () => _onArrowPressed(false)
+                                    : null,
+                              ),
+                              AnimatedSwitcher(
+                                duration: GymMotion.reduceMotion(context)
+                                    ? Duration.zero
+                                    : GymMotion.content,
+                                switchInCurve: GymMotion.enterCurve,
+                                switchOutCurve: GymMotion.exitCurve,
+                                transitionBuilder: (child, animation) =>
+                                    FadeTransition(
+                                      opacity: animation,
+                                      child: child,
+                                    ),
+                                child: Text(
+                                  titleLabel.toUpperCase(),
+                                  key: ValueKey(titleLabel),
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Symbols.arrow_right),
+                                onPressed: () => _onArrowPressed(true),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+
+                    const SizedBox(height: 8),
+
+                    GymMotionItem(
+                      stage: 3,
+                      child: AnimatedSwitcher(
+                        duration: GymMotion.reduceMotion(context)
+                            ? Duration.zero
+                            : GymMotion.screen,
+                        switchInCurve: GymMotion.enterCurve,
+                        switchOutCurve: GymMotion.exitCurve,
+                        transitionBuilder: (child, animation) => FadeTransition(
+                          opacity: animation,
+                          child: SlideTransition(
+                            position: Tween<Offset>(
+                              begin: const Offset(0.04, 0),
+                              end: Offset.zero,
+                            ).animate(animation),
+                            child: child,
+                          ),
+                        ),
+                        child: _viewMode == CalendarViewMode.MONTH
+                            ? SizedBox(
+                                key: const ValueKey('month-view'),
+                                height: calculatedGridHeight,
+                                child: PageView.builder(
+                                  controller: _monthPageController,
+                                  onPageChanged: (idx) =>
+                                      setState(() => _currentMonthIndex = idx),
+                                  itemBuilder: (context, index) {
+                                    final offset = index + _earliestMonthOffset;
+                                    final date = DateTime(
+                                      DateTime.now().year,
+                                      DateTime.now().month + offset,
+                                      1,
+                                    );
+                                    return _MonthCalendarGrid(
+                                      activeDate: date,
+                                      mappedItems: _mappedItemsCache,
+                                      isDesktop: isDesktop,
+                                      childAspectRatio: childAspectRatio,
+                                      forceShowTour: forceShowTour,
+                                      onDaySelected:
+                                          (
+                                            d,
+                                            sessions, {
+                                            bool startTour = false,
+                                          }) {
+                                            if (isDesktop) {
+                                              setState(() {
+                                                _selectedTabletDate = d;
+                                                _selectedTabletSessions =
+                                                    sessions;
+                                              });
+                                            } else {
+                                              _showDayWorkoutsSheet(
+                                                context,
+                                                d,
+                                                sessions,
+                                              );
+                                            }
+                                          },
+                                    );
+                                  },
+                                ),
+                              )
+                            : (_viewMode == CalendarViewMode.YEAR
+                                  ? SizedBox(
+                                      key: const ValueKey('year-view'),
+                                      height: 600,
+                                      child: PageView.builder(
+                                        controller: _yearPageController,
+                                        onPageChanged: (idx) => setState(
+                                          () => _currentYearIndex = idx,
+                                        ),
+                                        itemBuilder: (context, index) {
+                                          final offset =
+                                              index + _earliestYearOffset;
+                                          final year =
+                                              DateTime.now().year + offset;
+                                          return _YearHeatmapView(
+                                            year: year,
+                                            mappedItems: _mappedItemsCache,
+                                          );
+                                        },
+                                      ),
+                                    )
+                                  : _MultiYearHeatmapView(
+                                      key: const ValueKey('multi-year-view'),
+                                      activeYears: _activeYears,
+                                      mappedItems: _mappedItemsCache,
+                                      pastWorkouts:
+                                          statsState.workouts, // Thêm dòng này
+                                    )),
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+                  ],
+                ),
+              );
+
+              if (isDesktop) {
+                return Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1200),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(flex: 6, child: calendarContent),
+                        Expanded(
+                          flex: 4,
+                          child: Container(
+                            margin: const EdgeInsets.only(
+                              top: 16,
+                              right: 16,
+                              bottom: 16,
+                            ),
+                            decoration: BoxDecoration(
+                              color: colorScheme.surfaceContainerHighest
+                                  .withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(16),
+                              border: Border.all(
+                                color: colorScheme.outlineVariant.withValues(
+                                  alpha: 0.3,
+                                ),
+                              ),
+                            ),
+                            child: _selectedTabletDate != null
+                                ? _buildDayDetailsInline(
+                                    context,
+                                    _selectedTabletDate!,
+                                    _selectedTabletSessions ?? [],
+                                  )
+                                : Center(
+                                    child: Text(
+                                      t.calendar.select_day_prompt,
+                                      style: TextStyle(
+                                        color: colorScheme.onSurfaceVariant,
+                                      ),
+                                    ),
+                                  ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                );
+              }
+
+              return calendarContent;
+            },
+          ),
         ),
       ),
     );
@@ -3079,6 +3126,7 @@ class _MultiYearHeatmapView extends StatelessWidget {
   final List<WorkoutSession> pastWorkouts;
 
   const _MultiYearHeatmapView({
+    super.key,
     required this.activeYears,
     required this.mappedItems,
     required this.pastWorkouts,

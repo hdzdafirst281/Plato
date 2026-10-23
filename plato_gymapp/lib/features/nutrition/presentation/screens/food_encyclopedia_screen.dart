@@ -13,6 +13,7 @@ import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
 
 
 import '../../../../core/designsystem/components/gym_top_bar.dart';
+import '../../../../core/designsystem/components/gym_motion.dart';
 import '../../../../core/designsystem/components/gym_search_bar.dart';
 import '../../../../core/database/enums.dart';
 import '../../../../core/database/entities.dart';
@@ -622,8 +623,10 @@ class _FoodEncyclopediaScreenState extends State<FoodEncyclopediaScreen> with Si
               ),
             )
           : null,
-      body: LayoutBuilder(
-        builder: (context, constraints) {
+      body: GymMotionItem(
+        stage: 1,
+        child: LayoutBuilder(
+          builder: (context, constraints) {
           final isTablet = constraints.maxWidth >= 600;
 
           if (isTablet) {
@@ -668,7 +671,8 @@ class _FoodEncyclopediaScreenState extends State<FoodEncyclopediaScreen> with Si
               )
             ],
           );
-        },
+          },
+        ),
       ),
     );
   }

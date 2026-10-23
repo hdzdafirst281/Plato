@@ -29,6 +29,41 @@ final ValueNotifier<double> globalBottomBarAnimationProgress =
 final ValueNotifier<int> globalActiveTabIndex = ValueNotifier<int>(0);
 final ValueNotifier<bool> globalIsTabSwiping = ValueNotifier<bool>(false);
 
+/// Starts a tab's entrance only after the horizontal transition has settled.
+/// The [child] is kept outside both builders so tab changes do not rebuild the
+/// screen tree or restart child-owned animations.
+class MainTabMotionScope extends StatelessWidget {
+  final int tabIndex;
+  final bool enabled;
+  final Object? playOnceKey;
+  final Widget child;
+
+  const MainTabMotionScope({
+    super.key,
+    required this.tabIndex,
+    this.enabled = true,
+    this.playOnceKey,
+    required this.child,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return ValueListenableBuilder<int>(
+      valueListenable: globalActiveTabIndex,
+      child: child,
+      builder: (context, activeTab, child) => ValueListenableBuilder<bool>(
+        valueListenable: globalIsTabSwiping,
+        child: child,
+        builder: (context, isSwiping, child) => GymMotionScope(
+          active: enabled && activeTab == tabIndex && !isSwiping,
+          playOnceKey: playOnceKey,
+          child: child!,
+        ),
+      ),
+    );
+  }
+}
+
 class MainScaffold extends StatefulWidget {
   final StatefulNavigationShell navigationShell;
   final List<Widget> children;
@@ -82,29 +117,19 @@ class _MainScaffoldState extends State<MainScaffold>
     });
 
     _tabController.animation?.addListener(() {
-      int swipeIndex = _tabController.animation!.value.round();
-      if (swipeIndex != _currentBottomBarIndex) {
-        setState(() {
-          _currentBottomBarIndex = swipeIndex;
-        });
-
-        globalActiveTabIndex.value = swipeIndex;
-
-        if (widget.navigationShell.currentIndex != swipeIndex) {
-          widget.navigationShell.goBranch(
-            swipeIndex,
-            initialLocation: swipeIndex == widget.navigationShell.currentIndex,
-          );
-        }
-      }
-      final isSwiping =
-          (_tabController.animation!.value -
-                  _tabController.animation!.value.round())
-              .abs() >
-          0.01;
+      final animationValue = _tabController.animation!.value;
+      final settledIndex = animationValue.round();
+      final isSwiping = (animationValue - settledIndex).abs() > 0.01;
 
       if (globalIsTabSwiping.value != isSwiping) {
         globalIsTabSwiping.value = isSwiping;
+      }
+      if (isSwiping || settledIndex == _currentBottomBarIndex) return;
+
+      setState(() => _currentBottomBarIndex = settledIndex);
+      globalActiveTabIndex.value = settledIndex;
+      if (widget.navigationShell.currentIndex != settledIndex) {
+        widget.navigationShell.goBranch(settledIndex);
       }
     });
 
@@ -190,7 +215,11 @@ class _MainScaffoldState extends State<MainScaffold>
                 _buildResultRow(
                   t.stats.lbl_metric_volume,
                   MeasurementFormatter(
-                    context.read<ProfileCubit>().state.userProfile.measurementPreferences,
+                    context
+                        .read<ProfileCubit>()
+                        .state
+                        .userProfile
+                        .measurementPreferences,
                   ).formatWeight(session.totalVolume),
                   colorScheme,
                 ),
@@ -673,12 +702,16 @@ class _MainScaffoldState extends State<MainScaffold>
                         ),
 
                         if (!isTablet)
-                          _FloatingPillBottomBar(
-                            tabController: _tabController,
-                            currentIndex: _currentBottomBarIndex,
-                            barAnimController: _barAnimController,
-                            onTap: _onTapBottomBar,
-                            profileAvatar: profileAvatarWidget,
+                          GymEntrance(
+                            delay: GymMotion.stagger(2),
+                            effect: GymMotionEffect.fadeScale,
+                            child: _FloatingPillBottomBar(
+                              tabController: _tabController,
+                              currentIndex: _currentBottomBarIndex,
+                              barAnimController: _barAnimController,
+                              onTap: _onTapBottomBar,
+                              profileAvatar: profileAvatarWidget,
+                            ),
                           ),
                       ],
                     ),
@@ -730,11 +763,13 @@ class _FloatingPillBottomBar extends StatelessWidget {
             ? bottomSafeArea + 8.0
             : 16.0;
         const barHiddenOffset = -120.0;
-        final barCurrentBottom = lerpDouble(
-          barVisibleOffset,
-          barHiddenOffset,
-          barAnimController.value,
-        ) ?? barVisibleOffset;
+        final barCurrentBottom =
+            lerpDouble(
+              barVisibleOffset,
+              barHiddenOffset,
+              barAnimController.value,
+            ) ??
+            barVisibleOffset;
 
         return Stack(
           children: [
@@ -755,9 +790,7 @@ class _FloatingPillBottomBar extends StatelessWidget {
           offset: const Offset(0, 10),
           child: Center(
             child: Container(
-              constraints: BoxConstraints(
-                maxWidth: isTablet ? 380 : 288,
-              ),
+              constraints: BoxConstraints(maxWidth: isTablet ? 380 : 288),
               margin: const EdgeInsets.symmetric(horizontal: 16.0),
               height: 60,
               decoration: BoxDecoration(
@@ -792,11 +825,13 @@ class _FloatingPillBottomBar extends StatelessWidget {
                         return AnimatedBuilder(
                           animation: tabController.animation ?? tabController,
                           builder: (context, _) {
-                            final animVal = tabController.animation?.value ??
+                            final animVal =
+                                tabController.animation?.value ??
                                 currentIndex.toDouble();
-                            final indicatorLeft = (animVal * segmentWidth +
-                                    (segmentWidth - indicatorWidth) / 2)
-                                .clamp(0.0, totalWidth - indicatorWidth);
+                            final indicatorLeft =
+                                (animVal * segmentWidth +
+                                        (segmentWidth - indicatorWidth) / 2)
+                                    .clamp(0.0, totalWidth - indicatorWidth);
 
                             return Stack(
                               alignment: Alignment.centerLeft,
@@ -804,7 +839,9 @@ class _FloatingPillBottomBar extends StatelessWidget {
                                 // 1. Nền nổi bật trượt mượt mà theo animation chuyển tab
                                 Positioned(
                                   left: indicatorLeft,
-                                  top: (constraints.maxHeight - indicatorHeight) /
+                                  top:
+                                      (constraints.maxHeight -
+                                          indicatorHeight) /
                                       2,
                                   width: indicatorWidth,
                                   height: indicatorHeight,
@@ -910,11 +947,9 @@ class _FloatingPillNavItem extends StatelessWidget {
     final activeProgress = (1.0 - distance).clamp(0.0, 1.0);
     final isSelected = distance < 0.5;
 
-    final iconColor = Color.lerp(
-      inactiveIconColor,
-      activeIconColor,
-      activeProgress,
-    ) ?? inactiveIconColor;
+    final iconColor =
+        Color.lerp(inactiveIconColor, activeIconColor, activeProgress) ??
+        inactiveIconColor;
 
     return GestureDetector(
       onTap: () {
@@ -935,11 +970,13 @@ class _FloatingPillNavItem extends StatelessWidget {
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
                   border: Border.all(
-                    color: Color.lerp(
-                      Colors.transparent,
-                      activeIconColor,
-                      activeProgress,
-                    ) ?? Colors.transparent,
+                    color:
+                        Color.lerp(
+                          Colors.transparent,
+                          activeIconColor,
+                          activeProgress,
+                        ) ??
+                        Colors.transparent,
                     width: 1.5,
                   ),
                 ),

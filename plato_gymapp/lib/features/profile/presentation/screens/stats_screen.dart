@@ -9,6 +9,7 @@ import 'package:plato_gymapp/features/profile/presentation/components/profile_co
 import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../../core/designsystem/components/gym_top_bar.dart';
+import '../../../../core/designsystem/components/gym_motion.dart';
 
 import '../bloc/stats_cubit.dart';
 import '../bloc/profile_cubit.dart';
@@ -22,7 +23,8 @@ class StatsScreen extends StatefulWidget {
 
   const StatsScreen({
     super.key,
-    this.initialScreen = StatsScreenType.DASHBOARD, // Default để không làm hỏng các luồng gọi cũ
+    this.initialScreen =
+        StatsScreenType.DASHBOARD, // Default để không làm hỏng các luồng gọi cũ
   });
 
   @override
@@ -40,17 +42,20 @@ class _StatsScreenState extends State<StatsScreen> {
   }
 
   void _handleBack() {
-    if (_activeScreen == StatsScreenType.DASHBOARD || widget.initialScreen != StatsScreenType.DASHBOARD) {
+    if (_activeScreen == StatsScreenType.DASHBOARD ||
+        widget.initialScreen != StatsScreenType.DASHBOARD) {
       context.pop();
     } else {
-      setState(() => _activeScreen = StatsScreenType.DASHBOARD); 
+      setState(() => _activeScreen = StatsScreenType.DASHBOARD);
     }
   }
 
   @override
   Widget build(BuildContext context) {
     final workouts = context.watch<StatsCubit>().state.workouts;
-    final canPopNow = _activeScreen == StatsScreenType.DASHBOARD || widget.initialScreen != StatsScreenType.DASHBOARD;
+    final canPopNow =
+        _activeScreen == StatsScreenType.DASHBOARD ||
+        widget.initialScreen != StatsScreenType.DASHBOARD;
 
     return PopScope(
       canPop: canPopNow,
@@ -60,7 +65,9 @@ class _StatsScreenState extends State<StatsScreen> {
         }
       },
       child: AnimatedSwitcher(
-        duration: const Duration(milliseconds: 300),
+        duration: GymMotion.reduceMotion(context)
+            ? Duration.zero
+            : GymMotion.screen,
         switchInCurve: Curves.easeOutCubic,
         switchOutCurve: Curves.easeInCubic,
         transitionBuilder: (child, animation) {
@@ -89,9 +96,17 @@ class _StatsScreenState extends State<StatsScreen> {
           onNavigate: (type) => setState(() => _activeScreen = type),
         );
       case StatsScreenType.LOAD_DETAIL:
-        return LoadAnalysisDetailScreen(key: const ValueKey('LOAD'), workouts: workouts.cast(), onBack: _handleBack);
+        return LoadAnalysisDetailScreen(
+          key: const ValueKey('LOAD'),
+          workouts: workouts.cast(),
+          onBack: _handleBack,
+        );
       case StatsScreenType.HEXAGON_DETAIL:
-        return HexagonDetailScreen(key: const ValueKey('HEX'), workouts: workouts.cast(), onBack: _handleBack);
+        return HexagonDetailScreen(
+          key: const ValueKey('HEX'),
+          workouts: workouts.cast(),
+          onBack: _handleBack,
+        );
       case StatsScreenType.HEATMAP_DETAIL:
         return BlocSelector<ProfileCubit, ProfileState, Gender>(
           key: const ValueKey('HEAT'),
@@ -103,7 +118,11 @@ class _StatsScreenState extends State<StatsScreen> {
           ),
         );
       case StatsScreenType.HISTORY_DETAIL:
-        return HistoryDetailScreen(key: const ValueKey('HIST'), workouts: workouts.cast(), onBack: _handleBack);
+        return HistoryDetailScreen(
+          key: const ValueKey('HIST'),
+          workouts: workouts.cast(),
+          onBack: _handleBack,
+        );
     }
   }
 }
@@ -112,7 +131,11 @@ class _StatsDashboard extends StatelessWidget {
   final VoidCallback onBack;
   final Function(StatsScreenType) onNavigate;
 
-  const _StatsDashboard({super.key, required this.onBack, required this.onNavigate});
+  const _StatsDashboard({
+    super.key,
+    required this.onBack,
+    required this.onNavigate,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -129,60 +152,81 @@ class _StatsDashboard extends StatelessWidget {
       ],
     ).value;
 
-    return Scaffold(
-      backgroundColor: colorScheme.surface,
-      appBar: GymTopBar(title: t.stats.title_main_dash, onBackClick: onBack),
-      body: SafeArea(
-        // [REFACTOR] Align + ConstrainedBox để chống stretch thẻ card trên Tablet/Desktop
-        child: Align(
-          alignment: Alignment.topCenter,
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 800),
-            child: ListView(
-              padding: EdgeInsets.all(screenPadding),
-              children: [
-                Text(
-                  t.stats.desc_main_prompt, 
-                  style: TextStyle(color: colorScheme.onSurfaceVariant),
-                ),
-                SizedBox(height: screenPadding),
-                
-                DashboardCard(
-                  title: t.stats.title_card_load_analysis, 
-                  subtitle: t.stats.desc_card_load_analysis,
-                  icon: Symbols.cardiology, 
-                  color: Theme.of(context).gymColors.warning,
-                  onClick: () => onNavigate(StatsScreenType.LOAD_DETAIL),
-                ),
-                SizedBox(height: screenPadding),
-                
-                DashboardCard(
-                  title: t.stats.title_card_muscle_balance, 
-                  subtitle: t.stats.desc_card_muscle_balance,
-                  svgAsset: 'assets/svg/icons/hexagon.svg', 
-                  color: colorScheme.error,
-                  onClick: () => onNavigate(StatsScreenType.HEXAGON_DETAIL),
-                ),
-                SizedBox(height: screenPadding),
-                
-                DashboardCard(
-                  title: t.stats.title_card_body_heatmap, 
-                  subtitle: t.stats.desc_card_body_heatmap,
-                  svgAsset: 'assets/svg/muscles/muscle_groups.svg', 
-                  svgScale: 0.7,
-                  color: Theme.of(context).gymColors.success,
-                  onClick: () => onNavigate(StatsScreenType.HEATMAP_DETAIL),
-                ),
-                SizedBox(height: screenPadding),
-                
-                DashboardCard(
-                  title: t.stats.title_card_activity_history, 
-                  subtitle: t.stats.desc_card_activity_history,
-                  svgAsset: 'assets/svg/icons/bar_chart.svg', 
-                  color: colorScheme.primary,
-                  onClick: () => onNavigate(StatsScreenType.HISTORY_DETAIL),
-                ),
-              ],
+    return GymMotionScope(
+      child: Scaffold(
+        backgroundColor: colorScheme.surface,
+        appBar: GymTopBar(title: t.stats.title_main_dash, onBackClick: onBack),
+        body: SafeArea(
+          // [REFACTOR] Align + ConstrainedBox để chống stretch thẻ card trên Tablet/Desktop
+          child: Align(
+            alignment: Alignment.topCenter,
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 800),
+              child: ListView(
+                padding: EdgeInsets.all(screenPadding),
+                children: [
+                  GymMotionItem(
+                    stage: 1,
+                    child: Text(
+                      t.stats.desc_main_prompt,
+                      style: TextStyle(color: colorScheme.onSurfaceVariant),
+                    ),
+                  ),
+                  SizedBox(height: screenPadding),
+
+                  GymMotionItem(
+                    stage: 2,
+                    effect: GymMotionEffect.slideFromEnd,
+                    child: DashboardCard(
+                      title: t.stats.title_card_load_analysis,
+                      subtitle: t.stats.desc_card_load_analysis,
+                      icon: Symbols.cardiology,
+                      color: Theme.of(context).gymColors.warning,
+                      onClick: () => onNavigate(StatsScreenType.LOAD_DETAIL),
+                    ),
+                  ),
+                  SizedBox(height: screenPadding),
+
+                  GymMotionItem(
+                    stage: 3,
+                    effect: GymMotionEffect.slideFromEnd,
+                    child: DashboardCard(
+                      title: t.stats.title_card_muscle_balance,
+                      subtitle: t.stats.desc_card_muscle_balance,
+                      svgAsset: 'assets/svg/icons/hexagon.svg',
+                      color: colorScheme.error,
+                      onClick: () => onNavigate(StatsScreenType.HEXAGON_DETAIL),
+                    ),
+                  ),
+                  SizedBox(height: screenPadding),
+
+                  GymMotionItem(
+                    stage: 4,
+                    effect: GymMotionEffect.slideFromEnd,
+                    child: DashboardCard(
+                      title: t.stats.title_card_body_heatmap,
+                      subtitle: t.stats.desc_card_body_heatmap,
+                      svgAsset: 'assets/svg/muscles/muscle_groups.svg',
+                      svgScale: 0.7,
+                      color: Theme.of(context).gymColors.success,
+                      onClick: () => onNavigate(StatsScreenType.HEATMAP_DETAIL),
+                    ),
+                  ),
+                  SizedBox(height: screenPadding),
+
+                  GymMotionItem(
+                    stage: 5,
+                    effect: GymMotionEffect.slideFromEnd,
+                    child: DashboardCard(
+                      title: t.stats.title_card_activity_history,
+                      subtitle: t.stats.desc_card_activity_history,
+                      svgAsset: 'assets/svg/icons/bar_chart.svg',
+                      color: colorScheme.primary,
+                      onClick: () => onNavigate(StatsScreenType.HISTORY_DETAIL),
+                    ),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

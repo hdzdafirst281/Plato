@@ -15,7 +15,7 @@ class GymAnimatedProgressBar extends StatelessWidget {
     required this.color,
     required this.trackColor,
     this.height = 8.0,
-    this.animationDuration = 1000,
+    this.animationDuration = 600,
   });
 
   @override

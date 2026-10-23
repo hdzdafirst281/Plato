@@ -22,6 +22,7 @@ import 'package:plato_gymapp/core/designsystem/components/gym_shake_wrapper.dart
 import 'package:plato_gymapp/core/designsystem/components/gym_shimmer.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_tour_target.dart';
 import 'package:plato_gymapp/core/navigation/app_router.dart';
+import 'package:plato_gymapp/core/navigation/main_scaffold.dart';
 import 'package:plato_gymapp/features/profile/presentation/components/muscle_group_presentation.dart';
 import 'package:plato_gymapp/features/workout/domain/workout_extensions.dart';
 import 'package:plato_gymapp/features/workout/presentation/bloc/exercise_library_cubit.dart';
@@ -433,86 +434,91 @@ class _WorkoutScreenState extends State<WorkoutScreen>
       isTablet: isTablet,
     );
 
-    return Scaffold(
-      backgroundColor: colorScheme.surface,
-      appBar: AppBar(
-        toolbarHeight: 56,
-        backgroundColor: colorScheme.surface,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        automaticallyImplyLeading: false,
-        centerTitle: true,
-        titleSpacing: 16,
-        title: GymEntrance(
-          offset: const Offset(0, -6),
-          duration: GymMotion.content,
-          child: Image.asset(
-            Theme.of(context).brightness == Brightness.dark
-                ? 'assets/logo/logo_themedark.png'
-                : 'assets/logo/logo_themelight.png',
-            key: ValueKey(Theme.of(context).brightness),
-            height: 36,
-            cacheHeight: 108,
-            fit: BoxFit.contain,
-          ),
-        ),
-      ),
-      body: Stack(
-        children: [
-          SafeArea(
-            child: Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 1200),
-                child: isTablet
-                    ? Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Expanded(
-                            flex: 4,
-                            child: _buildDashboardPanel(context, colorScheme),
-                          ),
-                          const SizedBox(width: 24),
-                          Expanded(flex: 6, child: mainList),
-                        ],
-                      )
-                    : mainList,
+    return MainTabMotionScope(
+      tabIndex: 0,
+      child: Scaffold(
+          backgroundColor: colorScheme.surface,
+          appBar: AppBar(
+            toolbarHeight: 56,
+            backgroundColor: colorScheme.surface,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            automaticallyImplyLeading: false,
+            centerTitle: true,
+            titleSpacing: 16,
+            title: GymMotionItem(
+              effect: GymMotionEffect.fadeDown,
+              child: Image.asset(
+                Theme.of(context).brightness == Brightness.dark
+                    ? 'assets/logo/logo_themedark.png'
+                    : 'assets/logo/logo_themelight.png',
+                key: ValueKey(Theme.of(context).brightness),
+                height: 36,
+                cacheHeight: 108,
+                fit: BoxFit.contain,
               ),
             ),
           ),
+          body: Stack(
+            children: [
+              SafeArea(
+                child: Center(
+                  child: ConstrainedBox(
+                    constraints: const BoxConstraints(maxWidth: 1200),
+                    child: isTablet
+                        ? Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Expanded(
+                                flex: 4,
+                                child: _buildDashboardPanel(
+                                  context,
+                                  colorScheme,
+                                ),
+                              ),
+                              const SizedBox(width: 24),
+                              Expanded(flex: 6, child: mainList),
+                            ],
+                          )
+                        : mainList,
+                  ),
+                ),
+              ),
 
-          // 2. VÙNG CẢM BIẾN CUỘN LÊN (Đỉnh màn hình)
-          Positioned(
-            top: 0,
-            left: 0,
-            right: 0,
-            height: 120,
-            child: DragTarget<String>(
-              // Trả về false để xuyên thấu xuống dưới, không chiếm quyền nhận data
-              onWillAcceptWithDetails: (_) {
-                _startVerticalScroll(-12.0);
-                return false;
-              },
-              onLeave: (_) => _stopVerticalScroll(),
-              builder: (context, _, _) => const SizedBox.expand(),
-            ),
-          ),
+              // 2. VÙNG CẢM BIẾN CUỘN LÊN (Đỉnh màn hình)
+              Positioned(
+                top: 0,
+                left: 0,
+                right: 0,
+                height: 120,
+                child: DragTarget<String>(
+                  // Trả về false để xuyên thấu xuống dưới, không chiếm quyền nhận data
+                  onWillAcceptWithDetails: (_) {
+                    _startVerticalScroll(-12.0);
+                    return false;
+                  },
+                  onLeave: (_) => _stopVerticalScroll(),
+                  builder: (context, _, _) => const SizedBox.expand(),
+                ),
+              ),
 
-          // 3. VÙNG CẢM BIẾN CUỘN XUỐNG (Đáy màn hình)
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            height: 160,
-            child: DragTarget<String>(
-              onWillAcceptWithDetails: (_) {
-                _startVerticalScroll(12.0);
-                return false;
-              },
-              onLeave: (_) => _stopVerticalScroll(),
-              builder: (context, _, _) => const SizedBox.expand(),
-            ),
+              // 3. VÙNG CẢM BIẾN CUỘN XUỐNG (Đáy màn hình)
+              Positioned(
+                bottom: 0,
+                left: 0,
+                right: 0,
+                height: 160,
+                child: DragTarget<String>(
+                  onWillAcceptWithDetails: (_) {
+                    _startVerticalScroll(12.0);
+                    return false;
+                  },
+                  onLeave: (_) => _stopVerticalScroll(),
+                  builder: (context, _, _) => const SizedBox.expand(),
+                ),
+              ),
+            ],
           ),
-        ],
       ),
     );
   }
@@ -625,8 +631,9 @@ class _WorkoutScreenState extends State<WorkoutScreen>
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        GymEntrance(
-          offset: const Offset(0, -GymMotion.entranceOffset),
+        GymMotionItem(
+          stage: 1,
+          effect: GymMotionEffect.fadeScale,
           child: buttonsLayout,
         ),
 
@@ -647,8 +654,8 @@ class _WorkoutScreenState extends State<WorkoutScreen>
                 (WorkoutCubit cubit) => cubit.state.recoveryUIDataList,
               );
               final isLoading = recoveryData.isEmpty;
-              return GymEntrance(
-                delay: GymMotion.stagger(1),
+              return GymMotionItem(
+                stage: 2,
                 child: GymContentSwitcher(
                   stateKey: isLoading ? 'loading' : 'content',
                   child: isLoading
@@ -783,15 +790,21 @@ class _WorkoutScreenState extends State<WorkoutScreen>
 
         final globalHeaderIndex = isTablet ? 0 : 1;
         if (index == globalHeaderIndex) {
-          return _GlobalFolderHeader(
-            folderCount: sortedFolders.length,
-            onAddFolder: () => _showCreateFolderDialog(context),
-            forceShowTour: forceShowTour,
+          return GymMotionItem(
+            stage: 3,
+            child: _GlobalFolderHeader(
+              folderCount: sortedFolders.length,
+              onAddFolder: () => _showCreateFolderDialog(context),
+              forceShowTour: forceShowTour,
+            ),
           );
         }
 
         if (isEmptyFolders) {
-          return _buildEmptyState(context, colorScheme);
+          return GymMotionItem(
+            stage: 4,
+            child: _buildEmptyState(context, colorScheme),
+          );
         }
 
         final folderIndex = index - extraTopItems;
@@ -838,80 +851,40 @@ class _WorkoutScreenState extends State<WorkoutScreen>
           );
         }
 
-        return Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            headerWidget,
+        return GymMotionItem(
+          stage: 4 + math.min(folderIndex, 1),
+          effect: GymMotionEffect.slideFromEnd,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              headerWidget,
 
-            if (folderRoutines.isNotEmpty)
-              SizedBox(
-                height: listHeight,
-                child: _AutoScrollRoutineRow(
-                  key: ValueKey('row_$folderKey'),
-                  folderName: folderKey,
-                  defaultFolderName: "",
-                  folderRoutines: folderRoutines,
-                  cardWidth: cardWidth,
-                  listHeight: listHeight,
-                  isTablet: isTablet,
-                  colorScheme: colorScheme,
-                  onRequestDelete: (routineId) async {
-                    final confirm = await GymDialog.showDestructive(
-                      context: context,
-                      title: t.workout.title_delete_confirm.trim(),
-                      message: t.workout.msg_delete_irreversible.trim(),
-                    );
-                    if (confirm == true && context.mounted) {
-                      context.read<WorkoutCubit>().deleteRoutine(routineId);
-                    }
-                  },
-                  onRequestReorderDialog: () =>
-                      _showRoutineReorderDialog(folderKey, folderRoutines),
-                  onAddRoutine: () {
-                    context.read<EditorCubit>().setRoutineToEdit(
-                      null,
-                      targetProgramName: folderKey,
-                    );
-                    context.push('/workout/${AppRoutes.createRoutine}');
-                  },
-                ),
-              )
-            else
-              Padding(
-                padding: const EdgeInsets.only(bottom: 16),
-                child: SizedBox(
-                  width: double.infinity,
-                  height: 64,
-                  child: OutlinedButton.icon(
-                    style: OutlinedButton.styleFrom(
-                      backgroundColor: colorScheme.surfaceContainerHighest
-                          .withValues(alpha: 0.3),
-                      side: BorderSide(
-                        color: colorScheme.outlineVariant.withValues(
-                          alpha: 0.5,
-                        ),
-                        width: 1,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      elevation: 0,
-                    ),
-                    icon: Icon(
-                      Symbols.add,
-                      color: colorScheme.primary,
-                      size: 24,
-                    ),
-                    label: Text(
-                      t.workout.title_routine_create_new.trim(),
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                        color: colorScheme.primary,
-                      ),
-                    ),
-                    onPressed: () {
+              if (folderRoutines.isNotEmpty)
+                SizedBox(
+                  height: listHeight,
+                  child: _AutoScrollRoutineRow(
+                    key: ValueKey('row_$folderKey'),
+                    folderName: folderKey,
+                    defaultFolderName: "",
+                    folderRoutines: folderRoutines,
+                    cardWidth: cardWidth,
+                    listHeight: listHeight,
+                    isTablet: isTablet,
+                    colorScheme: colorScheme,
+                    onRequestDelete: (routineId) async {
+                      final confirm = await GymDialog.showDestructive(
+                        context: context,
+                        title: t.workout.title_delete_confirm.trim(),
+                        message: t.workout.msg_delete_irreversible.trim(),
+                      );
+                      if (confirm == true && context.mounted) {
+                        context.read<WorkoutCubit>().deleteRoutine(routineId);
+                      }
+                    },
+                    onRequestReorderDialog: () =>
+                        _showRoutineReorderDialog(folderKey, folderRoutines),
+                    onAddRoutine: () {
                       context.read<EditorCubit>().setRoutineToEdit(
                         null,
                         targetProgramName: folderKey,
@@ -919,10 +892,54 @@ class _WorkoutScreenState extends State<WorkoutScreen>
                       context.push('/workout/${AppRoutes.createRoutine}');
                     },
                   ),
+                )
+              else
+                Padding(
+                  padding: const EdgeInsets.only(bottom: 16),
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 64,
+                    child: OutlinedButton.icon(
+                      style: OutlinedButton.styleFrom(
+                        backgroundColor: colorScheme.surfaceContainerHighest
+                            .withValues(alpha: 0.3),
+                        side: BorderSide(
+                          color: colorScheme.outlineVariant.withValues(
+                            alpha: 0.5,
+                          ),
+                          width: 1,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        ),
+                        elevation: 0,
+                      ),
+                      icon: Icon(
+                        Symbols.add,
+                        color: colorScheme.primary,
+                        size: 24,
+                      ),
+                      label: Text(
+                        t.workout.title_routine_create_new.trim(),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                          color: colorScheme.primary,
+                        ),
+                      ),
+                      onPressed: () {
+                        context.read<EditorCubit>().setRoutineToEdit(
+                          null,
+                          targetProgramName: folderKey,
+                        );
+                        context.push('/workout/${AppRoutes.createRoutine}');
+                      },
+                    ),
+                  ),
                 ),
-              ),
-            const SizedBox(height: 16),
-          ],
+              const SizedBox(height: 16),
+            ],
+          ),
         );
       },
     );

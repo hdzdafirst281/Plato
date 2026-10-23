@@ -16,6 +16,7 @@ import 'package:plato_gymapp/features/workout/domain/major_muscle_recovery_proje
 import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../../core/designsystem/components/gym_animated_progress_bar.dart';
+import '../../../../core/designsystem/components/gym_motion.dart';
 import '../../../../core/database/enums.dart';
 import '../../data/models/workout_models.dart';
 import '../bloc/active_session_cubit.dart';
@@ -571,7 +572,7 @@ class _GymAdvancedLineChartState extends State<GymAdvancedLineChart>
     super.initState();
     _animController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1500),
+      duration: GymMotion.visualization,
     );
     _growthAnim = CurvedAnimation(
       parent: _animController,

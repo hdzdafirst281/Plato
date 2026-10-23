@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_motion.dart';
 import 'colors.dart';
 import 'shapes.dart';
 
@@ -404,6 +405,17 @@ const gymColorsLight = GymColors(
 // 2. KHỞI TẠO THEMEDATA CHÍNH
 // ==========================================
 class AppTheme {
+  static const _pageTransitions = PageTransitionsTheme(
+    builders: {
+      TargetPlatform.android: GymPageTransitionsBuilder(),
+      TargetPlatform.iOS: GymPageTransitionsBuilder(),
+      TargetPlatform.macOS: GymPageTransitionsBuilder(),
+      TargetPlatform.windows: GymPageTransitionsBuilder(),
+      TargetPlatform.linux: GymPageTransitionsBuilder(),
+      TargetPlatform.fuchsia: GymPageTransitionsBuilder(),
+    },
+  );
+
   // -- Cấu hình Typography (Font Roboto) --
   static final TextTheme _textTheme = GoogleFonts.robotoTextTheme().copyWith(
     displayLarge: const TextStyle(fontWeight: FontWeight.bold, fontSize: 57),
@@ -430,6 +442,7 @@ class AppTheme {
   static final ThemeData darkTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.dark,
+    pageTransitionsTheme: _pageTransitions,
     colorScheme: ColorScheme.dark(
       primary: primaryBlueDark, // Dùng màu xanh dịu
       surface: bgDark,
@@ -464,6 +477,7 @@ class AppTheme {
   static final ThemeData lightTheme = ThemeData(
     useMaterial3: true,
     brightness: Brightness.light,
+    pageTransitionsTheme: _pageTransitions,
     colorScheme: ColorScheme.light(
       primary: primaryBlueLight, // Dùng màu xanh bão hòa cao
       surface: bgLight,

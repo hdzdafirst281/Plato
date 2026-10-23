@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_snackbar.dart';
-import 'dart:async';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
@@ -12,7 +11,6 @@ import 'package:plato_gymapp/i18n/translation_helper.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:plato_gymapp/core/database/enums.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_countdown_text.dart';
@@ -50,6 +48,8 @@ class _ProfileScreenState extends State<ProfileScreen>
     with SingleTickerProviderStateMixin {
   bool _isMenuOpen = false;
   late final AnimationController _marqueeController;
+  final GymMotionValue _rankProgressMotion = GymMotionValue();
+  final GymMotionValue _hexagonMotion = GymMotionValue();
   List<WorkoutSession>? _lastRawHistory;
   List<WorkoutSession> _cachedSortedHistory = [];
 
@@ -281,236 +281,238 @@ class _ProfileScreenState extends State<ProfileScreen>
         fill: 1.0,
       );
     }
-
-    return Scaffold(
-      backgroundColor: colorScheme.surface,
-      appBar: AppBar(
-        toolbarHeight: 56,
+    return MainTabMotionScope(
+      tabIndex: 3,
+      playOnceKey: 'main-tab-profile-${profile.id ?? 'guest'}',
+      child: Scaffold(
         backgroundColor: colorScheme.surface,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        automaticallyImplyLeading: false,
-        centerTitle: false,
-        titleSpacing: 24,
-        title: GymEntrance(
-          offset: const Offset(0, -6),
-          duration: GymMotion.content,
-          child: AnimatedSwitcher(
-            duration: GymMotion.content,
-            child: Image.asset(
-              Theme.of(context).brightness == Brightness.dark
-                  ? 'assets/logo/logo_themedark.png'
-                  : 'assets/logo/logo_themelight.png',
-              key: ValueKey(Theme.of(context).brightness),
-              height: 36,
-              cacheHeight: 108,
-              fit: BoxFit.contain,
+        appBar: AppBar(
+          toolbarHeight: 56,
+          backgroundColor: colorScheme.surface,
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          automaticallyImplyLeading: false,
+          centerTitle: false,
+          titleSpacing: 24,
+          title: GymMotionItem(
+            effect: GymMotionEffect.fadeDown,
+            child: AnimatedSwitcher(
+              duration: GymMotion.content,
+              child: Image.asset(
+                Theme.of(context).brightness == Brightness.dark
+                    ? 'assets/logo/logo_themedark.png'
+                    : 'assets/logo/logo_themelight.png',
+                key: ValueKey(Theme.of(context).brightness),
+                height: 36,
+                cacheHeight: 108,
+                fit: BoxFit.contain,
+              ),
             ),
           ),
-        ),
-        actions: [
-          PopupMenuButton<String>(
-            icon: Icon(Symbols.widgets, color: colorScheme.onSurface),
-            color: colorScheme.surfaceContainer,
-            elevation: 4,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(16),
-            ),
-            position: PopupMenuPosition.under,
-            offset: const Offset(16, 0),
-            onOpened: () => _isMenuOpen = true,
-            onCanceled: () => _isMenuOpen = false,
-            onSelected: (value) {
-              _isMenuOpen = false;
-              switch (value) {
-                case 'stats':
-                  context.push('/profile/${AppRoutes.stats}');
-                  break;
-                case 'exercises':
-                  context.pushNamed('exercise_library');
-                  break;
-                case 'edit':
-                  context.push('/profile/${AppRoutes.profileSettings}');
-                  break;
-                case 'calendar':
-                  context.push('/profile/${AppRoutes.calendar}');
-                  break;
-              }
-            },
-            itemBuilder: (BuildContext context) => [
-              PopupMenuItem(
-                value: 'stats',
-                child: Row(
-                  children: [
-                    SvgPicture.asset(
-                      'assets/svg/icons/chart.svg',
-                      width: 24,
-                      height: 24,
-                      colorFilter: ColorFilter.mode(
-                        colorScheme.primary,
-                        BlendMode.srcIn,
-                      ),
-                    ),
-                    const SizedBox(width: 12),
-                    Text(
-                      t.profile.btn_menu_stats,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  ],
-                ),
+          actions: [
+            PopupMenuButton<String>(
+              icon: Icon(Symbols.widgets, color: colorScheme.onSurface),
+              color: colorScheme.surfaceContainer,
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(16),
               ),
-              PopupMenuItem(
-                value: 'exercises',
-                child: Row(
-                  children: [
-                    Icon(Symbols.list_alt, color: colorScheme.primary),
-                    const SizedBox(width: 12),
-                    Text(
-                      t.profile.btn_menu_exercises,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'edit',
-                child: Row(
-                  children: [
-                    Icon(Symbols.person_edit, color: colorScheme.primary),
-                    const SizedBox(width: 12),
-                    Text(
-                      t.profile.btn_menu_edit,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  ],
-                ),
-              ),
-              PopupMenuItem(
-                value: 'calendar',
-                child: Row(
-                  children: [
-                    Icon(Symbols.calendar_month, color: colorScheme.primary),
-                    const SizedBox(width: 12),
-                    Text(
-                      t.profile.btn_menu_cal,
-                      style: const TextStyle(fontWeight: FontWeight.w600),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          IconButton(
-            tooltip: t.common.open_settings,
-            icon: Icon(Symbols.settings, color: colorScheme.onSurface),
-            onPressed: () => context.push('/profile/${AppRoutes.settings}'),
-          ),
-          const SizedBox(width: 4),
-        ],
-      ),
-      body: SafeArea(
-        child: Center(
-          child: ConstrainedBox(
-            constraints: const BoxConstraints(maxWidth: 1200),
-            child: Builder(
-              builder: (context) {
-                final isTablet = ResponsiveBreakpoints.of(
-                  context,
-                ).largerOrEqualTo(TABLET);
-
-                if (isTablet) {
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 16,
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          flex: 5,
-                          child: RefreshIndicator(
-                            onRefresh: _handleRefresh,
-                            color: colorScheme.primary,
-                            backgroundColor: colorScheme.surface,
-                            child: ListView(
-                              physics: const AlwaysScrollableScrollPhysics(
-                                parent: BouncingScrollPhysics(),
-                              ),
-                              children: [
-                                _buildProfileHeader(
-                                  context,
-                                  profile,
-                                  hasAvatar,
-                                  avatarImageWidget,
-                                  history,
-                                  isStatsLoading,
-                                ),
-                                const SizedBox(height: 48),
-                              ],
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 48),
-                        Expanded(
-                          flex: 5,
-                          child: RefreshIndicator(
-                            onRefresh: _handleRefresh,
-                            color: colorScheme.primary,
-                            backgroundColor: colorScheme.surface,
-                            child: ListView(
-                              physics: const AlwaysScrollableScrollPhysics(
-                                parent: BouncingScrollPhysics(),
-                              ),
-                              children: [
-                                const SizedBox(height: 16),
-                                _buildHistoryHeader(context, history),
-                                const SizedBox(height: 16),
-                                _buildHistoryList(context, history),
-                                const SizedBox(height: 48),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  );
+              position: PopupMenuPosition.under,
+              offset: const Offset(16, 0),
+              onOpened: () => _isMenuOpen = true,
+              onCanceled: () => _isMenuOpen = false,
+              onSelected: (value) {
+                _isMenuOpen = false;
+                switch (value) {
+                  case 'stats':
+                    context.push('/profile/${AppRoutes.stats}');
+                    break;
+                  case 'exercises':
+                    context.pushNamed('exercise_library');
+                    break;
+                  case 'edit':
+                    context.push('/profile/${AppRoutes.profileSettings}');
+                    break;
+                  case 'calendar':
+                    context.push('/profile/${AppRoutes.calendar}');
+                    break;
                 }
+              },
+              itemBuilder: (BuildContext context) => [
+                PopupMenuItem(
+                  value: 'stats',
+                  child: Row(
+                    children: [
+                      SvgPicture.asset(
+                        'assets/svg/icons/chart.svg',
+                        width: 24,
+                        height: 24,
+                        colorFilter: ColorFilter.mode(
+                          colorScheme.primary,
+                          BlendMode.srcIn,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Text(
+                        t.profile.btn_menu_stats,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'exercises',
+                  child: Row(
+                    children: [
+                      Icon(Symbols.list_alt, color: colorScheme.primary),
+                      const SizedBox(width: 12),
+                      Text(
+                        t.profile.btn_menu_exercises,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'edit',
+                  child: Row(
+                    children: [
+                      Icon(Symbols.person_edit, color: colorScheme.primary),
+                      const SizedBox(width: 12),
+                      Text(
+                        t.profile.btn_menu_edit,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: 'calendar',
+                  child: Row(
+                    children: [
+                      Icon(Symbols.calendar_month, color: colorScheme.primary),
+                      const SizedBox(width: 12),
+                      Text(
+                        t.profile.btn_menu_cal,
+                        style: const TextStyle(fontWeight: FontWeight.w600),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            IconButton(
+              tooltip: t.common.open_settings,
+              icon: Icon(Symbols.settings, color: colorScheme.onSurface),
+              onPressed: () => context.push('/profile/${AppRoutes.settings}'),
+            ),
+            const SizedBox(width: 4),
+          ],
+        ),
+        body: SafeArea(
+          child: Center(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(maxWidth: 1200),
+              child: Builder(
+                builder: (context) {
+                  final isTablet = ResponsiveBreakpoints.of(
+                    context,
+                  ).largerOrEqualTo(TABLET);
 
-                return RefreshIndicator(
-                  onRefresh: _handleRefresh,
-                  color: colorScheme.primary,
-                  backgroundColor: colorScheme.surface,
-                  child: SingleChildScrollView(
-                    physics: const AlwaysScrollableScrollPhysics(
-                      parent: BouncingScrollPhysics(),
-                    ),
-                    child: Padding(
+                  if (isTablet) {
+                    return Padding(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 16,
                       ),
-                      child: Column(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _buildProfileHeader(
-                            context,
-                            profile,
-                            hasAvatar,
-                            avatarImageWidget,
-                            history,
-                            isStatsLoading,
+                          Expanded(
+                            flex: 5,
+                            child: RefreshIndicator(
+                              onRefresh: _handleRefresh,
+                              color: colorScheme.primary,
+                              backgroundColor: colorScheme.surface,
+                              child: ListView(
+                                physics: const AlwaysScrollableScrollPhysics(
+                                  parent: BouncingScrollPhysics(),
+                                ),
+                                children: [
+                                  _buildProfileHeader(
+                                    context,
+                                    profile,
+                                    hasAvatar,
+                                    avatarImageWidget,
+                                    history,
+                                    isStatsLoading,
+                                  ),
+                                  const SizedBox(height: 48),
+                                ],
+                              ),
+                            ),
                           ),
-                          const SizedBox(height: 32),
-                          _buildHistoryHeader(context, history),
-                          const SizedBox(height: 16),
-                          _buildHistoryList(context, history),
-                          const SizedBox(height: 48),
+                          const SizedBox(width: 48),
+                          Expanded(
+                            flex: 5,
+                            child: RefreshIndicator(
+                              onRefresh: _handleRefresh,
+                              color: colorScheme.primary,
+                              backgroundColor: colorScheme.surface,
+                              child: ListView(
+                                physics: const AlwaysScrollableScrollPhysics(
+                                  parent: BouncingScrollPhysics(),
+                                ),
+                                children: [
+                                  const SizedBox(height: 16),
+                                  _buildHistoryHeader(context, history),
+                                  const SizedBox(height: 16),
+                                  _buildHistoryList(context, history),
+                                  const SizedBox(height: 48),
+                                ],
+                              ),
+                            ),
+                          ),
                         ],
                       ),
+                    );
+                  }
+
+                  return RefreshIndicator(
+                    onRefresh: _handleRefresh,
+                    color: colorScheme.primary,
+                    backgroundColor: colorScheme.surface,
+                    child: SingleChildScrollView(
+                      physics: const AlwaysScrollableScrollPhysics(
+                        parent: BouncingScrollPhysics(),
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 16,
+                        ),
+                        child: Column(
+                          children: [
+                            _buildProfileHeader(
+                              context,
+                              profile,
+                              hasAvatar,
+                              avatarImageWidget,
+                              history,
+                              isStatsLoading,
+                            ),
+                            const SizedBox(height: 32),
+                            _buildHistoryHeader(context, history),
+                            const SizedBox(height: 16),
+                            _buildHistoryList(context, history),
+                            const SizedBox(height: 48),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
-                );
-              },
+                  );
+                },
+              ),
             ),
           ),
         ),
@@ -593,7 +595,12 @@ class _ProfileScreenState extends State<ProfileScreen>
         ),
         child: SizedBox(
           height: 180,
-          child: Center(child: _MiniHexagonChart(workouts: history)),
+          child: Center(
+            child: _MiniHexagonChart(
+              workouts: history,
+              motionValue: _hexagonMotion,
+            ),
+          ),
         ),
       ),
     );
@@ -733,6 +740,7 @@ class _ProfileScreenState extends State<ProfileScreen>
                 ),
                 const SizedBox(height: 6),
                 _BMIStyleZoneBar(
+                  motionValue: _rankProgressMotion,
                   currentRank: rankInfo,
                   points: profile.currentRp,
                   isMaxRank: isMaxRank,
@@ -743,13 +751,18 @@ class _ProfileScreenState extends State<ProfileScreen>
         ),
       );
     }
+    rankProgressContent = GymContentSwitcher(
+      stateKey: isStatsLoading ? 'rank-loading' : 'rank-content',
+      child: rankProgressContent,
+    );
 
     return Stack(
       clipBehavior: Clip.none,
       children: [
         // Main Card
-        GymEntrance(
-          delay: GymMotion.stagger(1),
+        GymMotionItem(
+          stage: 1,
+          effect: GymMotionEffect.fadeScale,
           child: Container(
             margin: EdgeInsets.only(
               top: avatarSize * 0.75,
@@ -794,7 +807,8 @@ class _ProfileScreenState extends State<ProfileScreen>
           top: 0,
           left: 16, // Shifted slightly to the left
           right: 16,
-          child: GymEntrance(
+          child: GymMotionItem(
+            stage: 1,
             child: Row(
               crossAxisAlignment:
                   CrossAxisAlignment.center, // Canh giữa theo chiều dọc
@@ -824,8 +838,8 @@ class _ProfileScreenState extends State<ProfileScreen>
     BuildContext context,
     List<WorkoutSession> history,
   ) {
-    return GymEntrance(
-      delay: GymMotion.stagger(2),
+    return GymMotionItem(
+      stage: 2,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.center,
@@ -860,8 +874,8 @@ class _ProfileScreenState extends State<ProfileScreen>
 
   Widget _buildHistoryList(BuildContext context, List<WorkoutSession> history) {
     if (history.isEmpty) {
-      return GymEntrance(
-        delay: GymMotion.stagger(3),
+      return GymMotionItem(
+        stage: 3,
         child: Center(
           child: Padding(
             padding: const EdgeInsets.symmetric(vertical: 48),
@@ -883,8 +897,9 @@ class _ProfileScreenState extends State<ProfileScreen>
       children: history.take(itemCount).toList().asMap().entries.map((entry) {
         final index = entry.key;
         final session = entry.value;
-        return GymEntrance(
-          delay: GymMotion.stagger(index + 3),
+        return GymMotionItem(
+          stage: index + 3,
+          effect: GymMotionEffect.slideFromEnd,
           child: _HistoryCard(
             session: session,
             onTap: () => context.push('/workout/workout_detail/${session.id}'),
@@ -928,11 +943,13 @@ class _ProfileScreenState extends State<ProfileScreen>
 }
 
 class _BMIStyleZoneBar extends StatelessWidget {
+  final GymMotionValue motionValue;
   final RankLevel currentRank;
   final int points;
   final bool isMaxRank;
 
   const _BMIStyleZoneBar({
+    required this.motionValue,
     required this.currentRank,
     required this.points,
     required this.isMaxRank,
@@ -963,14 +980,12 @@ class _BMIStyleZoneBar extends StatelessWidget {
 
         return Column(
           children: [
-            Animate(key: ValueKey(points)).custom(
-              duration: GymMotion.reduceMotion(context)
-                  ? Duration.zero
-                  : GymMotion.emphasized,
-              curve: Curves.easeOutCubic,
-              end: targetRatio,
-              builder: (context, value, child) {
-                return CustomPaint(
+            GymStableValueBuilder(
+              motionValue: motionValue,
+              value: targetRatio,
+              duration: GymMotion.emphasized,
+              builder: (context, value, child) => RepaintBoundary(
+                child: CustomPaint(
                   size: Size(
                     width.isInfinite ? 350 : width,
                     8,
@@ -986,8 +1001,8 @@ class _BMIStyleZoneBar extends StatelessWidget {
                     colorPromote: colorPromote,
                     colorIndicator: colorScheme.primary,
                   ),
-                );
-              },
+                ),
+              ),
             ),
             const SizedBox(height: 4),
             SizedBox(
@@ -1189,46 +1204,17 @@ class _ZoneBarPainter extends CustomPainter {
   }
 }
 
-class _MiniHexagonChart extends StatefulWidget {
+class _MiniHexagonChart extends StatelessWidget {
   final List<WorkoutSession> workouts;
-  const _MiniHexagonChart({required this.workouts});
+  final GymMotionValue motionValue;
 
-  @override
-  State<_MiniHexagonChart> createState() => _MiniHexagonChartState();
-}
-
-class _MiniHexagonChartState extends State<_MiniHexagonChart>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animController;
-  late Animation<double> _growthAnim;
-
-  @override
-  void initState() {
-    super.initState();
-    _animController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1400),
-    );
-    _growthAnim = CurvedAnimation(
-      parent: _animController,
-      curve: Curves.easeOutBack,
-    );
-    _animController.forward();
-  }
-
-  @override
-  void dispose() {
-    _animController.dispose();
-    super.dispose();
-  }
+  const _MiniHexagonChart({required this.workouts, required this.motionValue});
 
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now().millisecondsSinceEpoch;
     final t30 = now - (30 * 24 * 60 * 60 * 1000);
-    final currentMonth = widget.workouts
-        .where((w) => w.startTime >= t30)
-        .toList();
+    final currentMonth = workouts.where((w) => w.startTime >= t30).toList();
 
     // REFACTOR: Sử dụng mốc Dynamic Scaling
     final rawCurrent = ProfileChartUtils.calculateRawMuscleScores(currentMonth);
@@ -1243,14 +1229,18 @@ class _MiniHexagonChartState extends State<_MiniHexagonChart>
         return SizedBox(
           width: size,
           height: size,
-          child: AnimatedBuilder(
-            animation: _growthAnim,
-            builder: (context, _) => CustomPaint(
-              painter: _MiniHexagonPainter(
-                currentStats: normCurrent,
-                progress: _growthAnim.value,
-                colorScheme: Theme.of(context).colorScheme,
-                gymColors: Theme.of(context).gymColors,
+          child: GymStableValueBuilder(
+            motionValue: motionValue,
+            value: 1,
+            duration: GymMotion.visualization,
+            builder: (context, value, child) => RepaintBoundary(
+              child: CustomPaint(
+                painter: _MiniHexagonPainter(
+                  currentStats: normCurrent,
+                  progress: value,
+                  colorScheme: Theme.of(context).colorScheme,
+                  gymColors: Theme.of(context).gymColors,
+                ),
               ),
             ),
           ),

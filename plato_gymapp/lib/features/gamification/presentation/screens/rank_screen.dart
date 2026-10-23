@@ -6,10 +6,10 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
 import 'package:plato_gymapp/i18n/translation_helper.dart';
 import 'package:go_router/go_router.dart';
-import 'package:flutter_animate/flutter_animate.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_countdown_text.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_motion.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../../core/designsystem/theme/app_theme.dart';
@@ -34,6 +34,7 @@ class _RankScreenState extends State<RankScreen>
       false; // TODO(Debug): Đổi thành false khi build Production
 
   late TabController _tabController;
+  final GymMotionValue _gaugeMotion = GymMotionValue();
 
   @override
   void initState() {
@@ -234,10 +235,15 @@ class _RankScreenState extends State<RankScreen>
     );
 
     if (rankState == null || debugForceLoading) {
-      return _RankShimmer(
-        bottomTabBar: bottomTabBar,
-        isTablet: isTablet,
-        tabController: _tabController,
+      return GymMotionScope(
+        child: GymContentSwitcher(
+          stateKey: 'rank-loading',
+          child: _RankShimmer(
+            bottomTabBar: bottomTabBar,
+            isTablet: isTablet,
+            tabController: _tabController,
+          ),
+        ),
       );
     }
 
@@ -249,53 +255,104 @@ class _RankScreenState extends State<RankScreen>
     final List<RankLevel> allAvailableRanks = RankConfig.hierarchy;
     final List<RankTimelineItem> advancementHistory = rankState.history;
 
-    return Scaffold(
-      backgroundColor: colorScheme.surface,
-      appBar: GymTopBar(
-        backgroundColor: colorScheme.surface,
-        title: t.rank.title_main,
-        onBackClick: () => context.pop(),
-        actions: [
-          IconButton(
-            icon: Icon(Symbols.info, color: colorScheme.primary),
-            onPressed: () => _showInfoDialog(context),
+    return GymMotionScope(
+      child: GymContentSwitcher(
+        stateKey: 'rank-content',
+        child: Scaffold(
+          backgroundColor: colorScheme.surface,
+          appBar: GymTopBar(
+            backgroundColor: colorScheme.surface,
+            title: t.rank.title_main,
+            onBackClick: () => context.pop(),
+            actions: [
+              IconButton(
+                icon: Icon(Symbols.info, color: colorScheme.primary),
+                onPressed: () => _showInfoDialog(context),
+              ),
+            ],
           ),
-        ],
-      ),
-      bottomNavigationBar: isTablet ? null : bottomTabBar,
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: SafeArea(
-            bottom: isTablet,
-            child: isTablet
-                ? Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Expanded(
-                        flex: 5,
-                        child: Padding(
-                          padding: const EdgeInsets.all(6),
-                          child: _RankGaugeHeader(
-                            currentRank: currentRank,
-                            points: currentPoints,
-                            cycleStartMillis: cycleStartTimeMillis,
-                            allRanks: allAvailableRanks,
-                            isTablet: true,
-                          ),
-                        ),
-                      ),
-                      Container(
-                        width: 1,
-                        color: colorScheme.outlineVariant.withValues(
-                          alpha: 0.3,
-                        ),
-                      ),
-                      Expanded(
-                        flex: 5,
-                        child: Column(
+          bottomNavigationBar: isTablet ? null : bottomTabBar,
+          body: GymMotionItem(
+            stage: 1,
+            child: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1200),
+                child: SafeArea(
+                  bottom: isTablet,
+                  child: isTablet
+                      ? Row(
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
                             Expanded(
+                              flex: 5,
+                              child: Padding(
+                                padding: const EdgeInsets.all(6),
+                                child: _RankGaugeHeader(
+                                  gaugeMotion: _gaugeMotion,
+                                  currentRank: currentRank,
+                                  points: currentPoints,
+                                  cycleStartMillis: cycleStartTimeMillis,
+                                  allRanks: allAvailableRanks,
+                                  isTablet: true,
+                                ),
+                              ),
+                            ),
+                            Container(
+                              width: 1,
+                              color: colorScheme.outlineVariant.withValues(
+                                alpha: 0.3,
+                              ),
+                            ),
+                            Expanded(
+                              flex: 5,
+                              child: Column(
+                                children: [
+                                  Expanded(
+                                    child: TabBarView(
+                                      controller: _tabController,
+                                      children: [
+                                        _JourneyTimelineList(
+                                          allRanks: allAvailableRanks,
+                                          activeRankId: activeRankId,
+                                          currentRp: currentPoints,
+                                        ),
+                                        _HistoryLineChart(
+                                          history: advancementHistory,
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                  bottomTabBar,
+                                ],
+                              ),
+                            ),
+                          ],
+                        )
+                      : Column(
+                          children: [
+                            Expanded(
+                              flex: 5,
+                              // [FIX] Removed SingleChildScrollView for mobile to make it fit exactly
+                              child: Padding(
+                                padding: const EdgeInsets.all(10),
+                                child: _RankGaugeHeader(
+                                  gaugeMotion: _gaugeMotion,
+                                  currentRank: currentRank,
+                                  points: currentPoints,
+                                  cycleStartMillis: cycleStartTimeMillis,
+                                  allRanks: allAvailableRanks,
+                                  isTablet: false,
+                                ),
+                              ),
+                            ),
+                            Container(
+                              height: 1,
+                              color: colorScheme.outlineVariant.withValues(
+                                alpha: 0.3,
+                              ),
+                            ),
+                            Expanded(
+                              flex: 5,
                               child: TabBarView(
                                 controller: _tabController,
                                 children: [
@@ -310,50 +367,11 @@ class _RankScreenState extends State<RankScreen>
                                 ],
                               ),
                             ),
-                            bottomTabBar,
                           ],
                         ),
-                      ),
-                    ],
-                  )
-                : Column(
-                    children: [
-                      Expanded(
-                        flex: 5,
-                        // [FIX] Removed SingleChildScrollView for mobile to make it fit exactly
-                        child: Padding(
-                          padding: const EdgeInsets.all(10),
-                          child: _RankGaugeHeader(
-                            currentRank: currentRank,
-                            points: currentPoints,
-                            cycleStartMillis: cycleStartTimeMillis,
-                            allRanks: allAvailableRanks,
-                            isTablet: false,
-                          ),
-                        ),
-                      ),
-                      Container(
-                        height: 1,
-                        color: colorScheme.outlineVariant.withValues(
-                          alpha: 0.3,
-                        ),
-                      ),
-                      Expanded(
-                        flex: 5,
-                        child: TabBarView(
-                          controller: _tabController,
-                          children: [
-                            _JourneyTimelineList(
-                              allRanks: allAvailableRanks,
-                              activeRankId: activeRankId,
-                              currentRp: currentPoints,
-                            ),
-                            _HistoryLineChart(history: advancementHistory),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
+                ),
+              ),
+            ),
           ),
         ),
       ),
@@ -390,57 +408,60 @@ class _RankShimmer extends StatelessWidget {
         ],
       ),
       bottomNavigationBar: isTablet ? null : bottomTabBar,
-      body: Center(
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(maxWidth: 1200),
-          child: SafeArea(
-            bottom: isTablet,
-            child: isTablet
-                ? Row(
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      Expanded(
-                        flex: 5,
-                        child: Padding(
-                          padding: const EdgeInsets.all(6),
-                          child: _buildHeaderShimmer(),
+      body: GymMotionItem(
+        stage: 1,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 1200),
+            child: SafeArea(
+              bottom: isTablet,
+              child: isTablet
+                  ? Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        Expanded(
+                          flex: 5,
+                          child: Padding(
+                            padding: const EdgeInsets.all(6),
+                            child: _buildHeaderShimmer(),
+                          ),
                         ),
-                      ),
-                      Container(
-                        width: 1,
-                        color: colorScheme.outlineVariant.withValues(
-                          alpha: 0.3,
+                        Container(
+                          width: 1,
+                          color: colorScheme.outlineVariant.withValues(
+                            alpha: 0.3,
+                          ),
                         ),
-                      ),
-                      Expanded(
-                        flex: 5,
-                        child: Column(
-                          children: [
-                            Expanded(child: _buildListShimmer()),
-                            bottomTabBar,
-                          ],
+                        Expanded(
+                          flex: 5,
+                          child: Column(
+                            children: [
+                              Expanded(child: _buildListShimmer()),
+                              bottomTabBar,
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
-                  )
-                : Column(
-                    children: [
-                      Expanded(
-                        flex: 5,
-                        child: Padding(
-                          padding: const EdgeInsets.all(10),
-                          child: _buildHeaderShimmer(),
+                      ],
+                    )
+                  : Column(
+                      children: [
+                        Expanded(
+                          flex: 5,
+                          child: Padding(
+                            padding: const EdgeInsets.all(10),
+                            child: _buildHeaderShimmer(),
+                          ),
                         ),
-                      ),
-                      Container(
-                        height: 1,
-                        color: colorScheme.outlineVariant.withValues(
-                          alpha: 0.3,
+                        Container(
+                          height: 1,
+                          color: colorScheme.outlineVariant.withValues(
+                            alpha: 0.3,
+                          ),
                         ),
-                      ),
-                      Expanded(flex: 5, child: _buildListShimmer()),
-                    ],
-                  ),
+                        Expanded(flex: 5, child: _buildListShimmer()),
+                      ],
+                    ),
+            ),
           ),
         ),
       ),

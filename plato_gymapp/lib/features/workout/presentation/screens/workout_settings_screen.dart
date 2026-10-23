@@ -7,6 +7,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_top_bar.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_motion.dart';
 import 'package:plato_gymapp/core/di/injection.dart';
 import 'package:plato_gymapp/core/utils/workout_permission_helper.dart';
 import 'package:plato_gymapp/core/worker/background_workout_service.dart';
@@ -139,8 +140,10 @@ class _WorkoutSettingsScreenState extends State<WorkoutSettingsScreen>
         title: t.settings.title_workout_settings,
         onBackClick: () => context.pop(),
       ),
-      body: Center(
-        child: ConstrainedBox(
+      body: GymMotionItem(
+        stage: 1,
+        child: Center(
+          child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 800),
           child: ListView(
             padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
@@ -253,6 +256,7 @@ class _WorkoutSettingsScreenState extends State<WorkoutSettingsScreen>
               ]),
             ],
           ),
+        ),
         ),
       ),
     );

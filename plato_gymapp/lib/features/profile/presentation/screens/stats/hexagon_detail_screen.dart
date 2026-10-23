@@ -6,6 +6,7 @@ import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_motion.dart';
 
 import '../../../../../core/designsystem/components/gym_top_bar.dart';
 import '../../../../workout/data/models/workout_models.dart';
@@ -29,7 +30,7 @@ class _HexagonDetailScreenState extends State<HexagonDetailScreen> with SingleTi
   @override
   void initState() {
     super.initState();
-    _animController = AnimationController(vsync: this, duration: const Duration(milliseconds: 1400));
+    _animController = AnimationController(vsync: this, duration: GymMotion.visualization);
     
     _opacityAnim = CurvedAnimation(parent: _animController, curve: const Interval(0.0, 0.5, curve: Curves.easeIn));
     _growthAnim = CurvedAnimation(parent: _animController, curve: const Interval(0.5, 1.0, curve: Curves.easeOutBack));

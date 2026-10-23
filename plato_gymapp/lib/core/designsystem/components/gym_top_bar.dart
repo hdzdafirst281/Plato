@@ -64,9 +64,8 @@ class GymTopBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: true,
       elevation: 0,
       leading: leadingWidget,
-      title: GymEntrance(
-        offset: const Offset(0, -6),
-        duration: GymMotion.content,
+      title: GymMotionItem(
+        effect: GymMotionEffect.fadeDown,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [

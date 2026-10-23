@@ -18,6 +18,7 @@ import 'package:plato_gymapp/core/designsystem/components/gym_tour_target.dart';
 import 'package:plato_gymapp/core/utils/tour_keys.dart';
 
 import '../../../../core/designsystem/components/gym_top_bar.dart';
+import '../../../../core/designsystem/components/gym_motion.dart';
 import '../../../../core/designsystem/components/gym_search_bar.dart';
 import '../../../../core/database/enums.dart';
 import '../../../../core/database/entities.dart';
@@ -540,8 +541,10 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
           );
         },
       ),
-      body: Center(
-        child: ConstrainedBox(
+      body: GymMotionItem(
+        stage: 1,
+        child: Center(
+          child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 1200),
           child: Builder(
             builder: (context) {
@@ -922,6 +925,7 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
               );
             },
           ),
+        ),
         ),
       ),
     );

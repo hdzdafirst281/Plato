@@ -220,8 +220,9 @@ class _NutritionScreenState extends State<NutritionScreen> {
             );
           }
 
-          return GymEntrance(
-            delay: GymMotion.stagger(index + 2),
+          return GymMotionItem(
+            stage: index + 3,
+            effect: GymMotionEffect.slideFromEnd,
             child: Padding(
               padding: const EdgeInsets.only(bottom: 20),
               child: cardWidget,
@@ -369,11 +370,17 @@ class _NutritionScreenState extends State<NutritionScreen> {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
           if (isTablet) ...[
-            GymEntrance(child: dashboardWidget),
+            GymMotionItem(
+              stage: 1,
+              effect: GymMotionEffect.fadeScale,
+              child: dashboardWidget,
+            ),
             const SizedBox(height: 16),
-            GymEntrance(delay: GymMotion.stagger(1), child: waterWidget),
+            GymMotionItem(stage: 2, child: waterWidget),
           ] else ...[
-            GymEntrance(
+            GymMotionItem(
+              stage: 1,
+              effect: GymMotionEffect.fadeScale,
               child: IntrinsicHeight(
                 child: Row(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -389,8 +396,8 @@ class _NutritionScreenState extends State<NutritionScreen> {
 
           const SizedBox(height: 24),
 
-          GymEntrance(
-            delay: GymMotion.stagger(2),
+          GymMotionItem(
+            stage: 2,
             child: GymTourTarget(
               isActive:
                   !context.read<TourCubit>().state.hasSeenNutrition ||
@@ -445,107 +452,110 @@ class _NutritionScreenState extends State<NutritionScreen> {
       );
     }
 
-    return Scaffold(
-      backgroundColor: colorScheme.surface,
-      appBar: AppBar(
-        toolbarHeight: 56,
-        backgroundColor: colorScheme.surface,
-        elevation: 0,
-        scrolledUnderElevation: 0,
-        automaticallyImplyLeading: false,
-        title: GymEntrance(
-          offset: const Offset(0, -6),
-          duration: GymMotion.content,
-          child: Text(
-            t.nutrition.title_main,
-            style: TextStyle(
-              fontWeight: FontWeight.w900,
-              fontSize: 25,
-              color: colorScheme.onSurface,
-            ),
-          ),
-        ),
-        actions: [
-          IconButton(
-            onPressed: () {
-              context.read<NutritionCubit>().loadNutritionHistory();
-              context.push('/nutrition/history');
-            },
-            icon: GymTourTarget(
-              isActive:
-                  !context.read<TourCubit>().state.hasSeenNutrition ||
-                  forceShowTour,
-              tourKey: TourKeys.nutritionHistoryBtn,
-              title: t.nutrition.title_history,
-              description: t.tour.nutrition_history_desc,
-              // FIX LỖI TRÀN VIỀN: Ép thành hình tròn khít
-              customShapeBorder: const CircleBorder(),
-              // Thu hẹp padding tối đa để hộp tọa độ không lồi ra ngoài mép phải màn hình
-              targetPadding: EdgeInsets.zero,
-              child: Icon(
-                Symbols.history,
-                color: colorScheme.primary,
-                size: 24,
+    return MainTabMotionScope(
+      tabIndex: 1,
+      child: Scaffold(
+          backgroundColor: colorScheme.surface,
+          appBar: AppBar(
+            toolbarHeight: 56,
+            backgroundColor: colorScheme.surface,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            automaticallyImplyLeading: false,
+            title: GymMotionItem(
+              effect: GymMotionEffect.fadeDown,
+              child: Text(
+                t.nutrition.title_main,
+                style: TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 25,
+                  color: colorScheme.onSurface,
+                ),
               ),
             ),
+            actions: [
+              IconButton(
+                onPressed: () {
+                  context.read<NutritionCubit>().loadNutritionHistory();
+                  context.push('/nutrition/history');
+                },
+                icon: GymTourTarget(
+                  isActive:
+                      !context.read<TourCubit>().state.hasSeenNutrition ||
+                      forceShowTour,
+                  tourKey: TourKeys.nutritionHistoryBtn,
+                  title: t.nutrition.title_history,
+                  description: t.tour.nutrition_history_desc,
+                  // FIX LỖI TRÀN VIỀN: Ép thành hình tròn khít
+                  customShapeBorder: const CircleBorder(),
+                  // Thu hẹp padding tối đa để hộp tọa độ không lồi ra ngoài mép phải màn hình
+                  targetPadding: EdgeInsets.zero,
+                  child: Icon(
+                    Symbols.history,
+                    color: colorScheme.primary,
+                    size: 24,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+            ],
           ),
-          const SizedBox(width: 16),
-        ],
-      ),
-      body: SafeArea(
-        child: isTablet
-            ? Center(
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(maxWidth: 1200),
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 24,
+          body: SafeArea(
+            child: isTablet
+                ? Center(
+                    child: ConstrainedBox(
+                      constraints: const BoxConstraints(maxWidth: 1200),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 24,
+                          vertical: 16,
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            // Cột 1: Dashboard & Water (Cuộn độc lập)
+                            Expanded(
+                              flex: 1,
+                              child: SingleChildScrollView(
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                child: buildDashboards(),
+                              ),
+                            ),
+                            const SizedBox(width: 32),
+                            // Cột 2: Bữa ăn (Cuộn độc lập)
+                            Expanded(
+                              flex: 1,
+                              child: SingleChildScrollView(
+                                physics: const AlwaysScrollableScrollPhysics(),
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: mealWidgets,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  )
+                : SingleChildScrollView(
+                    physics: const AlwaysScrollableScrollPhysics(),
+                    padding: EdgeInsets.symmetric(
+                      horizontal: horizontalPadding,
                       vertical: 16,
                     ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        // Cột 1: Dashboard & Water (Cuộn độc lập)
-                        Expanded(
-                          flex: 1,
-                          child: SingleChildScrollView(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            child: buildDashboards(),
-                          ),
-                        ),
-                        const SizedBox(width: 32),
-                        // Cột 2: Bữa ăn (Cuộn độc lập)
-                        Expanded(
-                          flex: 1,
-                          child: SingleChildScrollView(
-                            physics: const AlwaysScrollableScrollPhysics(),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.stretch,
-                              children: mealWidgets,
-                            ),
-                          ),
-                        ),
+                        buildDashboards(),
+                        const SizedBox(height: 24),
+                        ...mealWidgets,
+                        const SizedBox(height: 80),
                       ],
                     ),
                   ),
-                ),
-              )
-            : SingleChildScrollView(
-                physics: const AlwaysScrollableScrollPhysics(),
-                padding: EdgeInsets.symmetric(
-                  horizontal: horizontalPadding,
-                  vertical: 16,
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    buildDashboards(),
-                    const SizedBox(height: 24),
-                    ...mealWidgets,
-                    const SizedBox(height: 80),
-                  ],
-                ),
-              ),
+          ),
       ),
     );
   }

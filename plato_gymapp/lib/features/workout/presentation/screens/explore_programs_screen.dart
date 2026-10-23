@@ -12,6 +12,7 @@ import 'package:plato_gymapp/core/utils/measurement_units.dart';
 import 'package:plato_gymapp/features/profile/presentation/bloc/profile_cubit.dart';
 
 import '../../../../core/designsystem/components/gym_top_bar.dart';
+import '../../../../core/designsystem/components/gym_motion.dart';
 import '../../../../core/database/enums.dart';
 
 import '../../data/models/workout_models.dart';
@@ -145,8 +146,10 @@ class _ExploreProgramsScreenState extends State<ExploreProgramsScreen> {
             }
           },
         ),
-        body: _detailedProgram != null 
-          ? _ProgramDetailView(
+        body: GymMotionItem(
+          stage: 1,
+          child: _detailedProgram != null
+            ? _ProgramDetailView(
               program: _detailedProgram!, 
               isAdded: addedProgramNames.contains(_detailedProgram!.name),
               translateEnv: _translateEnv,
@@ -248,7 +251,8 @@ class _ExploreProgramsScreenState extends State<ExploreProgramsScreen> {
                       ),
                 )
               ],
-            ),
+              ),
+        ),
       ),
     );
   }

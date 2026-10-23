@@ -6,6 +6,7 @@ import '../../components/bodymap/body_map_repository.dart';
 import '../../components/bodymap/body_map_painter.dart';
 import 'dart:math' as math;
 import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_motion.dart';
 
 import '../../../../../core/designsystem/components/gym_top_bar.dart';
 import '../../../../../core/designsystem/theme/app_theme.dart';
@@ -44,7 +45,7 @@ class _HeatmapDetailScreenState extends State<HeatmapDetailScreen>
     super.initState();
     _animController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1400),
+      duration: GymMotion.visualization,
     );
     _uiOpacityAnim = CurvedAnimation(
       parent: _animController,

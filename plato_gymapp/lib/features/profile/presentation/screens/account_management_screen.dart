@@ -9,6 +9,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_marquee_text.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_top_bar.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_motion.dart';
 import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_shake_wrapper.dart';
 import 'package:plato_gymapp/features/workout/presentation/bloc/workout_cubit.dart';
@@ -395,8 +396,10 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> with 
         title: t.settings.title_account_management,
         onBackClick: () => Navigator.pop(context),
       ),
-      body: BlocBuilder<ProfileCubit, ProfileState>(
-        builder: (context, profileState) {
+      body: GymMotionItem(
+        stage: 1,
+        child: BlocBuilder<ProfileCubit, ProfileState>(
+          builder: (context, profileState) {
           final isLinked = profileState.isUserLoggedIn;
           final profile = profileState.userProfile;
           final bool hasAvatar = profile.avatarUrl != null && profile.avatarUrl!.isNotEmpty;
@@ -628,7 +631,8 @@ class _AccountManagementScreenState extends State<AccountManagementScreen> with 
               ),
             ),
           );
-        },
+          },
+        ),
       ),
     );
   }

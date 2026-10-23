@@ -8,6 +8,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_top_bar.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_motion.dart';
 import 'package:plato_gymapp/core/di/injection.dart';
 import 'package:plato_gymapp/core/utils/workout_permission_helper.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
@@ -212,9 +213,11 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
         title: t.settings.lbl_item_notification,
         onBackClick: () => context.pop(),
       ),
-      body: service == null
-          ? const Center(child: CircularProgressIndicator())
-          : ListView(
+      body: GymMotionItem(
+        stage: 1,
+        child: service == null
+            ? const Center(child: CircularProgressIndicator())
+            : ListView(
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
               children: [
                 _section(_copy('notifications.section_general'), [
@@ -345,7 +348,8 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                   ),
                 ]),
               ],
-            ),
+              ),
+      ),
     );
   }
 }

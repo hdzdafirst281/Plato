@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_top_bar.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_motion.dart';
 import 'package:plato_gymapp/features/notifications/presentation/screens/notification_diagnostics_screen.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -111,8 +112,10 @@ class _AboutScreenState extends State<AboutScreen> {
         title: t.settings.title_about_screen,
         onBackClick: () => context.pop(),
       ),
-      body: Center(
-        child: ConstrainedBox(
+      body: GymMotionItem(
+        stage: 1,
+        child: Center(
+          child: ConstrainedBox(
           constraints: const BoxConstraints(maxWidth: 800),
           child: ListView(
             padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
@@ -308,6 +311,7 @@ class _AboutScreenState extends State<AboutScreen> {
               const SizedBox(height: 32),
             ],
           ),
+        ),
         ),
       ),
     );

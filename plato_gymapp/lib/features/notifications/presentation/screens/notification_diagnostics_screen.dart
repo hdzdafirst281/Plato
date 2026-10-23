@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 import '../../../../core/designsystem/components/gym_top_bar.dart';
+import '../../../../core/designsystem/components/gym_motion.dart';
 import '../../application/notification_coordinator.dart';
 import '../../data/notification_copy.dart';
 
@@ -86,9 +87,11 @@ class _NotificationDiagnosticsScreenState
         title: _copy('notifications.title_diagnostics'),
         onBackClick: Navigator.of(context).pop,
       ),
-      body: data == null
-          ? const Center(child: CircularProgressIndicator())
-          : RefreshIndicator(
+      body: GymMotionItem(
+        stage: 1,
+        child: data == null
+            ? const Center(child: CircularProgressIndicator())
+            : RefreshIndicator(
               onRefresh: _refresh,
               child: ListView(
                 padding: const EdgeInsets.all(16),
@@ -202,7 +205,8 @@ class _NotificationDiagnosticsScreenState
                   ),
                 ],
               ),
-            ),
+              ),
+      ),
     );
   }
 

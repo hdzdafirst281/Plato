@@ -714,7 +714,9 @@ class NutritionDashboard extends StatelessWidget {
                             height: 72,
                             child: TweenAnimationBuilder<double>(
                               tween: Tween<double>(begin: 0, end: calProgress),
-                              duration: const Duration(milliseconds: 1000),
+                              duration: GymMotion.reduceMotion(context)
+                                  ? Duration.zero
+                                  : GymMotion.visualization,
                               curve: Curves.easeOutCubic,
                               builder: (context, value, _) =>
                                   CircularProgressIndicator(
@@ -1228,7 +1230,9 @@ class _MacroRow extends StatelessWidget {
         const SizedBox(height: 6),
         TweenAnimationBuilder<double>(
           tween: Tween<double>(begin: 0, end: progress),
-          duration: const Duration(milliseconds: 1000),
+          duration: GymMotion.reduceMotion(context)
+              ? Duration.zero
+              : GymMotion.visualization,
           curve: Curves.easeOutCubic,
           builder: (context, value, _) => LinearProgressIndicator(
             value: value,
@@ -1343,7 +1347,9 @@ class WaterTrackerCard extends StatelessWidget {
                               height: 72,
                               child: TweenAnimationBuilder<double>(
                                 tween: Tween<double>(begin: 0, end: progress),
-                                duration: const Duration(milliseconds: 1000),
+                                duration: GymMotion.reduceMotion(context)
+                                    ? Duration.zero
+                                    : GymMotion.visualization,
                                 curve: Curves.easeOutCubic,
                                 builder: (context, value, _) =>
                                     CircularProgressIndicator(
@@ -1816,7 +1822,9 @@ class WeightGoalChartCard extends StatelessWidget {
             width: double.infinity,
             child: TweenAnimationBuilder<double>(
               tween: Tween<double>(begin: 0, end: progressRatio),
-              duration: const Duration(milliseconds: 1000),
+              duration: GymMotion.reduceMotion(context)
+                  ? Duration.zero
+                  : GymMotion.visualization,
               builder: (context, animValue, _) => CustomPaint(
                 painter: _WeightGoalPainter(
                   isMaintain: isMaintain,

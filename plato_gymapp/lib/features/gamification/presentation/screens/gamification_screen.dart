@@ -47,6 +47,8 @@ class _GamificationScreenState extends State<GamificationScreen>
 
   late TabController _tabController;
   late final AnimationController _marqueeController;
+  final GymMotionValue _xpMotion = GymMotionValue();
+  final Map<String, GymMotionValue> _podiumMotions = {};
 
   @override
   void initState() {
@@ -138,89 +140,126 @@ class _GamificationScreenState extends State<GamificationScreen>
       ],
     ).value;
 
-    return MultiBlocListener(
-      listeners: [
-        BlocListener<ProfileCubit, ProfileState>(
-          listenWhen: (previous, current) =>
-              previous.userProfile != current.userProfile,
-          listener: (context, state) {
-            context.read<GamificationCubit>().refreshStateFromPrefs();
-          },
-        ),
-      ],
-      child: Scaffold(
-        backgroundColor: colorScheme.surface,
-        appBar: AppBar(
-          toolbarHeight: toolbarHeight,
+    return MainTabMotionScope(
+      tabIndex: 2,
+      playOnceKey: 'main-tab-gamification-${userProfile.id ?? 'guest'}',
+      child: MultiBlocListener(
+        listeners: [
+          BlocListener<ProfileCubit, ProfileState>(
+            listenWhen: (previous, current) =>
+                previous.userProfile != current.userProfile,
+            listener: (context, state) {
+              context.read<GamificationCubit>().refreshStateFromPrefs();
+            },
+          ),
+        ],
+        child: Scaffold(
           backgroundColor: colorScheme.surface,
-          elevation: 0,
-          scrolledUnderElevation: 0,
-          automaticallyImplyLeading: false,
-          centerTitle: true,
-          titleSpacing: 0,
-          title: Center(
-            child: ConstrainedBox(
-              constraints: const BoxConstraints(maxWidth: 1200),
-              child: GymEntrance(
-                offset: const Offset(0, -6),
-                duration: GymMotion.content,
-                child: _UserProfileHeader(
-                  userStats: userStats,
-                  userProfile: userProfile,
-                  streak: currentWeeklyStreak,
-                  isTablet: isTablet,
-                  marqueeAnimation: _marqueeController,
-                  onAvatarClick: () =>
-                      context.push('/social/${AppRoutes.rank}'),
+          appBar: AppBar(
+            toolbarHeight: toolbarHeight,
+            backgroundColor: colorScheme.surface,
+            elevation: 0,
+            scrolledUnderElevation: 0,
+            automaticallyImplyLeading: false,
+            centerTitle: true,
+            titleSpacing: 0,
+            title: Center(
+              child: ConstrainedBox(
+                constraints: const BoxConstraints(maxWidth: 1200),
+                child: GymMotionItem(
+                  effect: GymMotionEffect.fadeScale,
+                  child: _UserProfileHeader(
+                    userStats: userStats,
+                    userProfile: userProfile,
+                    streak: currentWeeklyStreak,
+                    isTablet: isTablet,
+                    marqueeAnimation: _marqueeController,
+                    xpMotion: _xpMotion,
+                    onAvatarClick: () =>
+                        context.push('/social/${AppRoutes.rank}'),
+                  ),
                 ),
               ),
             ),
           ),
-        ),
-        body: SafeArea(
-          child: isTablet
-              ? _buildTabletLayout(colorScheme, userStats, userProfile)
-              : Column(
-                  children: [
-                    TabBar(
-                      controller: _tabController,
-                      labelColor: colorScheme.primary,
-                      unselectedLabelColor: colorScheme.onSurfaceVariant,
-                      indicatorColor: colorScheme.primary,
-                      dividerColor: colorScheme.outlineVariant.withValues(
-                        alpha: 0.5,
-                      ),
-                      labelStyle: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
-                      ),
-                      tabs: [
-                        Tab(text: t.gamification.tab_quests),
-                        Tab(text: t.gamification.tab_leaderboard),
-                      ],
-                    ),
-                    Expanded(
-                      child: TabBarView(
-                        controller: _tabController,
-                        physics: const NeverScrollableScrollPhysics(),
-                        children: [
-                          RefreshIndicator(
-                            onRefresh: _handleRefresh,
-                            child: _buildQuestTab(userStats, isTablet: false),
+          body: SafeArea(
+            child: isTablet
+                ? _buildTabletLayout(colorScheme, userStats, userProfile)
+                : Column(
+                    children: [
+                      GymMotionItem(
+                        stage: 1,
+                        effect: GymMotionEffect.fadeOnly,
+                        child: TabBar(
+                          controller: _tabController,
+                          labelColor: colorScheme.primary,
+                          unselectedLabelColor: colorScheme.onSurfaceVariant,
+                          indicatorColor: colorScheme.primary,
+                          dividerColor: colorScheme.outlineVariant.withValues(
+                            alpha: 0.5,
                           ),
-                          RefreshIndicator(
-                            onRefresh: _handleRefresh,
-                            child: _buildLeaderboardTab(
-                              userProfile,
-                              isTablet: false,
+                          labelStyle: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 14,
+                          ),
+                          tabs: [
+                            Tab(text: t.gamification.tab_quests),
+                            Tab(text: t.gamification.tab_leaderboard),
+                          ],
+                        ),
+                      ),
+                      Expanded(
+                        child: TabBarView(
+                          controller: _tabController,
+                          physics: const NeverScrollableScrollPhysics(),
+                          children: [
+                            _buildAnimatedTab(
+                              index: 0,
+                              ownerId: userProfile.id ?? 'guest',
+                              child: RefreshIndicator(
+                                onRefresh: _handleRefresh,
+                                child: _buildQuestTab(
+                                  userStats,
+                                  isTablet: false,
+                                ),
+                              ),
                             ),
-                          ),
-                        ],
+                            _buildAnimatedTab(
+                              index: 1,
+                              ownerId: userProfile.id ?? 'guest',
+                              child: RefreshIndicator(
+                                onRefresh: _handleRefresh,
+                                child: _buildLeaderboardTab(
+                                  userProfile,
+                                  isTablet: false,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
-                ),
+                    ],
+                  ),
+          ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildAnimatedTab({
+    required int index,
+    required String ownerId,
+    required Widget child,
+  }) {
+    return AnimatedBuilder(
+      animation: _tabController,
+      child: child,
+      builder: (context, child) => MainTabMotionScope(
+        tabIndex: 2,
+        enabled:
+            !_tabController.indexIsChanging && _tabController.index == index,
+        playOnceKey: 'gamification-subtab-$ownerId-$index',
+        child: child!,
       ),
     );
   }
@@ -302,7 +341,9 @@ class _GamificationScreenState extends State<GamificationScreen>
       physics: const AlwaysScrollableScrollPhysics(),
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       children: [
-        GymEntrance(
+        GymMotionItem(
+          stage: 2,
+          effect: GymMotionEffect.fadeScale,
           child: _WeeklyChestBanner(
             completedQuests: completedCount,
             targetQuests: 5,
@@ -312,8 +353,8 @@ class _GamificationScreenState extends State<GamificationScreen>
         ),
 
         const SizedBox(height: 24),
-        GymEntrance(
-          delay: GymMotion.stagger(1),
+        GymMotionItem(
+          stage: 3,
           child: Text(
             t.gamification.title_weekly_quests,
             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
@@ -322,8 +363,8 @@ class _GamificationScreenState extends State<GamificationScreen>
         const SizedBox(height: 16),
 
         if (stats.weeklyQuests.isEmpty)
-          GymEntrance(
-            delay: GymMotion.stagger(2),
+          GymMotionItem(
+            stage: 4,
             child: Padding(
               padding: const EdgeInsets.only(top: 24),
               child: Center(
@@ -338,8 +379,9 @@ class _GamificationScreenState extends State<GamificationScreen>
           )
         else
           ...stats.weeklyQuests.asMap().entries.map((entry) {
-            return GymEntrance(
-              delay: GymMotion.stagger(entry.key + 2),
+            return GymMotionItem(
+              stage: entry.key + 4,
+              effect: GymMotionEffect.slideFromEnd,
               child: _QuestItem(
                 quest: entry.value,
                 onClaim: (id) async {
@@ -363,7 +405,14 @@ class _GamificationScreenState extends State<GamificationScreen>
 
     if ((state.isLeaderboardLoading && state.leaderboard == null) ||
         debugForceLoading) {
-      return const _GamificationLeaderboardShimmer();
+      return const GymContentSwitcher(
+        stateKey: 'leaderboard-loading',
+        child: GymMotionItem(
+          stage: 2,
+          effect: GymMotionEffect.fadeScale,
+          child: _GamificationLeaderboardShimmer(),
+        ),
+      );
     }
 
     final serverLeaderboard = state.leaderboard ?? [];
@@ -383,47 +432,56 @@ class _GamificationScreenState extends State<GamificationScreen>
 
     final all = [...otherUsers, me]..sort((a, b) => b.xp.compareTo(a.xp));
 
-    return ListView(
-      shrinkWrap: false,
-      physics: const AlwaysScrollableScrollPhysics(),
-      padding: const EdgeInsets.only(bottom: 24, top: 16),
-      children: [
-        if (all.length >= 3) ...[
-          GymEntrance(
-            child: _PodiumView(
-              top3: all.take(3).toList(),
-              activeRankId: userProfile.activeRankId,
-              marqueeAnimation: _marqueeController,
+    return GymContentSwitcher(
+      stateKey: 'leaderboard-content',
+      child: ListView(
+        shrinkWrap: false,
+        physics: const AlwaysScrollableScrollPhysics(),
+        padding: const EdgeInsets.only(bottom: 24, top: 16),
+        children: [
+          if (all.length >= 3) ...[
+            GymMotionItem(
+              stage: 2,
+              effect: GymMotionEffect.fadeScale,
+              child: _PodiumView(
+                top3: all.take(3).toList(),
+                activeRankId: userProfile.activeRankId,
+                marqueeAnimation: _marqueeController,
+                motionValueFor: (userId) =>
+                    _podiumMotions.putIfAbsent(userId, GymMotionValue.new),
+              ),
             ),
-          ),
 
-          const SizedBox(height: 32),
-          ...all.skip(3).toList().asMap().entries.map((entry) {
-            return GymEntrance(
-              delay: GymMotion.stagger(entry.key + 1),
-              child: _RankItem(
-                entry: entry.value,
-                rankPlacement: entry.key + 4,
-                activeRankId: userProfile.activeRankId,
-                marqueeAnimation: _marqueeController,
-              ),
-            );
-          }),
-        ] else ...[
-          const SizedBox(height: 32),
-          ...all.asMap().entries.map((entry) {
-            return GymEntrance(
-              delay: GymMotion.stagger(entry.key),
-              child: _RankItem(
-                entry: entry.value,
-                rankPlacement: entry.key + 1,
-                activeRankId: userProfile.activeRankId,
-                marqueeAnimation: _marqueeController,
-              ),
-            );
-          }),
+            const SizedBox(height: 32),
+            ...all.skip(3).toList().asMap().entries.map((entry) {
+              return GymMotionItem(
+                stage: entry.key + 3,
+                effect: GymMotionEffect.slideFromEnd,
+                child: _RankItem(
+                  entry: entry.value,
+                  rankPlacement: entry.key + 4,
+                  activeRankId: userProfile.activeRankId,
+                  marqueeAnimation: _marqueeController,
+                ),
+              );
+            }),
+          ] else ...[
+            const SizedBox(height: 32),
+            ...all.asMap().entries.map((entry) {
+              return GymMotionItem(
+                stage: entry.key + 2,
+                effect: GymMotionEffect.slideFromEnd,
+                child: _RankItem(
+                  entry: entry.value,
+                  rankPlacement: entry.key + 1,
+                  activeRankId: userProfile.activeRankId,
+                  marqueeAnimation: _marqueeController,
+                ),
+              );
+            }),
+          ],
         ],
-      ],
+      ),
     );
   }
 }

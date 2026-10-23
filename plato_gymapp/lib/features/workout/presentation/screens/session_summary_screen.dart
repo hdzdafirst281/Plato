@@ -7,6 +7,7 @@ import 'package:go_router/go_router.dart';
 import 'package:lottie/lottie.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_motion.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../../../../core/database/enums.dart';
@@ -562,7 +563,9 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
                 alignment: Alignment.centerLeft,
                 child: TweenAnimationBuilder<double>(
                   tween: Tween<double>(begin: 0.0, end: safeRatio),
-                  duration: const Duration(milliseconds: 1500),
+                  duration: GymMotion.reduceMotion(context)
+                      ? Duration.zero
+                      : GymMotion.visualization,
                   curve: Curves.easeOutCubic,
                   builder: (context, ratioValue, child) {
                     double validWidth = ratioValue.isNaN ? 0.0 : (ratioValue / 2.0).clamp(0.0, 1.0);

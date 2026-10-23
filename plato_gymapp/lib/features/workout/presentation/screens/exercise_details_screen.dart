@@ -9,6 +9,7 @@ import 'package:plato_gymapp/i18n/translation_helper.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_motion.dart';
 import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
 import 'package:plato_gymapp/core/utils/search_utils.dart';
 import 'package:plato_gymapp/core/utils/measurement_units.dart';
@@ -116,8 +117,10 @@ class _ExerciseDetailsScreenState extends State<ExerciseDetailsScreen> with Sing
             ]
           : [],
       ),
-      body: Column(
-        children: [
+      body: GymMotionItem(
+        stage: 1,
+        child: Column(
+          children: [
           TabBar(
             controller: _tabController,
             labelColor: colorScheme.primary,
@@ -147,6 +150,7 @@ class _ExerciseDetailsScreenState extends State<ExerciseDetailsScreen> with Sing
             ),
           )
         ],
+        ),
       ),
     );
   }
@@ -846,7 +850,7 @@ class _ExerciseLineChartState extends State<_ExerciseLineChart> with SingleTicke
   @override
   void initState() {
     super.initState();
-    _animController = AnimationController(vsync: this, duration: const Duration(milliseconds: 1000));
+    _animController = AnimationController(vsync: this, duration: GymMotion.visualization);
     _growthAnim = CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic);
     _animController.forward();
   }

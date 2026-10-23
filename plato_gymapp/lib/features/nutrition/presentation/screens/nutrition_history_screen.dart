@@ -10,6 +10,7 @@ import 'package:material_symbols_icons/symbols.dart';
 import '../../../../core/designsystem/theme/app_theme.dart';
 import '../../../../core/database/entities.dart';
 import '../../../../core/designsystem/components/gym_top_bar.dart';
+import '../../../../core/designsystem/components/gym_motion.dart';
 import '../bloc/nutrition_cubit.dart';
 import '../../data/models/nutrition_models.dart';
 import '../components/nutrition_components.dart';
@@ -30,8 +31,10 @@ class NutritionHistoryScreen extends StatelessWidget {
         title: t.nutrition.title_history,
         onBackClick: () => context.pop(),
       ),
-      body: history.isEmpty
-          ? Center(
+      body: GymMotionItem(
+        stage: 1,
+        child: history.isEmpty
+            ? Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -44,7 +47,7 @@ class NutritionHistoryScreen extends StatelessWidget {
                 ],
               ),
             )
-          : ListView.separated(
+            : ListView.separated(
               padding: const EdgeInsets.all(16),
               itemCount: history.length,
               separatorBuilder: (_, _) => const SizedBox(height: 16),
@@ -55,7 +58,8 @@ class NutritionHistoryScreen extends StatelessWidget {
                   child: _HistoryCard(daily: daily),
                 );
               },
-            ),
+              ),
+      ),
     );
   }
 }

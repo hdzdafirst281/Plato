@@ -9,6 +9,7 @@ import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
 import 'dart:math' as math;
 import 'dart:ui' as ui;
 import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_motion.dart';
 import 'package:plato_gymapp/core/utils/measurement_units.dart';
 
 import '../../../../../core/designsystem/components/gym_top_bar.dart';
@@ -384,7 +385,7 @@ class _ImprovedBarChartState extends State<_ImprovedBarChart> with SingleTickerP
   @override
   void initState() {
     super.initState();
-    _animController = AnimationController(vsync: this, duration: const Duration(milliseconds: 1000));
+    _animController = AnimationController(vsync: this, duration: GymMotion.visualization);
     _growthAnim = CurvedAnimation(parent: _animController, curve: Curves.easeOutCubic);
     _animController.forward();
   }
