@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -28,9 +29,12 @@ class _AboutScreenState extends State<AboutScreen> {
     }
     _lastVersionTapAt = now;
     _versionTapCount++;
+    HapticFeedback.selectionClick();
+
     if (_versionTapCount < 7) return;
     _versionTapCount = 0;
     _lastVersionTapAt = null;
+    HapticFeedback.heavyImpact();
     Navigator.of(context, rootNavigator: false).push(
       MaterialPageRoute<void>(
         builder: (_) => const NotificationDiagnosticsScreen(),
@@ -82,26 +86,6 @@ class _AboutScreenState extends State<AboutScreen> {
     }
   }
 
-  Widget _buildSocialIcon(
-    Widget iconWidget,
-    ColorScheme colorScheme,
-    VoidCallback onTap,
-  ) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(24),
-      child: Container(
-        width: 48,
-        height: 48,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
-        ),
-        child: Center(child: iconWidget),
-      ),
-    );
-  }
-
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
@@ -109,7 +93,7 @@ class _AboutScreenState extends State<AboutScreen> {
     return Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: GymTopBar(
-        title: t.settings.title_about_screen,
+        title: t.settings.lbl_item_about,
         onBackClick: () => context.pop(),
       ),
       body: GymMotionItem(
@@ -161,22 +145,8 @@ class _AboutScreenState extends State<AboutScreen> {
                         color: colorScheme.onSurfaceVariant,
                       ),
                     ),
-                    const SizedBox(height: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: colorScheme.primaryContainer.withValues(alpha: 0.5),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: Text(
-                        'v1.1.1',
-                        style: TextStyle(
-                          color: colorScheme.onPrimaryContainer,
-                          fontSize: 12,
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
+                    const SizedBox(height: 14),
+                    _VersionCard(onTap: _handleVersionTap),
                   ],
                 ),
               ),
@@ -222,19 +192,6 @@ class _AboutScreenState extends State<AboutScreen> {
                 trailing: const Icon(Symbols.chevron_right),
                 onTap: () => _showEulaDialog(context),
               ),
-              const Divider(height: 1),
-
-              // Version (Diagnostics accessible on tap)
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Symbols.info),
-                title: Text(
-                  t.settings.lbl_item_version,
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                ),
-                subtitle: const Text("1.1.1"),
-                onTap: _handleVersionTap,
-              ),
 
               const SizedBox(height: 40),
 
@@ -254,52 +211,48 @@ class _AboutScreenState extends State<AboutScreen> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        _buildSocialIcon(
-                          FaIcon(
+                        _SocialIconButton(
+                          icon: FaIcon(
                             FontAwesomeIcons.instagram,
                             size: 22,
                             color: colorScheme.onSurface,
                           ),
-                          colorScheme,
-                          () => _launchSocialUrl(
+                          onTap: () => _launchSocialUrl(
                             'https://www.instagram.com/plato.zenithas/',
                             nativeUrl: 'instagram://user?username=plato.zenithas',
                           ),
                         ),
                         const SizedBox(width: 20),
-                        _buildSocialIcon(
-                          FaIcon(
+                        _SocialIconButton(
+                          icon: FaIcon(
                             FontAwesomeIcons.facebookF,
                             size: 22,
                             color: colorScheme.onSurface,
                           ),
-                          colorScheme,
-                          () => _launchSocialUrl(
+                          onTap: () => _launchSocialUrl(
                             'https://www.facebook.com/profile.php?id=61592005979928',
                             nativeUrl: 'fb://profile/61592005979928',
                           ),
                         ),
                         const SizedBox(width: 20),
-                        _buildSocialIcon(
-                          FaIcon(
+                        _SocialIconButton(
+                          icon: FaIcon(
                             FontAwesomeIcons.threads,
                             size: 22,
                             color: colorScheme.onSurface,
                           ),
-                          colorScheme,
-                          () => _launchSocialUrl(
+                          onTap: () => _launchSocialUrl(
                             'https://www.threads.com/@plato.zenithas',
                           ),
                         ),
                         const SizedBox(width: 20),
-                        _buildSocialIcon(
-                          FaIcon(
+                        _SocialIconButton(
+                          icon: FaIcon(
                             FontAwesomeIcons.tiktok,
                             size: 22,
                             color: colorScheme.onSurface,
                           ),
-                          colorScheme,
-                          () => _launchSocialUrl(
+                          onTap: () => _launchSocialUrl(
                             'https://www.tiktok.com/@plato.zenithas?_r=1&_t=ZS-990YzsfNfXO',
                           ),
                         ),
@@ -313,6 +266,78 @@ class _AboutScreenState extends State<AboutScreen> {
           ),
         ),
         ),
+      ),
+    );
+  }
+}
+
+class _VersionCard extends StatelessWidget {
+  const _VersionCard({
+    required this.onTap,
+  });
+
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(16),
+        child: Ink(
+          padding: const EdgeInsets.symmetric(
+            horizontal: 14,
+            vertical: 4,
+          ),
+          decoration: BoxDecoration(
+            color: colorScheme.primaryContainer.withValues(alpha: 0.65),
+            borderRadius: BorderRadius.circular(16),
+            border: Border.all(
+              color: colorScheme.primary.withValues(alpha: 0.35),
+              width: 1.2,
+            ),
+          ),
+          child: Text(
+            'v1.1.1',
+            style: TextStyle(
+              color: colorScheme.onPrimaryContainer,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _SocialIconButton extends StatelessWidget {
+  const _SocialIconButton({
+    required this.icon,
+    required this.onTap,
+  });
+
+  final Widget icon;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
+    return InkWell(
+      onTap: onTap,
+      borderRadius: BorderRadius.circular(24),
+      child: Container(
+        width: 48,
+        height: 48,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        ),
+        child: Center(child: icon),
       ),
     );
   }
@@ -382,16 +407,24 @@ void _showTermsDialog(BuildContext context) {
     content: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _buildTermsSection(t.onboarding.terms_p1_title, [
-          t.onboarding.terms_p1_desc1(app: "{app}"),
-          t.onboarding.terms_p1_desc2,
-          t.onboarding.terms_p1_desc3(app: "{app}"),
-        ], colorScheme),
-        _buildTermsSection(t.onboarding.terms_p2_title, [
-          t.onboarding.terms_p2_desc1,
-          t.onboarding.terms_p2_desc2,
-          t.onboarding.terms_p2_desc3,
-        ], colorScheme),
+        _TermsSection(
+          title: t.onboarding.terms_p1_title,
+          paragraphs: [
+            t.onboarding.terms_p1_desc1(app: "{app}"),
+            t.onboarding.terms_p1_desc2,
+            t.onboarding.terms_p1_desc3(app: "{app}"),
+          ],
+          colorScheme: colorScheme,
+        ),
+        _TermsSection(
+          title: t.onboarding.terms_p2_title,
+          paragraphs: [
+            t.onboarding.terms_p2_desc1,
+            t.onboarding.terms_p2_desc2,
+            t.onboarding.terms_p2_desc3,
+          ],
+          colorScheme: colorScheme,
+        ),
       ],
     ),
     actions: [
@@ -447,33 +480,57 @@ void _showEulaDialog(BuildContext context) {
           ),
         ),
         const SizedBox(height: 16),
-        _buildTermsSection(t.onboarding.eula_p1_title, [
-          t.onboarding.eula_p1_desc(app: "{app}"),
-        ], colorScheme),
-        _buildTermsSection(t.onboarding.eula_p2_title, [
-          t.onboarding.eula_p2_desc1(app: "{app}"),
-          t.onboarding.eula_p2_item1,
-          t.onboarding.eula_p2_item2(app: "{app}", brand: "{brand}"),
-          t.onboarding.eula_p2_item3,
-          t.onboarding.eula_p2_desc2(brand: "{brand}"),
-        ], colorScheme),
-        _buildTermsSection(t.onboarding.eula_p3_title, [
-          t.onboarding.eula_p3_desc1,
-          t.onboarding.eula_p3_item1,
-          t.onboarding.eula_p3_item2(app: "{app}"),
-          t.onboarding.eula_p3_item3,
-        ], colorScheme),
-        _buildTermsSection(t.onboarding.eula_p4_title, [
-          t.onboarding.eula_p4_desc,
-        ], colorScheme),
-        _buildTermsSection(t.onboarding.eula_p5_title, [
-          t.onboarding.eula_p5_item1(app: "{app}"),
-          t.onboarding.eula_p5_item2,
-          t.onboarding.eula_p5_item3,
-        ], colorScheme),
-        _buildTermsSection(t.onboarding.eula_p6_title, [
-          t.onboarding.eula_p6_desc,
-        ], colorScheme),
+        _TermsSection(
+          title: t.onboarding.eula_p1_title,
+          paragraphs: [
+            t.onboarding.eula_p1_desc(app: "{app}"),
+          ],
+          colorScheme: colorScheme,
+        ),
+        _TermsSection(
+          title: t.onboarding.eula_p2_title,
+          paragraphs: [
+            t.onboarding.eula_p2_desc1(app: "{app}"),
+            t.onboarding.eula_p2_item1,
+            t.onboarding.eula_p2_item2(app: "{app}", brand: "{brand}"),
+            t.onboarding.eula_p2_item3,
+            t.onboarding.eula_p2_desc2(brand: "{brand}"),
+          ],
+          colorScheme: colorScheme,
+        ),
+        _TermsSection(
+          title: t.onboarding.eula_p3_title,
+          paragraphs: [
+            t.onboarding.eula_p3_desc1,
+            t.onboarding.eula_p3_item1,
+            t.onboarding.eula_p3_item2(app: "{app}"),
+            t.onboarding.eula_p3_item3,
+          ],
+          colorScheme: colorScheme,
+        ),
+        _TermsSection(
+          title: t.onboarding.eula_p4_title,
+          paragraphs: [
+            t.onboarding.eula_p4_desc,
+          ],
+          colorScheme: colorScheme,
+        ),
+        _TermsSection(
+          title: t.onboarding.eula_p5_title,
+          paragraphs: [
+            t.onboarding.eula_p5_item1(app: "{app}"),
+            t.onboarding.eula_p5_item2,
+            t.onboarding.eula_p5_item3,
+          ],
+          colorScheme: colorScheme,
+        ),
+        _TermsSection(
+          title: t.onboarding.eula_p6_title,
+          paragraphs: [
+            t.onboarding.eula_p6_desc,
+          ],
+          colorScheme: colorScheme,
+        ),
       ],
     ),
     actions: [
@@ -491,41 +548,50 @@ void _showEulaDialog(BuildContext context) {
   );
 }
 
-Widget _buildTermsSection(
-  String title,
-  List<String> paragraphs,
-  ColorScheme colorScheme,
-) {
-  return Padding(
-    padding: const EdgeInsets.only(bottom: 24.0),
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          title,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 16,
-            color: colorScheme.primary,
+class _TermsSection extends StatelessWidget {
+  const _TermsSection({
+    required this.title,
+    required this.paragraphs,
+    required this.colorScheme,
+  });
+
+  final String title;
+  final List<String> paragraphs;
+  final ColorScheme colorScheme;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 24.0),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 16,
+              color: colorScheme.primary,
+            ),
           ),
-        ),
-        const SizedBox(height: 8),
-        ...paragraphs.map(
-          (p) => Padding(
-            padding: const EdgeInsets.only(bottom: 8.0),
-            child: RichText(
-              text: TextSpan(
-                style: TextStyle(
-                  fontSize: 14,
-                  height: 1.5,
-                  color: colorScheme.onSurfaceVariant,
+          const SizedBox(height: 8),
+          ...paragraphs.map(
+            (p) => Padding(
+              padding: const EdgeInsets.only(bottom: 8.0),
+              child: RichText(
+                text: TextSpan(
+                  style: TextStyle(
+                    fontSize: 14,
+                    height: 1.5,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                  children: _buildRichSpans(p, colorScheme),
                 ),
-                children: _buildRichSpans(p, colorScheme),
               ),
             ),
           ),
-        ),
-      ],
-    ),
-  );
+        ],
+      ),
+    );
+  }
 }

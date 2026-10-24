@@ -384,7 +384,7 @@ class _ProgressTabState extends State<_ProgressTab> {
       case ExerciseMetric.BEST_STEPS: return 'steps';
       case ExerciseMetric.BEST_REPS:
       case ExerciseMetric.SESSION_REPS: return 'reps';
-      case ExerciseMetric.PACE: return _units.speedUnit;
+      case ExerciseMetric.PACE: return t.common.unit_kmh;
       default: return '';
     }
   }
@@ -439,7 +439,7 @@ class _ProgressTabState extends State<_ProgressTab> {
         case ExerciseMetric.LONGEST_DISTANCE:
           return _units.distanceFromKm(value);
         case ExerciseMetric.PACE:
-          return _units.speedFromKmh(value);
+          return value;
         default:
           return value;
       }

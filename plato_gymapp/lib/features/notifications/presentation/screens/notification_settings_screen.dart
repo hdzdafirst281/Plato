@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:device_info_plus/device_info_plus.dart';
 import 'package:flutter/material.dart';
+import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
 import 'package:plato_gymapp/features/profile/presentation/screens/calendar_screen.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
@@ -30,12 +31,21 @@ class NotificationSettingsScreen extends StatefulWidget {
 class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
     with WidgetsBindingObserver {
   bool _backgroundWorkoutEnabled = false;
-  bool _systemPermission = false;
-  bool _systemPermissionLoaded = false;
+  bool _notificationGranted = false;
+  bool _activityGranted = false;
+  bool _activityRequired = false;
+  bool _permissionsLoaded = false;
   Future<void> _preferenceUpdates = Future<void>.value();
   int _workoutReminderCount = 0;
   int? _androidSdkInt;
   int _refreshGeneration = 0;
+
+  bool get _allPermissionsGranted =>
+      _notificationGranted && (!_activityRequired || _activityGranted);
+
+  bool get _isPartialPermission =>
+      !_allPermissionsGranted &&
+      (_notificationGranted || (_activityRequired && _activityGranted));
 
   NotificationCoordinator? get _service => NotificationCoordinator.instance;
 
@@ -77,14 +87,27 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   Future<void> _refresh() async {
     final generation = ++_refreshGeneration;
     final prefs = getIt<SharedPreferences>();
-    final permissionFuture = Permission.notification.isGranted;
+    final notifFuture = Permission.notification.isGranted;
     final countFuture = _service?.remainingTodayWorkoutReminderCount();
+
+    final isAndroid = Platform.isAndroid;
+    final sdkInt = isAndroid ? await _getAndroidSdkInt() : 0;
+    final activityRequired = isAndroid && sdkInt >= 34;
+
+    final activityFuture = activityRequired
+        ? Permission.activityRecognition.isGranted
+        : Future.value(true);
+
     var background =
         prefs.getBool(WorkoutPermissionHelper.isBackgroundWorkoutEnabledKey) ??
         false;
-    final permission = await permissionFuture;
-    if (background &&
-        !await _hasWorkoutPermissions(notificationGranted: permission)) {
+
+    final notifGranted = await notifFuture;
+    final activityGranted = await activityFuture;
+    final hasWorkoutPerms =
+        notifGranted && (!activityRequired || activityGranted);
+
+    if (background && !hasWorkoutPerms) {
       background = false;
       await prefs.setBool(
         WorkoutPermissionHelper.isBackgroundWorkoutEnabledKey,
@@ -92,12 +115,16 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
       );
       BackgroundWorkoutService().stopService();
     }
+
     if (!mounted || generation != _refreshGeneration) return;
     setState(() {
       _backgroundWorkoutEnabled = background;
-      _systemPermission = permission;
-      _systemPermissionLoaded = true;
+      _notificationGranted = notifGranted;
+      _activityGranted = activityGranted;
+      _activityRequired = activityRequired;
+      _permissionsLoaded = true;
     });
+
     final count = await countFuture ?? 0;
     if (!mounted || generation != _refreshGeneration) return;
     if (count != _workoutReminderCount) {
@@ -114,12 +141,18 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
       if (Platform.isAndroid && await _getAndroidSdkInt() >= 34) {
         await Permission.activityRecognition.request();
       }
-      if (!await _hasWorkoutPermissions()) {
+      final hasPerms = await _hasWorkoutPermissions();
+      final notifGranted = await Permission.notification.isGranted;
+      final activityGranted = _activityRequired
+          ? await Permission.activityRecognition.isGranted
+          : true;
+      if (!hasPerms) {
         if (!mounted) return;
         setState(() {
           _backgroundWorkoutEnabled = false;
-          _systemPermission = false;
-          _systemPermissionLoaded = true;
+          _notificationGranted = notifGranted;
+          _activityGranted = activityGranted;
+          _permissionsLoaded = true;
         });
         final open = await GymDialog.showConfirm(
           context: context,
@@ -133,8 +166,9 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
       }
       if (mounted) {
         setState(() {
-          _systemPermission = true;
-          _systemPermissionLoaded = true;
+          _notificationGranted = notifGranted;
+          _activityGranted = activityGranted;
+          _permissionsLoaded = true;
         });
       }
     }
@@ -146,6 +180,28 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
     if (!saved && mounted) {
       setState(() => _backgroundWorkoutEnabled = !value);
     }
+  }
+
+  Future<void> _handlePermissionAction() async {
+    final notifStatus = await Permission.notification.status;
+    final activityStatus = _activityRequired
+        ? await Permission.activityRecognition.status
+        : PermissionStatus.granted;
+
+    final shouldRequestNotif =
+        !_notificationGranted && !notifStatus.isPermanentlyDenied;
+    final shouldRequestActivity =
+        _activityRequired &&
+        !_activityGranted &&
+        !activityStatus.isPermanentlyDenied;
+
+    if (shouldRequestNotif || shouldRequestActivity) {
+      if (shouldRequestNotif) await Permission.notification.request();
+      if (shouldRequestActivity) await Permission.activityRecognition.request();
+      await _refresh();
+      if (_allPermissionsGranted) return;
+    }
+    await openAppSettings();
   }
 
   Future<void> _updateNotificationPreference(Future<bool> Function() update) {
@@ -202,12 +258,6 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   @override
   Widget build(BuildContext context) {
     final service = _service;
-    final colors = Theme.of(context).colorScheme;
-    final permissionColor = !_systemPermissionLoaded
-        ? colors.onSurfaceVariant
-        : _systemPermission
-        ? colors.primary
-        : colors.error;
     return Scaffold(
       appBar: GymTopBar(
         title: t.settings.lbl_item_notification,
@@ -240,33 +290,14 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                     onChanged: _setBackgroundWorkout,
                   ),
                   const Divider(height: 1),
-                  ListTile(
-                    leading: Icon(Symbols.security, color: permissionColor),
-                    title: Text(_copy('notifications.lbl_system_permission')),
-                    subtitle: _systemPermissionLoaded
-                        ? Text(
-                            _copy(
-                              _systemPermission
-                                  ? 'notifications.status_permission_allowed'
-                                  : 'notifications.status_permission_blocked',
-                            ),
-                          )
-                        : const Align(
-                            alignment: Alignment.centerLeft,
-                            child: SizedBox(
-                              width: 14,
-                              height: 14,
-                              child: CircularProgressIndicator(strokeWidth: 2),
-                            ),
-                          ),
-                    trailing: !_systemPermissionLoaded || _systemPermission
-                        ? null
-                        : TextButton(
-                            onPressed: openAppSettings,
-                            child: Text(
-                              _copy('notifications.btn_open_system_settings'),
-                            ),
-                          ),
+                  _SystemPermissionTile(
+                    loaded: _permissionsLoaded,
+                    allGranted: _allPermissionsGranted,
+                    isPartial: _isPartialPermission,
+                    notificationGranted: _notificationGranted,
+                    activityGranted: _activityGranted,
+                    activityRequired: _activityRequired,
+                    onOpenSettings: _handlePermissionAction,
                   ),
                 ]),
                 _section(_copy('notifications.section_health_schedule'), [
@@ -430,4 +461,189 @@ class _PreferenceSwitchTileState extends State<_PreferenceSwitchTile> {
     value: _value,
     onChanged: _handleChanged,
   );
+}
+
+class _SystemPermissionTile extends StatelessWidget {
+  final bool loaded;
+  final bool allGranted;
+  final bool isPartial;
+  final bool notificationGranted;
+  final bool activityGranted;
+  final bool activityRequired;
+  final VoidCallback onOpenSettings;
+
+  const _SystemPermissionTile({
+    required this.loaded,
+    required this.allGranted,
+    required this.isPartial,
+    required this.notificationGranted,
+    required this.activityGranted,
+    required this.activityRequired,
+    required this.onOpenSettings,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final gymColors = Theme.of(context).gymColors;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    if (!loaded) {
+      return ListTile(
+        leading: Icon(Symbols.security, color: colorScheme.onSurfaceVariant),
+        title: Text(
+          NotificationCopy.text('notifications.lbl_system_permission') ?? '',
+        ),
+        subtitle: const Align(
+          alignment: Alignment.centerLeft,
+          child: SizedBox(
+            width: 14,
+            height: 14,
+            child: CircularProgressIndicator(strokeWidth: 2),
+          ),
+        ),
+      );
+    }
+
+    final Color statusColor;
+    final String statusKey;
+
+    if (allGranted) {
+      statusColor = gymColors.success;
+      statusKey = 'notifications.status_permission_allowed';
+    } else if (isPartial) {
+      statusColor = gymColors.warning;
+      statusKey = 'notifications.status_permission_partial';
+    } else {
+      statusColor = colorScheme.error;
+      statusKey = 'notifications.status_permission_blocked';
+    }
+
+    final statusText = NotificationCopy.text(statusKey) ?? '';
+    final notifLabel =
+        NotificationCopy.text('notifications.badge_notification') ?? 'Thông báo';
+    final activityLabel =
+        NotificationCopy.text('notifications.badge_activity_recognition') ??
+        'Hoạt động thể chất';
+
+    return InkWell(
+      onTap: allGranted ? null : onOpenSettings,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: Icon(Symbols.security, color: statusColor),
+            title: Text(
+              NotificationCopy.text('notifications.lbl_system_permission') ?? '',
+            ),
+            subtitle: Text(
+              statusText,
+              style: TextStyle(
+                color: statusColor,
+                fontWeight: FontWeight.w500,
+                fontSize: 13,
+              ),
+            ),
+            trailing: allGranted
+                ? null
+                : TextButton(
+                    onPressed: onOpenSettings,
+                    child: Text(
+                      NotificationCopy.text('notifications.btn_open_system_settings') ?? '',
+                    ),
+                  ),
+          ),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(56, 0, 16, 12),
+            child: LayoutBuilder(
+              builder: (context, constraints) {
+                return Wrap(
+                  spacing: 8,
+                  runSpacing: 6,
+                  children: [
+                    _PermissionBadge(
+                      icon: Symbols.notifications,
+                      label: notifLabel,
+                      granted: notificationGranted,
+                      maxWidth: constraints.maxWidth,
+                    ),
+                    if (activityRequired)
+                      _PermissionBadge(
+                        icon: Symbols.directions_run,
+                        label: activityLabel,
+                        granted: activityGranted,
+                        maxWidth: constraints.maxWidth,
+                      ),
+                  ],
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _PermissionBadge extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final bool granted;
+  final double? maxWidth;
+
+  const _PermissionBadge({
+    required this.icon,
+    required this.label,
+    required this.granted,
+    this.maxWidth,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final gymColors = Theme.of(context).gymColors;
+    final colorScheme = Theme.of(context).colorScheme;
+
+    final badgeColor = granted ? gymColors.success : colorScheme.error;
+    final badgeBg = badgeColor.withValues(alpha: 0.1);
+    final borderColor = badgeColor.withValues(alpha: 0.25);
+    final statusText = NotificationCopy.text(
+          granted
+              ? 'notifications.status_granted'
+              : 'notifications.status_denied',
+        ) ??
+        (granted ? 'Đã cấp' : 'Chưa cấp');
+
+    return Container(
+      constraints: maxWidth != null ? BoxConstraints(maxWidth: maxWidth!) : null,
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      decoration: BoxDecoration(
+        color: badgeBg,
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: borderColor, width: 1),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            granted ? Symbols.check_circle : Symbols.cancel,
+            size: 13,
+            color: badgeColor,
+          ),
+          const SizedBox(width: 4),
+          Flexible(
+            child: Text(
+              '$label: $statusText',
+              style: TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.w600,
+                color: badgeColor,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

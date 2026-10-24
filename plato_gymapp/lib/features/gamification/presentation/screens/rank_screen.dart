@@ -128,6 +128,10 @@ class _RankScreenState extends State<RankScreen>
                   ),
                   const TextSpan(text: " "),
                   TextSpan(text: t.rank.desc_info_rp_definition),
+                  const TextSpan(text: " "),
+                  TextSpan(
+                    text: t.rank.desc_info_daily_cap(max: RankConfig.dailyRpCap),
+                  ),
                 ],
               ),
             ),

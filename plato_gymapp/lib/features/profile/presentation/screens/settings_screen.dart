@@ -21,7 +21,6 @@ import 'package:plato_gymapp/features/profile/presentation/bloc/profile_cubit.da
 import 'package:plato_gymapp/features/profile/presentation/bloc/stats_cubit.dart';
 import 'package:plato_gymapp/features/profile/presentation/screens/about_screen.dart';
 import 'package:plato_gymapp/features/profile/presentation/screens/account_management_screen.dart';
-import 'package:plato_gymapp/features/workout/data/workout_effort_preferences.dart';
 import 'package:plato_gymapp/features/workout/presentation/bloc/workout_cubit.dart';
 import 'package:plato_gymapp/features/workout/presentation/screens/workout_settings_screen.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
@@ -37,37 +36,11 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
-  bool _advancedEffortEnabled = false;
-  EffortInputScale _effortInputScale = EffortInputScale.rpe;
-
   String _notificationCountLabel(int count) =>
       NotificationCopy.text('settings.fmt_notifications_enabled', {
         'count': '$count',
       }) ??
       '$count ${t.settings.lbl_item_notification.toLowerCase()}';
-
-  String get _workoutEffortSubtitle {
-    if (!_advancedEffortEnabled) {
-      return t.settings.desc_item_workout_settings;
-    }
-    final scaleName = _effortInputScale.name.toUpperCase();
-    return '${t.settings.lbl_effort_tracking} ($scaleName)';
-  }
-
-  @override
-  void initState() {
-    super.initState();
-    _loadEffortPreferences();
-  }
-
-  void _loadEffortPreferences() {
-    final prefs = getIt<SharedPreferences>();
-    if (!mounted) return;
-    setState(() {
-      _advancedEffortEnabled = WorkoutEffortPreferences.advancedEnabled(prefs);
-      _effortInputScale = WorkoutEffortPreferences.inputScale(prefs);
-    });
-  }
 
   void _sendSupportEmail() async {
     final subjectText = t.settings.msg_intent_email_subject;
@@ -230,12 +203,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 unitChoice(
                   label: t.settings.lbl_distance_unit,
                   metricLabel: t.common.unit_km,
-                  imperialLabel: t.common.unit_mi,
-                  imperial: draft.distance == DistanceUnit.mile,
+                  imperialLabel: t.common.unit_m,
+                  imperial: draft.distance == DistanceUnit.meter,
                   onChanged: (imperial) => setDialogState(
                     () => draft = draft.copyWith(
                       distance: imperial
-                          ? DistanceUnit.mile
+                          ? DistanceUnit.meter
                           : DistanceUnit.kilometer,
                     ),
                   ),
@@ -243,7 +216,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 unitChoice(
                   label: t.settings.lbl_body_length_unit,
                   metricLabel: t.common.unit_cm,
-                  imperialLabel: '${t.common.unit_ft} / ${t.common.unit_in}',
+                  imperialLabel: t.common.unit_in,
                   imperial: draft.bodyLength == BodyLengthUnit.imperial,
                   onChanged: (imperial) => setDialogState(
                     () => draft = draft.copyWith(
@@ -264,14 +237,6 @@ class _SettingsScreenState extends State<SettingsScreen> {
                           ? FoodMassUnit.ounce
                           : FoodMassUnit.gram,
                     ),
-                  ),
-                ),
-                Text(
-                  '${t.settings.lbl_speed_unit}: '
-                  '${draft.distance == DistanceUnit.kilometer ? t.common.unit_kmh : t.common.unit_mph}. '
-                  '${t.settings.desc_speed_unit_auto}',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                    color: colorScheme.onSurfaceVariant,
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -459,29 +424,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const SizedBox(height: 20),
-
-                // Brand Logo Header (matching presentation from WorkoutScreen)
-                Center(
-                  child: GymEntrance(
-                    offset: const Offset(0, -6),
-                    duration: GymMotion.content,
-                    child: AnimatedSwitcher(
-                      duration: GymMotion.content,
-                      child: Image.asset(
-                        Theme.of(context).brightness == Brightness.dark
-                            ? 'assets/logo/logo_themedark.png'
-                            : 'assets/logo/logo_themelight.png',
-                        key: ValueKey(Theme.of(context).brightness),
-                        height: 40,
-                        cacheHeight: 120,
-                        fit: BoxFit.contain,
-                      ),
-                    ),
-                  ),
-                ),
-
-                const SizedBox(height: 14),
+                const SizedBox(height: 12),
 
                 // 1. Account Management Hub (Placed at the top per user request)
                 BlocSelector<ProfileCubit, ProfileState, bool>(
@@ -518,37 +461,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   },
                 ),
 
-                // 2. Workout Settings
-                ListTile(
-                  contentPadding: itemPadding,
-                  leading: const Icon(Symbols.exercise),
-                  title: Text(
-                    t.settings.lbl_item_workout_settings,
-                    style: titleStyle,
-                  ),
-                  subtitle: Text(
-                    _workoutEffortSubtitle,
-                    style: subtitleStyle.copyWith(
-                      color: _advancedEffortEnabled
-                          ? colorScheme.primary
-                          : colorScheme.onSurfaceVariant,
-                      fontWeight: _advancedEffortEnabled
-                          ? FontWeight.w600
-                          : FontWeight.normal,
-                    ),
-                  ),
-                  trailing: const Icon(Symbols.chevron_right),
-                  onTap: () async {
-                    await Navigator.of(context, rootNavigator: false).push(
-                      MaterialPageRoute(
-                        builder: (_) => const WorkoutSettingsScreen(),
-                      ),
-                    );
-                    _loadEffortPreferences();
-                  },
-                ),
-
-                // 3. Notification & Background Settings
+                // 2. Notification & Background Settings
                 ListTile(
                   contentPadding: itemPadding,
                   leading: const Icon(Symbols.notifications),
@@ -586,7 +499,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   },
                 ),
 
-                // 4. Theme Section
+                // 3. Theme Section
                 ListTile(
                   contentPadding: itemPadding,
                   leading: const Icon(Symbols.routine),
@@ -637,6 +550,28 @@ class _SettingsScreenState extends State<SettingsScreen> {
                       );
                     },
                   ),
+                ),
+
+                // 4. Workout Settings
+                ListTile(
+                  contentPadding: itemPadding,
+                  leading: const Icon(Symbols.exercise),
+                  title: Text(
+                    t.settings.lbl_item_workout_settings,
+                    style: titleStyle,
+                  ),
+                  subtitle: Text(
+                    t.settings.desc_item_workout_settings,
+                    style: subtitleStyle,
+                  ),
+                  trailing: const Icon(Symbols.chevron_right),
+                  onTap: () {
+                    Navigator.of(context, rootNavigator: false).push(
+                      MaterialPageRoute(
+                        builder: (_) => const WorkoutSettingsScreen(),
+                      ),
+                    );
+                  },
                 ),
 
                 // 5. Measurement Units
@@ -770,7 +705,29 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   },
                 ),
 
-                const SizedBox(height: 32),
+                const SizedBox(height: 28),
+
+                // Brand Logo Footer
+                Center(
+                  child: GymEntrance(
+                    offset: const Offset(0, 6),
+                    duration: GymMotion.content,
+                    child: AnimatedSwitcher(
+                      duration: GymMotion.content,
+                      child: Image.asset(
+                        Theme.of(context).brightness == Brightness.dark
+                            ? 'assets/logo/logo_themedark.png'
+                            : 'assets/logo/logo_themelight.png',
+                        key: ValueKey(Theme.of(context).brightness),
+                        height: 36,
+                        cacheHeight: 120,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
+                ),
+
+                const SizedBox(height: 36),
               ],
             ),
           ),

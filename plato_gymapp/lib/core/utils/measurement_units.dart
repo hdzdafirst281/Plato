@@ -4,7 +4,7 @@ enum WeightUnit { kilogram, pound }
 
 enum HydrationUnit { liter, usGallon }
 
-enum DistanceUnit { kilometer, mile }
+enum DistanceUnit { kilometer, meter }
 
 enum BodyLengthUnit { metric, imperial }
 
@@ -97,7 +97,7 @@ class MeasurementFormatter {
 
   static const poundsPerKilogram = 2.2046226218;
   static const usGallonsPerLiter = 0.2641720524;
-  static const milesPerKilometer = 0.6213711922;
+  static const metersPerKilometer = 1000.0;
   static const inchesPerCentimeter = 0.3937007874;
   static const ouncesPerGram = 0.03527396195;
 
@@ -106,15 +106,11 @@ class MeasurementFormatter {
   String get weightUnit =>
       preferences.weight == WeightUnit.kilogram ? 'kg' : 'lb';
   String get hydrationUnit =>
-      preferences.hydration == HydrationUnit.liter ? 'L' : 'US gal';
+      preferences.hydration == HydrationUnit.liter ? 'L' : 'gal';
   String get distanceUnit =>
-      preferences.distance == DistanceUnit.kilometer ? 'km' : 'mi';
-  String get speedUnit =>
-      preferences.distance == DistanceUnit.kilometer ? 'km/h' : 'mph';
+      preferences.distance == DistanceUnit.kilometer ? 'km' : 'm';
   String get bodyLengthUnit =>
       preferences.bodyLength == BodyLengthUnit.metric ? 'cm' : 'in';
-  String get heightUnit =>
-      preferences.bodyLength == BodyLengthUnit.metric ? 'cm' : 'ft/in';
   String get foodMassUnit =>
       preferences.foodMass == FoodMassUnit.gram ? 'g' : 'oz';
 
@@ -141,17 +137,12 @@ class MeasurementFormatter {
   double distanceFromKm(double kilometers) =>
       preferences.distance == DistanceUnit.kilometer
       ? kilometers
-      : kilometers * milesPerKilometer;
+      : kilometers * metersPerKilometer;
 
   double distanceToKm(double displayValue) =>
       preferences.distance == DistanceUnit.kilometer
       ? displayValue
-      : displayValue / milesPerKilometer;
-
-  double speedFromKmh(double kilometersPerHour) =>
-      distanceFromKm(kilometersPerHour);
-
-  double speedToKmh(double displayValue) => distanceToKm(displayValue);
+      : displayValue / metersPerKilometer;
 
   double bodyLengthFromCm(double centimeters) =>
       preferences.bodyLength == BodyLengthUnit.metric
@@ -180,22 +171,16 @@ class MeasurementFormatter {
   String formatDistance(double kilometers, {int decimals = 2}) =>
       '${number(distanceFromKm(kilometers), decimals)} $distanceUnit';
 
-  String formatSpeed(double kilometersPerHour, {int decimals = 1}) =>
-      '${number(speedFromKmh(kilometersPerHour), decimals)} $speedUnit';
+  String formatSpeedKmh(
+    double kilometersPerHour, {
+    required String unit,
+    int decimals = 1,
+  }) => '${number(kilometersPerHour, decimals)} $unit';
 
   String formatBodyLength(double centimeters, {int decimals = 1}) =>
       '${number(bodyLengthFromCm(centimeters), decimals)} $bodyLengthUnit';
 
-  String formatHeight(double centimeters) {
-    if (preferences.bodyLength == BodyLengthUnit.metric) {
-      return '${number(centimeters, 1)} cm';
-    }
-    final roundedTotalInches =
-        (centimeters * inchesPerCentimeter * 10).round() / 10;
-    final feet = roundedTotalInches ~/ 12;
-    final inches = roundedTotalInches - feet * 12;
-    return '$feet ft ${number(inches, 1)} in';
-  }
+  String formatHeight(double centimeters) => formatBodyLength(centimeters);
 
   String formatFoodMass(double grams, {int decimals = 1}) =>
       '${number(foodMassFromGrams(grams), decimals)} $foodMassUnit';

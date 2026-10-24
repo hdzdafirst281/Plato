@@ -48,8 +48,6 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   // Raw Input Strings to handle empty states without forcing 0
   late String _ageStr;
   late String _heightStr;
-  late String _heightFeetStr;
-  late String _heightInchesStr;
   late String _weightStr;
 
   // Raw Input Strings for Body Metrics
@@ -90,15 +88,6 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     final units = MeasurementFormatter(currentProfile.measurementPreferences);
     _heightStr = currentProfile.heightInCm > 0
         ? _formatDouble(units.bodyLengthFromCm(currentProfile.heightInCm))
-        : "";
-    final totalHeightInches = currentProfile.heightInCm > 0
-        ? currentProfile.heightInCm * MeasurementFormatter.inchesPerCentimeter
-        : 0.0;
-    _heightFeetStr = totalHeightInches > 0
-        ? (totalHeightInches ~/ 12).toString()
-        : "";
-    _heightInchesStr = totalHeightInches > 0
-        ? _formatDouble(totalHeightInches % 12)
         : "";
     _weightStr = currentProfile.weightInKg > 0
         ? _formatDouble(units.weightFromKg(currentProfile.weightInKg))
@@ -169,19 +158,8 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
   }
 
   double? get _parsedHeightCm {
-    if (_draftProfile.measurementPreferences.bodyLength ==
-        BodyLengthUnit.metric) {
-      final value = double.tryParse(_heightStr);
-      return value == null ? null : _units.bodyLengthToCm(value);
-    }
-    final feet = int.tryParse(_heightFeetStr);
-    final inches = _heightInchesStr.trim().isEmpty
-        ? 0.0
-        : double.tryParse(_heightInchesStr);
-    if (feet == null || inches == null || feet < 0 || inches < 0 || inches >= 12) {
-      return null;
-    }
-    return (feet * 12 + inches) / MeasurementFormatter.inchesPerCentimeter;
+    final value = double.tryParse(_heightStr);
+    return value == null ? null : _units.bodyLengthToCm(value);
   }
 
   void _validateForm() {
@@ -210,10 +188,7 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     }
 
     // Height
-    final heightIsEmpty = _draftProfile.measurementPreferences.bodyLength ==
-            BodyLengthUnit.metric
-        ? _heightStr.trim().isEmpty
-        : _heightFeetStr.trim().isEmpty && _heightInchesStr.trim().isEmpty;
+    final heightIsEmpty = _heightStr.trim().isEmpty;
     if (heightIsEmpty) {
       _heightError = t.onboarding.msg_err_height_empty;
       valid = false;
@@ -338,17 +313,10 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
     if (_ageStr != initialAgeStr) return true;
 
     final originalUnits = MeasurementFormatter(original.measurementPreferences);
-    if (original.measurementPreferences.bodyLength == BodyLengthUnit.metric) {
-      final initialHeightStr = original.heightInCm > 0
-          ? _formatDouble(originalUnits.bodyLengthFromCm(original.heightInCm))
-          : "";
-      if (_heightStr != initialHeightStr) return true;
-    } else {
-      final totalInches =
-          original.heightInCm * MeasurementFormatter.inchesPerCentimeter;
-      if (_heightFeetStr != (totalInches ~/ 12).toString()) return true;
-      if (_heightInchesStr != _formatDouble(totalInches % 12)) return true;
-    }
+    final initialHeightStr = original.heightInCm > 0
+        ? _formatDouble(originalUnits.bodyLengthFromCm(original.heightInCm))
+        : "";
+    if (_heightStr != initialHeightStr) return true;
 
     final initialWeightStr = original.weightInKg > 0
         ? _formatDouble(originalUnits.weightFromKg(original.weightInKg))
@@ -624,55 +592,20 @@ class _ProfileSettingsScreenState extends State<ProfileSettingsScreen> {
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              if (_draftProfile.measurementPreferences.bodyLength ==
-                  BodyLengthUnit.metric)
-                Expanded(
-                  child: _ProfileTextField(
-                    label: t.profile.metric_height(unit: _units.heightUnit),
-                    value: _heightStr,
-                    isNumber: true,
-                    errorText: _heightError,
-                    onChanged: (v) => setState(() {
-                      _heightStr = v;
-                      _validateForm();
-                    }),
+              Expanded(
+                child: _ProfileTextField(
+                  label: t.profile.metric_height(
+                    unit: _units.bodyLengthUnit,
                   ),
-                )
-              else
-                Expanded(
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Expanded(
-                        child: _ProfileTextField(
-                          label: t.profile.metric_height(
-                            unit: t.common.unit_ft,
-                          ),
-                          value: _heightFeetStr,
-                          isNumber: true,
-                          isInteger: true,
-                          errorText: _heightError,
-                          onChanged: (v) => setState(() {
-                            _heightFeetStr = v;
-                            _validateForm();
-                          }),
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      Expanded(
-                        child: _ProfileTextField(
-                          label: t.common.unit_in,
-                          value: _heightInchesStr,
-                          isNumber: true,
-                          onChanged: (v) => setState(() {
-                            _heightInchesStr = v;
-                            _validateForm();
-                          }),
-                        ),
-                      ),
-                    ],
-                  ),
+                  value: _heightStr,
+                  isNumber: true,
+                  errorText: _heightError,
+                  onChanged: (v) => setState(() {
+                    _heightStr = v;
+                    _validateForm();
+                  }),
                 ),
+              ),
               const SizedBox(width: 12),
               Expanded(
                 child: _ProfileTextField(

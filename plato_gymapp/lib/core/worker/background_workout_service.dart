@@ -192,12 +192,14 @@ class BackgroundWorkoutService {
     required String restTitle,
     required String nextBody,
     required String postRestTitle,
+    required bool playSound,
   }) {
     FlutterBackgroundService().invoke('START_REST', {
       'duration': duration,
       'restTitle': restTitle,
       'nextBody': nextBody,
       'postRestTitle': postRestTitle,
+      'playSound': playSound,
     });
   }
 }
@@ -288,6 +290,24 @@ void onStart(ServiceInstance service) async {
     debugPrint("❌ [BACKGROUND_SERVICE] Lỗi load âm thanh just_audio: $e");
   }
 
+  bool isTimerSoundPlaying = false;
+
+  Future<void> playRestTimerSound() async {
+    if (isTimerSoundPlaying) return;
+    isTimerSoundPlaying = true;
+    try {
+      await audioSession.setActive(true);
+      await audioPlayer.seek(Duration.zero);
+      await audioPlayer.play();
+    } catch (e) {
+      debugPrint("❌ Lỗi play just_audio: $e");
+    } finally {
+      await audioPlayer.pause();
+      await audioSession.setActive(false);
+      isTimerSoundPlaying = false;
+    }
+  }
+
   Timer? restTimer;
   Timer? workoutTimer;
   Timer? bootStabilizerTimer;
@@ -375,7 +395,7 @@ void onStart(ServiceInstance service) async {
     String restTitle = event['restTitle'] as String? ?? "Rest";
     String nextBody = event['nextBody'] as String? ?? "";
     String postRestTitle = event['postRestTitle'] as String? ?? "Work";
-
+    bool playSound = event['playSound'] as bool? ?? true;
     DateTime endTime = DateTime.now().add(Duration(seconds: duration));
 
     restTimer = Timer.periodic(const Duration(seconds: 1), (timer) async {
@@ -396,18 +416,7 @@ void onStart(ServiceInstance service) async {
           }
         });
 
-        Future.microtask(() async {
-          try {
-            await audioSession.setActive(true);
-            await audioPlayer.seek(Duration.zero);
-            await audioPlayer.play();
-          } catch (e) {
-            debugPrint("❌ Lỗi play just_audio: $e");
-          } finally {
-            await audioSession.setActive(false);
-            await audioPlayer.pause();
-          }
-        });
+        if (playSound) Future.microtask(playRestTimerSound);
 
         if (latestState != null && latestState!['startTimeMillis'] != null) {
           startMainWorkoutTimer(
@@ -453,20 +462,6 @@ void onStart(ServiceInstance service) async {
             }
           } catch (e) {
             debugPrint("❌ Lỗi rung: $e");
-          }
-        });
-
-        // Tái sử dụng logic Chuông
-        Future.microtask(() async {
-          try {
-            await audioSession.setActive(true);
-            await audioPlayer.seek(Duration.zero);
-            await audioPlayer.play();
-          } catch (e) {
-            debugPrint("❌ Lỗi play just_audio: $e");
-          } finally {
-            await audioSession.setActive(false);
-            await audioPlayer.pause();
           }
         });
       }

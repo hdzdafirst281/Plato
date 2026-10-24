@@ -24,12 +24,12 @@ void main() {
       );
     });
 
-    test('round-trips imperial display values to canonical metric values', () {
+    test('round-trips alternate display values to canonical metric values', () {
       const formatter = MeasurementFormatter(
         MeasurementPreferences(
           weight: WeightUnit.pound,
           hydration: HydrationUnit.usGallon,
-          distance: DistanceUnit.mile,
+          distance: DistanceUnit.meter,
           bodyLength: BodyLengthUnit.imperial,
           foodMass: FoodMassUnit.ounce,
         ),
@@ -55,11 +55,11 @@ void main() {
         formatter.foodMassToGrams(formatter.foodMassFromGrams(100)),
         closeTo(100, 1e-9),
       );
-      expect(formatter.formatHeight(165), '5 ft 5 in');
+      expect(formatter.formatHeight(165), '65 in');
       expect(formatter.formatWeight(1), '2.2 lb');
-      expect(formatter.formatHydration(3.785411784), '1 US gal');
-      expect(formatter.formatDistance(1.609344), '1 mi');
-      expect(formatter.formatSpeed(1.609344), '1 mph');
+      expect(formatter.formatHydration(3.785411784), '1 gal');
+      expect(formatter.formatDistance(1), '1000 m');
+      expect(formatter.formatSpeedKmh(1.609344, unit: 'km/h'), '1.6 km/h');
       expect(formatter.formatBodyLength(2.54), '1 in');
       expect(formatter.formatFoodMass(28.349523125), '1 oz');
       expect(
@@ -68,10 +68,10 @@ void main() {
       );
     });
 
-    test('falls back to metric for missing or unknown cloud preferences', () {
+    test('falls back to metric for obsolete cloud preferences', () {
       final preferences = MeasurementPreferences.fromJson({
         'weight': 'unknown',
-        'distance': 'unknown',
+        'distance': 'mile',
       });
 
       expect(preferences, const MeasurementPreferences());
@@ -81,7 +81,7 @@ void main() {
       const preferences = MeasurementPreferences(
         weight: WeightUnit.pound,
         hydration: HydrationUnit.usGallon,
-        distance: DistanceUnit.mile,
+        distance: DistanceUnit.meter,
         bodyLength: BodyLengthUnit.imperial,
         foodMass: FoodMassUnit.ounce,
       );

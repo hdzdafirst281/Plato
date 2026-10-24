@@ -31,6 +31,7 @@ import '../../../../core/database/enums.dart';
 import '../../../../core/database/entities.dart';
 
 import '../../data/models/workout_models.dart';
+import '../../data/workout_settings_preferences.dart';
 import '../bloc/editor_cubit.dart';
 import '../bloc/workout_cubit.dart';
 import '../bloc/active_session_cubit.dart';
@@ -573,6 +574,11 @@ class _RoutineScreenState extends State<RoutineScreen>
           final sortedHistory = history.toList()
             ..sort((a, b) => b.startTime.compareTo(a.startTime));
 
+          final defaultRestSeconds =
+              WorkoutSettingsPreferences.defaultRestSeconds(
+                context.read<ActiveSessionCubit>().prefs,
+              );
+
           setState(() {
             for (var ex in exercises) {
               final lastMatchedSession = sortedHistory
@@ -592,15 +598,35 @@ class _RoutineScreenState extends State<RoutineScreen>
                     .toList();
               } else {
                 final initialSet = (ex.type == ExerciseType.CARDIO_DISTANCE)
-                    ? ExerciseSet(id: _uuid.v4(), distanceInKm: 0.0)
+                    ? ExerciseSet(
+                        id: _uuid.v4(),
+                        distanceInKm: 0.0,
+                        restTimeSeconds: defaultRestSeconds,
+                      )
                     : (ex.type == ExerciseType.CARDIO_STEPS)
-                    ? ExerciseSet(id: _uuid.v4(), steps: 0)
-                    : ExerciseSet(id: _uuid.v4(), weight: 0.0, reps: 0);
+                    ? ExerciseSet(
+                        id: _uuid.v4(),
+                        steps: 0,
+                        restTimeSeconds: defaultRestSeconds,
+                      )
+                    : ExerciseSet(
+                        id: _uuid.v4(),
+                        weight: 0.0,
+                        reps: 0,
+                        restTimeSeconds: defaultRestSeconds,
+                      );
                 newSets = [initialSet];
               }
 
               _routineExercises.add(
-                WorkoutExercise(id: _uuid.v4(), exercise: ex, sets: newSets),
+                WorkoutExercise(
+                  id: _uuid.v4(),
+                  exercise: ex,
+                  restTimeSeconds:
+                      newSets.firstOrNull?.restTimeSeconds ??
+                      defaultRestSeconds,
+                  sets: newSets,
+                ),
               );
             }
           });
@@ -641,6 +667,11 @@ class _RoutineScreenState extends State<RoutineScreen>
             final sortedHistory = history.toList()
               ..sort((a, b) => b.startTime.compareTo(a.startTime));
 
+            final defaultRestSeconds =
+                WorkoutSettingsPreferences.defaultRestSeconds(
+                  context.read<ActiveSessionCubit>().prefs,
+                );
+
             setState(() {
               final lastMatchedSession = sortedHistory
                   .where(
@@ -659,16 +690,31 @@ class _RoutineScreenState extends State<RoutineScreen>
                     .toList();
               } else {
                 final initialSet = (ex.type == ExerciseType.CARDIO_DISTANCE)
-                    ? ExerciseSet(id: _uuid.v4(), distanceInKm: 0.0)
+                    ? ExerciseSet(
+                        id: _uuid.v4(),
+                        distanceInKm: 0.0,
+                        restTimeSeconds: defaultRestSeconds,
+                      )
                     : (ex.type == ExerciseType.CARDIO_STEPS)
-                    ? ExerciseSet(id: _uuid.v4(), steps: 0)
-                    : ExerciseSet(id: _uuid.v4(), weight: 0.0, reps: 0);
+                    ? ExerciseSet(
+                        id: _uuid.v4(),
+                        steps: 0,
+                        restTimeSeconds: defaultRestSeconds,
+                      )
+                    : ExerciseSet(
+                        id: _uuid.v4(),
+                        weight: 0.0,
+                        reps: 0,
+                        restTimeSeconds: defaultRestSeconds,
+                      );
                 newSets = [initialSet];
               }
 
               _routineExercises[indexToReplace] = WorkoutExercise(
                 id: _uuid.v4(),
                 exercise: ex,
+                restTimeSeconds:
+                    newSets.firstOrNull?.restTimeSeconds ?? defaultRestSeconds,
                 sets: newSets,
               );
             });
@@ -1831,7 +1877,7 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
           if (speedKmH >= 45.0) {
             isValid = false;
             errorValidationKey = t.workout.err_invalid_speed_max(
-              arg1: _units.formatSpeed(45),
+              arg1: _units.formatSpeedKmh(45, unit: t.common.unit_kmh),
             );
           }
         }
@@ -1944,7 +1990,10 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
     final colorScheme = Theme.of(context).colorScheme;
     final exType = widget.workoutExercise.exercise.type;
     final currentRest =
-        widget.workoutExercise.sets.firstOrNull?.restTimeSeconds ?? 90;
+        widget.workoutExercise.sets.firstOrNull?.restTimeSeconds ??
+        WorkoutSettingsPreferences.defaultRestSeconds(
+          context.read<ActiveSessionCubit>().prefs,
+        );
 
     final isTablet = ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET);
     final double setRowHorizontalPadding = ResponsiveValue<double>(
@@ -2796,7 +2845,8 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
                                                 ? (setData.distanceInKm > 0
                                                       ? MeasurementFormatter.number(
                                                           _units.distanceFromKm(
-                                                            setData.distanceInKm,
+                                                            setData
+                                                                .distanceInKm,
                                                           ),
                                                           2,
                                                         )
@@ -2939,13 +2989,14 @@ class _RoutineExerciseCardState extends State<_RoutineExerciseCard> {
                                                                           3600.0);
                                                                   if (speedKmH >=
                                                                       45.0) {
-                                                                    return t
-                                                                        .workout
-                                                                        .err_invalid_speed_max(
-                                                                          arg1: _units.formatSpeed(
-                                                                            45,
-                                                                          ),
-                                                                        );
+                                                                    return t.workout.err_invalid_speed_max(
+                                                                      arg1: _units.formatSpeedKmh(
+                                                                        45,
+                                                                        unit: t
+                                                                            .common
+                                                                            .unit_kmh,
+                                                                      ),
+                                                                    );
                                                                   }
                                                                 }
                                                                 return null;

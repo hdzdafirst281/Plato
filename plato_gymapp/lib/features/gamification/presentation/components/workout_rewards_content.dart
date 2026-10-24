@@ -15,12 +15,14 @@ import 'package:plato_gymapp/core/designsystem/components/streak_icon.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:plato_gymapp/core/utils/measurement_units.dart';
 import 'package:plato_gymapp/features/profile/presentation/bloc/profile_cubit.dart';
+import '../../../workout/presentation/bloc/workout_cubit.dart';
 
 class WorkoutRewardsContent extends StatefulWidget {
   final WorkoutSession session;
   final UserGamificationStats stats;
   final RankScreenState? rank;
   final List<Quest> beforeQuests;
+  final List<WorkoutSession> workoutHistory;
   final bool animateWorkout;
   final int? streakWeeks;
   final bool streakIncreased;
@@ -39,6 +41,7 @@ class WorkoutRewardsContent extends StatefulWidget {
     required this.stats,
     this.rank,
     this.beforeQuests = const [],
+    this.workoutHistory = const [],
     this.animateWorkout = true,
     this.streakWeeks,
     this.streakIncreased = false,
@@ -80,6 +83,72 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
         (widget.animateWorkout ? widget.session.xpEarned : 0),
   );
   late int _xpTarget = RewardXpProgress.total(widget.stats);
+
+  List<WorkoutSession> get _allWorkouts {
+    if (widget.workoutHistory.isNotEmpty) {
+      return widget.workoutHistory;
+    }
+    try {
+      final cubit = context.read<WorkoutCubit>();
+      final list = cubit.state.historicalWorkoutSessionsList;
+      if (list.any((w) => w.id == widget.session.id)) {
+        return list;
+      }
+      return [...list, widget.session];
+    } catch (_) {
+      return [widget.session];
+    }
+  }
+
+  DateTime get _sessionDay =>
+      DateTime.fromMillisecondsSinceEpoch(widget.session.startTime);
+
+  bool get _isXpCapped {
+    final sessionDay = _sessionDay;
+    final sameDayWorkouts = _allWorkouts.where(
+      (w) =>
+          !w.isDeleted &&
+          RankCalculator.isSameDay(
+            DateTime.fromMillisecondsSinceEpoch(w.startTime),
+            sessionDay,
+          ),
+    );
+    final totalXpToday = sameDayWorkouts.fold(
+      0,
+      (sum, w) => sum + w.xpEarned,
+    );
+    final hasSession = sameDayWorkouts.any((w) => w.id == widget.session.id);
+    final finalXpToday = totalXpToday + (hasSession ? 0 : widget.session.xpEarned);
+    return finalXpToday >= GamificationRepository.dailyXpCap;
+  }
+
+  bool get _isRpCapped {
+    final sessionDay = _sessionDay;
+    final sameDayWorkouts = _allWorkouts.where(
+      (w) =>
+          !w.isDeleted &&
+          RankCalculator.isSameDay(
+            DateTime.fromMillisecondsSinceEpoch(w.startTime),
+            sessionDay,
+          ),
+    );
+    int totalSets = 0;
+    bool hasSession = false;
+    for (final w in sameDayWorkouts) {
+      if (w.id == widget.session.id) hasSession = true;
+      totalSets += w.exercises
+          .expand((e) => e.sets)
+          .where((s) => s.isCompleted)
+          .length;
+    }
+    if (!hasSession) {
+      totalSets += widget.session.exercises
+          .expand((e) => e.sets)
+          .where((s) => s.isCompleted)
+          .length;
+    }
+    return totalSets >= RankConfig.dailyRpCap;
+  }
 
   List<String> get _stages => [
     if (widget.streakWeeks != null) 'streak',
@@ -743,6 +812,8 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
     final colors = Theme.of(context).colorScheme;
     final (level, xp) = RewardXpProgress.at(_displayedXp);
     final target = RewardXpProgress.requirement(level);
+    final isCapped = _isXpCapped;
+
     return _card(
       Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -750,12 +821,24 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
           Row(
             children: [
               Expanded(
-                child: Text(
-                  t.workout_rewards.level(level: level),
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 16,
-                  ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      t.workout_rewards.level(level: level),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w800,
+                        fontSize: 16,
+                      ),
+                    ),
+                    if (isCapped) ...[
+                      const SizedBox(height: 3),
+                      _DailyCapTag(
+                        label: t.workout_rewards.lbl_daily_cap_reached,
+                      ),
+                    ],
+                  ],
                 ),
               ),
               Text(
@@ -763,7 +846,7 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
                 style: TextStyle(
                   fontSize: compact ? 20 : 24,
                   fontWeight: FontWeight.w800,
-                  color: colors.primary,
+                  color: isCapped ? colors.onSurfaceVariant : colors.primary,
                 ),
               ),
             ],
@@ -771,9 +854,29 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
           SizedBox(height: compact ? 3 : 10),
           _bar('xp-progress', xp, target, colors.primary),
           const SizedBox(height: 4),
-          Text(
-            '$xp / $target XP',
-            style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                '$xp / $target XP',
+                style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant),
+              ),
+              if (isCapped)
+                Flexible(
+                  child: Text(
+                    t.workout_rewards.msg_daily_xp_capped(
+                      max: GamificationRepository.dailyXpCap,
+                    ),
+                    style: TextStyle(
+                      fontSize: 10,
+                      fontWeight: FontWeight.w600,
+                      color: colors.error,
+                    ),
+                    textAlign: TextAlign.end,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+            ],
           ),
         ],
       ),
@@ -798,19 +901,18 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
     final scale = RewardRankScale(info);
     final colors = Theme.of(context).colorScheme;
     final gym = Theme.of(context).extension<GymColors>();
-    final earned =
+    final inCycle =
         widget.session.startTime >= rank.cycleStartTimeMillis &&
             widget.session.startTime <
-                rank.cycleStartTimeMillis + RankCalculator.cycleDurationMillis
-        ? widget.session.exercises
-              .expand((e) => e.sets)
-              .where((s) => s.isCompleted)
-              .length
+                rank.cycleStartTimeMillis + RankCalculator.cycleDurationMillis;
+    final earned = inCycle
+        ? RankCalculator.calculateSessionRp(widget.session, _allWorkouts)
         : 0;
     final before = widget.animateWorkout
         ? math.max(0, rank.totalRp - earned)
         : rank.totalRp;
     final current = _between(before, rank.totalRp, _progress('rp'));
+    final isCapped = _isRpCapped;
     
     final cycleEndTimeMillis = rank.cycleStartTimeMillis + RankCalculator.cycleDurationMillis;
     final remainingMillis = cycleEndTimeMillis - DateTime.now().millisecondsSinceEpoch;
@@ -826,6 +928,8 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
                 'assets/badges/${_badges[info.id - 1]}.webp',
                 width: compact ? 32 : 46,
                 height: compact ? 32 : 46,
+                cacheWidth: compact ? 64 : 92,
+                cacheHeight: compact ? 64 : 92,
                 excludeFromSemantics: true,
               ),
               const SizedBox(width: 10),
@@ -840,13 +944,24 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
                         fontWeight: FontWeight.w700,
                       ),
                     ),
-                    Text(
-                      '$current RP',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.w800,
-                        color: colors.primary,
-                      ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Text(
+                          '$current RP',
+                          style: TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.w800,
+                            color: colors.primary,
+                          ),
+                        ),
+                        if (isCapped) ...[
+                          const SizedBox(width: 8),
+                          _DailyCapTag(
+                            label: t.workout_rewards.lbl_daily_cap_reached,
+                          ),
+                        ],
+                      ],
                     ),
                   ],
                 ),
@@ -854,7 +969,7 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
               Text(
                 '+$earned RP',
                 style: TextStyle(
-                  color: colors.primary,
+                  color: isCapped ? colors.onSurfaceVariant : colors.primary,
                   fontWeight: FontWeight.w800,
                   fontSize: compact ? 20 : 24,
                 ),
@@ -948,7 +1063,62 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
                 ),
             ],
           ),
-          const SizedBox(height: 12),
+          SizedBox(height: compact ? 6 : 10),
+          if (isCapped)
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              decoration: BoxDecoration(
+                color: colors.errorContainer.withValues(alpha: 0.25),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(
+                    Symbols.info,
+                    size: 13,
+                    color: colors.error,
+                  ),
+                  const SizedBox(width: 6),
+                  Flexible(
+                    child: Text(
+                      t.workout_rewards.msg_daily_rp_capped(
+                        max: RankConfig.dailyRpCap,
+                      ),
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w600,
+                        color: colors.error,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Symbols.info,
+                  size: 12,
+                  color: colors.onSurfaceVariant,
+                ),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    t.rank.desc_info_daily_cap(max: RankConfig.dailyRpCap),
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 10,
+                      color: colors.onSurfaceVariant,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          SizedBox(height: compact ? 4 : 6),
           Text(
             t.workout_rewards.rank_review(days: remainingDays),
             textAlign: TextAlign.center,
@@ -957,6 +1127,47 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
         ],
       ),
       compact,
+    );
+  }
+}
+
+class _DailyCapTag extends StatelessWidget {
+  final String label;
+
+  const _DailyCapTag({required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+      decoration: BoxDecoration(
+        color: colors.errorContainer.withValues(alpha: 0.5),
+        borderRadius: BorderRadius.circular(6),
+        border: Border.all(
+          color: colors.error.withValues(alpha: 0.3),
+          width: 0.8,
+        ),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(
+            Symbols.lock,
+            size: 11,
+            color: colors.error,
+          ),
+          const SizedBox(width: 4),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.w700,
+              color: colors.error,
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

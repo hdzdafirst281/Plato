@@ -61,6 +61,7 @@ class _WorkoutRewardsScreenState extends State<WorkoutRewardsScreen> {
   bool _workoutLevelUp = false;
   int? _streakWeeks;
   bool _streakIncreased = false;
+  List<WorkoutSession> _history = const [];
 
   @override
   void initState() {
@@ -106,6 +107,7 @@ class _WorkoutRewardsScreenState extends State<WorkoutRewardsScreen> {
       final stats = gamification.state.stats;
       setState(() {
         _session = session;
+        _history = history;
         _streakWeeks = streak > 0 ? streak : null;
         _streakIncreased = increased;
         _initialLevel = stats.level;
@@ -243,6 +245,7 @@ class _WorkoutRewardsScreenState extends State<WorkoutRewardsScreen> {
           BlocBuilder<RankCubit, RankScreenState?>(
             builder: (context, rank) => WorkoutRewardsContent(
               session: _session!,
+              workoutHistory: _history,
               stats: gamification.stats,
               rank: rank,
               leveledUp:

@@ -37,6 +37,7 @@ import 'package:plato_gymapp/core/designsystem/components/gym_tour_target.dart';
 import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
 import 'package:plato_gymapp/features/workout/data/models/workout_models.dart';
 import 'package:plato_gymapp/features/workout/data/workout_effort_preferences.dart';
+import 'package:plato_gymapp/features/workout/data/workout_settings_preferences.dart';
 import '../../../../core/database/enums.dart';
 import '../../../../core/utils/measurement_units.dart';
 import '../../../profile/presentation/bloc/profile_cubit.dart';
@@ -842,11 +843,16 @@ class GymTimerHelper {
                         style: TextStyle(color: colorScheme.onSurfaceVariant),
                       ),
                     ),
-                    Text(
-                      t.workout.title_rest_time,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
+                    Expanded(
+                      child: Text(
+                        t.workout.title_rest_time,
+                        textAlign: TextAlign.center,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
                       ),
                     ),
                     TextButton(
@@ -1919,7 +1925,7 @@ class ActiveExerciseCardState extends State<ActiveExerciseCard>
         if (speedKmH >= 45.0) {
           isValid = false;
           errorValidationKey = t.workout.err_invalid_speed_max(
-            arg1: _units.formatSpeed(45),
+            arg1: _units.formatSpeedKmh(45, unit: t.common.unit_kmh),
           );
         }
       }
@@ -2252,8 +2258,11 @@ class ActiveExerciseCardState extends State<ActiveExerciseCard>
         }
         prDialogMsgs.add(
           t.workout.pr_best_pace(
-            arg1: _units.formatSpeed(currentPace),
-            arg2: _units.formatSpeed(currentPace - maxPastPace),
+            arg1: _units.formatSpeedKmh(currentPace, unit: t.common.unit_kmh),
+            arg2: _units.formatSpeedKmh(
+              currentPace - maxPastPace,
+              unit: t.common.unit_kmh,
+            ),
           ),
         );
       }
@@ -2536,7 +2545,7 @@ class ActiveExerciseCardState extends State<ActiveExerciseCard>
             double speedKmH = targetSet.distanceInKm / (fillTime / 3600.0);
             if (speedKmH >= 45.0) {
               return t.workout.err_invalid_speed_max(
-                arg1: _units.formatSpeed(45),
+                arg1: _units.formatSpeedKmh(45, unit: t.common.unit_kmh),
               );
             }
           }
@@ -2617,7 +2626,10 @@ class ActiveExerciseCardState extends State<ActiveExerciseCard>
     final colorScheme = Theme.of(context).colorScheme;
     final exType = widget.workoutExercise.exercise.type;
     final currentRest =
-        widget.workoutExercise.sets.firstOrNull?.restTimeSeconds ?? 90;
+        widget.workoutExercise.sets.firstOrNull?.restTimeSeconds ??
+        WorkoutSettingsPreferences.defaultRestSeconds(
+          widget.activeSessionCubit.prefs,
+        );
     final effortPrefs = widget.activeSessionCubit.prefs;
     final advancedEffortEnabled = WorkoutEffortPreferences.advancedEnabled(
       effortPrefs,
@@ -3065,7 +3077,8 @@ class ActiveExerciseCardState extends State<ActiveExerciseCard>
                             child: InkWell(
                               onTap: () {
                                 final threshold = _units.formatWeight(
-                                  _proactiveSafetyResult!.dangerWeightThreshold!,
+                                  _proactiveSafetyResult!
+                                      .dangerWeightThreshold!,
                                 );
                                 GymDialog.showInfo(
                                   context: context,
@@ -3706,7 +3719,8 @@ class ActiveExerciseCardState extends State<ActiveExerciseCard>
                                                           isCompleted
                                                       ? MeasurementFormatter.number(
                                                           _units.distanceFromKm(
-                                                            setData.distanceInKm,
+                                                            setData
+                                                                .distanceInKm,
                                                           ),
                                                           2,
                                                         )
@@ -3758,13 +3772,13 @@ class ActiveExerciseCardState extends State<ActiveExerciseCard>
                                                   setData.id,
                                                   exType,
                                                   isCompleted,
-                                                   distance:
+                                                  distance:
                                                       (val.isNotEmpty &&
                                                           parsed == null)
                                                       ? -1.0
-                                                       : _units.distanceToKm(
-                                                           parsed ?? 0.0,
-                                                         ),
+                                                      : _units.distanceToKm(
+                                                          parsed ?? 0.0,
+                                                        ),
                                                 );
                                               } else {
                                                 final parsed = double.tryParse(
@@ -3774,13 +3788,13 @@ class ActiveExerciseCardState extends State<ActiveExerciseCard>
                                                   setData.id,
                                                   exType,
                                                   isCompleted,
-                                                   weight:
+                                                  weight:
                                                       (val.isNotEmpty &&
                                                           parsed == null)
                                                       ? -1.0
-                                                       : _units.weightToKg(
-                                                           parsed ?? 0.0,
-                                                         ),
+                                                      : _units.weightToKg(
+                                                          parsed ?? 0.0,
+                                                        ),
                                                 );
                                               }
                                             },

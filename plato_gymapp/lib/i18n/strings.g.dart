@@ -4,9 +4,9 @@
 /// To regenerate, run: `dart run slang`
 ///
 /// Locales: 2
-/// Strings: 2944 (1472 per locale)
+/// Strings: 2972 (1486 per locale)
 ///
-/// Built on 2026-10-20 at 15:12 UTC
+/// Built on 2026-10-24 at 14:04 UTC
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -329,14 +329,12 @@ class _StringsCommonEn {
 	String get understood => 'Understood';
 	String get unit_kg => 'kg';
 	String get unit_lb => 'lb';
-	String get unit_l => 'L';
-	String get unit_us_gal => 'US gal';
+	String get unit_l => 'liters';
+	String get unit_us_gal => 'gal';
 	String get unit_km => 'km';
-	String get unit_mi => 'mi';
+	String get unit_m => 'm';
 	String get unit_kmh => 'km/h';
-	String get unit_mph => 'mph';
 	String get unit_cm => 'cm';
-	String get unit_ft => 'ft';
 	String get unit_in => 'in';
 	String get unit_g => 'g';
 	String get unit_oz => 'oz';
@@ -1215,6 +1213,7 @@ class _StringsRankEn {
 	String get title_info_dialog => 'About RP (Rank Points)';
 	String get desc_info_rp_abbreviation => 'RP';
 	String get desc_info_rp_definition => 'is a measure of your effort in each 45-day season. Every completed set equals 1 RP.';
+	String desc_info_daily_cap({required Object max}) => 'Maximum ${max} RP per day to ensure fair competition.';
 	String get title_info_zone_green => 'Green Zone (Promote)';
 	String get desc_info_zone_green => 'Pass this threshold in the current season, and you will be promoted in the next season.';
 	String get title_info_zone_red => 'Red Zone (Demote)';
@@ -1287,10 +1286,8 @@ class _StringsSettingsEn {
 	String get lbl_weight_unit => 'Weight';
 	String get lbl_hydration_unit => 'Hydration';
 	String get lbl_distance_unit => 'Distance';
-	String get lbl_speed_unit => 'Speed';
 	String get lbl_body_length_unit => 'Body measurements';
 	String get lbl_food_mass_unit => 'Food mass';
-	String get desc_speed_unit_auto => 'Speed follows your distance unit.';
 	String get msg_measurement_units_saved => 'Measurement units updated.';
 	String get desc_item_tutorial => 'Review feature tutorial videos';
 	String get lbl_item_version => 'Version';
@@ -1313,11 +1310,11 @@ class _StringsSettingsEn {
 	String get desc_eula_link => 'End user license agreement and usage rights';
 	String get desc_terms_link => 'Terms of Use and Privacy Policy';
 	String get lbl_item_workout_settings => 'Workout Settings';
-	String get desc_item_workout_settings => 'Customize RPE/RIR, workout progress';
+	String get desc_item_workout_settings => 'Rest timer, sound, screen & RPE/RIR';
 	String get title_workout_settings => 'Workout Settings';
 	String get section_effort_tracking => 'Effort Tracking';
-	String get lbl_effort_tracking => 'Effort tracking';
-	String get desc_effort_tracking => 'Optional: record RPE/RIR per set for more accurate Recovery.';
+	String get lbl_effort_tracking => 'RPE / RIR';
+	String get desc_effort_tracking => 'Record effort after each completed set.';
 	String get lbl_effort_scale => 'Effort Scale';
 	String get desc_effort_scale => 'Choose your preferred scale when recording set intensity.';
 	String get lbl_scale_rpe => 'RPE (1 - 10)';
@@ -1329,10 +1326,19 @@ class _StringsSettingsEn {
 	String get title_workout_bg => 'Background & Progress';
 	String get title_workout_guide => 'Recovery Optimization';
 	String get desc_workout_guide => 'Effort metrics help Plato accurately calculate muscle Recovery and Strain scores for your body.';
+	String get lbl_default_rest_timer => 'Default rest timer';
+	String get desc_default_rest_timer => 'Used for new exercises without a preset rest time.';
+	String get info_default_rest_timer => 'This is only a fallback. Rest times saved in a routine, inherited from workout history, or changed during the current workout always take priority.';
+	String get lbl_keep_screen_awake => 'Keep screen awake';
+	String get desc_keep_screen_awake => 'Prevent the screen from locking while Log Workout is open in the foreground.';
+	String get lbl_timer_sound => 'Rest timer sound';
+	String get desc_timer_sound => 'Play a sound when rest time ends.';
+	String get lbl_confirm_finish => 'Confirm finish';
+	String get desc_confirm_finish => 'Ask before finishing a completed workout.';
+	String get info_confirm_finish => 'Turning this off skips only the final confirmation for a fully completed workout. Warnings for workouts with no completed sets, workouts under 10 minutes, or incomplete sets remain enabled.';
 	String get lbl_item_about => 'About Plato';
 	String get desc_item_about => 'Version, Terms & Social';
-	String get title_about_screen => 'About Plato';
-	String get desc_about_plato => 'Smart workout & nutrition companion';
+	String get desc_about_plato => 'Workout & Nutrition Tracking App';
 }
 
 // Path: stats
@@ -1700,6 +1706,9 @@ class _StringsWorkoutRewardsEn {
 	String get tap_claim => 'Tap to claim';
 	String get claimed => 'Claimed';
 	String claim({required Object xp}) => 'Claim +${xp} XP';
+	String get lbl_daily_cap_reached => 'Daily cap reached';
+	String msg_daily_xp_capped({required Object max}) => 'Daily limit reached (${max} XP/day)';
+	String msg_daily_rp_capped({required Object max}) => 'Daily limit reached (${max} RP/day)';
 	String level({required Object level}) => 'Level ${level}';
 	String get zone_demote => 'Demote';
 	String get zone_maintain => 'Maintain';
@@ -1774,7 +1783,12 @@ class _StringsNotificationsEn {
 	String get lbl_system_permission => 'Device permission';
 	String get status_permission_allowed => 'Allowed';
 	String get status_permission_blocked => 'Blocked by your device';
-	String get btn_open_system_settings => 'Open device settings';
+	String get status_permission_partial => 'Requires additional permissions';
+	String get badge_notification => 'Notifications';
+	String get badge_activity_recognition => 'Physical activity';
+	String get status_granted => 'Granted';
+	String get status_denied => 'Denied';
+	String get btn_open_system_settings => 'Open settings';
 	String get lbl_workout_reminders => 'Workout reminders';
 	String fmt_workout_reminders_active({required Object count}) => '${count} workout notifications today';
 	String get msg_workout_reminders_none => 'No workout notifications left today';
@@ -2039,14 +2053,12 @@ class _StringsCommonVi extends _StringsCommonEn {
 	@override String get understood => 'Đã hiểu';
 	@override String get unit_kg => 'kg';
 	@override String get unit_lb => 'lb';
-	@override String get unit_l => 'L';
-	@override String get unit_us_gal => 'US gal';
+	@override String get unit_l => 'lít';
+	@override String get unit_us_gal => 'gal';
 	@override String get unit_km => 'km';
-	@override String get unit_mi => 'mi';
+	@override String get unit_m => 'm';
 	@override String get unit_kmh => 'km/h';
-	@override String get unit_mph => 'mph';
 	@override String get unit_cm => 'cm';
-	@override String get unit_ft => 'ft';
 	@override String get unit_in => 'in';
 	@override String get unit_g => 'g';
 	@override String get unit_oz => 'oz';
@@ -2925,6 +2937,7 @@ class _StringsRankVi extends _StringsRankEn {
 	@override String get title_info_dialog => 'Về RP (Điểm xếp hạng)';
 	@override String get desc_info_rp_abbreviation => 'RP';
 	@override String get desc_info_rp_definition => 'là thước đo sự nỗ lực của bạn trong mỗi mùa giải 45 ngày. Mỗi hiệp tập hoàn thành tương đương 1 RP.';
+	@override String desc_info_daily_cap({required Object max}) => 'Tối đa ${max} RP mỗi ngày để đảm bảo tính công bằng.';
 	@override String get title_info_zone_green => 'Vùng Xanh (Thăng hạng)';
 	@override String get desc_info_zone_green => 'Vượt qua mốc điểm này trong mùa giải hiện tại, bạn sẽ được thăng cấp vào mùa giải tiếp theo.';
 	@override String get title_info_zone_red => 'Vùng Đỏ (Rớt hạng)';
@@ -2997,10 +3010,8 @@ class _StringsSettingsVi extends _StringsSettingsEn {
 	@override String get lbl_weight_unit => 'Cân nặng';
 	@override String get lbl_hydration_unit => 'Nước uống';
 	@override String get lbl_distance_unit => 'Quãng đường';
-	@override String get lbl_speed_unit => 'Vận tốc';
 	@override String get lbl_body_length_unit => 'Số đo cơ thể';
 	@override String get lbl_food_mass_unit => 'Khối lượng thực phẩm';
-	@override String get desc_speed_unit_auto => 'Đơn vị vận tốc tự động theo đơn vị quãng đường.';
 	@override String get msg_measurement_units_saved => 'Đã cập nhật đơn vị đo lường.';
 	@override String get desc_item_tutorial => 'Xem lại các video hướng dẫn tính năng';
 	@override String get lbl_item_version => 'Phiên bản';
@@ -3023,11 +3034,11 @@ class _StringsSettingsVi extends _StringsSettingsEn {
 	@override String get desc_eula_link => 'Thỏa thuận cấp phép và quyền sử dụng';
 	@override String get desc_terms_link => 'Điều khoản và Chính sách bảo mật';
 	@override String get lbl_item_workout_settings => 'Cài đặt buổi tập';
-	@override String get desc_item_workout_settings => 'Tùy chỉnh RPE/RIR, tiến trình tập luyện';
+	@override String get desc_item_workout_settings => 'Thời gian nghỉ, âm báo, màn hình & RPE/RIR';
 	@override String get title_workout_settings => 'Cài đặt tập luyện';
 	@override String get section_effort_tracking => 'Mức độ gắng sức';
-	@override String get lbl_effort_tracking => 'Ghi nhận mức độ gắng sức';
-	@override String get desc_effort_tracking => 'Tùy chọn nâng cao: nhập RPE/RIR cho từng set để tăng độ chính xác Recovery.';
+	@override String get lbl_effort_tracking => 'RPE / RIR';
+	@override String get desc_effort_tracking => 'Ghi lại mức độ gắng sức sau mỗi set đã hoàn thành.';
 	@override String get lbl_effort_scale => 'Thang đo gắng sức';
 	@override String get desc_effort_scale => 'Chọn định dạng bạn muốn dùng khi ghi nhận cường độ mỗi hiệp.';
 	@override String get lbl_scale_rpe => 'RPE (1 - 10)';
@@ -3039,10 +3050,19 @@ class _StringsSettingsVi extends _StringsSettingsEn {
 	@override String get title_workout_bg => 'Chạy nền & Tiến trình';
 	@override String get title_workout_guide => 'Tối ưu hóa phục hồi';
 	@override String get desc_workout_guide => 'Dữ liệu gắng sức giúp Plato tính toán điểm Phục hồi (Recovery) và Tải trọng (Strain) chính xác hơn cho cơ bắp của bạn.';
+	@override String get lbl_default_rest_timer => 'Thời gian nghỉ mặc định';
+	@override String get desc_default_rest_timer => 'Dùng cho bài tập mới chưa có thời gian nghỉ.';
+	@override String get info_default_rest_timer => 'Đây chỉ là giá trị dự phòng. Thời gian nghỉ đã lưu trong lịch tập, kế thừa từ lịch sử tập hoặc được chỉnh trong buổi tập hiện tại luôn được ưu tiên.';
+	@override String get lbl_keep_screen_awake => 'Giữ màn hình sáng';
+	@override String get desc_keep_screen_awake => 'Không tự khóa màn hình khi có buổi tập đang chạy.';
+	@override String get lbl_timer_sound => 'Âm báo nghỉ';
+	@override String get desc_timer_sound => 'Phát âm thanh khi hết thời gian nghỉ.';
+	@override String get lbl_confirm_finish => 'Xác nhận kết thúc';
+	@override String get desc_confirm_finish => 'Hỏi lại trước khi kết thúc buổi tập hoàn chỉnh.';
+	@override String get info_confirm_finish => 'Khi tắt, ứng dụng chỉ bỏ bước xác nhận cuối đối với buổi tập đã hoàn thành đầy đủ. Cảnh báo khi chưa hoàn thành set nào, buổi tập dưới 10 phút hoặc còn set chưa hoàn thành vẫn được giữ.';
 	@override String get lbl_item_about => 'Về Plato';
 	@override String get desc_item_about => 'Phiên bản, Điều khoản & Mạng xã hội';
-	@override String get title_about_screen => 'Giới thiệu về Plato';
-	@override String get desc_about_plato => 'Ứng dụng đồng hành tập luyện & dinh dưỡng thông minh';
+	@override String get desc_about_plato => 'Ứng dụng theo dõi tập luyện & dinh dưỡng';
 }
 
 // Path: stats
@@ -3410,6 +3430,9 @@ class _StringsWorkoutRewardsVi extends _StringsWorkoutRewardsEn {
 	@override String get tap_claim => 'Chạm để nhận';
 	@override String get claimed => 'Đã nhận';
 	@override String claim({required Object xp}) => 'Nhận +${xp} XP';
+	@override String get lbl_daily_cap_reached => 'Đã đạt giới hạn ngày';
+	@override String msg_daily_xp_capped({required Object max}) => 'Đã đạt giới hạn nhận XP trong ngày (${max} XP/ngày)';
+	@override String msg_daily_rp_capped({required Object max}) => 'Đã đạt giới hạn nhận RP trong ngày (${max} RP/ngày)';
 	@override String level({required Object level}) => 'Cấp ${level}';
 	@override String get zone_demote => 'Vùng rớt hạng';
 	@override String get zone_maintain => 'Giữ hạng';
@@ -3484,7 +3507,12 @@ class _StringsNotificationsVi extends _StringsNotificationsEn {
 	@override String get lbl_system_permission => 'Quyền thông báo thiết bị';
 	@override String get status_permission_allowed => 'Đã cho phép';
 	@override String get status_permission_blocked => 'Bị thiết bị chặn';
-	@override String get btn_open_system_settings => 'Mở cài đặt thiết bị';
+	@override String get status_permission_partial => 'Cần cấp thêm quyền';
+	@override String get badge_notification => 'Thông báo';
+	@override String get badge_activity_recognition => 'Hoạt động thể chất';
+	@override String get status_granted => 'Đã cấp';
+	@override String get status_denied => 'Chưa cấp';
+	@override String get btn_open_system_settings => 'Mở cài đặt';
 	@override String get lbl_workout_reminders => 'Nhắc lịch tập';
 	@override String fmt_workout_reminders_active({required Object count}) => '${count} thông báo tập hôm nay';
 	@override String get msg_workout_reminders_none => 'Không còn thông báo tập hôm nay';
@@ -3681,14 +3709,12 @@ extension on Translations {
 			case 'common.understood': return 'Understood';
 			case 'common.unit_kg': return 'kg';
 			case 'common.unit_lb': return 'lb';
-			case 'common.unit_l': return 'L';
-			case 'common.unit_us_gal': return 'US gal';
+			case 'common.unit_l': return 'liters';
+			case 'common.unit_us_gal': return 'gal';
 			case 'common.unit_km': return 'km';
-			case 'common.unit_mi': return 'mi';
+			case 'common.unit_m': return 'm';
 			case 'common.unit_kmh': return 'km/h';
-			case 'common.unit_mph': return 'mph';
 			case 'common.unit_cm': return 'cm';
-			case 'common.unit_ft': return 'ft';
 			case 'common.unit_in': return 'in';
 			case 'common.unit_g': return 'g';
 			case 'common.unit_oz': return 'oz';
@@ -4468,6 +4494,7 @@ extension on Translations {
 			case 'rank.title_info_dialog': return 'About RP (Rank Points)';
 			case 'rank.desc_info_rp_abbreviation': return 'RP';
 			case 'rank.desc_info_rp_definition': return 'is a measure of your effort in each 45-day season. Every completed set equals 1 RP.';
+			case 'rank.desc_info_daily_cap': return ({required Object max}) => 'Maximum ${max} RP per day to ensure fair competition.';
 			case 'rank.title_info_zone_green': return 'Green Zone (Promote)';
 			case 'rank.desc_info_zone_green': return 'Pass this threshold in the current season, and you will be promoted in the next season.';
 			case 'rank.title_info_zone_red': return 'Red Zone (Demote)';
@@ -4522,10 +4549,8 @@ extension on Translations {
 			case 'settings.lbl_weight_unit': return 'Weight';
 			case 'settings.lbl_hydration_unit': return 'Hydration';
 			case 'settings.lbl_distance_unit': return 'Distance';
-			case 'settings.lbl_speed_unit': return 'Speed';
 			case 'settings.lbl_body_length_unit': return 'Body measurements';
 			case 'settings.lbl_food_mass_unit': return 'Food mass';
-			case 'settings.desc_speed_unit_auto': return 'Speed follows your distance unit.';
 			case 'settings.msg_measurement_units_saved': return 'Measurement units updated.';
 			case 'settings.desc_item_tutorial': return 'Review feature tutorial videos';
 			case 'settings.lbl_item_version': return 'Version';
@@ -4548,11 +4573,11 @@ extension on Translations {
 			case 'settings.desc_eula_link': return 'End user license agreement and usage rights';
 			case 'settings.desc_terms_link': return 'Terms of Use and Privacy Policy';
 			case 'settings.lbl_item_workout_settings': return 'Workout Settings';
-			case 'settings.desc_item_workout_settings': return 'Customize RPE/RIR, workout progress';
+			case 'settings.desc_item_workout_settings': return 'Rest timer, sound, screen & RPE/RIR';
 			case 'settings.title_workout_settings': return 'Workout Settings';
 			case 'settings.section_effort_tracking': return 'Effort Tracking';
-			case 'settings.lbl_effort_tracking': return 'Effort tracking';
-			case 'settings.desc_effort_tracking': return 'Optional: record RPE/RIR per set for more accurate Recovery.';
+			case 'settings.lbl_effort_tracking': return 'RPE / RIR';
+			case 'settings.desc_effort_tracking': return 'Record effort after each completed set.';
 			case 'settings.lbl_effort_scale': return 'Effort Scale';
 			case 'settings.desc_effort_scale': return 'Choose your preferred scale when recording set intensity.';
 			case 'settings.lbl_scale_rpe': return 'RPE (1 - 10)';
@@ -4564,10 +4589,19 @@ extension on Translations {
 			case 'settings.title_workout_bg': return 'Background & Progress';
 			case 'settings.title_workout_guide': return 'Recovery Optimization';
 			case 'settings.desc_workout_guide': return 'Effort metrics help Plato accurately calculate muscle Recovery and Strain scores for your body.';
+			case 'settings.lbl_default_rest_timer': return 'Default rest timer';
+			case 'settings.desc_default_rest_timer': return 'Used for new exercises without a preset rest time.';
+			case 'settings.info_default_rest_timer': return 'This is only a fallback. Rest times saved in a routine, inherited from workout history, or changed during the current workout always take priority.';
+			case 'settings.lbl_keep_screen_awake': return 'Keep screen awake';
+			case 'settings.desc_keep_screen_awake': return 'Prevent the screen from locking while Log Workout is open in the foreground.';
+			case 'settings.lbl_timer_sound': return 'Rest timer sound';
+			case 'settings.desc_timer_sound': return 'Play a sound when rest time ends.';
+			case 'settings.lbl_confirm_finish': return 'Confirm finish';
+			case 'settings.desc_confirm_finish': return 'Ask before finishing a completed workout.';
+			case 'settings.info_confirm_finish': return 'Turning this off skips only the final confirmation for a fully completed workout. Warnings for workouts with no completed sets, workouts under 10 minutes, or incomplete sets remain enabled.';
 			case 'settings.lbl_item_about': return 'About Plato';
 			case 'settings.desc_item_about': return 'Version, Terms & Social';
-			case 'settings.title_about_screen': return 'About Plato';
-			case 'settings.desc_about_plato': return 'Smart workout & nutrition companion';
+			case 'settings.desc_about_plato': return 'Workout & Nutrition Tracking App';
 			case 'stats.lbl_cal_rest_title': return 'Rest Days';
 			case 'stats.lbl_cal_streak_title': return 'Week Streak';
 			case 'stats.btn_cal_today': return 'Today';
@@ -4899,6 +4933,9 @@ extension on Translations {
 			case 'workout_rewards.tap_claim': return 'Tap to claim';
 			case 'workout_rewards.claimed': return 'Claimed';
 			case 'workout_rewards.claim': return ({required Object xp}) => 'Claim +${xp} XP';
+			case 'workout_rewards.lbl_daily_cap_reached': return 'Daily cap reached';
+			case 'workout_rewards.msg_daily_xp_capped': return ({required Object max}) => 'Daily limit reached (${max} XP/day)';
+			case 'workout_rewards.msg_daily_rp_capped': return ({required Object max}) => 'Daily limit reached (${max} RP/day)';
 			case 'workout_rewards.level': return ({required Object level}) => 'Level ${level}';
 			case 'workout_rewards.zone_demote': return 'Demote';
 			case 'workout_rewards.zone_maintain': return 'Maintain';
@@ -4964,7 +5001,12 @@ extension on Translations {
 			case 'notifications.lbl_system_permission': return 'Device permission';
 			case 'notifications.status_permission_allowed': return 'Allowed';
 			case 'notifications.status_permission_blocked': return 'Blocked by your device';
-			case 'notifications.btn_open_system_settings': return 'Open device settings';
+			case 'notifications.status_permission_partial': return 'Requires additional permissions';
+			case 'notifications.badge_notification': return 'Notifications';
+			case 'notifications.badge_activity_recognition': return 'Physical activity';
+			case 'notifications.status_granted': return 'Granted';
+			case 'notifications.status_denied': return 'Denied';
+			case 'notifications.btn_open_system_settings': return 'Open settings';
 			case 'notifications.lbl_workout_reminders': return 'Workout reminders';
 			case 'notifications.fmt_workout_reminders_active': return ({required Object count}) => '${count} workout notifications today';
 			case 'notifications.msg_workout_reminders_none': return 'No workout notifications left today';
@@ -5161,14 +5203,12 @@ extension on _StringsVi {
 			case 'common.understood': return 'Đã hiểu';
 			case 'common.unit_kg': return 'kg';
 			case 'common.unit_lb': return 'lb';
-			case 'common.unit_l': return 'L';
-			case 'common.unit_us_gal': return 'US gal';
+			case 'common.unit_l': return 'lít';
+			case 'common.unit_us_gal': return 'gal';
 			case 'common.unit_km': return 'km';
-			case 'common.unit_mi': return 'mi';
+			case 'common.unit_m': return 'm';
 			case 'common.unit_kmh': return 'km/h';
-			case 'common.unit_mph': return 'mph';
 			case 'common.unit_cm': return 'cm';
-			case 'common.unit_ft': return 'ft';
 			case 'common.unit_in': return 'in';
 			case 'common.unit_g': return 'g';
 			case 'common.unit_oz': return 'oz';
@@ -5948,6 +5988,7 @@ extension on _StringsVi {
 			case 'rank.title_info_dialog': return 'Về RP (Điểm xếp hạng)';
 			case 'rank.desc_info_rp_abbreviation': return 'RP';
 			case 'rank.desc_info_rp_definition': return 'là thước đo sự nỗ lực của bạn trong mỗi mùa giải 45 ngày. Mỗi hiệp tập hoàn thành tương đương 1 RP.';
+			case 'rank.desc_info_daily_cap': return ({required Object max}) => 'Tối đa ${max} RP mỗi ngày để đảm bảo tính công bằng.';
 			case 'rank.title_info_zone_green': return 'Vùng Xanh (Thăng hạng)';
 			case 'rank.desc_info_zone_green': return 'Vượt qua mốc điểm này trong mùa giải hiện tại, bạn sẽ được thăng cấp vào mùa giải tiếp theo.';
 			case 'rank.title_info_zone_red': return 'Vùng Đỏ (Rớt hạng)';
@@ -6002,10 +6043,8 @@ extension on _StringsVi {
 			case 'settings.lbl_weight_unit': return 'Cân nặng';
 			case 'settings.lbl_hydration_unit': return 'Nước uống';
 			case 'settings.lbl_distance_unit': return 'Quãng đường';
-			case 'settings.lbl_speed_unit': return 'Vận tốc';
 			case 'settings.lbl_body_length_unit': return 'Số đo cơ thể';
 			case 'settings.lbl_food_mass_unit': return 'Khối lượng thực phẩm';
-			case 'settings.desc_speed_unit_auto': return 'Đơn vị vận tốc tự động theo đơn vị quãng đường.';
 			case 'settings.msg_measurement_units_saved': return 'Đã cập nhật đơn vị đo lường.';
 			case 'settings.desc_item_tutorial': return 'Xem lại các video hướng dẫn tính năng';
 			case 'settings.lbl_item_version': return 'Phiên bản';
@@ -6028,11 +6067,11 @@ extension on _StringsVi {
 			case 'settings.desc_eula_link': return 'Thỏa thuận cấp phép và quyền sử dụng';
 			case 'settings.desc_terms_link': return 'Điều khoản và Chính sách bảo mật';
 			case 'settings.lbl_item_workout_settings': return 'Cài đặt buổi tập';
-			case 'settings.desc_item_workout_settings': return 'Tùy chỉnh RPE/RIR, tiến trình tập luyện';
+			case 'settings.desc_item_workout_settings': return 'Thời gian nghỉ, âm báo, màn hình & RPE/RIR';
 			case 'settings.title_workout_settings': return 'Cài đặt tập luyện';
 			case 'settings.section_effort_tracking': return 'Mức độ gắng sức';
-			case 'settings.lbl_effort_tracking': return 'Ghi nhận mức độ gắng sức';
-			case 'settings.desc_effort_tracking': return 'Tùy chọn nâng cao: nhập RPE/RIR cho từng set để tăng độ chính xác Recovery.';
+			case 'settings.lbl_effort_tracking': return 'RPE / RIR';
+			case 'settings.desc_effort_tracking': return 'Ghi lại mức độ gắng sức sau mỗi set đã hoàn thành.';
 			case 'settings.lbl_effort_scale': return 'Thang đo gắng sức';
 			case 'settings.desc_effort_scale': return 'Chọn định dạng bạn muốn dùng khi ghi nhận cường độ mỗi hiệp.';
 			case 'settings.lbl_scale_rpe': return 'RPE (1 - 10)';
@@ -6044,10 +6083,19 @@ extension on _StringsVi {
 			case 'settings.title_workout_bg': return 'Chạy nền & Tiến trình';
 			case 'settings.title_workout_guide': return 'Tối ưu hóa phục hồi';
 			case 'settings.desc_workout_guide': return 'Dữ liệu gắng sức giúp Plato tính toán điểm Phục hồi (Recovery) và Tải trọng (Strain) chính xác hơn cho cơ bắp của bạn.';
+			case 'settings.lbl_default_rest_timer': return 'Thời gian nghỉ mặc định';
+			case 'settings.desc_default_rest_timer': return 'Dùng cho bài tập mới chưa có thời gian nghỉ.';
+			case 'settings.info_default_rest_timer': return 'Đây chỉ là giá trị dự phòng. Thời gian nghỉ đã lưu trong lịch tập, kế thừa từ lịch sử tập hoặc được chỉnh trong buổi tập hiện tại luôn được ưu tiên.';
+			case 'settings.lbl_keep_screen_awake': return 'Giữ màn hình sáng';
+			case 'settings.desc_keep_screen_awake': return 'Không tự khóa màn hình khi có buổi tập đang chạy.';
+			case 'settings.lbl_timer_sound': return 'Âm báo nghỉ';
+			case 'settings.desc_timer_sound': return 'Phát âm thanh khi hết thời gian nghỉ.';
+			case 'settings.lbl_confirm_finish': return 'Xác nhận kết thúc';
+			case 'settings.desc_confirm_finish': return 'Hỏi lại trước khi kết thúc buổi tập hoàn chỉnh.';
+			case 'settings.info_confirm_finish': return 'Khi tắt, ứng dụng chỉ bỏ bước xác nhận cuối đối với buổi tập đã hoàn thành đầy đủ. Cảnh báo khi chưa hoàn thành set nào, buổi tập dưới 10 phút hoặc còn set chưa hoàn thành vẫn được giữ.';
 			case 'settings.lbl_item_about': return 'Về Plato';
 			case 'settings.desc_item_about': return 'Phiên bản, Điều khoản & Mạng xã hội';
-			case 'settings.title_about_screen': return 'Giới thiệu về Plato';
-			case 'settings.desc_about_plato': return 'Ứng dụng đồng hành tập luyện & dinh dưỡng thông minh';
+			case 'settings.desc_about_plato': return 'Ứng dụng theo dõi tập luyện & dinh dưỡng';
 			case 'stats.lbl_cal_rest_title': return 'Số ngày nghỉ';
 			case 'stats.lbl_cal_streak_title': return 'Chuỗi tuần';
 			case 'stats.btn_cal_today': return 'Hôm nay';
@@ -6379,6 +6427,9 @@ extension on _StringsVi {
 			case 'workout_rewards.tap_claim': return 'Chạm để nhận';
 			case 'workout_rewards.claimed': return 'Đã nhận';
 			case 'workout_rewards.claim': return ({required Object xp}) => 'Nhận +${xp} XP';
+			case 'workout_rewards.lbl_daily_cap_reached': return 'Đã đạt giới hạn ngày';
+			case 'workout_rewards.msg_daily_xp_capped': return ({required Object max}) => 'Đã đạt giới hạn nhận XP trong ngày (${max} XP/ngày)';
+			case 'workout_rewards.msg_daily_rp_capped': return ({required Object max}) => 'Đã đạt giới hạn nhận RP trong ngày (${max} RP/ngày)';
 			case 'workout_rewards.level': return ({required Object level}) => 'Cấp ${level}';
 			case 'workout_rewards.zone_demote': return 'Vùng rớt hạng';
 			case 'workout_rewards.zone_maintain': return 'Giữ hạng';
@@ -6444,7 +6495,12 @@ extension on _StringsVi {
 			case 'notifications.lbl_system_permission': return 'Quyền thông báo thiết bị';
 			case 'notifications.status_permission_allowed': return 'Đã cho phép';
 			case 'notifications.status_permission_blocked': return 'Bị thiết bị chặn';
-			case 'notifications.btn_open_system_settings': return 'Mở cài đặt thiết bị';
+			case 'notifications.status_permission_partial': return 'Cần cấp thêm quyền';
+			case 'notifications.badge_notification': return 'Thông báo';
+			case 'notifications.badge_activity_recognition': return 'Hoạt động thể chất';
+			case 'notifications.status_granted': return 'Đã cấp';
+			case 'notifications.status_denied': return 'Chưa cấp';
+			case 'notifications.btn_open_system_settings': return 'Mở cài đặt';
 			case 'notifications.lbl_workout_reminders': return 'Nhắc lịch tập';
 			case 'notifications.fmt_workout_reminders_active': return ({required Object count}) => '${count} thông báo tập hôm nay';
 			case 'notifications.msg_workout_reminders_none': return 'Không còn thông báo tập hôm nay';

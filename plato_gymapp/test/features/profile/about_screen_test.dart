@@ -18,10 +18,10 @@ void main() {
     await tester.pumpAndSettle();
 
     // Verify app bar
-    expect(find.text(t.settings.title_about_screen), findsOneWidget);
+    expect(find.text(t.settings.lbl_item_about), findsOneWidget);
 
-    // Verify tiles for version, terms, eula, contact
-    expect(find.text(t.settings.lbl_item_version), findsOneWidget);
+    // Verify version badge, terms, eula, contact
+    expect(find.text('v1.1.1'), findsOneWidget);
     expect(find.text(t.onboarding.lbl_terms_link), findsOneWidget);
     expect(find.text(t.onboarding.lbl_eula_link), findsOneWidget);
     expect(find.text(t.settings.lbl_item_contact), findsOneWidget);

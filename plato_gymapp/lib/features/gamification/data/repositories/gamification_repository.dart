@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:injectable/injectable.dart';
 import 'package:plato_gymapp/core/utils/time_manager.dart';
 import 'package:plato_gymapp/features/workout/domain/workout_extensions.dart';
@@ -22,6 +23,8 @@ class GamificationRepository {
   static const workoutPrBonusXp = 20;
   static const chestRequiredQuests = 5;
   static const chestXp = 1500;
+  static const dailyXpCap = 300;
+  static const dailyRpCap = 40;
 
   final AppDatabase _db; // 🚀 Chuyển sang dùng SQLite làm Source of Truth
 
@@ -340,8 +343,24 @@ class GamificationRepository {
     );
   }
 
-  int calculateXpForSession(WorkoutSession session) {
-    return workoutBaseXp + (session.prCount * workoutPrBonusXp);
+  int calculateXpForSession(WorkoutSession session, [List<WorkoutSession>? history]) {
+    final rawXp = workoutBaseXp + (session.prCount * workoutPrBonusXp);
+    if (history == null || history.isEmpty) {
+      return math.min(rawXp, dailyXpCap);
+    }
+    final sessionDate = DateTime.fromMillisecondsSinceEpoch(session.startTime);
+    final priorDayXp = history
+        .where((w) =>
+            !w.isDeleted &&
+            w.id != session.id &&
+            w.startTime <= session.startTime &&
+            RankCalculator.isSameDay(
+              DateTime.fromMillisecondsSinceEpoch(w.startTime),
+              sessionDate,
+            ))
+        .fold(0, (sum, w) => sum + w.xpEarned);
+    final remainingCap = math.max(0, dailyXpCap - priorDayXp);
+    return math.min(rawXp, remainingCap);
   }
 
   (int, int) calculateLevelInfo(int totalLifetimeXp) => RewardXpProgress.at(totalLifetimeXp);
