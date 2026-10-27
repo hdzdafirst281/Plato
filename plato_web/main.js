@@ -16,11 +16,6 @@ const enhanceMotionTargets = () => {
     card.dataset.aosDelay = String(Math.min(index, 3) * 70);
   });
 
-  document.querySelectorAll('#features img').forEach((image, index) => {
-    image.classList.add('product-shot');
-    image.style.setProperty('--shot-delay', `${Math.min(index % 3, 2) * 80}ms`);
-    image.parentElement?.classList.add('product-visual');
-  });
 };
 
 const initAOS = () => {
@@ -190,7 +185,7 @@ const carouselStatus = document.getElementById('carousel-status');
 if (slides.length > 0 && prevBtn && nextBtn) {
   let currentSlide = 0;
   let slideInterval;
-  let isPaused = prefersReducedMotion.matches;
+  let isPaused = false;
 
   const syncCarouselToggle = () => {
     if (!carouselToggle) return;
@@ -200,8 +195,6 @@ if (slides.length > 0 && prevBtn && nextBtn) {
     document.getElementById('carousel-pause-icon').classList.toggle('hidden', isPaused);
     document.getElementById('carousel-play-icon').classList.toggle('hidden', !isPaused);
   };
-
-  syncCarouselToggle();
 
   const showSlide = (index, direction = 1) => {
     const nextImage = slides[index];
@@ -235,8 +228,9 @@ if (slides.length > 0 && prevBtn && nextBtn) {
   };
 
   const startAutoSlide = () => {
-    if (isPaused || document.hidden) return;
-    slideInterval = setInterval(nextSlide, 3000);
+    clearInterval(slideInterval);
+    if (isPaused || prefersReducedMotion.matches || document.hidden) return;
+    slideInterval = setInterval(nextSlide, 3200);
   };
 
   const resetAutoSlide = () => {
@@ -256,9 +250,8 @@ if (slides.length > 0 && prevBtn && nextBtn) {
 
   carouselToggle?.addEventListener('click', () => {
     isPaused = !isPaused;
-    clearInterval(slideInterval);
     syncCarouselToggle();
-    if (!isPaused) startAutoSlide();
+    isPaused ? clearInterval(slideInterval) : startAutoSlide();
   });
 
   carouselRegion?.addEventListener('keydown', (event) => {
@@ -275,6 +268,7 @@ if (slides.length > 0 && prevBtn && nextBtn) {
   });
 
   // Start the slideshow automatically
+  syncCarouselToggle();
   showSlide(0);
   startAutoSlide();
 
@@ -284,10 +278,8 @@ if (slides.length > 0 && prevBtn && nextBtn) {
   });
 
   prefersReducedMotion.addEventListener('change', (event) => {
-    if (!event.matches) return;
-    isPaused = true;
     clearInterval(slideInterval);
-    syncCarouselToggle();
+    if (!event.matches) startAutoSlide();
   });
 }
 

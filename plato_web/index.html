@@ -203,7 +203,7 @@
             <button type="button" id="next-slide" aria-label="Hình ảnh tiếp theo" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity hover:bg-plato-primary z-10 cursor-pointer">
               <i data-lucide="chevron-right" class="w-6 h-6"></i>
             </button>
-            <button type="button" id="carousel-toggle" aria-label="Tạm dừng trình chiếu" aria-pressed="false" class="absolute right-3 bottom-3 bg-black/65 text-white px-3 py-2 rounded-full inline-flex items-center gap-2 text-xs font-bold hover:bg-plato-primary transition-colors z-10 cursor-pointer">
+            <button type="button" id="carousel-toggle" aria-label="Tạm dừng trình chiếu" aria-pressed="false" class="absolute right-3 bottom-3 bg-black/65 text-white px-3 py-2 rounded-full hidden motion-safe:inline-flex items-center gap-2 text-xs font-bold hover:bg-plato-primary transition-colors z-10 cursor-pointer">
               <svg id="carousel-pause-icon" aria-hidden="true" viewBox="0 0 24 24" class="w-4 h-4" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
               <svg id="carousel-play-icon" aria-hidden="true" viewBox="0 0 24 24" class="w-4 h-4 hidden" fill="currentColor"><path d="M7 4.8v14.4a1 1 0 0 0 1.52.85l11.2-7.2a1 1 0 0 0 0-1.7L8.52 3.95A1 1 0 0 0 7 4.8Z"/></svg>
               <span id="carousel-toggle-text">Tạm dừng</span>
@@ -223,10 +223,9 @@
           </p>
           
           <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a href="https://play.google.com/store/apps/details?id=vn.zenithas.plato&pli=1" target="_blank" rel="noopener noreferrer" class="inline-block hover:-translate-y-1 transition-transform duration-300">
+            <a href="https://play.google.com/store/apps/details?id=vn.zenithas.plato&pli=1" target="_blank" rel="noopener noreferrer" class="play-store-link inline-block">
               <img src="https://play.google.com/intl/en_us/badges/static/images/badges/vi_badge_web_generic.png" alt="Tải ứng dụng trên Google Play" width="167" height="64" class="h-16 w-auto play-btn-glow" />
             </a>
-            <a href="/library" class="btn-secondary">Khám phá thư viện bài tập</a>
           </div>
         </div>
       </div>
@@ -266,7 +265,7 @@
 
           <!-- Small Bento Box 1 -->
           <div class="bento-card flex flex-col justify-center items-center text-center group" data-aos="fade-up" data-aos-delay="200">
-            <div class="w-16 h-16 rounded-2xl bg-plato-purple/10 flex items-center justify-center text-plato-purple mb-6 group-hover:scale-110 transition-transform">
+            <div class="w-16 h-16 rounded-2xl bg-plato-purple/10 flex items-center justify-center text-plato-purple mb-6">
               <i data-lucide="smartphone" class="w-8 h-8"></i>
             </div>
             <h3 class="text-xl font-bold mb-2">Đồng bộ đa thiết bị</h3>
@@ -275,7 +274,7 @@
 
           <!-- Small Bento Box 2 -->
           <div class="bento-card flex flex-col justify-center items-center text-center group" data-aos="fade-up" data-aos-delay="300">
-            <div class="w-16 h-16 rounded-2xl bg-plato-success/10 flex items-center justify-center text-plato-success mb-6 group-hover:scale-110 transition-transform">
+            <div class="w-16 h-16 rounded-2xl bg-plato-success/10 flex items-center justify-center text-plato-success mb-6">
               <i data-lucide="shield" class="w-8 h-8"></i>
             </div>
             <h3 class="text-xl font-bold mb-2">Bảo mật riêng tư</h3>
@@ -380,7 +379,7 @@
       <div class="max-w-2xl mx-auto" data-aos="zoom-in">
         <h2 class="text-4xl font-bold mb-6">Sẵn sàng để bắt đầu?</h2>
         <p class="text-gray-400 mb-10">Tải Plato ngay hôm nay và đưa hành trình thể hình của bạn lên một tầm cao mới.</p>
-        <a href="https://play.google.com/store/apps/details?id=vn.zenithas.plato&pli=1" target="_blank" rel="noopener noreferrer" class="inline-block hover:-translate-y-1 transition-transform duration-300">
+        <a href="https://play.google.com/store/apps/details?id=vn.zenithas.plato&pli=1" target="_blank" rel="noopener noreferrer" class="play-store-link inline-block">
           <img src="https://play.google.com/intl/en_us/badges/static/images/badges/vi_badge_web_generic.png" alt="Tải ứng dụng trên Google Play" width="167" height="64" loading="lazy" class="h-16 w-auto play-btn-glow" />
         </a>
       </div>
