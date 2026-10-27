@@ -40,11 +40,14 @@ jobs:
         run: python -m unittest discover --start-directory tools/tests --pattern "test_*.py"
 
       - name: Validate Use Case sources
-        run: python tools/validate_usecases.py
+        run: python tools/validate_usecases.py --strict
+
+      - name: Verify generated Use Case document
+        run: python tools/build_usecase_doc.py --check
 
       - name: Report Use Case impact
         if: github.event_name == 'pull_request'
         env:
           BASE_SHA: ${{ github.event.pull_request.base.sha }}
-        run: python tools/check_usecase_impact.py --base "$BASE_SHA" --github-summary
+        run: python tools/check_usecase_impact.py --base "$BASE_SHA" --github-summary --fail-on-unclassified
 

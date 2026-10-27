@@ -30,22 +30,19 @@
 - Worktree sạch trước khi tạo nhánh baseline.
 - `main` trùng commit với `origin/main` tại thời điểm kiểm tra.
 - Remote hiện tại: `https://github.com/hdzdafirst281/Plato.git`.
-- Chưa xác minh được repository là private hay public vì GitHub CLI không có trên máy và tra cứu web công khai không cho kết quả kết luận.
+- Repository được chủ sở hữu xác nhận là public.
 - Từ `2026-09-01`, `plato_gymapp` có 21 commit và 239 đường dẫn file duy nhất xuất hiện trong lịch sử thay đổi.
 - `plato_docs` không có commit nội dung sau `2026-08-31`.
 
 ## Tài liệu hiện hành
 
-- Tài liệu Use Case dành cho người đọc hiện tại: `plato_docs/usecase.docx`.
-- File Word có 31 Use Case, từ UC01 đến UC31.
-- Nguồn Markdown hiện có UC06, UC15 và UC31.
-- `plato_docs/usecase-index.yaml` hiện đã lập mapping cho UC06, UC15 và UC31.
-- `plato_docs/templates/` và `plato_docs/generated/` đang trống.
-- Đã có `tools/check_usecase_impact.py`, `tools/validate_usecases.py` và unit test cho batch pilot UC06, UC15, UC31.
-- Đã có CI workflow `.github/workflows/plato-docs.yml`; chưa có `tools/build_usecase_doc.py`, Git hook hoặc CD upload/phát hành tài liệu.
-- `usecase.docx` vẫn là nguồn nội dung chính cho 28 Use Case chưa migrate.
-- Từ baseline này, Markdown và index là nguồn pilot hiện hành của UC06, UC15 và UC31; các phần tương ứng trong `usecase.docx` chỉ còn là snapshot tham chiếu cho tới khi có generator.
-- Chỉ chuyển toàn bộ Markdown/YAML thành source of truth sau khi đủ 31 file nguồn và DOCX generated được kiểm tra tái tạo ổn định.
+- Tài liệu Word ban đầu `plato_docs/usecase.docx` có 31 Use Case, từ UC01 đến UC31, và hiện được giữ làm snapshot tham chiếu.
+- Nguồn Markdown có đủ 31 Use Case và `plato_docs/usecase-index.yaml` đã lập mapping cho toàn bộ UC01-UC31.
+- Markdown và index hiện là source of truth; `tools/build_usecase_doc.py` tạo lại `plato_docs/generated/plato_usecases.docx` theo cách ổn định.
+- DOCX generated đã được kiểm tra tái tạo byte-for-byte và kiểm tra trực quan đủ 67 trang.
+- Đã có `tools/check_usecase_impact.py`, `tools/validate_usecases.py`, generator DOCX và unit test cho tooling.
+- CI workflow `.github/workflows/plato-docs.yml` đã bật strict validator, kiểm tra DOCX không stale và chặn file nghiệp vụ chưa được phân loại.
+- Chưa bật Git hook hoặc CD upload/phát hành tài liệu.
 
 ## Word lock
 
@@ -72,9 +69,11 @@ Không xóa các file này tự động. Cần đóng Word và xác nhận file 
 ### Plato Docs tooling
 
 - Trạng thái: PASS.
-- Kết quả: `8` unit test pass.
-- Validator hiện có `0` lỗi và `6` cảnh báo dự kiến vì các UC liên quan chưa được migrate.
-- Impact scanner nhận đúng các code path của UC06, UC15, UC31 và liệt kê file ứng dụng chưa được phân loại.
+- Kết quả: `9` unit test pass.
+- Validator strict có `0` lỗi và `0` cảnh báo.
+- Impact scanner nhận mapping của đủ 31 Use Case và CI chặn file `plato_gymapp/lib/` hoặc nguồn Use Case chưa được phân loại.
+- Generator tạo DOCX ổn định; `--check` xác nhận file generated đang đồng bộ với Markdown/index.
+- DOCX được xuất PDF bằng Microsoft Word và render bằng Poppler để kiểm tra trực quan đủ 67/67 trang; không phát hiện chữ bị cắt, chồng lấn hoặc lỗi dấu tiếng Việt.
 
 ### `flutter test`
 
@@ -106,10 +105,15 @@ Không xóa các file này tự động. Cần đóng Word và xác nhận file 
 - [x] Drift chính của UC31 được nhận diện.
 - [x] UC31 Markdown và index được cập nhật theo UI/code hiện tại.
 - [x] UC06 và UC15 được migrate sang Markdown/index để hoàn chỉnh batch liên quan trực tiếp tới UC31.
+- [x] UC01, UC05, UC16, UC17 và UC30 được migrate theo cụm tài khoản và vòng đời buổi tập.
+- [x] UC18 và UC19 được migrate theo cụm phục hồi và thống kê tập luyện.
+- [x] UC02, UC07-UC09, UC11, UC12, UC14, UC20, UC23-UC25, UC27 và UC29 được migrate theo nhóm có nhiều dependency nhất.
+- [x] Migrate 8 Use Case còn lại: UC03, UC04, UC10, UC13, UC21, UC22, UC26 và UC28.
+- [x] Xây generator DOCX, kiểm chứng output và bật strict gate sau khi đủ 31/31 Use Case.
 - [ ] Quyết định hành vi của cờ `hasAskedPrePermission` khi người dùng thao tác trong Settings.
 - [x] Xác nhận Dart analyzer toàn project có thể hoàn tất và ghi nhận 18 diagnostic hiện tại.
 - [ ] Chẩn đoán Flutter wrapper và xử lý các diagnostic để `flutter analyze --no-pub` pass.
-- [x] Viết validator và impact scanner tối thiểu cho batch pilot UC06, UC15, UC31.
+- [x] Viết validator và impact scanner tối thiểu cho các Use Case đã migrate.
 - [x] Thêm CI workflow và Pull Request template cho Plato Docs.
 - [x] Xác nhận repository hiện là public.
 - [ ] CD upload/phát hành được chủ động hoãn; xác nhận lại phạm vi và đích lưu trữ khi phát sinh nhu cầu.
