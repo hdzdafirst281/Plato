@@ -46,11 +46,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const image = card.querySelector('img[data-gif-src]');
     if (!image?.dataset.gifSrc) return;
 
+    shouldPlay = shouldPlay && !prefersReducedMotion.matches;
     const nextSource = shouldPlay ? image.dataset.gifSrc : image.dataset.staticSrc;
+    card.classList.toggle('is-previewing', shouldPlay);
     if (image.getAttribute('src') !== nextSource) image.src = nextSource;
   }
 
-  const previewObserver = !prefersReducedMotion.matches && 'IntersectionObserver' in window
+  const previewObserver = !prefersReducedMotion.matches
+    && window.matchMedia('(hover: none), (pointer: coarse)').matches
+    && 'IntersectionObserver' in window
     ? new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           entry.target.dataset.previewVisible = String(entry.isIntersecting);
@@ -80,6 +84,29 @@ document.addEventListener('DOMContentLoaded', () => {
     const textSpan = button.querySelector('span');
     const menu = wrapper.querySelector('.filter-menu');
     const iconSvg = button.querySelector('.dropdown-arrow');
+    let closeTimer;
+
+    const closeMenu = () => {
+      clearTimeout(closeTimer);
+      wrapper.classList.remove('is-open');
+      menu.classList.remove('is-open');
+      button.setAttribute('aria-expanded', 'false');
+      closeTimer = setTimeout(() => {
+        menu.classList.add('hidden');
+        menu.classList.remove('flex');
+      }, prefersReducedMotion.matches ? 0 : 180);
+    };
+
+    const openMenu = () => {
+      clearTimeout(closeTimer);
+      menu.classList.remove('hidden');
+      menu.classList.add('flex');
+      requestAnimationFrame(() => {
+        wrapper.classList.add('is-open');
+        menu.classList.add('is-open');
+      });
+      button.setAttribute('aria-expanded', 'true');
+    };
 
     iconSvg.addEventListener('click', (event) => {
       if (selectedState.length === 0) return;
@@ -95,10 +122,15 @@ document.addEventListener('DOMContentLoaded', () => {
     button.addEventListener('click', (event) => {
       event.stopPropagation();
       document.querySelectorAll('.filter-menu').forEach((otherMenu) => {
-        if (otherMenu !== menu) otherMenu.classList.add('hidden');
+        if (otherMenu !== menu) {
+          otherMenu.classList.remove('is-open');
+          otherMenu.classList.add('hidden');
+          otherMenu.classList.remove('flex');
+          otherMenu.closest('[id$="-filter-wrapper"]')?.classList.remove('is-open');
+          otherMenu.parentElement?.querySelector('button')?.setAttribute('aria-expanded', 'false');
+        }
       });
-      menu.classList.toggle('hidden');
-      button.setAttribute('aria-expanded', String(!menu.classList.contains('hidden')));
+      menu.classList.contains('is-open') ? closeMenu() : openMenu();
     });
 
     const optionsFragment = document.createDocumentFragment();
@@ -124,8 +156,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     document.addEventListener('click', (event) => {
       if (!wrapper.contains(event.target)) {
-        menu.classList.add('hidden');
-        button.setAttribute('aria-expanded', 'false');
+        closeMenu();
       }
     });
   }
@@ -135,6 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
     card.type = 'button';
     card.className = 'exercise-card group text-left w-full';
     card.dataset.exerciseId = exercise.id;
+    card.style.setProperty('--card-delay', `${Math.min(index % PAGE_SIZE, 5) * 45}ms`);
     card.setAttribute('aria-label', `Xem hướng dẫn bài tập ${exercise.name}`);
     card.innerHTML = `
       <span class="relative w-full aspect-square bg-white flex items-center justify-center overflow-hidden shrink-0 exercise-media">
@@ -167,12 +199,16 @@ document.addEventListener('DOMContentLoaded', () => {
     if (renderedCount >= filteredExercises.length) return;
     const nextExercises = filteredExercises.slice(renderedCount, renderedCount + PAGE_SIZE);
     const fragment = document.createDocumentFragment();
+    const newCards = [];
     nextExercises.forEach((exercise, index) => {
       const card = createExerciseCard(exercise, renderedCount + index);
+      card.classList.add('card-enter');
       fragment.appendChild(card);
+      newCards.push(card);
       if (previewObserver && exercise.gif) previewObserver.observe(card);
     });
     grid.appendChild(fragment);
+    requestAnimationFrame(() => newCards.forEach((card) => card.classList.add('is-visible')));
     renderedCount += nextExercises.length;
     updateLoadStatus();
   }
@@ -216,7 +252,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function openModal(exercise) {
     lastFocusedElement = document.activeElement;
     modalTitle.textContent = exercise.name;
-    modalImage.src = exercise.gif || exercise.image || '/logo_plato.png';
+    modalImage.src = (prefersReducedMotion.matches ? exercise.image : exercise.gif) || exercise.image || '/logo_plato.png';
     modalImage.alt = `Minh họa chuyển động ${exercise.name}`;
     modalMuscle.textContent = exercise.primaryMuscleVi;
     modalEquipment.textContent = exercise.equipmentVi;
@@ -238,6 +274,7 @@ document.addEventListener('DOMContentLoaded', () => {
     modalInstructions.textContent = exercise.instructions || 'Không có hướng dẫn.';
     modal.classList.remove('hidden');
     requestAnimationFrame(() => {
+      modal.classList.add('is-open');
       modal.classList.remove('opacity-0', 'pointer-events-none');
       modalContent.classList.replace('scale-95', 'scale-100');
       modalClose.focus();
@@ -246,6 +283,7 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function closeModal() {
+    modal.classList.remove('is-open');
     modal.classList.add('opacity-0', 'pointer-events-none');
     modalContent.classList.replace('scale-100', 'scale-95');
     setTimeout(() => {
@@ -253,7 +291,7 @@ document.addEventListener('DOMContentLoaded', () => {
       modalImage.removeAttribute('src');
       document.body.style.overflow = '';
       lastFocusedElement?.focus();
-    }, 300);
+    }, prefersReducedMotion.matches ? 0 : 320);
   }
 
   setupCustomDropdown('muscle-filter-wrapper', muscles, selectedMuscles, 'Tất cả nhóm cơ');
@@ -288,6 +326,11 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!card) return;
     const remainsVisible = card.dataset.previewVisible === 'true' && !prefersReducedMotion.matches;
     setCardPreview(card, remainsVisible);
+  });
+
+  prefersReducedMotion.addEventListener('change', (event) => {
+    if (!event.matches) return;
+    grid.querySelectorAll('.exercise-card').forEach((card) => setCardPreview(card, false));
   });
 
   searchInput.addEventListener('input', (event) => {
