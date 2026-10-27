@@ -130,7 +130,9 @@ class _RankScreenState extends State<RankScreen>
                   TextSpan(text: t.rank.desc_info_rp_definition),
                   const TextSpan(text: " "),
                   TextSpan(
-                    text: t.rank.desc_info_daily_cap(max: RankConfig.dailyRpCap),
+                    text: t.rank.desc_info_daily_cap(
+                      max: RankConfig.dailyRpCap,
+                    ),
                   ),
                 ],
               ),
@@ -195,20 +197,23 @@ class _RankScreenState extends State<RankScreen>
         top: false,
         bottom: !isTablet,
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          padding: const EdgeInsets.only(bottom: 8),
           child: TabBar(
             controller: _tabController,
             labelColor: colorScheme.primary,
             unselectedLabelColor: colorScheme.onSurfaceVariant,
-            indicatorColor: colorScheme.primary,
             dividerColor: Colors.transparent,
             labelStyle: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 13,
             ),
-            indicatorPadding: EdgeInsets.zero,
-            indicatorSize: TabBarIndicatorSize.label,
-            indicatorWeight: 3,
+            indicator: BoxDecoration(
+              border: Border(
+                top: BorderSide(color: colorScheme.primary, width: 3),
+              ),
+            ),
+            indicatorPadding: const EdgeInsets.symmetric(horizontal: 24),
+            indicatorSize: TabBarIndicatorSize.tab,
             tabs: [
               Tab(
                 child: Column(

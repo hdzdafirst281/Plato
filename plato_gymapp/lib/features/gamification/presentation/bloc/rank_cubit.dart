@@ -6,7 +6,7 @@ import 'package:plato_gymapp/core/utils/time_manager.dart';
 import '../../data/models/gamification_models.dart';
 import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../../workout/data/repositories/workout_repository.dart';
-import '../../domain/rank_calculator.dart'; 
+import '../../domain/rank_calculator.dart';
 
 @injectable
 class RankCubit extends Cubit<RankScreenState?> {
@@ -32,7 +32,8 @@ class RankCubit extends Cubit<RankScreenState?> {
   }
 
   @override
-  Future<void> close() { // ĐÃ FIX LỖI CÚ PHÁP Ở ĐÂY
+  Future<void> close() {
+    // ĐÃ FIX LỖI CÚ PHÁP Ở ĐÂY
     _workoutHistorySubscription?.cancel();
     _profileUpdateSubscription?.cancel();
     return super.close();
@@ -42,21 +43,27 @@ class RankCubit extends Cubit<RankScreenState?> {
   Future<void> _loadUIState() async {
     final version = ++_loadVersion;
     final workouts = await _workoutRepo.workoutHistoryStream.first;
-    
+
     // 🚀 Lấy True Time
     final trueTimeMillis = await TimeManager.getTrueTimeMillis();
     if (isClosed || version != _loadVersion) return;
     final profile = _authRepo.getProfile();
-    
-    // 🚀 Truyền vào RankCalculator
-    final seasonResult = RankCalculator.calculateTrueRankAndSeasons(workouts.cast(), profile, trueTimeMillis);
 
-    emit(RankScreenState(
-      currentRankId: profile.activeRankId,
-      totalRp: profile.currentRp,          
-      cycleStartTimeMillis: seasonResult.cycleStartTimeMillis,
-      history: profile.rankAdvancementHistory, 
-    ));
+    // 🚀 Truyền vào RankCalculator
+    final seasonResult = RankCalculator.calculateTrueRankAndSeasons(
+      workouts.cast(),
+      profile,
+      trueTimeMillis,
+    );
+
+    emit(
+      RankScreenState(
+        currentRankId: profile.activeRankId,
+        totalRp: profile.currentRp,
+        cycleStartTimeMillis: seasonResult.cycleStartTimeMillis,
+        history: seasonResult.generatedHistory,
+      ),
+    );
   }
 
   Future<void> refreshRankData() async {

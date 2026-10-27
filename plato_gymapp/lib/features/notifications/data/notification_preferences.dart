@@ -44,11 +44,14 @@ class NotificationPreferences {
     for (final kind in NotificationPreferenceKind.values) enabled(kind),
   ].where((value) => value).length;
 
-  /// Category choices remain stored while the master switch is off so turning
-  /// it back on restores the user's previous selection. [enabled] still makes
-  /// every category appear and behave as disabled while the master is off.
-  NotificationPreferences withMasterEnabled(bool value) =>
-      copyWith(masterEnabled: value);
+  /// The master switch applies the same value to every notification category.
+  NotificationPreferences withMasterEnabled(bool value) => copyWith(
+    masterEnabled: value,
+    hydrationEnabled: value,
+    recoveryEnabled: value,
+    streakEnabled: value,
+    rankEnabled: value,
+  );
 
   /// Enabling any category also enables the master switch. Disabling one
   /// category leaves the master and the other category choices unchanged.

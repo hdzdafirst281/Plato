@@ -1,5 +1,7 @@
 # Baseline - 2026-08-25
 
+> Baseline lịch sử. Trạng thái hiện hành được ghi tại `plato_docs/baseline-2026-10.md`.
+
 ## Phạm vi
 
 - Project root: `D:\Projects\Zenithas\Plato`

@@ -1,25 +1,103 @@
 usecases:
+  UC06:
+    title: "Xóa tài khoản hoặc hồ sơ cục bộ"
+    source: "plato_docs/usecases/UC06.md"
+    features:
+      - auth
+      - account_management
+      - local_data_reset
+    code_paths:
+      - "plato_gymapp/lib/features/profile/presentation/screens/settings_screen.dart"
+      - "plato_gymapp/lib/features/profile/presentation/screens/account_management_screen.dart"
+      - "plato_gymapp/lib/features/auth/presentation/bloc/auth_cubit.dart"
+      - "plato_gymapp/lib/features/auth/domain/usecases/auth_usecases.dart"
+      - "plato_gymapp/lib/features/auth/data/repositories/auth_repository_impl.dart"
+      - "plato_gymapp/lib/core/worker/sync_manager.dart"
+      - "plato_gymapp/lib/features/notifications/application/notification_coordinator.dart"
+    localization_keys:
+      - common.cancel
+      - settings.title_account_management
+      - profile.title_delete_account
+      - profile.desc_delete_account
+      - profile.btn_delete_confirm
+      - profile.msg_delete_success
+      - auth.btn_confirm_delete_email
+      - auth.btn_confirm_delete_guest
+      - auth.msg_deleting_cloud_data
+      - auth.err_network_delete_failed
+    related_usecases:
+      - UC01
+      - UC05
+      - UC31
+  UC15:
+    title: "Thực hiện và hoàn tất buổi tập"
+    source: "plato_docs/usecases/UC15.md"
+    features:
+      - active_workout
+      - workout_tracking
+      - workout_completion
+      - background_workout
+    code_paths:
+      - "plato_gymapp/lib/features/workout/presentation/screens/workout_screen.dart"
+      - "plato_gymapp/lib/features/workout/presentation/screens/log_workout_screen.dart"
+      - "plato_gymapp/lib/features/workout/presentation/components/workout_components.dart"
+      - "plato_gymapp/lib/features/workout/presentation/components/workout_shared_ui.dart"
+      - "plato_gymapp/lib/features/workout/presentation/bloc/active_session_cubit.dart"
+      - "plato_gymapp/lib/features/workout/presentation/bloc/session_effect_mixin.dart"
+      - "plato_gymapp/lib/features/workout/data/workout_settings_preferences.dart"
+      - "plato_gymapp/lib/features/workout/data/repositories/workout_repository.dart"
+      - "plato_gymapp/lib/core/worker/background_workout_service.dart"
+      - "plato_gymapp/lib/core/utils/workout_permission_helper.dart"
+    localization_keys:
+      - workout.title_auto_finish
+      - workout.desc_auto_finish
+      - workout.btn_finish_now
+      - workout.msg_finish_prompt
+      - workout.msg_finish_workout_confirm
+      - workout.title_ghost_workout
+      - workout.msg_ghost_workout
+      - workout.title_log_incomplete
+      - workout.msg_log_incomplete
+      - workout.title_no_ex_workout
+      - workout.msg_no_ex_workout
+      - workout.title_rest_time
+      - workout.status_resting
+      - workout.msg_superset_limit
+    related_usecases:
+      - UC12
+      - UC16
+      - UC17
+      - UC30
+      - UC31
   UC31:
     title: "Quản lý chạy nền và quyền thông báo"
     source: "plato_docs/usecases/UC31.md"
     features:
       - permissions
       - background_workout
+      - notifications
     code_paths:
-      - "plato_gymapp/lib/features/profile/presentation/screens/profile_settings_screen.dart"
       - "plato_gymapp/lib/features/profile/presentation/screens/settings_screen.dart"
+      - "plato_gymapp/lib/features/notifications/presentation/screens/notification_settings_screen.dart"
+      - "plato_gymapp/lib/features/notifications/application/notification_coordinator.dart"
       - "plato_gymapp/lib/core/utils/workout_permission_helper.dart"
+      - "plato_gymapp/lib/core/worker/background_workout_service.dart"
+      - "plato_gymapp/lib/features/workout/presentation/components/workout_components.dart"
+      - "plato_gymapp/lib/features/workout/presentation/bloc/active_session_cubit.dart"
+      - "plato_gymapp/lib/features/workout/presentation/bloc/session_effect_mixin.dart"
     localization_keys:
-      - pre_permission_title
-      - pre_permission_desc
-      - pre_permission_btn_allow
-      - pre_permission_btn_later
-      - title_bg_workout
-      - desc_bg_workout
-      - title_permission_denied
-      - msg_permission_permanently_denied
-      - desc_permission_denied
-      - btn_open_settings
-      - err_permission_partial
+      - common.cancel
+      - common.open_settings
+      - settings.lbl_item_notification
+      - settings.title_bg_workout
+      - settings.desc_bg_workout
+      - settings.title_permission_denied
+      - settings.msg_permission_permanently_denied
+      - workout.pre_permission_title
+      - workout.pre_permission_desc
+      - workout.pre_permission_btn_allow
+      - workout.pre_permission_btn_later
+      - workout.err_permission_partial
     related_usecases:
+      - UC06
       - UC15
