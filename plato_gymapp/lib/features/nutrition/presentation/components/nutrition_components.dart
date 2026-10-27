@@ -222,15 +222,10 @@ class UniversalFoodStepper extends StatelessWidget {
     var val = _isScale ? consumedAmount * 100 : consumedAmount;
     if (unit == FoodUnit.GRAM) {
       val = _units(context).foodMassFromGrams(val);
+    } else if (unit == FoodUnit.ML) {
+      val = _units(context).liquidVolumeFromMilliliters(val);
     }
-    if (val % 1 == 0) return val.toInt().toString();
-    String formatted = val.toStringAsFixed(1);
-    if (formatted.contains('.')) {
-      formatted = formatted
-          .replaceAll(RegExp(r'0*$'), '')
-          .replaceAll(RegExp(r'\.$'), '');
-    }
-    return formatted;
+    return MeasurementFormatter.number(val, 2);
   }
 
   MeasurementFormatter _units(BuildContext context) => MeasurementFormatter(
@@ -242,13 +237,13 @@ class UniversalFoodStepper extends StatelessWidget {
       case FoodUnit.GRAM:
         return _units(context).foodMassUnit;
       case FoodUnit.ML:
-        return t.nutrition.lbl_unit_ml;
+        return _units(context).hydrationUnit;
       case FoodUnit.QUANTITY:
         return t.nutrition.lbl_unit_quantity;
       case FoodUnit.SERVING:
         return t.nutrition.lbl_unit_serving;
       case FoodUnit.OZ:
-        return t.nutrition.lbl_unit_oz;
+        return t.common.unit_oz;
     }
   }
 
@@ -350,14 +345,20 @@ class UniversalFoodStepper extends StatelessWidget {
         return;
       }
 
-      final canonicalScaleValue = unit == FoodUnit.GRAM
-          ? units.foodMassToGrams(val)
-          : val;
+      final canonicalScaleValue = switch (unit) {
+        FoodUnit.GRAM => units.foodMassToGrams(val),
+        FoodUnit.ML => units.liquidVolumeToMilliliters(val),
+        _ => val,
+      };
       if (_isScale) {
         if (canonicalScaleValue < 1 || canonicalScaleValue > 5000) {
           errorNotifier.value = t.nutrition.err_portion_scale(
-            arg1: unit == FoodUnit.GRAM ? units.formatFoodMass(1) : '1 ml',
-            arg2: unit == FoodUnit.GRAM ? units.formatFoodMass(5000) : '5000 ml',
+            arg1: unit == FoodUnit.GRAM
+                ? units.formatFoodMass(1)
+                : units.formatLiquidVolume(1, decimals: 4),
+            arg2: unit == FoodUnit.GRAM
+                ? units.formatFoodMass(5000)
+                : units.formatLiquidVolume(5000, decimals: 4),
           );
           return;
         }
@@ -480,9 +481,11 @@ class UniversalFoodStepper extends StatelessWidget {
                   : () {
                       final val = double.tryParse(ctrl.text);
                       if (val != null) {
-                         final canonicalScaleValue = unit == FoodUnit.GRAM
-                             ? units.foodMassToGrams(val)
-                             : val;
+                         final canonicalScaleValue = switch (unit) {
+                           FoodUnit.GRAM => units.foodMassToGrams(val),
+                           FoodUnit.ML => units.liquidVolumeToMilliliters(val),
+                           _ => val,
+                         };
                          onManualInput!(
                            _isScale ? canonicalScaleValue / 100 : val,
                          );
@@ -1011,16 +1014,21 @@ class NutritionDashboard extends StatelessWidget {
                 buildField(
                   proCtrl,
                   t.onboarding.lbl_macro_protein,
-                  'g',
+                  t.common.unit_g,
                   proError,
                 ),
                 buildField(
                   carbCtrl,
                   t.onboarding.lbl_macro_carbs,
-                  'g',
+                  t.common.unit_g,
                   carbError,
                 ),
-                buildField(fatCtrl, t.onboarding.lbl_macro_fat, 'g', fatError),
+                buildField(
+                  fatCtrl,
+                  t.onboarding.lbl_macro_fat,
+                  t.common.unit_g,
+                  fatError,
+                ),
 
                 const SizedBox(height: 8),
                 LayoutBuilder(

@@ -150,13 +150,17 @@ void main() {
     expect(titleText.style?.fontWeight, FontWeight.bold);
 
     // Verify SegmentedButtons use primary color in style
-    final segmentedButtons = tester.widgetList<SegmentedButton<bool>>(
+    final segmentedButtons = tester.widgetList<SegmentedButton>(
       find.descendant(
         of: find.byType(Dialog),
-        matching: find.byType(SegmentedButton<bool>),
+        matching: find.byWidgetPredicate(
+          (widget) => widget is SegmentedButton,
+        ),
       ),
     );
     expect(segmentedButtons.length, 5);
+    expect(segmentedButtons.any((button) => button.segments.length == 3), isTrue);
+    expect(find.text(t.common.unit_ml), findsOneWidget);
     for (final sb in segmentedButtons) {
       final style = sb.style;
       expect(style, isNotNull);
@@ -218,7 +222,6 @@ void main() {
   testWidgets('Custom macros dialog has synced button text size and colors',
       (tester) async {
     Macros? savedMacros;
-    bool reverted = false;
 
     await tester.pumpWidget(
       TranslationProvider(
@@ -244,7 +247,7 @@ void main() {
                 ),
                 isCustomMacros: true,
                 onEditMacros: (m) => savedMacros = m,
-                onRevertSystem: () => reverted = true,
+                onRevertSystem: () {},
               ),
             ),
           ),

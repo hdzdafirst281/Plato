@@ -58,7 +58,7 @@ void main() {
     expect(find.byKey(const ValueKey('keep_screen_awake_info')), findsNothing);
     expect(find.byKey(const ValueKey('timer_sound_info')), findsNothing);
 
-    // Verify default values: RPE/RIR off, rest timer 90s, keep screen awake off, timer sound on, confirm finish on
+    // Verify default values: RPE off, rest timer 90s, keep screen awake off, timer sound on, confirm finish on
     expect(
       tester.widget<Switch>(find.byKey(const ValueKey('effort_toggle'))).value,
       isFalse,
@@ -87,18 +87,17 @@ void main() {
     );
     expect(
       tester
-          .widget<Text>(find.text(t.settings.lbl_effort_tracking))
+          .widget<Text>(find.text(t.settings.lbl_scale_rpe))
           .style
           ?.decoration,
       TextDecoration.underline,
     );
 
     // Tapping an underlined title opens info without sharing the switch target.
-    await tester.tap(find.text(t.settings.lbl_effort_tracking));
+    await tester.tap(find.text(t.settings.lbl_scale_rpe));
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull, reason: 'effort info dialog');
     expect(find.textContaining(t.settings.title_rpe_info), findsOneWidget);
-    expect(find.textContaining(t.settings.title_rir_info), findsOneWidget);
     await tester.tap(find.text(t.common.understood));
     await tester.pumpAndSettle();
 
@@ -117,29 +116,15 @@ void main() {
     await tester.tap(find.text(t.common.cancel));
     await tester.pumpAndSettle();
 
-    // Effort tracking is initially disabled, so SegmentedButton shouldn't be visible
-    expect(find.byType(SegmentedButton<EffortInputScale>), findsNothing);
-
     // Enable effort tracking
     await tester.tap(find.byKey(const ValueKey('effort_toggle')));
     await tester.pumpAndSettle();
-    expect(tester.takeException(), isNull, reason: 'effort scale control');
+    expect(tester.takeException(), isNull, reason: 'effort toggle');
     expect(find.byType(Dialog), findsNothing);
 
-    // Only the RPE/RIR control remains; the redundant scale title is gone.
-    expect(find.byType(SegmentedButton<EffortInputScale>), findsOneWidget);
-    expect(find.text(t.settings.lbl_effort_scale), findsNothing);
-    expect(find.text(t.settings.lbl_scale_rpe), findsOneWidget);
-    expect(find.text(t.settings.lbl_scale_rir), findsOneWidget);
-
-    // Tap on RIR
-    await tester.tap(find.text(t.settings.lbl_scale_rir));
-    await tester.pumpAndSettle();
-
-    // Verify persisted scale
+    // Verify persisted RPE setting
     final prefs = GetIt.instance<SharedPreferences>();
     expect(WorkoutEffortPreferences.advancedEnabled(prefs), isTrue);
-    expect(WorkoutEffortPreferences.inputScale(prefs), EffortInputScale.rir);
 
     await tester.tap(find.byKey(const ValueKey('keep_screen_awake_toggle')));
     await tester.tap(find.byKey(const ValueKey('timer_sound_toggle')));

@@ -9,6 +9,9 @@ class MuscleExposureCalculator {
   static const displayBaselinePercent = 1.0;
   static const primaryCoefficient = 1.0;
   static const secondaryCoefficient = 1.0 / 3.0;
+  static const sessionHeatmapLow = 0.2;
+  static const sessionHeatmapMedium = 0.4;
+  static const sessionHeatmapHigh = 0.7;
 
   static const majorMuscles = <MajorMuscleGroup>[
     MajorMuscleGroup.CHEST,
@@ -103,6 +106,37 @@ class MuscleExposureCalculator {
         muscle:
             displayBaselinePercent +
             (weights[muscle] ?? 0) / total * distributablePercent,
+    };
+  }
+
+  /// Relative muscle exposure inside one completed session.
+  ///
+  /// The most-trained detailed muscle is the reference for the session, so
+  /// short and long workouts use the same visual meaning: high, medium, low,
+  /// or absent. Only completed working sets contribute.
+  static Map<MuscleGroup, double> sessionHeatmapIntensities(
+    Iterable<WorkoutExercise> exercises,
+  ) {
+    final scores = <MuscleGroup, double>{};
+    for (final exercise in exercises) {
+      final setCount = validSetCount(exercise, onlyCompletedSets: true);
+      if (setCount == 0) continue;
+
+      for (final entry in detailedCoefficients(exercise).entries) {
+        if (!majorMuscles.contains(entry.key.major)) continue;
+        scores[entry.key] = (scores[entry.key] ?? 0) + setCount * entry.value;
+      }
+    }
+    if (scores.isEmpty) return <MuscleGroup, double>{};
+
+    final maxScore = scores.values.reduce(max);
+    return {
+      for (final entry in scores.entries)
+        entry.key: switch (entry.value / maxScore) {
+          < 1 / 3 => sessionHeatmapLow,
+          < 2 / 3 => sessionHeatmapMedium,
+          _ => sessionHeatmapHigh,
+        },
     };
   }
 

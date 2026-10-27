@@ -128,12 +128,11 @@ class _SettingsScreenState extends State<SettingsScreen> {
       contentPadding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
       content: StatefulBuilder(
         builder: (context, setDialogState) {
-          Widget unitChoice({
+          Widget unitChoice<T>({
             required String label,
-            required String metricLabel,
-            required String imperialLabel,
-            required bool imperial,
-            required ValueChanged<bool> onChanged,
+            required Map<T, String> options,
+            required T selected,
+            required ValueChanged<T> onChanged,
           }) => Padding(
             padding: const EdgeInsets.only(bottom: 16),
             child: Column(
@@ -143,16 +142,19 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: 8),
                 SizedBox(
                   width: double.infinity,
-                  child: SegmentedButton<bool>(
+                  child: SegmentedButton<T>(
                     style: SegmentedButton.styleFrom(
                       selectedBackgroundColor: colorScheme.primary,
                       selectedForegroundColor: colorScheme.onPrimary,
                     ),
                     segments: [
-                      ButtonSegment(value: false, label: Text(metricLabel)),
-                      ButtonSegment(value: true, label: Text(imperialLabel)),
+                      for (final option in options.entries)
+                        ButtonSegment(
+                          value: option.key,
+                          label: Text(option.value),
+                        ),
                     ],
-                    selected: {imperial},
+                    selected: {selected},
                     onSelectionChanged: (values) => onChanged(values.first),
                   ),
                 ),
@@ -176,67 +178,58 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 const SizedBox(height: 20),
                 unitChoice(
                   label: t.settings.lbl_weight_unit,
-                  metricLabel: t.common.unit_kg,
-                  imperialLabel: t.common.unit_lb,
-                  imperial: draft.weight == WeightUnit.pound,
-                  onChanged: (imperial) => setDialogState(
-                    () => draft = draft.copyWith(
-                      weight: imperial
-                          ? WeightUnit.pound
-                          : WeightUnit.kilogram,
-                    ),
+                  options: {
+                    WeightUnit.kilogram: t.common.unit_kg,
+                    WeightUnit.pound: t.common.unit_lb,
+                  },
+                  selected: draft.weight,
+                  onChanged: (value) => setDialogState(
+                    () => draft = draft.copyWith(weight: value),
                   ),
                 ),
                 unitChoice(
                   label: t.settings.lbl_hydration_unit,
-                  metricLabel: t.common.unit_l,
-                  imperialLabel: t.common.unit_us_gal,
-                  imperial: draft.hydration == HydrationUnit.usGallon,
-                  onChanged: (imperial) => setDialogState(
-                    () => draft = draft.copyWith(
-                      hydration: imperial
-                          ? HydrationUnit.usGallon
-                          : HydrationUnit.liter,
-                    ),
+                  options: {
+                    HydrationUnit.milliliter: t.common.unit_ml,
+                    HydrationUnit.liter: t.common.unit_l,
+                    HydrationUnit.usGallon: t.common.unit_us_gal,
+                  },
+                  selected: draft.hydration,
+                  onChanged: (value) => setDialogState(
+                    () => draft = draft.copyWith(hydration: value),
                   ),
                 ),
                 unitChoice(
-                  label: t.settings.lbl_distance_unit,
-                  metricLabel: t.common.unit_km,
-                  imperialLabel: t.common.unit_m,
-                  imperial: draft.distance == DistanceUnit.meter,
-                  onChanged: (imperial) => setDialogState(
-                    () => draft = draft.copyWith(
-                      distance: imperial
-                          ? DistanceUnit.meter
-                          : DistanceUnit.kilometer,
-                    ),
+                  label: t.common.distance,
+                  options: {
+                    DistanceUnit.kilometer: t.common.unit_km,
+                    DistanceUnit.meter: t.common.unit_m,
+                  },
+                  selected: draft.distance,
+                  onChanged: (value) => setDialogState(
+                    () => draft = draft.copyWith(distance: value),
                   ),
                 ),
                 unitChoice(
                   label: t.settings.lbl_body_length_unit,
-                  metricLabel: t.common.unit_cm,
-                  imperialLabel: t.common.unit_in,
-                  imperial: draft.bodyLength == BodyLengthUnit.imperial,
-                  onChanged: (imperial) => setDialogState(
-                    () => draft = draft.copyWith(
-                      bodyLength: imperial
-                          ? BodyLengthUnit.imperial
-                          : BodyLengthUnit.metric,
-                    ),
+                  options: {
+                    BodyLengthUnit.metric: t.common.unit_cm,
+                    BodyLengthUnit.imperial: t.common.unit_in,
+                  },
+                  selected: draft.bodyLength,
+                  onChanged: (value) => setDialogState(
+                    () => draft = draft.copyWith(bodyLength: value),
                   ),
                 ),
                 unitChoice(
                   label: t.settings.lbl_food_mass_unit,
-                  metricLabel: t.common.unit_g,
-                  imperialLabel: t.common.unit_oz,
-                  imperial: draft.foodMass == FoodMassUnit.ounce,
-                  onChanged: (imperial) => setDialogState(
-                    () => draft = draft.copyWith(
-                      foodMass: imperial
-                          ? FoodMassUnit.ounce
-                          : FoodMassUnit.gram,
-                    ),
+                  options: {
+                    FoodMassUnit.gram: t.common.unit_g,
+                    FoodMassUnit.ounce: t.common.unit_oz,
+                  },
+                  selected: draft.foodMass,
+                  onChanged: (value) => setDialogState(
+                    () => draft = draft.copyWith(foodMass: value),
                   ),
                 ),
                 const SizedBox(height: 24),
@@ -561,7 +554,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                     style: titleStyle,
                   ),
                   subtitle: Text(
-                    t.settings.desc_item_workout_settings,
+                    t.settings.desc_item_workout_settings.split('/').first,
                     style: subtitleStyle,
                   ),
                   trailing: const Icon(Symbols.chevron_right),

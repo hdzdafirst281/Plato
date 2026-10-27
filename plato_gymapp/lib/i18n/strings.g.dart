@@ -4,9 +4,9 @@
 /// To regenerate, run: `dart run slang`
 ///
 /// Locales: 2
-/// Strings: 2972 (1486 per locale)
+/// Strings: 2942 (1471 per locale)
 ///
-/// Built on 2026-10-24 at 14:04 UTC
+/// Built on 2026-10-25 at 15:36 UTC
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -328,7 +328,8 @@ class _StringsCommonEn {
 	String get tutorial_title => 'Tutorial';
 	String get understood => 'Understood';
 	String get unit_kg => 'kg';
-	String get unit_lb => 'lb';
+	String get unit_lb => 'lbs';
+	String get unit_ml => 'ml';
 	String get unit_l => 'liters';
 	String get unit_us_gal => 'gal';
 	String get unit_km => 'km';
@@ -854,10 +855,6 @@ class _StringsNutritionEn {
 	String get title_target_dialog => 'Set New Goal';
 	String get msg_target_maintain_active => 'Maintain weight goal is active. No completion time needed.';
 	String msg_total_foods_consumed({required Object arg1}) => 'Total ${arg1} foods consumed';
-	String get lbl_unit_gram => 'grams';
-	String get unit_liters => 'Liters';
-	String get lbl_unit_ml => 'ml';
-	String get lbl_unit_oz => 'oz';
 	String get lbl_unit_quantity => 'piece';
 	String get lbl_unit_serving => 'serving';
 	String get warn_unhealthy_target_bmi => 'This weight goal is in a range that is not ideal for your health. Please consider setting a more sustainable goal to ensure your well-being.';
@@ -977,7 +974,6 @@ class _StringsOnboardingEn {
 	String get title_step_biometrics => 'Biometric Profile';
 	String get title_step_target => 'Goal & Nutrition';
 	String get hint_username => 'Enter your username...';
-	String hint_wt({required Object arg1}) => 'e.g., ${arg1}';
 	String eula_intro({required Object brand, required Object app}) => 'This agreement is a legal contract between you (the User) and ${brand} (We/Us) regarding the use of the ${app} mobile application. By installing or using the app, you agree to abide by the following terms:';
 	String eula_p1_desc({required Object app}) => 'We grant you a limited, non-exclusive, non-transferable, and revocable license to download, install, and use ${app} on your personal mobile devices for personal, non-commercial purposes.';
 	String get eula_p1_title => '1. License Grant';
@@ -1105,7 +1101,7 @@ class _StringsProfileEn {
 	String measure_thighs({required Object unit}) => 'Thighs (${unit})';
 	String measure_waist({required Object unit}) => 'Waist (${unit})';
 	String get btn_menu_cal => 'Calendar';
-	String get btn_menu_edit => 'Profile';
+	String get btn_menu_edit => 'Edit profile';
 	String get btn_menu_exercises => 'Exercises';
 	String get btn_menu_stats => 'Statistics';
 	String get metric_age => 'Age';
@@ -1285,7 +1281,6 @@ class _StringsSettingsEn {
 	String get desc_measurement_units => 'Choose the units used throughout the app.';
 	String get lbl_weight_unit => 'Weight';
 	String get lbl_hydration_unit => 'Hydration';
-	String get lbl_distance_unit => 'Distance';
 	String get lbl_body_length_unit => 'Body measurements';
 	String get lbl_food_mass_unit => 'Food mass';
 	String get msg_measurement_units_saved => 'Measurement units updated.';
@@ -1310,19 +1305,11 @@ class _StringsSettingsEn {
 	String get desc_eula_link => 'End user license agreement and usage rights';
 	String get desc_terms_link => 'Terms of Use and Privacy Policy';
 	String get lbl_item_workout_settings => 'Workout Settings';
-	String get desc_item_workout_settings => 'Rest timer, sound, screen & RPE/RIR';
-	String get title_workout_settings => 'Workout Settings';
-	String get section_effort_tracking => 'Effort Tracking';
-	String get lbl_effort_tracking => 'RPE / RIR';
-	String get desc_effort_tracking => 'Record effort after each completed set.';
-	String get lbl_effort_scale => 'Effort Scale';
-	String get desc_effort_scale => 'Choose your preferred scale when recording set intensity.';
-	String get lbl_scale_rpe => 'RPE (1 - 10)';
-	String get lbl_scale_rir => 'RIR (0 - 5+)';
+	String get desc_item_workout_settings => 'Rest timer, sound, screen & RPE';
+	String get desc_effort_tracking => 'Record RPE after each completed set for more accurate Recovery.';
+	String get lbl_scale_rpe => 'Per-set RPE (1–10)';
 	String get title_rpe_info => 'RPE Scale (Rating of Perceived Exertion)';
 	String get desc_rpe_info => 'Rate effort intensity on a scale from 1 to 10:\n• RPE 10: Maximum effort, no reps left\n• RPE 9: 1 rep left in reserve\n• RPE 8: 2 reps left in reserve\n• RPE 7: 3 reps left in reserve';
-	String get title_rir_info => 'RIR Scale (Reps in Reserve)';
-	String get desc_rir_info => 'Number of reps you could still perform before failure:\n• RIR 0: Complete muscle failure (0 reps left)\n• RIR 1: Exactly 1 rep left in reserve\n• RIR 2: 2 reps left in reserve\n• RIR 3+: Light to moderate intensity';
 	String get title_workout_bg => 'Background & Progress';
 	String get title_workout_guide => 'Recovery Optimization';
 	String get desc_workout_guide => 'Effort metrics help Plato accurately calculate muscle Recovery and Strain scores for your body.';
@@ -1784,11 +1771,9 @@ class _StringsNotificationsEn {
 	String get status_permission_allowed => 'Allowed';
 	String get status_permission_blocked => 'Blocked by your device';
 	String get status_permission_partial => 'Requires additional permissions';
-	String get badge_notification => 'Notifications';
 	String get badge_activity_recognition => 'Physical activity';
 	String get status_granted => 'Granted';
 	String get status_denied => 'Denied';
-	String get btn_open_system_settings => 'Open settings';
 	String get lbl_workout_reminders => 'Workout reminders';
 	String fmt_workout_reminders_active({required Object count}) => '${count} workout notifications today';
 	String get msg_workout_reminders_none => 'No workout notifications left today';
@@ -2052,7 +2037,8 @@ class _StringsCommonVi extends _StringsCommonEn {
 	@override String get tutorial_title => 'Hướng dẫn sử dụng';
 	@override String get understood => 'Đã hiểu';
 	@override String get unit_kg => 'kg';
-	@override String get unit_lb => 'lb';
+	@override String get unit_lb => 'lbs';
+	@override String get unit_ml => 'ml';
 	@override String get unit_l => 'lít';
 	@override String get unit_us_gal => 'gal';
 	@override String get unit_km => 'km';
@@ -2578,10 +2564,6 @@ class _StringsNutritionVi extends _StringsNutritionEn {
 	@override String get title_target_dialog => 'Thiết lập Mục tiêu mới';
 	@override String get msg_target_maintain_active => 'Mục tiêu Duy trì cân nặng đang được bật. Không cần thiết lập thời gian hoàn thành.';
 	@override String msg_total_foods_consumed({required Object arg1}) => 'Tổng cộng ${arg1} món ăn đã nạp';
-	@override String get lbl_unit_gram => 'gam';
-	@override String get unit_liters => 'Lít';
-	@override String get lbl_unit_ml => 'ml';
-	@override String get lbl_unit_oz => 'oz';
 	@override String get lbl_unit_quantity => 'cái';
 	@override String get lbl_unit_serving => 'phần';
 	@override String get warn_unhealthy_target_bmi => 'Mục tiêu cân nặng này nằm trong vùng không tốt cho sức khỏe. Hãy cân nhắc thiết lập mục tiêu ở mức an toàn hơn để đảm bảo sức khỏe của bạn.';
@@ -2590,7 +2572,7 @@ class _StringsNutritionVi extends _StringsNutritionEn {
 	@override String get title_water_limit => 'Giới hạn lượng nước';
 	@override String get title_water_settings => 'Thiết lập Nước';
 	@override String get lbl_water_target => 'Mục tiêu';
-	@override String err_water_target({required Object arg1, required Object arg2}) => 'Mục tiêu nước uống phải từ ${arg1} đến ${arg2}.';
+	@override String err_water_target({required Object arg1, required Object arg2}) => 'Mục tiêu uống nước phải từ ${arg1} đến ${arg2}.';
 	@override String fmt_water_target_suffix({required Object arg1}) => '/ ${arg1}';
 	@override String get title_water_tracker => 'Nước uống';
 	@override String get msg_wt_anti_cheat => 'Sự thay đổi này lớn hơn mức sinh lý thông thường. Bạn có chắc chắn đã nhập đúng số cân không?';
@@ -2701,7 +2683,6 @@ class _StringsOnboardingVi extends _StringsOnboardingEn {
 	@override String get title_step_biometrics => 'Hồ sơ sinh học';
 	@override String get title_step_target => 'Mục tiêu & Dinh dưỡng';
 	@override String get hint_username => 'Nhập tên tài khoản của bạn...';
-	@override String hint_wt({required Object arg1}) => 'VD: ${arg1}';
 	@override String eula_intro({required Object brand, required Object app}) => 'Thỏa thuận này là hợp đồng pháp lý giữa bạn (Người dùng) và ${brand} (Chúng tôi) về việc sử dụng ứng dụng di động ${app}. Bằng việc cài đặt hoặc sử dụng ứng dụng, bạn đồng ý tuân thủ các điều khoản sau:';
 	@override String eula_p1_desc({required Object app}) => 'Chúng tôi cấp cho bạn một giấy phép giới hạn, không độc quyền, không thể chuyển nhượng và có thể thu hồi để tải xuống, cài đặt và sử dụng ${app} trên các thiết bị di động thuộc quyền sở hữu của bạn, phục vụ cho mục đích cá nhân và không thương mại.';
 	@override String get eula_p1_title => '1. Cấp phép sử dụng';
@@ -3009,7 +2990,6 @@ class _StringsSettingsVi extends _StringsSettingsEn {
 	@override String get desc_measurement_units => 'Chọn đơn vị được sử dụng trên toàn bộ ứng dụng.';
 	@override String get lbl_weight_unit => 'Cân nặng';
 	@override String get lbl_hydration_unit => 'Nước uống';
-	@override String get lbl_distance_unit => 'Quãng đường';
 	@override String get lbl_body_length_unit => 'Số đo cơ thể';
 	@override String get lbl_food_mass_unit => 'Khối lượng thực phẩm';
 	@override String get msg_measurement_units_saved => 'Đã cập nhật đơn vị đo lường.';
@@ -3034,19 +3014,11 @@ class _StringsSettingsVi extends _StringsSettingsEn {
 	@override String get desc_eula_link => 'Thỏa thuận cấp phép và quyền sử dụng';
 	@override String get desc_terms_link => 'Điều khoản và Chính sách bảo mật';
 	@override String get lbl_item_workout_settings => 'Cài đặt buổi tập';
-	@override String get desc_item_workout_settings => 'Thời gian nghỉ, âm báo, màn hình & RPE/RIR';
-	@override String get title_workout_settings => 'Cài đặt tập luyện';
-	@override String get section_effort_tracking => 'Mức độ gắng sức';
-	@override String get lbl_effort_tracking => 'RPE / RIR';
-	@override String get desc_effort_tracking => 'Ghi lại mức độ gắng sức sau mỗi set đã hoàn thành.';
-	@override String get lbl_effort_scale => 'Thang đo gắng sức';
-	@override String get desc_effort_scale => 'Chọn định dạng bạn muốn dùng khi ghi nhận cường độ mỗi hiệp.';
-	@override String get lbl_scale_rpe => 'RPE (1 - 10)';
-	@override String get lbl_scale_rir => 'RIR (0 - 5+)';
+	@override String get desc_item_workout_settings => 'Thời gian nghỉ, âm báo, màn hình & RPE';
+	@override String get desc_effort_tracking => 'Ghi lại RPE sau mỗi set đã hoàn thành để tính Recovery chính xác hơn.';
+	@override String get lbl_scale_rpe => 'RPE từng set (1–10)';
 	@override String get title_rpe_info => 'Thang đo RPE (Rating of Perceived Exertion)';
 	@override String get desc_rpe_info => 'Đánh giá mức độ nặng theo thang điểm 1 đến 10:\n• RPE 10: Hết sức, không thể làm thêm rep nào\n• RPE 9: Còn sức thực hiện đúng 1 rep\n• RPE 8: Còn sức thực hiện thêm 2 reps\n• RPE 7: Còn sức thực hiện thêm 3 reps';
-	@override String get title_rir_info => 'Thang đo RIR (Reps in Reserve)';
-	@override String get desc_rir_info => 'Số lần lặp bạn còn có thể làm được trước khi kiệt sức:\n• RIR 0: Thất bại hoàn toàn (không còn rep nào)\n• RIR 1: Còn sức cho đúng 1 rep nữa\n• RIR 2: Còn sức cho 2 reps nữa\n• RIR 3+: Mức tạ tương đối nhẹ nhàng';
 	@override String get title_workout_bg => 'Chạy nền & Tiến trình';
 	@override String get title_workout_guide => 'Tối ưu hóa phục hồi';
 	@override String get desc_workout_guide => 'Dữ liệu gắng sức giúp Plato tính toán điểm Phục hồi (Recovery) và Tải trọng (Strain) chính xác hơn cho cơ bắp của bạn.';
@@ -3209,7 +3181,7 @@ class _StringsTourVi extends _StringsTourEn {
 	@override String get nutrition_meal_desc => 'Ghi chép lượng calo nạp vào.\nMẹo: Nhấn \'Thêm thực phẩm\', hoặc dùng biểu tượng Sao chép để nhập nhanh dữ liệu từ hôm qua!';
 	@override String get nutrition_meal_title => 'Nhật ký Bữa ăn';
 	@override String get nutrition_water_desc => 'Đừng quên uống đủ nước!\nMẹo: Bấm vào thẻ để thay đổi mục tiêu, và dùng nút +/- để ghi nhận lượng nước đã uống.';
-	@override String get nutrition_water_title => 'Theo dõi Nước';
+	@override String get nutrition_water_title => 'Theo dõi nước uống';
 	@override String get nutrition_wt_desc => 'Theo dõi hành trình của bạn.\nMẹo: Bấm \'Cập nhật\' để nhập cân nặng mới, hoặc biểu tượng Chỉnh sửa để thay đổi mục tiêu!';
 	@override String get nutrition_wt_title => 'Lộ trình Cân nặng';
 	@override String get workout_explore_desc => 'Nhấn vào đây để khám phá và thêm các gói giáo án mẫu chuyên nghiệp vào danh sách của bạn.';
@@ -3508,11 +3480,9 @@ class _StringsNotificationsVi extends _StringsNotificationsEn {
 	@override String get status_permission_allowed => 'Đã cho phép';
 	@override String get status_permission_blocked => 'Bị thiết bị chặn';
 	@override String get status_permission_partial => 'Cần cấp thêm quyền';
-	@override String get badge_notification => 'Thông báo';
 	@override String get badge_activity_recognition => 'Hoạt động thể chất';
 	@override String get status_granted => 'Đã cấp';
 	@override String get status_denied => 'Chưa cấp';
-	@override String get btn_open_system_settings => 'Mở cài đặt';
 	@override String get lbl_workout_reminders => 'Nhắc lịch tập';
 	@override String fmt_workout_reminders_active({required Object count}) => '${count} thông báo tập hôm nay';
 	@override String get msg_workout_reminders_none => 'Không còn thông báo tập hôm nay';
@@ -3708,7 +3678,8 @@ extension on Translations {
 			case 'common.tutorial_title': return 'Tutorial';
 			case 'common.understood': return 'Understood';
 			case 'common.unit_kg': return 'kg';
-			case 'common.unit_lb': return 'lb';
+			case 'common.unit_lb': return 'lbs';
+			case 'common.unit_ml': return 'ml';
 			case 'common.unit_l': return 'liters';
 			case 'common.unit_us_gal': return 'gal';
 			case 'common.unit_km': return 'km';
@@ -4171,10 +4142,6 @@ extension on Translations {
 			case 'nutrition.title_target_dialog': return 'Set New Goal';
 			case 'nutrition.msg_target_maintain_active': return 'Maintain weight goal is active. No completion time needed.';
 			case 'nutrition.msg_total_foods_consumed': return ({required Object arg1}) => 'Total ${arg1} foods consumed';
-			case 'nutrition.lbl_unit_gram': return 'grams';
-			case 'nutrition.unit_liters': return 'Liters';
-			case 'nutrition.lbl_unit_ml': return 'ml';
-			case 'nutrition.lbl_unit_oz': return 'oz';
 			case 'nutrition.lbl_unit_quantity': return 'piece';
 			case 'nutrition.lbl_unit_serving': return 'serving';
 			case 'nutrition.warn_unhealthy_target_bmi': return 'This weight goal is in a range that is not ideal for your health. Please consider setting a more sustainable goal to ensure your well-being.';
@@ -4285,7 +4252,6 @@ extension on Translations {
 			case 'onboarding.title_step_biometrics': return 'Biometric Profile';
 			case 'onboarding.title_step_target': return 'Goal & Nutrition';
 			case 'onboarding.hint_username': return 'Enter your username...';
-			case 'onboarding.hint_wt': return ({required Object arg1}) => 'e.g., ${arg1}';
 			case 'onboarding.eula_intro': return ({required Object brand, required Object app}) => 'This agreement is a legal contract between you (the User) and ${brand} (We/Us) regarding the use of the ${app} mobile application. By installing or using the app, you agree to abide by the following terms:';
 			case 'onboarding.eula_p1_desc': return ({required Object app}) => 'We grant you a limited, non-exclusive, non-transferable, and revocable license to download, install, and use ${app} on your personal mobile devices for personal, non-commercial purposes.';
 			case 'onboarding.eula_p1_title': return '1. License Grant';
@@ -4404,7 +4370,7 @@ extension on Translations {
 			case 'profile.measure_thighs': return ({required Object unit}) => 'Thighs (${unit})';
 			case 'profile.measure_waist': return ({required Object unit}) => 'Waist (${unit})';
 			case 'profile.btn_menu_cal': return 'Calendar';
-			case 'profile.btn_menu_edit': return 'Profile';
+			case 'profile.btn_menu_edit': return 'Edit profile';
 			case 'profile.btn_menu_exercises': return 'Exercises';
 			case 'profile.btn_menu_stats': return 'Statistics';
 			case 'profile.metric_age': return 'Age';
@@ -4548,7 +4514,6 @@ extension on Translations {
 			case 'settings.desc_measurement_units': return 'Choose the units used throughout the app.';
 			case 'settings.lbl_weight_unit': return 'Weight';
 			case 'settings.lbl_hydration_unit': return 'Hydration';
-			case 'settings.lbl_distance_unit': return 'Distance';
 			case 'settings.lbl_body_length_unit': return 'Body measurements';
 			case 'settings.lbl_food_mass_unit': return 'Food mass';
 			case 'settings.msg_measurement_units_saved': return 'Measurement units updated.';
@@ -4573,19 +4538,11 @@ extension on Translations {
 			case 'settings.desc_eula_link': return 'End user license agreement and usage rights';
 			case 'settings.desc_terms_link': return 'Terms of Use and Privacy Policy';
 			case 'settings.lbl_item_workout_settings': return 'Workout Settings';
-			case 'settings.desc_item_workout_settings': return 'Rest timer, sound, screen & RPE/RIR';
-			case 'settings.title_workout_settings': return 'Workout Settings';
-			case 'settings.section_effort_tracking': return 'Effort Tracking';
-			case 'settings.lbl_effort_tracking': return 'RPE / RIR';
-			case 'settings.desc_effort_tracking': return 'Record effort after each completed set.';
-			case 'settings.lbl_effort_scale': return 'Effort Scale';
-			case 'settings.desc_effort_scale': return 'Choose your preferred scale when recording set intensity.';
-			case 'settings.lbl_scale_rpe': return 'RPE (1 - 10)';
-			case 'settings.lbl_scale_rir': return 'RIR (0 - 5+)';
+			case 'settings.desc_item_workout_settings': return 'Rest timer, sound, screen & RPE';
+			case 'settings.desc_effort_tracking': return 'Record RPE after each completed set for more accurate Recovery.';
+			case 'settings.lbl_scale_rpe': return 'Per-set RPE (1–10)';
 			case 'settings.title_rpe_info': return 'RPE Scale (Rating of Perceived Exertion)';
 			case 'settings.desc_rpe_info': return 'Rate effort intensity on a scale from 1 to 10:\n• RPE 10: Maximum effort, no reps left\n• RPE 9: 1 rep left in reserve\n• RPE 8: 2 reps left in reserve\n• RPE 7: 3 reps left in reserve';
-			case 'settings.title_rir_info': return 'RIR Scale (Reps in Reserve)';
-			case 'settings.desc_rir_info': return 'Number of reps you could still perform before failure:\n• RIR 0: Complete muscle failure (0 reps left)\n• RIR 1: Exactly 1 rep left in reserve\n• RIR 2: 2 reps left in reserve\n• RIR 3+: Light to moderate intensity';
 			case 'settings.title_workout_bg': return 'Background & Progress';
 			case 'settings.title_workout_guide': return 'Recovery Optimization';
 			case 'settings.desc_workout_guide': return 'Effort metrics help Plato accurately calculate muscle Recovery and Strain scores for your body.';
@@ -5002,11 +4959,9 @@ extension on Translations {
 			case 'notifications.status_permission_allowed': return 'Allowed';
 			case 'notifications.status_permission_blocked': return 'Blocked by your device';
 			case 'notifications.status_permission_partial': return 'Requires additional permissions';
-			case 'notifications.badge_notification': return 'Notifications';
 			case 'notifications.badge_activity_recognition': return 'Physical activity';
 			case 'notifications.status_granted': return 'Granted';
 			case 'notifications.status_denied': return 'Denied';
-			case 'notifications.btn_open_system_settings': return 'Open settings';
 			case 'notifications.lbl_workout_reminders': return 'Workout reminders';
 			case 'notifications.fmt_workout_reminders_active': return ({required Object count}) => '${count} workout notifications today';
 			case 'notifications.msg_workout_reminders_none': return 'No workout notifications left today';
@@ -5202,7 +5157,8 @@ extension on _StringsVi {
 			case 'common.tutorial_title': return 'Hướng dẫn sử dụng';
 			case 'common.understood': return 'Đã hiểu';
 			case 'common.unit_kg': return 'kg';
-			case 'common.unit_lb': return 'lb';
+			case 'common.unit_lb': return 'lbs';
+			case 'common.unit_ml': return 'ml';
 			case 'common.unit_l': return 'lít';
 			case 'common.unit_us_gal': return 'gal';
 			case 'common.unit_km': return 'km';
@@ -5665,10 +5621,6 @@ extension on _StringsVi {
 			case 'nutrition.title_target_dialog': return 'Thiết lập Mục tiêu mới';
 			case 'nutrition.msg_target_maintain_active': return 'Mục tiêu Duy trì cân nặng đang được bật. Không cần thiết lập thời gian hoàn thành.';
 			case 'nutrition.msg_total_foods_consumed': return ({required Object arg1}) => 'Tổng cộng ${arg1} món ăn đã nạp';
-			case 'nutrition.lbl_unit_gram': return 'gam';
-			case 'nutrition.unit_liters': return 'Lít';
-			case 'nutrition.lbl_unit_ml': return 'ml';
-			case 'nutrition.lbl_unit_oz': return 'oz';
 			case 'nutrition.lbl_unit_quantity': return 'cái';
 			case 'nutrition.lbl_unit_serving': return 'phần';
 			case 'nutrition.warn_unhealthy_target_bmi': return 'Mục tiêu cân nặng này nằm trong vùng không tốt cho sức khỏe. Hãy cân nhắc thiết lập mục tiêu ở mức an toàn hơn để đảm bảo sức khỏe của bạn.';
@@ -5677,7 +5629,7 @@ extension on _StringsVi {
 			case 'nutrition.title_water_limit': return 'Giới hạn lượng nước';
 			case 'nutrition.title_water_settings': return 'Thiết lập Nước';
 			case 'nutrition.lbl_water_target': return 'Mục tiêu';
-			case 'nutrition.err_water_target': return ({required Object arg1, required Object arg2}) => 'Mục tiêu nước uống phải từ ${arg1} đến ${arg2}.';
+			case 'nutrition.err_water_target': return ({required Object arg1, required Object arg2}) => 'Mục tiêu uống nước phải từ ${arg1} đến ${arg2}.';
 			case 'nutrition.fmt_water_target_suffix': return ({required Object arg1}) => '/ ${arg1}';
 			case 'nutrition.title_water_tracker': return 'Nước uống';
 			case 'nutrition.msg_wt_anti_cheat': return 'Sự thay đổi này lớn hơn mức sinh lý thông thường. Bạn có chắc chắn đã nhập đúng số cân không?';
@@ -5779,7 +5731,6 @@ extension on _StringsVi {
 			case 'onboarding.title_step_biometrics': return 'Hồ sơ sinh học';
 			case 'onboarding.title_step_target': return 'Mục tiêu & Dinh dưỡng';
 			case 'onboarding.hint_username': return 'Nhập tên tài khoản của bạn...';
-			case 'onboarding.hint_wt': return ({required Object arg1}) => 'VD: ${arg1}';
 			case 'onboarding.eula_intro': return ({required Object brand, required Object app}) => 'Thỏa thuận này là hợp đồng pháp lý giữa bạn (Người dùng) và ${brand} (Chúng tôi) về việc sử dụng ứng dụng di động ${app}. Bằng việc cài đặt hoặc sử dụng ứng dụng, bạn đồng ý tuân thủ các điều khoản sau:';
 			case 'onboarding.eula_p1_desc': return ({required Object app}) => 'Chúng tôi cấp cho bạn một giấy phép giới hạn, không độc quyền, không thể chuyển nhượng và có thể thu hồi để tải xuống, cài đặt và sử dụng ${app} trên các thiết bị di động thuộc quyền sở hữu của bạn, phục vụ cho mục đích cá nhân và không thương mại.';
 			case 'onboarding.eula_p1_title': return '1. Cấp phép sử dụng';
@@ -6042,7 +5993,6 @@ extension on _StringsVi {
 			case 'settings.desc_measurement_units': return 'Chọn đơn vị được sử dụng trên toàn bộ ứng dụng.';
 			case 'settings.lbl_weight_unit': return 'Cân nặng';
 			case 'settings.lbl_hydration_unit': return 'Nước uống';
-			case 'settings.lbl_distance_unit': return 'Quãng đường';
 			case 'settings.lbl_body_length_unit': return 'Số đo cơ thể';
 			case 'settings.lbl_food_mass_unit': return 'Khối lượng thực phẩm';
 			case 'settings.msg_measurement_units_saved': return 'Đã cập nhật đơn vị đo lường.';
@@ -6067,19 +6017,11 @@ extension on _StringsVi {
 			case 'settings.desc_eula_link': return 'Thỏa thuận cấp phép và quyền sử dụng';
 			case 'settings.desc_terms_link': return 'Điều khoản và Chính sách bảo mật';
 			case 'settings.lbl_item_workout_settings': return 'Cài đặt buổi tập';
-			case 'settings.desc_item_workout_settings': return 'Thời gian nghỉ, âm báo, màn hình & RPE/RIR';
-			case 'settings.title_workout_settings': return 'Cài đặt tập luyện';
-			case 'settings.section_effort_tracking': return 'Mức độ gắng sức';
-			case 'settings.lbl_effort_tracking': return 'RPE / RIR';
-			case 'settings.desc_effort_tracking': return 'Ghi lại mức độ gắng sức sau mỗi set đã hoàn thành.';
-			case 'settings.lbl_effort_scale': return 'Thang đo gắng sức';
-			case 'settings.desc_effort_scale': return 'Chọn định dạng bạn muốn dùng khi ghi nhận cường độ mỗi hiệp.';
-			case 'settings.lbl_scale_rpe': return 'RPE (1 - 10)';
-			case 'settings.lbl_scale_rir': return 'RIR (0 - 5+)';
+			case 'settings.desc_item_workout_settings': return 'Thời gian nghỉ, âm báo, màn hình & RPE';
+			case 'settings.desc_effort_tracking': return 'Ghi lại RPE sau mỗi set đã hoàn thành để tính Recovery chính xác hơn.';
+			case 'settings.lbl_scale_rpe': return 'RPE từng set (1–10)';
 			case 'settings.title_rpe_info': return 'Thang đo RPE (Rating of Perceived Exertion)';
 			case 'settings.desc_rpe_info': return 'Đánh giá mức độ nặng theo thang điểm 1 đến 10:\n• RPE 10: Hết sức, không thể làm thêm rep nào\n• RPE 9: Còn sức thực hiện đúng 1 rep\n• RPE 8: Còn sức thực hiện thêm 2 reps\n• RPE 7: Còn sức thực hiện thêm 3 reps';
-			case 'settings.title_rir_info': return 'Thang đo RIR (Reps in Reserve)';
-			case 'settings.desc_rir_info': return 'Số lần lặp bạn còn có thể làm được trước khi kiệt sức:\n• RIR 0: Thất bại hoàn toàn (không còn rep nào)\n• RIR 1: Còn sức cho đúng 1 rep nữa\n• RIR 2: Còn sức cho 2 reps nữa\n• RIR 3+: Mức tạ tương đối nhẹ nhàng';
 			case 'settings.title_workout_bg': return 'Chạy nền & Tiến trình';
 			case 'settings.title_workout_guide': return 'Tối ưu hóa phục hồi';
 			case 'settings.desc_workout_guide': return 'Dữ liệu gắng sức giúp Plato tính toán điểm Phục hồi (Recovery) và Tải trọng (Strain) chính xác hơn cho cơ bắp của bạn.';
@@ -6224,7 +6166,7 @@ extension on _StringsVi {
 			case 'tour.nutrition_meal_desc': return 'Ghi chép lượng calo nạp vào.\nMẹo: Nhấn \'Thêm thực phẩm\', hoặc dùng biểu tượng Sao chép để nhập nhanh dữ liệu từ hôm qua!';
 			case 'tour.nutrition_meal_title': return 'Nhật ký Bữa ăn';
 			case 'tour.nutrition_water_desc': return 'Đừng quên uống đủ nước!\nMẹo: Bấm vào thẻ để thay đổi mục tiêu, và dùng nút +/- để ghi nhận lượng nước đã uống.';
-			case 'tour.nutrition_water_title': return 'Theo dõi Nước';
+			case 'tour.nutrition_water_title': return 'Theo dõi nước uống';
 			case 'tour.nutrition_wt_desc': return 'Theo dõi hành trình của bạn.\nMẹo: Bấm \'Cập nhật\' để nhập cân nặng mới, hoặc biểu tượng Chỉnh sửa để thay đổi mục tiêu!';
 			case 'tour.nutrition_wt_title': return 'Lộ trình Cân nặng';
 			case 'tour.workout_explore_desc': return 'Nhấn vào đây để khám phá và thêm các gói giáo án mẫu chuyên nghiệp vào danh sách của bạn.';
@@ -6496,11 +6438,9 @@ extension on _StringsVi {
 			case 'notifications.status_permission_allowed': return 'Đã cho phép';
 			case 'notifications.status_permission_blocked': return 'Bị thiết bị chặn';
 			case 'notifications.status_permission_partial': return 'Cần cấp thêm quyền';
-			case 'notifications.badge_notification': return 'Thông báo';
 			case 'notifications.badge_activity_recognition': return 'Hoạt động thể chất';
 			case 'notifications.status_granted': return 'Đã cấp';
 			case 'notifications.status_denied': return 'Chưa cấp';
-			case 'notifications.btn_open_system_settings': return 'Mở cài đặt';
 			case 'notifications.lbl_workout_reminders': return 'Nhắc lịch tập';
 			case 'notifications.fmt_workout_reminders_active': return ({required Object count}) => '${count} thông báo tập hôm nay';
 			case 'notifications.msg_workout_reminders_none': return 'Không còn thông báo tập hôm nay';

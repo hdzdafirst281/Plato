@@ -892,19 +892,11 @@ class _FoodItemRowState extends State<_FoodItemRow> {
         : widget.food.consumedAmount;
     if (widget.food.measurementUnit == FoodUnit.GRAM) {
       displayAmount = units.foodMassFromGrams(displayAmount);
+    } else if (widget.food.measurementUnit == FoodUnit.ML) {
+      displayAmount = units.liquidVolumeFromMilliliters(displayAmount);
     }
 
-    String amountStr;
-    if (displayAmount % 1 == 0) {
-      amountStr = displayAmount.toInt().toString();
-    } else {
-      amountStr = displayAmount.toStringAsFixed(1);
-      if (amountStr.contains('.')) {
-        amountStr = amountStr
-            .replaceAll(RegExp(r'0*$'), '')
-            .replaceAll(RegExp(r'\.$'), '');
-      }
-    }
+    final amountStr = MeasurementFormatter.number(displayAmount, 2);
 
     String unitName;
     switch (widget.food.measurementUnit) {
@@ -912,7 +904,7 @@ class _FoodItemRowState extends State<_FoodItemRow> {
         unitName = units.foodMassUnit;
         break;
       case FoodUnit.ML:
-        unitName = t.nutrition.lbl_unit_ml;
+        unitName = units.hydrationUnit;
         break;
       case FoodUnit.QUANTITY:
         unitName = t.nutrition.lbl_unit_quantity;
@@ -921,7 +913,7 @@ class _FoodItemRowState extends State<_FoodItemRow> {
         unitName = t.nutrition.lbl_unit_serving;
         break;
       case FoodUnit.OZ:
-        unitName = t.nutrition.lbl_unit_oz;
+        unitName = t.common.unit_oz;
         break;
     }
 
@@ -1495,7 +1487,7 @@ class _FoodBottomSheetState extends State<FoodBottomSheet> {
                   child: GymTextField(
                     initialValue: _pro,
                     labelText: t.onboarding.lbl_macro_protein,
-                    unitText: 'g',
+                    unitText: t.common.unit_g,
                     isInteger: true,
                     errorText: _proError,
                     onChanged: (v) {
@@ -1515,7 +1507,7 @@ class _FoodBottomSheetState extends State<FoodBottomSheet> {
                   child: GymTextField(
                     initialValue: _carb,
                     labelText: t.onboarding.lbl_macro_carbs,
-                    unitText: 'g',
+                    unitText: t.common.unit_g,
                     isInteger: true,
                     errorText: _carbError,
                     onChanged: (v) {
@@ -1529,7 +1521,7 @@ class _FoodBottomSheetState extends State<FoodBottomSheet> {
                   child: GymTextField(
                     initialValue: _fat,
                     labelText: t.onboarding.lbl_macro_fat,
-                    unitText: 'g',
+                    unitText: t.common.unit_g,
                     isInteger: true,
                     errorText: _fatError,
                     onChanged: (v) {

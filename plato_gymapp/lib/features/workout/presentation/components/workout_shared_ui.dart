@@ -2630,12 +2630,8 @@ class ActiveExerciseCardState extends State<ActiveExerciseCard>
         WorkoutSettingsPreferences.defaultRestSeconds(
           widget.activeSessionCubit.prefs,
         );
-    final effortPrefs = widget.activeSessionCubit.prefs;
     final advancedEffortEnabled = WorkoutEffortPreferences.advancedEnabled(
-      effortPrefs,
-    );
-    final selectedEffortScale = WorkoutEffortPreferences.inputScale(
-      effortPrefs,
+      widget.activeSessionCubit.prefs,
     );
 
     final isTablet = ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET);
@@ -4120,12 +4116,7 @@ class ActiveExerciseCardState extends State<ActiveExerciseCard>
                                   MuscleExposureCalculator.isWorkingSet(
                                     setData,
                                   ))
-                                _buildEffortEditor(
-                                  context,
-                                  setData: setData,
-                                  exerciseType: exType,
-                                  preferredScale: selectedEffortScale,
-                                ),
+                                _buildRpeEditor(context, setData: setData),
                             ],
                           ),
                         ),
@@ -4239,111 +4230,190 @@ class ActiveExerciseCardState extends State<ActiveExerciseCard>
     );
   }
 
-  Widget _buildEffortEditor(
-    BuildContext context, {
-    required ExerciseSet setData,
-    required ExerciseType exerciseType,
-    required EffortInputScale preferredScale,
-  }) {
+  Widget _buildRpeEditor(BuildContext context, {required ExerciseSet setData}) {
     final colorScheme = Theme.of(context).colorScheme;
-    final supportsRir =
-        exerciseType == ExerciseType.WEIGHT_REPS ||
-        exerciseType == ExerciseType.REPS_ONLY;
-    final useRir = supportsRir && preferredScale == EffortInputScale.rir;
     final storedRpe = setData.rpe;
+    final accentColor = storedRpe == null
+        ? colorScheme.onSurfaceVariant
+        : storedRpe <= 4
+        ? Theme.of(context).gymColors.success
+        : storedRpe <= 7
+        ? Theme.of(context).gymColors.warning
+        : colorScheme.error;
     final currentLabel = storedRpe == null
-        ? '—'
-        : useRir
-        ? '${(10 - storedRpe).clamp(0, 4)}${storedRpe <= 6 ? '+' : ''}'
-        : '$storedRpe';
+        ? t.workout.lbl_dtl_rpe_unrated
+        : '$storedRpe/10';
 
-    return Container(
-      width: double.infinity,
-      decoration: BoxDecoration(
-        border: Border(
-          top: BorderSide(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.35),
-          ),
-        ),
-      ),
-      padding: const EdgeInsets.fromLTRB(16, 2, 8, 4),
-      child: Row(
-        children: [
-          Expanded(
-            child: Text(
-              useRir ? 'RIR' : 'RPE',
-              style: TextStyle(
-                color: colorScheme.onSurfaceVariant,
-                fontSize: 12,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-          Semantics(
-            label: '${useRir ? 'RIR' : 'RPE'}: $currentLabel',
-            button: true,
-            child: PopupMenuButton<int>(
-              tooltip: useRir ? 'RIR' : 'RPE',
-              onSelected: (value) {
-                widget.activeSessionCubit.updateSet(
-                  widget.workoutExercise.id,
-                  setData.id,
-                  setData.isCompleted,
-                  clearRpe: value == -1,
-                  rpe: value == -1
-                      ? null
-                      : useRir
-                      ? 10 - value.clamp(0, 4).toInt()
-                      : value,
-                );
-              },
-              itemBuilder: (context) {
-                if (useRir) {
-                  return [
-                    const PopupMenuItem(value: -1, child: Text('—')),
-                    ...List.generate(
-                      5,
-                      (rir) => PopupMenuItem(
-                        value: rir,
-                        child: Text(rir == 4 ? '4+' : '$rir'),
-                      ),
-                    ),
-                  ];
-                }
-                return [
-                  const PopupMenuItem(value: -1, child: Text('—')),
-                  ...List.generate(
-                    10,
-                    (index) => PopupMenuItem(
-                      value: index + 1,
-                      child: Text('${index + 1}'),
-                    ),
-                  ),
-                ];
-              },
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(minWidth: 56, minHeight: 48),
-                child: Center(
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        currentLabel,
-                        style: TextStyle(
-                          color: colorScheme.primary,
-                          fontWeight: FontWeight.w800,
-                        ),
-                      ),
-                      const SizedBox(width: 2),
-                      Icon(Symbols.arrow_drop_down, color: colorScheme.primary),
-                    ],
-                  ),
+    return Semantics(
+      button: true,
+      label: '${t.workout.lbl_dtl_stat_rpe}: $currentLabel',
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          key: ValueKey('rpe_input_${setData.id}'),
+          onTap: () => _showRpePicker(context, setData),
+          child: Container(
+            width: double.infinity,
+            decoration: BoxDecoration(
+              border: Border(
+                top: BorderSide(
+                  color: colorScheme.outlineVariant.withValues(alpha: 0.35),
                 ),
               ),
             ),
+            constraints: const BoxConstraints(minHeight: 52),
+            padding: const EdgeInsetsDirectional.fromSTEB(16, 6, 12, 6),
+            child: ExcludeSemantics(
+              child: Row(
+                children: [
+                  Icon(Symbols.speed, size: 18, color: accentColor),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      t.workout.lbl_dtl_stat_rpe,
+                      style: TextStyle(
+                        color: colorScheme.onSurface,
+                        fontSize: 13,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: accentColor.withValues(alpha: 0.12),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      currentLabel,
+                      style: TextStyle(
+                        color: accentColor,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Icon(
+                    Symbols.chevron_right,
+                    size: 20,
+                    color: colorScheme.onSurfaceVariant,
+                  ),
+                ],
+              ),
+            ),
           ),
-        ],
+        ),
       ),
+    );
+  }
+
+  Future<void> _showRpePicker(BuildContext context, ExerciseSet setData) async {
+    final selectedRpe = await showModalBottomSheet<int>(
+      context: context,
+      showDragHandle: true,
+      useSafeArea: true,
+      isScrollControlled: true,
+      constraints: const BoxConstraints(maxWidth: 560),
+      builder: (sheetContext) {
+        final colorScheme = Theme.of(sheetContext).colorScheme;
+        return SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  t.settings.title_rpe_info,
+                  style: Theme.of(
+                    sheetContext,
+                  ).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                ),
+                const SizedBox(height: 6),
+                Text(
+                  t.settings.desc_effort_tracking,
+                  style: TextStyle(color: colorScheme.onSurfaceVariant),
+                ),
+                const SizedBox(height: 16),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final columns = constraints.maxWidth < 300 ? 4 : 5;
+                    return GridView.builder(
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
+                      gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: columns,
+                        mainAxisSpacing: 8,
+                        crossAxisSpacing: 8,
+                      ),
+                      itemCount: 10,
+                      itemBuilder: (context, index) {
+                        final rpe = index + 1;
+                        final isSelected = setData.rpe == rpe;
+                        return Semantics(
+                          button: true,
+                          selected: isSelected,
+                          label: 'RPE $rpe',
+                          child: Material(
+                            color: isSelected
+                                ? colorScheme.primary
+                                : colorScheme.surfaceContainerHighest,
+                            borderRadius: BorderRadius.circular(12),
+                            child: InkWell(
+                              key: ValueKey('rpe_option_$rpe'),
+                              borderRadius: BorderRadius.circular(12),
+                              onTap: () => Navigator.of(sheetContext).pop(rpe),
+                              child: ExcludeSemantics(
+                                child: Center(
+                                  child: Text(
+                                    '$rpe',
+                                    style: TextStyle(
+                                      color: isSelected
+                                          ? colorScheme.onPrimary
+                                          : colorScheme.onSurface,
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w800,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                ),
+                if (setData.rpe != null) ...[
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: TextButton.icon(
+                      key: const ValueKey('clear_rpe'),
+                      onPressed: () => Navigator.of(sheetContext).pop(-1),
+                      icon: const Icon(Symbols.close),
+                      label: Text(t.workout.lbl_dtl_rpe_unrated),
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+        );
+      },
+    );
+
+    if (selectedRpe == null || !mounted) return;
+    widget.activeSessionCubit.updateSet(
+      widget.workoutExercise.id,
+      setData.id,
+      setData.isCompleted,
+      clearRpe: selectedRpe == -1,
+      rpe: selectedRpe == -1 ? null : selectedRpe,
     );
   }
 

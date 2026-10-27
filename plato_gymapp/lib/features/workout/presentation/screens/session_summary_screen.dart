@@ -647,44 +647,8 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
   }) {
     final gender = context.read<ProfileCubit>().state.userProfile.gender;
     
-    final Map<MuscleGroup, double> muscleScores = {};
-    for (var workoutEx in session.exercises) {
-      int completedSets = workoutEx.sets
-          .where(
-            (s) =>
-                s.isCompleted && MuscleExposureCalculator.isWorkingSet(s),
-          )
-          .length;
-      if (completedSets == 0) continue;
-
-      final primary = workoutEx.exercise.primaryMuscle;
-      if (primary != null) {
-        muscleScores[primary] =
-            (muscleScores[primary] ?? 0) +
-            completedSets * MuscleExposureCalculator.primaryCoefficient;
-      }
-
-      final secondaries = (workoutEx.exercise.secondaryMuscles ?? [])
-          .where((muscle) => muscle != primary)
-          .toSet();
-      for (var secondary in secondaries) {
-        muscleScores[secondary] =
-            (muscleScores[secondary] ?? 0) +
-            completedSets * MuscleExposureCalculator.secondaryCoefficient;
-      }
-    }
-
-    final Map<MuscleGroup, double> intensityStats = {};
-    for (var entry in muscleScores.entries) {
-      final score = entry.value;
-      if (score >= 6) {
-        intensityStats[entry.key] = 0.7; // High
-      } else if (score >= 3) {
-        intensityStats[entry.key] = 0.4; // Medium
-      } else {
-        intensityStats[entry.key] = 0.2; // Low
-      }
-    }
+    final intensityStats =
+        MuscleExposureCalculator.sessionHeatmapIntensities(session.exercises);
 
     return Container(
       decoration: BoxDecoration(

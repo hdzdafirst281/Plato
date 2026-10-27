@@ -1428,7 +1428,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
                           controller: _weightCtrl, focusNode: _weightFocus, keyboardType: TextInputType.number,
                           onChanged: (_) => setState(() => _weightError = null),
                           decoration: InputDecoration(
-                            hintText: t.onboarding.hint_wt(arg1: '65 ${_units.weightUnit}'),
+                            hintText: t.onboarding.hint_height(arg1: '65 ${_units.weightUnit}'),
                             border: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide.none), 
                             errorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: colorScheme.error, width: 1.5)),
                             focusedErrorBorder: OutlineInputBorder(borderRadius: BorderRadius.circular(16), borderSide: BorderSide(color: colorScheme.error, width: 1.5)),

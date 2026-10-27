@@ -197,9 +197,9 @@ class _HistoryCard extends StatelessWidget {
             children: [
               Expanded(child: _MacroStat(label: t.nutrition.lbl_dash_calories, value: '${daily.dailyTotalCalories}', suffix: 'kcal', color: colorScheme.primary)),
               // ĐÃ FIX: Đồng bộ màu sắc
-              Expanded(child: _MacroStat(label: t.onboarding.lbl_macro_protein, value: '${daily.dailyTotalProtein}', suffix: 'g', color: gymColors.fireHexagon)),
-              Expanded(child: _MacroStat(label: t.onboarding.lbl_macro_carbs, value: '${daily.dailyTotalCarbs}', suffix: 'g', color: gymColors.success)),
-              Expanded(child: _MacroStat(label: t.onboarding.lbl_macro_fat, value: '${daily.dailyTotalFat}', suffix: 'g', color: gymColors.goldRank)),
+              Expanded(child: _MacroStat(label: t.onboarding.lbl_macro_protein, value: '${daily.dailyTotalProtein}', suffix: t.common.unit_g, color: gymColors.fireHexagon)),
+              Expanded(child: _MacroStat(label: t.onboarding.lbl_macro_carbs, value: '${daily.dailyTotalCarbs}', suffix: t.common.unit_g, color: gymColors.success)),
+              Expanded(child: _MacroStat(label: t.onboarding.lbl_macro_fat, value: '${daily.dailyTotalFat}', suffix: t.common.unit_g, color: gymColors.goldRank)),
             ],
           ),
           

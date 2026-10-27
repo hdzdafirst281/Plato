@@ -20,7 +20,6 @@ class WorkoutSettingsScreen extends StatefulWidget {
 
 class _WorkoutSettingsScreenState extends State<WorkoutSettingsScreen> {
   bool _advancedEffortEnabled = false;
-  EffortInputScale _effortInputScale = EffortInputScale.rpe;
   int _defaultRestSeconds = 90;
   bool _keepScreenAwake = false;
   bool _timerSoundEnabled = true;
@@ -37,7 +36,6 @@ class _WorkoutSettingsScreenState extends State<WorkoutSettingsScreen> {
     if (!mounted) return;
     setState(() {
       _advancedEffortEnabled = WorkoutEffortPreferences.advancedEnabled(prefs);
-      _effortInputScale = WorkoutEffortPreferences.inputScale(prefs);
       _defaultRestSeconds = WorkoutSettingsPreferences.defaultRestSeconds(
         prefs,
       );
@@ -53,12 +51,6 @@ class _WorkoutSettingsScreenState extends State<WorkoutSettingsScreen> {
     setState(() => _advancedEffortEnabled = enabled);
     final prefs = getIt<SharedPreferences>();
     await WorkoutEffortPreferences.setAdvancedEnabled(prefs, enabled);
-  }
-
-  Future<void> _setEffortScale(EffortInputScale scale) async {
-    setState(() => _effortInputScale = scale);
-    final prefs = getIt<SharedPreferences>();
-    await WorkoutEffortPreferences.setInputScale(prefs, scale);
   }
 
   Future<void> _setDefaultRestSeconds(int seconds) async {
@@ -102,22 +94,13 @@ class _WorkoutSettingsScreenState extends State<WorkoutSettingsScreen> {
         children: [
           Text(
             t.settings.desc_effort_tracking,
-            style: TextStyle(
-              color: colorScheme.onSurfaceVariant,
-              fontSize: 14,
-            ),
+            style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14),
           ),
           const SizedBox(height: 16),
           _infoCard(
             title: t.settings.title_rpe_info,
             message: t.settings.desc_rpe_info,
             color: colorScheme.primary,
-          ),
-          const SizedBox(height: 12),
-          _infoCard(
-            title: t.settings.title_rir_info,
-            message: t.settings.desc_rir_info,
-            color: colorScheme.secondary,
           ),
         ],
       ),
@@ -232,9 +215,7 @@ class _WorkoutSettingsScreenState extends State<WorkoutSettingsScreen> {
     return Card(
       elevation: 0,
       color: accent.withValues(alpha: 0.15),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(8),
-      ),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
       margin: EdgeInsets.zero,
       child: Padding(
         padding: const EdgeInsets.all(12),
@@ -281,7 +262,8 @@ class _WorkoutSettingsScreenState extends State<WorkoutSettingsScreen> {
     required VoidCallback onTap,
   }) {
     final theme = Theme.of(context);
-    final subtitleStyle = theme.listTileTheme.subtitleTextStyle ??
+    final subtitleStyle =
+        theme.listTileTheme.subtitleTextStyle ??
         theme.textTheme.bodyMedium?.copyWith(
           color: theme.colorScheme.onSurfaceVariant,
         );
@@ -301,10 +283,7 @@ class _WorkoutSettingsScreenState extends State<WorkoutSettingsScreen> {
               children: [
                 _infoTitle(title),
                 const SizedBox(height: 2),
-                Text(
-                  subtitle,
-                  style: subtitleStyle,
-                ),
+                Text(subtitle, style: subtitleStyle),
               ],
             ),
           ),
@@ -317,7 +296,7 @@ class _WorkoutSettingsScreenState extends State<WorkoutSettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: GymTopBar(
-        title: t.settings.title_workout_settings,
+        title: t.settings.lbl_item_workout_settings,
         onBackClick: () => context.pop(),
       ),
       body: GymMotionItem(
@@ -340,7 +319,7 @@ class _WorkoutSettingsScreenState extends State<WorkoutSettingsScreen> {
                         leading: const Icon(Symbols.speed),
                         title: _infoTileContent(
                           key: const ValueKey('effort_info_target'),
-                          title: t.settings.lbl_effort_tracking,
+                          title: t.settings.lbl_scale_rpe,
                           subtitle: t.settings.desc_effort_tracking,
                           onTap: _showEffortInfo,
                         ),
@@ -350,32 +329,6 @@ class _WorkoutSettingsScreenState extends State<WorkoutSettingsScreen> {
                           onChanged: _setAdvancedEffort,
                         ),
                       ),
-                      if (_advancedEffortEnabled) ...[
-                        Padding(
-                          padding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
-                          child: SizedBox(
-                            width: double.infinity,
-                            child: SegmentedButton<EffortInputScale>(
-                              segments: [
-                                ButtonSegment(
-                                  value: EffortInputScale.rpe,
-                                  label: Text(t.settings.lbl_scale_rpe),
-                                  icon: const Icon(Symbols.timer),
-                                ),
-                                ButtonSegment(
-                                  value: EffortInputScale.rir,
-                                  label: Text(t.settings.lbl_scale_rir),
-                                  icon: const Icon(Symbols.fitness_center),
-                                ),
-                              ],
-                              selected: {_effortInputScale},
-                              onSelectionChanged: (values) {
-                                _setEffortScale(values.first);
-                              },
-                            ),
-                          ),
-                        ),
-                      ],
                       const Divider(height: 1),
                       ListTile(
                         key: const ValueKey('default_rest_setting'),

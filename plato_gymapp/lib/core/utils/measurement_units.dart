@@ -1,8 +1,9 @@
 import 'package:flutter/foundation.dart';
+import 'package:plato_gymapp/i18n/strings.g.dart';
 
 enum WeightUnit { kilogram, pound }
 
-enum HydrationUnit { liter, usGallon }
+enum HydrationUnit { milliliter, liter, usGallon }
 
 enum DistanceUnit { kilometer, meter }
 
@@ -103,16 +104,23 @@ class MeasurementFormatter {
 
   final MeasurementPreferences preferences;
 
-  String get weightUnit =>
-      preferences.weight == WeightUnit.kilogram ? 'kg' : 'lb';
-  String get hydrationUnit =>
-      preferences.hydration == HydrationUnit.liter ? 'L' : 'gal';
-  String get distanceUnit =>
-      preferences.distance == DistanceUnit.kilometer ? 'km' : 'm';
-  String get bodyLengthUnit =>
-      preferences.bodyLength == BodyLengthUnit.metric ? 'cm' : 'in';
-  String get foodMassUnit =>
-      preferences.foodMass == FoodMassUnit.gram ? 'g' : 'oz';
+  String get weightUnit => preferences.weight == WeightUnit.kilogram
+      ? t.common.unit_kg
+      : t.common.unit_lb;
+  String get hydrationUnit => switch (preferences.hydration) {
+    HydrationUnit.milliliter => t.common.unit_ml,
+    HydrationUnit.liter => t.common.unit_l,
+    HydrationUnit.usGallon => t.common.unit_us_gal,
+  };
+  String get distanceUnit => preferences.distance == DistanceUnit.kilometer
+      ? t.common.unit_km
+      : t.common.unit_m;
+  String get bodyLengthUnit => preferences.bodyLength == BodyLengthUnit.metric
+      ? t.common.unit_cm
+      : t.common.unit_in;
+  String get foodMassUnit => preferences.foodMass == FoodMassUnit.gram
+      ? t.common.unit_g
+      : t.common.unit_oz;
 
   double weightFromKg(double kilograms) =>
       preferences.weight == WeightUnit.kilogram
@@ -124,15 +132,24 @@ class MeasurementFormatter {
       ? displayValue
       : displayValue / poundsPerKilogram;
 
-  double hydrationFromLiters(double liters) =>
-      preferences.hydration == HydrationUnit.liter
-      ? liters
-      : liters * usGallonsPerLiter;
+  double hydrationFromLiters(double liters) => switch (preferences.hydration) {
+    HydrationUnit.milliliter => liters * 1000,
+    HydrationUnit.liter => liters,
+    HydrationUnit.usGallon => liters * usGallonsPerLiter,
+  };
 
   double hydrationToLiters(double displayValue) =>
-      preferences.hydration == HydrationUnit.liter
-      ? displayValue
-      : displayValue / usGallonsPerLiter;
+      switch (preferences.hydration) {
+        HydrationUnit.milliliter => displayValue / 1000,
+        HydrationUnit.liter => displayValue,
+        HydrationUnit.usGallon => displayValue / usGallonsPerLiter,
+      };
+
+  double liquidVolumeFromMilliliters(double milliliters) =>
+      hydrationFromLiters(milliliters / 1000);
+
+  double liquidVolumeToMilliliters(double displayValue) =>
+      hydrationToLiters(displayValue) * 1000;
 
   double distanceFromKm(double kilometers) =>
       preferences.distance == DistanceUnit.kilometer
@@ -167,6 +184,9 @@ class MeasurementFormatter {
 
   String formatHydration(double liters, {int decimals = 2}) =>
       '${number(hydrationFromLiters(liters), decimals)} $hydrationUnit';
+
+  String formatLiquidVolume(double milliliters, {int decimals = 2}) =>
+      '${number(liquidVolumeFromMilliliters(milliliters), decimals)} $hydrationUnit';
 
   String formatDistance(double kilometers, {int decimals = 2}) =>
       '${number(distanceFromKm(kilometers), decimals)} $distanceUnit';

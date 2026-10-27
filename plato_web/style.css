@@ -235,6 +235,33 @@
   .light-mode .play-btn-glow:hover {
     filter: drop-shadow(0 0 15px rgba(124, 58, 237, 0.8));
   }
+
+  .landing-stage {
+    box-shadow: 24px 24px 0 rgba(30, 136, 229, 0.16);
+  }
+
+  .light-mode .landing-stage {
+    @apply bg-white border-slate-300;
+    box-shadow: 24px 24px 0 rgba(30, 136, 229, 0.12);
+  }
+
+  .landing-shot {
+    box-shadow: 0 32px 70px rgba(0, 0, 0, 0.45);
+  }
+
+  .light-mode .landing-shot {
+    box-shadow: 0 24px 60px rgba(15, 23, 42, 0.2);
+  }
+
+  .light-mode .landing-page .border-white\/10,
+  .light-mode .landing-page .border-white\/15,
+  .light-mode .landing-page .border-white\/20 {
+    @apply border-slate-300;
+  }
+
+  .light-mode .landing-page .bg-plato-bg {
+    @apply bg-slate-100;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

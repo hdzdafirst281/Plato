@@ -232,7 +232,10 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
         padding: const EdgeInsets.fromLTRB(8, 20, 8, 8),
         child: Text(title, style: Theme.of(context).textTheme.titleSmall),
       ),
-      Card(child: Column(children: children)),
+      Card(
+        clipBehavior: Clip.antiAlias,
+        child: Column(children: children),
+      ),
     ],
   );
 
@@ -267,61 +270,72 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
         stage: 1,
         child: service == null
             ? const Center(child: CircularProgressIndicator())
-            : ListView(
-              padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
-              children: [
-                _section(_copy('notifications.section_general'), [
-                  _PreferenceSwitchTile(
-                    service: service,
-                    icon: Symbols.notifications,
-                    title: _copy('notifications.lbl_master'),
-                    subtitle: _copy('notifications.desc_master'),
-                    valueOf: (current) => current.enabled,
-                    onChanged: (value) => _updateNotificationPreference(
-                      () => service.setEnabled(value),
-                    ),
-                  ),
-                  const Divider(height: 1),
-                  SwitchListTile.adaptive(
-                    secondary: const Icon(Symbols.directions_run),
-                    title: Text(t.settings.title_bg_workout),
-                    subtitle: Text(t.settings.desc_bg_workout),
-                    value: _backgroundWorkoutEnabled,
-                    onChanged: _setBackgroundWorkout,
-                  ),
-                  const Divider(height: 1),
-                  _SystemPermissionTile(
-                    loaded: _permissionsLoaded,
-                    allGranted: _allPermissionsGranted,
-                    isPartial: _isPartialPermission,
-                    notificationGranted: _notificationGranted,
-                    activityGranted: _activityGranted,
-                    activityRequired: _activityRequired,
-                    onOpenSettings: _handlePermissionAction,
-                  ),
-                ]),
-                _section(_copy('notifications.section_health_schedule'), [
-                  ListTile(
-                    leading: const Icon(Symbols.calendar_month),
-                    title: Text(
-                      _copyOr(
-                        'notifications.lbl_workout_reminders',
-                        'notifications.title_workout_reminder',
-                      ),
-                    ),
-                    subtitle: Text(
-                      _workoutReminderCount == 0
-                          ? _copy('notifications.msg_workout_reminders_none')
-                          : _copy(
-                              'notifications.fmt_workout_reminders_active',
-                              {'count': '$_workoutReminderCount'},
+            : Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 800),
+                  child: ListView(
+                    padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
+                    children: [
+                      _section(_copy('notifications.section_general'), [
+                        _PreferenceSwitchTile(
+                          service: service,
+                          icon: Symbols.notifications,
+                          title: _copy('notifications.lbl_master'),
+                          subtitle: _copy('notifications.desc_master'),
+                          valueOf: (current) => current.enabled,
+                          onChanged: (value) => _updateNotificationPreference(
+                            () => service.setEnabled(value),
+                          ),
+                        ),
+                        const Divider(height: 1),
+                        SwitchListTile.adaptive(
+                          contentPadding: const EdgeInsetsDirectional.only(
+                            start: 16,
+                            end: 8,
+                          ),
+                          secondary: const Icon(Symbols.directions_run),
+                          title: Text(t.settings.title_bg_workout),
+                          subtitle: Text(t.settings.desc_bg_workout),
+                          value: _backgroundWorkoutEnabled,
+                          onChanged: _setBackgroundWorkout,
+                        ),
+                        const Divider(height: 1),
+                        _SystemPermissionTile(
+                          loaded: _permissionsLoaded,
+                          allGranted: _allPermissionsGranted,
+                          isPartial: _isPartialPermission,
+                          notificationGranted: _notificationGranted,
+                          activityGranted: _activityGranted,
+                          activityRequired: _activityRequired,
+                          onOpenSettings: _handlePermissionAction,
+                        ),
+                      ]),
+                      _section(_copy('notifications.section_health_schedule'), [
+                        ListTile(
+                          contentPadding: const EdgeInsetsDirectional.only(
+                            start: 16,
+                            end: 8,
+                          ),
+                          leading: const Icon(Symbols.calendar_month),
+                          title: Text(
+                            _copyOr(
+                              'notifications.lbl_workout_reminders',
+                              'notifications.title_workout_reminder',
                             ),
-                      style: TextStyle(
-                        color: Theme.of(context).colorScheme.primary,
-                      ),
-                    ),
-                    trailing: const Icon(Icons.chevron_right),
-                    onTap: () {
+                          ),
+                          subtitle: Text(
+                            _workoutReminderCount == 0
+                                ? _copy('notifications.msg_workout_reminders_none')
+                                : _copy(
+                                    'notifications.fmt_workout_reminders_active',
+                                    {'count': '$_workoutReminderCount'},
+                                  ),
+                            style: TextStyle(
+                              color: Theme.of(context).colorScheme.primary,
+                            ),
+                          ),
+                          trailing: const Icon(Icons.chevron_right),
+                          onTap: () {
                       if (_workoutReminderCount > 0) {
                         Navigator.of(context).push(
                           MaterialPageRoute(
@@ -379,7 +393,9 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
                   ),
                 ]),
               ],
-              ),
+            ),
+          ),
+        ),
       ),
     );
   }
@@ -455,6 +471,10 @@ class _PreferenceSwitchTileState extends State<_PreferenceSwitchTile> {
 
   @override
   Widget build(BuildContext context) => SwitchListTile.adaptive(
+    contentPadding: const EdgeInsetsDirectional.only(
+      start: 16,
+      end: 8,
+    ),
     secondary: Icon(widget.icon),
     title: Text(widget.title),
     subtitle: Text(widget.subtitle),
@@ -489,6 +509,10 @@ class _SystemPermissionTile extends StatelessWidget {
 
     if (!loaded) {
       return ListTile(
+        contentPadding: const EdgeInsetsDirectional.only(
+          start: 16,
+          end: 8,
+        ),
         leading: Icon(Symbols.security, color: colorScheme.onSurfaceVariant),
         title: Text(
           NotificationCopy.text('notifications.lbl_system_permission') ?? '',
@@ -520,7 +544,7 @@ class _SystemPermissionTile extends StatelessWidget {
 
     final statusText = NotificationCopy.text(statusKey) ?? '';
     final notifLabel =
-        NotificationCopy.text('notifications.badge_notification') ?? 'Thông báo';
+        NotificationCopy.text('settings.lbl_item_notification') ?? 'Thông báo';
     final activityLabel =
         NotificationCopy.text('notifications.badge_activity_recognition') ??
         'Hoạt động thể chất';
@@ -532,6 +556,10 @@ class _SystemPermissionTile extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
+            contentPadding: const EdgeInsetsDirectional.only(
+              start: 16,
+              end: 8,
+            ),
             leading: Icon(Symbols.security, color: statusColor),
             title: Text(
               NotificationCopy.text('notifications.lbl_system_permission') ?? '',
@@ -549,12 +577,12 @@ class _SystemPermissionTile extends StatelessWidget {
                 : TextButton(
                     onPressed: onOpenSettings,
                     child: Text(
-                      NotificationCopy.text('notifications.btn_open_system_settings') ?? '',
+                      NotificationCopy.text('common.open_settings') ?? '',
                     ),
                   ),
           ),
           Padding(
-            padding: const EdgeInsets.fromLTRB(56, 0, 16, 12),
+            padding: const EdgeInsets.fromLTRB(56, 0, 8, 12),
             child: LayoutBuilder(
               builder: (context, constraints) {
                 return Wrap(

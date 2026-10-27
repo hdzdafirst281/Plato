@@ -16,19 +16,19 @@
     <meta name="description" content="Plato là ứng dụng nhật ký tập luyện do Zenithas phát triển, giúp bạn theo dõi buổi tập, dinh dưỡng, lịch tập và tiến độ ngay cả khi không có mạng." />
     <meta name="application-name" content="Plato" />
     <link rel="canonical" href="https://plato.zenithas.vn/" />
-    <meta property="og:title" content="Plato – Kỷ luật mỗi ngày, thăng hạng bản thân" />
+    <meta property="og:title" content="Plato – Nhật ký tập luyện hoạt động cả khi mất mạng" />
     <meta property="og:description" content="Ghi chép tập luyện, theo dõi dinh dưỡng và tiến độ thể hình ngay cả khi không có mạng cùng Plato." />
     <meta property="og:image" content="https://plato.zenithas.vn/og-image-v5.jpg" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:type" content="image/jpeg" />
-    <meta property="og:image:alt" content="Plato – Kỷ luật mỗi ngày, thăng hạng bản thân" />
+    <meta property="og:image:alt" content="Plato – Nhật ký tập luyện hoạt động cả khi mất mạng" />
     <meta property="og:url" content="https://plato.zenithas.vn/" />
     <meta property="og:type" content="website" />
     <meta property="og:locale" content="vi_VN" />
     <meta property="og:site_name" content="Plato" />
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Plato – Kỷ luật mỗi ngày, thăng hạng bản thân" />
+    <meta name="twitter:title" content="Plato – Nhật ký tập luyện hoạt động cả khi mất mạng" />
     <meta name="twitter:description" content="Theo dõi tập luyện, dinh dưỡng và tiến độ thể hình ngay cả khi không có mạng." />
     <meta name="twitter:image" content="https://plato.zenithas.vn/og-image-v5.jpg" />
     <script type="application/ld+json">
@@ -106,285 +106,173 @@
     }
     </script>
   </head>
-  <body>
-    <!-- Global Loader -->
-    <div id="global-loader" class="fixed inset-0 z-[9999] flex flex-col transition-opacity duration-300 loader-bg pointer-events-none">
-      <!-- Navbar Skeleton -->
-      <div class="w-full top-4 px-4 mt-4">
-        <div class="max-w-6xl mx-auto px-6 py-4 rounded-2xl skeleton-box border border-white/10 flex items-center justify-between animate-pulse">
-          <div class="h-10 w-32 skeleton-box rounded-lg"></div>
-          <div class="hidden md:flex gap-8">
-            <div class="h-6 w-24 skeleton-box rounded-lg"></div>
-            <div class="h-6 w-32 skeleton-box rounded-lg"></div>
-            <div class="h-6 w-24 skeleton-box rounded-lg"></div>
-            <div class="h-6 w-32 skeleton-box rounded-lg"></div>
-          </div>
-          <div class="flex gap-4">
-            <div class="h-10 w-10 skeleton-box rounded-full"></div>
-            <div class="h-10 w-10 skeleton-box rounded-lg md:hidden"></div>
-          </div>
-        </div>
-      </div>
-      <!-- Hero Skeleton -->
-      <div class="flex-1 max-w-6xl mx-auto w-full px-4 pt-32 grid grid-cols-1 lg:grid-cols-12 gap-12">
-        <div class="lg:col-span-5 h-[500px] skeleton-box rounded-[2.5rem] animate-pulse"></div>
-        <div class="lg:col-span-7 flex flex-col justify-center items-center animate-pulse">
-          <div class="h-16 w-3/4 skeleton-box rounded-xl mb-6"></div>
-          <div class="h-16 w-1/2 skeleton-box rounded-xl mb-10"></div>
-          <div class="h-4 w-full skeleton-box rounded mb-2"></div>
-          <div class="h-4 w-5/6 skeleton-box rounded mb-2"></div>
-          <div class="h-4 w-4/6 skeleton-box rounded mb-10"></div>
-          <div class="h-16 w-40 skeleton-box rounded-xl"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Navbar -->
+  <body class="landing-page">
     <nav class="fixed w-full z-50 top-4 px-4 transition-all duration-300" id="navbar">
       <div class="glass-nav rounded-2xl max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
-        <!-- Logo -->
         <a href="/" class="flex items-center gap-2 group">
           <img src="/logo_themedark.png" alt="Plato" width="120" height="40" class="h-10 w-auto group-hover:opacity-80 transition-opacity plato-logo" />
         </a>
-        
-        <!-- Desktop Links -->
-        <div class="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center gap-8 text-lg font-bold">
+
+        <div class="hidden lg:flex absolute left-1/2 -translate-x-1/2 items-center gap-8 text-base font-medium">
           <a href="/" class="text-plato-primary transition-colors">Trang chủ</a>
           <a href="/library" class="text-gray-200 hover:text-white transition-colors">Thư viện bài tập</a>
           <a href="/features" class="text-gray-200 hover:text-white transition-colors">Tính năng</a>
           <a href="/about" class="text-gray-200 hover:text-white transition-colors">Về chúng tôi</a>
         </div>
 
-        <!-- Right Side Actions -->
         <div class="flex items-center gap-4">
           <button id="theme-toggle" aria-label="Chuyển đổi giao diện Sáng/Tối" class="p-2 rounded-full hover:bg-white/10 transition-colors">
-            <i data-lucide="sun" id="icon-sun" class="w-6 h-6 hidden"></i>
-            <i data-lucide="moon" id="icon-moon" class="w-6 h-6"></i>
+            <svg id="icon-sun" aria-hidden="true" viewBox="0 0 24 24" class="w-6 h-6 hidden" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3.5"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.93 4.93l1.42 1.42M17.65 17.65l1.42 1.42M19.07 4.93l-1.42 1.42M6.35 17.65l-1.42 1.42"/></svg>
+            <svg id="icon-moon" aria-hidden="true" viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M20 15.2A8.5 8.5 0 0 1 8.8 4a8.5 8.5 0 1 0 11.2 11.2Z"/></svg>
           </button>
-          <!-- Mobile Menu Toggle -->
           <button id="mobile-menu-btn" aria-label="Mở menu điều hướng" class="lg:hidden p-2 rounded-lg hover:bg-white/10 transition-colors">
-            <i data-lucide="menu" class="w-6 h-6"></i>
+            <svg aria-hidden="true" viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 7h16M4 12h16M4 17h16"/></svg>
           </button>
         </div>
       </div>
 
-      <!-- Mobile Menu Dropdown -->
       <div id="mobile-menu" class="hidden flex-col gap-4 mt-4 p-4 rounded-2xl glass-panel border border-white/10 w-full lg:hidden">
-        <a href="/" class="text-center font-bold text-plato-primary transition-colors py-2">Trang chủ</a>
-        <a href="/library" class="text-center font-bold hover:text-plato-primary transition-colors text-gray-200 py-2">Thư viện bài tập</a>
-        <a href="/features" class="text-center font-bold hover:text-plato-primary transition-colors text-gray-200 py-2">Tính năng</a>
-        <a href="/about" class="text-center font-bold hover:text-plato-primary transition-colors text-gray-200 py-2">Về chúng tôi</a>
+        <a href="/" class="text-center font-medium text-plato-primary transition-colors py-2">Trang chủ</a>
+        <a href="/library" class="text-center font-medium hover:text-plato-primary transition-colors text-gray-200 py-2">Thư viện bài tập</a>
+        <a href="/features" class="text-center font-medium hover:text-plato-primary transition-colors text-gray-200 py-2">Tính năng</a>
+        <a href="/about" class="text-center font-medium hover:text-plato-primary transition-colors text-gray-200 py-2">Về chúng tôi</a>
       </div>
     </nav>
 
-    <!-- Split Hero Section -->
-    <section class="hero-bg relative min-h-screen flex items-center justify-center px-4 pt-32 pb-10 overflow-hidden">
-      <!-- Decor background elements -->
-      <div class="absolute right-0 top-1/4 w-96 h-96 bg-plato-primary/10 rounded-full blur-[100px] pointer-events-none"></div>
-      
-      <div class="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center relative z-10 w-full">
-        <!-- Hero Left: Carousel -->
-        <div class="lg:col-span-5 flex justify-center relative w-full order-2 lg:order-1" data-aos="fade-up" data-aos-delay="100">
-          <!-- App Screenshots Carousel -->
-          <div id="carousel-region" role="region" aria-roledescription="carousel" aria-label="Ảnh giao diện ứng dụng Plato" tabindex="0" class="relative w-full max-w-[460px] overflow-hidden rounded-[2.5rem] shadow-2xl border-4 border-gray-800 group">
-            <!-- Slides -->
-            <div id="app-carousel" class="relative w-full">
-              <img src="/1.jpg" alt="Màn hình theo dõi tập luyện của Plato" width="960" height="1358" fetchpriority="high" decoding="async" aria-hidden="false" class="relative w-full h-auto transition-opacity duration-1000 opacity-100 carousel-slide" />
-              <img data-src="/2.jpg" alt="Màn hình lập kế hoạch tập luyện của Plato" width="960" height="1358" decoding="async" aria-hidden="true" class="absolute inset-0 w-full h-full transition-opacity duration-1000 opacity-0 carousel-slide" />
-              <img data-src="/3.jpg" alt="Màn hình theo dõi dinh dưỡng của Plato" width="960" height="1358" decoding="async" aria-hidden="true" class="absolute inset-0 w-full h-full transition-opacity duration-1000 opacity-0 carousel-slide" />
-              <img data-src="/4.jpg" alt="Màn hình thử thách và xếp hạng của Plato" width="960" height="1358" decoding="async" aria-hidden="true" class="absolute inset-0 w-full h-full transition-opacity duration-1000 opacity-0 carousel-slide" />
+    <main>
+      <section class="relative overflow-hidden border-b border-white/10 px-4 pb-20 pt-36 md:pb-28 md:pt-44">
+        <div class="mx-auto grid w-full max-w-7xl grid-cols-1 items-center gap-14 lg:grid-cols-12 lg:gap-10">
+          <div class="lg:col-span-5">
+            <p class="mb-6 font-mono text-xs uppercase tracking-[0.2em] text-plato-primary">Plato / Nhật ký tập luyện cho Android</p>
+            <h1 class="font-display text-5xl font-normal leading-[0.98] tracking-[-0.035em] sm:text-6xl md:text-7xl">
+              Ghi lại điều<br />bạn đã tập.
+              <span class="mt-3 block italic text-gray-400">Không phải điều bạn định tập.</span>
+            </h1>
+            <p class="mt-8 max-w-xl text-lg leading-8 text-gray-400">
+              Plato gom nhật ký buổi tập, dinh dưỡng, lịch và tiến độ vào một nơi. Bạn vẫn ghi được dữ liệu khi mất mạng; ứng dụng đồng bộ lại khi kết nối trở về.
+            </p>
+            <div class="mt-9 flex flex-col items-start gap-3 sm:flex-row sm:items-center">
+              <a href="https://play.google.com/store/apps/details?id=vn.zenithas.plato&pli=1" target="_blank" rel="noopener noreferrer" class="inline-block transition-opacity duration-200 hover:opacity-80">
+                <img src="https://play.google.com/intl/en_us/badges/static/images/badges/vi_badge_web_generic.png" alt="Tải ứng dụng Plato trên Google Play" width="167" height="64" class="h-16 w-auto" />
+              </a>
+              <a href="/library" class="px-1 py-3 text-sm font-medium text-gray-200 underline decoration-gray-600 underline-offset-8 transition-colors hover:text-plato-primary">Xem thư viện bài tập →</a>
             </div>
-            <p id="carousel-status" class="sr-only" aria-live="polite">Hình 1 trên 4</p>
-            
-            <!-- Buttons -->
-            <button type="button" id="prev-slide" aria-label="Hình ảnh trước" class="absolute left-2 top-1/2 -translate-y-1/2 bg-black/60 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity hover:bg-plato-primary z-10 cursor-pointer">
-              <i data-lucide="chevron-left" class="w-6 h-6"></i>
-            </button>
-            <button type="button" id="next-slide" aria-label="Hình ảnh tiếp theo" class="absolute right-2 top-1/2 -translate-y-1/2 bg-black/60 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 focus-visible:opacity-100 transition-opacity hover:bg-plato-primary z-10 cursor-pointer">
-              <i data-lucide="chevron-right" class="w-6 h-6"></i>
-            </button>
-            <button type="button" id="carousel-toggle" aria-label="Tạm dừng trình chiếu" aria-pressed="false" class="absolute right-3 bottom-3 bg-black/65 text-white px-3 py-2 rounded-full inline-flex items-center gap-2 text-xs font-bold hover:bg-plato-primary transition-colors z-10 cursor-pointer">
-              <svg id="carousel-pause-icon" aria-hidden="true" viewBox="0 0 24 24" class="w-4 h-4" fill="currentColor"><rect x="6" y="4" width="4" height="16" rx="1"/><rect x="14" y="4" width="4" height="16" rx="1"/></svg>
-              <svg id="carousel-play-icon" aria-hidden="true" viewBox="0 0 24 24" class="w-4 h-4 hidden" fill="currentColor"><path d="M7 4.8v14.4a1 1 0 0 0 1.52.85l11.2-7.2a1 1 0 0 0 0-1.7L8.52 3.95A1 1 0 0 0 7 4.8Z"/></svg>
-              <span id="carousel-toggle-text">Tạm dừng</span>
-            </button>
+            <dl class="mt-12 grid grid-cols-3 border-y border-white/10 py-5 text-sm">
+              <div><dt class="text-gray-500">Nền tảng</dt><dd class="mt-1 font-medium">Android</dd></div>
+              <div><dt class="text-gray-500">Kết nối</dt><dd class="mt-1 font-medium">Có thể offline</dd></div>
+              <div><dt class="text-gray-500">Chi phí</dt><dd class="mt-1 font-medium">Miễn phí</dd></div>
+            </dl>
+          </div>
+
+          <div class="lg:col-span-7 lg:pl-8">
+            <div class="landing-stage relative h-[560px] overflow-hidden border border-white/15 bg-plato-surface sm:h-[680px]">
+              <div class="absolute left-5 top-5 z-20 border border-white/20 bg-plato-bg px-3 py-2 font-mono text-[10px] uppercase tracking-[0.18em] text-gray-300">Giao diện thật · Bản Android</div>
+              <img src="/product/logworkout.png" alt="Màn hình ghi chép buổi tập của Plato" width="1080" height="2284" fetchpriority="high" decoding="async" class="landing-shot absolute -bottom-16 left-[8%] w-[48%] rotate-[-3deg] border border-white/15" />
+              <img src="/product/linechart.png" alt="Màn hình theo dõi tiến độ sức mạnh của Plato" width="1080" height="2284" decoding="async" class="landing-shot absolute -bottom-24 right-[4%] w-[43%] rotate-[4deg] border border-white/15" />
+              <p class="absolute bottom-5 right-5 z-20 max-w-[12rem] bg-plato-primary px-4 py-3 text-sm leading-5 text-white">Buổi tập hôm nay trở thành dữ liệu để nhìn lại ngày mai.</p>
+            </div>
           </div>
         </div>
+      </section>
 
-        <!-- Hero Right: Text Content -->
-        <div class="lg:col-span-7 text-center order-1 lg:order-2" data-aos="fade-up" data-aos-delay="200">
-          <p class="mb-4 text-sm font-bold uppercase tracking-[0.24em] text-plato-primary">Plato by Zenithas · Ứng dụng tập luyện thông minh</p>
-          <h1 class="text-4xl sm:text-5xl md:text-6xl font-black mb-6 leading-tight tracking-tight text-glow">
-            <span class="block mb-6">Kỷ luật mỗi ngày</span>
-            <span class="block text-transparent bg-clip-text bg-gradient-to-r from-plato-primary to-plato-purple pb-4">Thăng hạng bản thân</span>
-          </h1>
-          <p class="text-lg md:text-xl text-gray-400 mb-10 font-light max-w-2xl mx-auto lg:mx-0 whitespace-normal">
-            Ứng dụng toàn diện kết hợp theo dõi tập luyện nâng cao, quản lý dinh dưỡng và cơ chế khen thưởng hấp dẫn. Mọi thứ hoạt động cực kỳ mượt mà ngay cả khi không có kết nối internet.
-          </p>
-          
-          <div class="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a href="https://play.google.com/store/apps/details?id=vn.zenithas.plato&pli=1" target="_blank" rel="noopener noreferrer" class="inline-block hover:-translate-y-1 transition-transform duration-300">
-              <img src="https://play.google.com/intl/en_us/badges/static/images/badges/vi_badge_web_generic.png" alt="Tải ứng dụng trên Google Play" width="167" height="64" class="h-16 w-auto play-btn-glow" />
+      <section class="border-b border-white/10 px-4 py-20 md:py-28">
+        <div class="mx-auto grid max-w-7xl grid-cols-1 gap-12 lg:grid-cols-12 lg:gap-16">
+          <div class="lg:col-span-4">
+            <p class="font-mono text-xs uppercase tracking-[0.2em] text-plato-primary">01 / Local-first</p>
+            <h2 class="mt-5 font-display text-4xl font-normal leading-tight md:text-5xl">Mất mạng không nên làm mất nhịp tập.</h2>
+          </div>
+          <div class="lg:col-span-8">
+            <div class="border-t border-white/20 py-7 md:grid md:grid-cols-8 md:gap-6">
+              <p class="font-mono text-sm text-plato-primary md:col-span-1">01</p>
+              <h3 class="mt-3 font-display text-2xl font-normal md:col-span-3 md:mt-0">Ghi ngay trên thiết bị</h3>
+              <p class="mt-3 leading-7 text-gray-400 md:col-span-4 md:mt-0">Set, rep, mức tạ và thời gian nghỉ được lưu tại chỗ, nên thao tác không phụ thuộc vào đường truyền trong phòng tập.</p>
+            </div>
+            <div class="border-t border-white/20 py-7 md:grid md:grid-cols-8 md:gap-6">
+              <p class="font-mono text-sm text-plato-primary md:col-span-1">02</p>
+              <h3 class="mt-3 font-display text-2xl font-normal md:col-span-3 md:mt-0">Nối mạng rồi đồng bộ</h3>
+              <p class="mt-3 leading-7 text-gray-400 md:col-span-4 md:mt-0">Dữ liệu được gửi lên khi kết nối trở lại để bạn tiếp tục trên thiết bị khác mà không phải nhập lại buổi tập.</p>
+            </div>
+            <div class="border-y border-white/20 py-7 md:grid md:grid-cols-8 md:gap-6">
+              <p class="font-mono text-sm text-plato-primary md:col-span-1">03</p>
+              <h3 class="mt-3 font-display text-2xl font-normal md:col-span-3 md:mt-0">Bạn giữ quyền kiểm soát</h3>
+              <p class="mt-3 leading-7 text-gray-400 md:col-span-4 md:mt-0">Plato dùng dữ liệu để vận hành nhật ký và các tính năng bạn chọn, với điều khoản lưu trữ được công khai rõ ràng.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="features" class="px-4 py-20 md:py-32">
+        <div class="mx-auto max-w-7xl">
+          <div class="mb-16 grid grid-cols-1 gap-6 border-b border-white/10 pb-10 md:grid-cols-12">
+            <p class="font-mono text-xs uppercase tracking-[0.2em] text-plato-primary md:col-span-3">02 / Trong ứng dụng</p>
+            <h2 class="font-display text-4xl font-normal leading-tight md:col-span-6 md:text-6xl">Một hệ thống cho cả buổi tập — không phải một danh sách tính năng.</h2>
+            <p class="leading-7 text-gray-400 md:col-span-3 md:self-end">Mỗi màn hình bên dưới là sản phẩm đang chạy, không phải mockup minh hoạ.</p>
+          </div>
+
+          <div class="space-y-24 md:space-y-32">
+            <article class="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-16">
+              <div class="relative h-[540px] overflow-hidden border border-white/15 bg-plato-surface sm:h-[680px] lg:col-span-7">
+                <span class="absolute left-5 top-5 z-20 font-mono text-xs uppercase tracking-[0.2em] text-gray-400">Workout log</span>
+                <img src="/product/logworkout.png" alt="Nhật ký tập luyện đang ghi hiệp và thời gian nghỉ" width="1080" height="2284" loading="lazy" class="landing-shot absolute -bottom-20 left-[8%] w-[48%] -rotate-3 border border-white/15" />
+                <img src="/product/recovery.png" alt="Màn hình theo dõi mức độ phục hồi" width="1080" height="2284" loading="lazy" class="landing-shot absolute -bottom-24 right-[6%] w-[43%] rotate-3 border border-white/15" />
+              </div>
+              <div class="lg:col-span-5">
+                <p class="font-mono text-sm text-plato-primary">A / TẬP LUYỆN</p>
+                <h3 class="mt-5 font-display text-4xl font-normal leading-tight md:text-5xl">Ghi hiệp tập mà không rời khỏi nhịp.</h3>
+                <p class="mt-6 text-lg leading-8 text-gray-400">Timer nghỉ, lịch sử mức tạ và kỷ lục cá nhân nằm ngay trong luồng ghi bài. Ít chạm hơn, ít phải nhớ hơn.</p>
+                <ul class="mt-8 space-y-3 border-l border-plato-primary pl-5 text-gray-300">
+                  <li>Set, rep, mức tạ và cardio</li>
+                  <li>Timer nghỉ và Auto-Finish</li>
+                  <li>Theo dõi phục hồi theo nhóm cơ</li>
+                </ul>
+              </div>
+            </article>
+
+            <article class="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-16">
+              <div class="lg:col-span-5">
+                <p class="font-mono text-sm text-plato-primary">B / KẾ HOẠCH</p>
+                <h3 class="mt-5 font-display text-4xl font-normal leading-tight md:text-5xl">Tập và ăn trong cùng một kế hoạch.</h3>
+                <p class="mt-6 text-lg leading-8 text-gray-400">Theo dõi năng lượng, macro, nước uống và lịch tập theo ngày. Mục tiêu nằm cạnh dữ liệu thực tế để bạn biết mình cần điều chỉnh ở đâu.</p>
+                <a href="/features" class="mt-8 inline-block text-sm font-medium text-gray-200 underline decoration-gray-600 underline-offset-8 transition-colors hover:text-plato-primary">Xem trạng thái phát triển tính năng →</a>
+              </div>
+              <div class="relative h-[540px] overflow-hidden border border-white/15 bg-plato-surface sm:h-[680px] lg:col-span-7">
+                <span class="absolute right-5 top-5 z-20 font-mono text-xs uppercase tracking-[0.2em] text-gray-400">Nutrition + calendar</span>
+                <img src="/product/nutrition.png" alt="Màn hình theo dõi dinh dưỡng và nước uống" width="1080" height="2284" loading="lazy" class="landing-shot absolute -bottom-24 left-[7%] w-[45%] rotate-2 border border-white/15" />
+                <img src="/product/calendar.png" alt="Màn hình lịch tập theo tháng" width="1080" height="2284" loading="lazy" class="landing-shot absolute -bottom-16 right-[8%] w-[45%] -rotate-2 border border-white/15" />
+              </div>
+            </article>
+
+            <article class="grid grid-cols-1 items-center gap-10 lg:grid-cols-12 lg:gap-16">
+              <div class="relative h-[540px] overflow-hidden border border-white/15 bg-plato-surface sm:h-[680px] lg:col-span-7">
+                <span class="absolute left-5 top-5 z-20 font-mono text-xs uppercase tracking-[0.2em] text-gray-400">Progress</span>
+                <img src="/product/heatmap.png" alt="Biểu đồ nhiệt tần suất tập luyện" width="1080" height="2284" loading="lazy" class="landing-shot absolute -bottom-28 left-[3%] w-[37%] -rotate-3 border border-white/15" />
+                <img src="/product/linechart.png" alt="Biểu đồ đường theo dõi tải trọng buổi tập" width="1080" height="2284" loading="lazy" class="landing-shot absolute -bottom-16 left-[31%] z-10 w-[42%] border border-white/15" />
+                <img src="/product/hexagon.png" alt="Biểu đồ cân bằng các nhóm cơ" width="1080" height="2284" loading="lazy" class="landing-shot absolute -bottom-28 right-[2%] w-[37%] rotate-3 border border-white/15" />
+              </div>
+              <div class="lg:col-span-5">
+                <p class="font-mono text-sm text-plato-primary">C / TIẾN ĐỘ</p>
+                <h3 class="mt-5 font-display text-4xl font-normal leading-tight md:text-5xl">Tiến bộ phải nhìn thấy được.</h3>
+                <p class="mt-6 text-lg leading-8 text-gray-400">Heatmap cho biết mức độ đều đặn. Biểu đồ tải trọng cho thấy sức mạnh đang đi đâu. Radar nhóm cơ giúp nhận ra phần đang bị bỏ quên.</p>
+                <p class="mt-6 border-t border-white/10 pt-6 text-sm leading-6 text-gray-500">Nhiệm vụ, XP và bảng xếp hạng tạo thêm động lực; dữ liệu tập luyện vẫn là phần cốt lõi.</p>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="download" class="border-y border-white/10 bg-plato-surface px-4 py-16 md:py-20">
+        <div class="mx-auto grid max-w-7xl grid-cols-1 items-center gap-10 md:grid-cols-12">
+          <p class="font-mono text-xs uppercase tracking-[0.2em] text-plato-primary md:col-span-2">03 / Bắt đầu</p>
+          <h2 class="font-display text-4xl font-normal leading-tight md:col-span-6 md:text-5xl">Buổi tập tiếp theo có thể là dòng dữ liệu đầu tiên.</h2>
+          <div class="md:col-span-4 md:justify-self-end">
+            <p class="mb-4 max-w-sm leading-7 text-gray-400">Tải miễn phí trên Android. Bạn có thể bắt đầu với một buổi tập, không cần dựng cả kế hoạch từ đầu.</p>
+            <a href="https://play.google.com/store/apps/details?id=vn.zenithas.plato&pli=1" target="_blank" rel="noopener noreferrer" class="inline-block transition-opacity duration-200 hover:opacity-80">
+              <img src="https://play.google.com/intl/en_us/badges/static/images/badges/vi_badge_web_generic.png" alt="Tải ứng dụng Plato trên Google Play" width="167" height="64" loading="lazy" class="h-16 w-auto" />
             </a>
-            <a href="/library" class="btn-secondary">Khám phá thư viện bài tập</a>
           </div>
         </div>
-      </div>
-    </section>
-
-    <!-- Bento Grid Section -->
-    <section class="py-24 px-4 bg-plato-surface/30 relative">
-      <div class="max-w-6xl mx-auto">
-        <div class="text-center mb-16" data-aos="fade-up">
-          <h2 class="text-3xl md:text-4xl font-bold mb-4">Trải nghiệm vượt trội</h2>
-          <p class="text-gray-400 text-lg">Mọi thứ bạn cần để duy trì động lực, được thiết kế hoàn hảo.</p>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <!-- Main Bento Box (Local First) -->
-          <div class="bento-card md:col-span-2 md:row-span-2 flex flex-col justify-between group" data-aos="fade-up" data-aos-delay="100">
-            <div class="mb-8">
-              <h3 class="text-3xl font-bold mb-2">Trải nghiệm Local-First siêu tốc</h3>
-              <p class="text-gray-400 text-lg">Không độ trễ. Không chờ tải. Dữ liệu của bạn được xử lý tức thì ngay trên thiết bị, mang lại trải nghiệm mượt mà ở tốc độ mili-giây ngay cả khi rớt mạng.</p>
-            </div>
-            <div class="flex items-end justify-between mt-auto">
-              <div class="flex items-center gap-3">
-                <div class="w-12 h-12 bg-plato-primary/20 rounded-full flex items-center justify-center text-plato-primary animate-pulse">
-                  <i data-lucide="zap" class="w-6 h-6"></i>
-                </div>
-                <div>
-                  <p class="font-bold text-lg">Tốc độ phản hồi</p>
-                  <p class="text-sm text-gray-500">Gần như tức thì</p>
-                </div>
-              </div>
-              <div class="text-right">
-                <p class="font-black text-5xl text-transparent bg-clip-text bg-gradient-to-br bento-stat-text group-hover:from-plato-primary group-hover:to-plato-purple transition-colors duration-500">&lt; 1ms</p>
-                <p class="text-sm text-gray-500">Độ trễ xử lý dữ liệu</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Small Bento Box 1 -->
-          <div class="bento-card flex flex-col justify-center items-center text-center group" data-aos="fade-up" data-aos-delay="200">
-            <div class="w-16 h-16 rounded-2xl bg-plato-purple/10 flex items-center justify-center text-plato-purple mb-6 group-hover:scale-110 transition-transform">
-              <i data-lucide="smartphone" class="w-8 h-8"></i>
-            </div>
-            <h3 class="text-xl font-bold mb-2">Đồng bộ đa thiết bị</h3>
-            <p class="text-gray-400 text-sm">Tự động đồng bộ hoá an toàn khi có kết nối mạng trở lại.</p>
-          </div>
-
-          <!-- Small Bento Box 2 -->
-          <div class="bento-card flex flex-col justify-center items-center text-center group" data-aos="fade-up" data-aos-delay="300">
-            <div class="w-16 h-16 rounded-2xl bg-plato-success/10 flex items-center justify-center text-plato-success mb-6 group-hover:scale-110 transition-transform">
-              <i data-lucide="shield" class="w-8 h-8"></i>
-            </div>
-            <h3 class="text-xl font-bold mb-2">Bảo mật riêng tư</h3>
-            <p class="text-gray-400 text-sm">Dữ liệu cá nhân luôn nằm trong tay bạn, kiểm soát 100%.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Core Features Section (Y xì đúc HTML cũ từ features.html) -->
-    <section id="features" class="max-w-6xl mx-auto px-4 py-24 min-h-[70vh]">
-      <div class="text-center mb-16" data-aos="fade-up">
-        <h2 class="text-4xl md:text-5xl font-bold mb-4">Tính năng nổi bật</h2>
-        <p class="text-gray-400 max-w-2xl mx-auto text-lg">Khám phá các công cụ mạnh mẽ giúp bạn đạt được mục tiêu tập luyện một cách khoa học và thú vị nhất.</p>
-      </div>
-
-      <div class="space-y-24">
-        <!-- Feature 1: Tập luyện (Image Left, Text Right) -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center" data-aos="fade-up">
-          <div class="rounded-2xl bg-white/5 border border-white/10 h-[400px] lg:h-[550px] flex items-center justify-center relative">
-            <div class="absolute inset-0 bg-gradient-to-tr from-plato-primary/20 to-transparent opacity-50 rounded-2xl"></div>
-            <!-- Tập luyện Images -->
-            <img src="/product/logworkout.png" alt="Giao diện ghi chép buổi tập trên Plato" width="300" height="600" loading="lazy" class="absolute w-auto h-[85%] left-1/2 -translate-x-[90%] -rotate-6 object-contain shadow-2xl z-10 rounded-2xl border border-white/10 transition-all hover:scale-110 lg:hover:scale-125 hover:drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] hover:z-30 duration-500" />
-            <img src="/product/recovery.png" alt="Giao diện theo dõi phục hồi trên Plato" width="300" height="600" loading="lazy" class="absolute w-auto h-[85%] left-1/2 -translate-x-[10%] rotate-6 object-contain shadow-2xl z-10 rounded-2xl border border-white/10 transition-all hover:scale-110 lg:hover:scale-125 hover:drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] hover:z-30 duration-500" />
-          </div>
-          <div>
-            <h3 class="text-3xl font-bold mb-4 text-plato-primary">Tập luyện</h3>
-            <p class="text-gray-300 text-lg leading-relaxed">
-              Ghi chép chi tiết buổi tập trong thời gian thực với đồng hồ bấm giờ (Timer). Dễ dàng theo dõi số hiệp (set), số lần lặp (rep), mức tạ, cùng quãng đường và số bước chân cho các bài Cardio. Hệ thống tự động ghi nhận kỷ lục cá nhân (PR) và hỗ trợ Auto-Finish tiện lợi để hoàn tất buổi tập.
-            </p>
-          </div>
-        </div>
-
-        <!-- Feature 2: Dinh dưỡng (Text Left, Image Right) -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center" data-aos="fade-up">
-          <div class="order-2 md:order-1">
-            <h3 class="text-3xl font-bold mb-4 text-plato-primary">Dinh dưỡng</h3>
-            <p class="text-gray-300 text-lg leading-relaxed">
-              Theo dõi và quản lý chặt chẽ lượng calo cùng các chỉ số dinh dưỡng đa lượng (Protein, Carb, Fat) tiêu thụ mỗi ngày. Giao diện trực quan giúp bạn kiểm soát sát sao mục tiêu dinh dưỡng cá nhân, đảm bảo cơ thể luôn được cung cấp đủ dưỡng chất để phục hồi và phát triển cơ bắp tối ưu.
-            </p>
-          </div>
-          <div class="order-1 md:order-2 rounded-2xl bg-white/5 border border-white/10 h-[400px] lg:h-[550px] flex items-center justify-center relative">
-            <div class="absolute inset-0 bg-gradient-to-bl from-plato-primary/20 to-transparent opacity-50 rounded-2xl"></div>
-            <!-- Dinh dưỡng Image -->
-            <img src="/product/nutrition.png" alt="Giao diện theo dõi dinh dưỡng trên Plato" width="300" height="600" loading="lazy" class="absolute w-auto h-[90%] object-contain drop-shadow-2xl z-10 rounded-2xl border border-white/10 transition-all hover:scale-110 lg:hover:scale-125 hover:drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] hover:z-30 duration-500" />
-          </div>
-        </div>
-
-        <!-- Feature 3: Xếp lịch (Image Left, Text Right) -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center" data-aos="fade-up">
-          <div class="rounded-2xl bg-white/5 border border-white/10 h-[400px] lg:h-[550px] flex items-center justify-center relative">
-            <div class="absolute inset-0 bg-gradient-to-tr from-plato-primary/20 to-transparent opacity-50 rounded-2xl"></div>
-            <!-- Xếp lịch Image -->
-            <img src="/product/calendar.png" alt="Giao diện lịch tập luyện trên Plato" width="300" height="600" loading="lazy" class="absolute w-auto h-[90%] object-contain drop-shadow-2xl z-10 rounded-2xl border border-white/10 transition-all hover:scale-110 lg:hover:scale-125 hover:drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] hover:z-30 duration-500" />
-          </div>
-          <div>
-            <h3 class="text-3xl font-bold mb-4 text-plato-primary">Xếp lịch</h3>
-            <p class="text-gray-300 text-lg leading-relaxed">
-              Quản lý lịch trình tập luyện toàn diện thông qua giao diện lịch tháng (Calendar) trực quan. Dễ dàng xem lại lịch sử các buổi tập đã hoàn thành trong quá khứ và lên kế hoạch chi tiết cho các buổi tập sắp tới, giúp bạn duy trì tính kỷ luật và thói quen tập luyện đều đặn.
-            </p>
-          </div>
-        </div>
-
-        <!-- Feature 4: Gamification (Text Left, Image Right) -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center" data-aos="fade-up">
-          <div class="order-2 md:order-1">
-            <h3 class="text-3xl font-bold mb-4 text-plato-primary">Gamification</h3>
-            <p class="text-gray-300 text-lg leading-relaxed">
-              Biến hành trình thể hình thành một trò chơi đầy thú vị! Hoàn thành các nhiệm vụ tuần (Quests) và duy trì chuỗi ngày tập (Streak) để nhận rương thưởng, điểm kinh nghiệm (XP) và thăng cấp. So tài với cộng đồng trên Bảng xếp hạng (Leaderboard) và chinh phục hệ thống Ranks độc quyền.
-            </p>
-          </div>
-          <div class="order-1 md:order-2 rounded-2xl bg-white/5 border border-white/10 h-[400px] lg:h-[550px] flex items-center justify-center relative">
-            <div class="absolute inset-0 bg-gradient-to-bl from-plato-primary/20 to-transparent opacity-50 rounded-2xl"></div>
-            <!-- Gamification Images -->
-            <img src="/product/quests.png" alt="Giao diện nhiệm vụ tập luyện trên Plato" width="300" height="600" loading="lazy" class="absolute w-auto h-[75%] left-[20%] -translate-x-1/2 -rotate-12 object-contain shadow-2xl z-10 rounded-2xl border border-white/10 transition-all hover:scale-110 lg:hover:scale-125 hover:drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] hover:-translate-y-4 hover:rotate-[-4deg] hover:z-30 duration-500" />
-            <img src="/product/leaderboard.png" alt="Giao diện bảng xếp hạng trên Plato" width="300" height="600" loading="lazy" class="absolute w-auto h-[90%] left-1/2 -translate-x-1/2 object-contain shadow-2xl z-20 rounded-2xl border border-white/10 transition-all hover:scale-110 lg:hover:scale-125 hover:drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] hover:-translate-y-4 hover:z-40 duration-500" />
-            <img src="/product/rank.png" alt="Giao diện cấp bậc người dùng trên Plato" width="300" height="600" loading="lazy" class="absolute w-auto h-[75%] left-[80%] -translate-x-1/2 rotate-12 object-contain shadow-2xl z-10 rounded-2xl border border-white/10 transition-all hover:scale-110 lg:hover:scale-125 hover:drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] hover:-translate-y-4 hover:rotate-[4deg] hover:z-30 duration-500" />
-          </div>
-        </div>
-
-        <!-- Feature 5: Số liệu thống kê (Image Left, Text Right) -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-12 items-center" data-aos="fade-up">
-          <div class="rounded-2xl bg-white/5 border border-white/10 h-[400px] lg:h-[550px] flex items-center justify-center relative">
-            <div class="absolute inset-0 bg-gradient-to-tr from-plato-primary/20 to-transparent opacity-50 rounded-2xl"></div>
-            <!-- Số liệu thống kê Images -->
-            <img src="/product/heatmap.png" alt="Biểu đồ nhiệt tần suất tập luyện trên Plato" width="300" height="600" loading="lazy" class="absolute w-auto h-[75%] left-[20%] -translate-x-1/2 -rotate-12 object-contain shadow-2xl z-10 rounded-2xl border border-white/10 transition-all hover:scale-110 lg:hover:scale-125 hover:drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] hover:-translate-y-4 hover:rotate-[-4deg] hover:z-30 duration-500" />
-            <img src="/product/linechart.png" alt="Biểu đồ tiến độ sức mạnh trên Plato" width="300" height="600" loading="lazy" class="absolute w-auto h-[90%] left-1/2 -translate-x-1/2 object-contain shadow-2xl z-20 rounded-2xl border border-white/10 transition-all hover:scale-110 lg:hover:scale-125 hover:drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] hover:-translate-y-4 hover:z-40 duration-500" />
-            <img src="/product/hexagon.png" alt="Biểu đồ cân bằng nhóm cơ trên Plato" width="300" height="600" loading="lazy" class="absolute w-auto h-[75%] left-[80%] -translate-x-1/2 rotate-12 object-contain shadow-2xl z-10 rounded-2xl border border-white/10 transition-all hover:scale-110 lg:hover:scale-125 hover:drop-shadow-[0_0_40px_rgba(168,85,247,0.6)] hover:-translate-y-4 hover:rotate-[4deg] hover:z-30 duration-500" />
-          </div>
-          <div>
-            <h3 class="text-3xl font-bold mb-4 text-plato-primary">Số liệu thống kê</h3>
-            <p class="text-gray-300 text-lg leading-relaxed">
-              Phân tích toàn diện hiệu quả tập luyện qua hệ thống biểu đồ chuyên sâu: biểu đồ nhiệt (Heatmap) theo dõi tần suất tập luyện, biểu đồ lục giác (Hexagon Radar) đánh giá sự cân bằng của các nhóm cơ, và biểu đồ đường (Linechart) theo dõi tiến độ sức mạnh (1RM, Volume, Max Weight) theo thời gian.
-            </p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Footer CTA -->
-    <section id="download" class="py-24 px-4 text-center">
-      <div class="max-w-2xl mx-auto" data-aos="zoom-in">
-        <h2 class="text-4xl font-bold mb-6">Sẵn sàng để bắt đầu?</h2>
-        <p class="text-gray-400 mb-10">Tải Plato ngay hôm nay và đưa hành trình thể hình của bạn lên một tầm cao mới.</p>
-        <a href="https://play.google.com/store/apps/details?id=vn.zenithas.plato&pli=1" target="_blank" rel="noopener noreferrer" class="inline-block hover:-translate-y-1 transition-transform duration-300">
-          <img src="https://play.google.com/intl/en_us/badges/static/images/badges/vi_badge_web_generic.png" alt="Tải ứng dụng trên Google Play" width="167" height="64" loading="lazy" class="h-16 w-auto play-btn-glow" />
-        </a>
-      </div>
-    </section>
+      </section>
+    </main>
 
     <footer class="bg-plato-surface border-t border-white/5 py-12 px-4">
       <div class="max-w-6xl mx-auto flex flex-col items-center gap-6">
@@ -398,7 +286,7 @@
     </footer>
 
     <script type="module" src="/main.js"></script>
-        <script>
+    <script>
       document.addEventListener('DOMContentLoaded', () => {
         const updateLogos = () => {
           const isLight = document.documentElement.classList.contains('light-mode');
@@ -418,9 +306,8 @@
         updateLogos();
       });
     </script>
-    <!-- Scroll to Top Button -->
-    <button id="scrollToTopBtn" aria-label="Cuộn lên đầu trang" class="fixed bottom-6 right-6 md:bottom-10 md:right-10 z-50 p-3 rounded-full bg-plato-primary text-[#ffffff] shadow-[0_4px_20px_rgba(168,85,247,0.4)] opacity-0 pointer-events-none translate-y-10 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_25px_rgba(168,85,247,0.6)] hover:bg-plato-primary/90 flex items-center justify-center">
-      <i data-lucide="arrow-up" class="w-6 h-6"></i>
+    <button id="scrollToTopBtn" aria-label="Cuộn lên đầu trang" class="fixed bottom-6 right-6 z-50 border border-white/15 bg-plato-bg px-4 py-3 font-mono text-xs uppercase tracking-wider text-gray-200 opacity-0 pointer-events-none translate-y-10 transition-all duration-300 hover:border-plato-primary hover:text-plato-primary md:bottom-10 md:right-10">
+      Đầu trang ↑
     </button>
   </body>
 </html>

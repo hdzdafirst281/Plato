@@ -21,7 +21,8 @@ export default {
         }
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
+        sans: ['Aptos', 'Segoe UI Variable', 'Segoe UI', 'Arial', 'sans-serif'],
+        display: ['Georgia', 'Cambria', 'Times New Roman', 'serif'],
       }
     },
   },
