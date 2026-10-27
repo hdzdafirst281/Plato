@@ -3,7 +3,11 @@ import 'aos/dist/aos.css';
 import { createIcons, Download, ChevronRight, ChevronLeft, CheckCircle, Smartphone, Moon, Sun, Menu, X, Activity, Target, Shield, ArrowRight, MessageCircle, Music, Globe, Star, Calendar, BarChart2, Zap, Dumbbell, Play, Search, Info, ArrowUp } from 'lucide';
 
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-const motionDuration = (duration) => prefersReducedMotion.matches ? 0 : duration;
+const motionDuration = (duration) => prefersReducedMotion.matches ? Math.min(duration, 180) : duration;
+const networkConnection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+const shouldLimitAutoMedia = () => prefersReducedMotion.matches
+  || Boolean(networkConnection?.saveData)
+  || ['slow-2g', '2g'].includes(networkConnection?.effectiveType);
 
 const enhanceMotionTargets = () => {
   document.querySelectorAll('.prose > section').forEach((section, index) => {
@@ -25,7 +29,6 @@ const initAOS = () => {
     once: true,
     offset: 70,
     easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
-    disable: () => prefersReducedMotion.matches,
   });
   setTimeout(() => AOS.refresh(), motionDuration(80));
 };
@@ -189,6 +192,9 @@ if (slides.length > 0 && prevBtn && nextBtn) {
 
   const syncCarouselToggle = () => {
     if (!carouselToggle) return;
+    const isAutoMediaLimited = shouldLimitAutoMedia();
+    carouselToggle.style.display = isAutoMediaLimited ? 'none' : '';
+    carouselToggle.setAttribute('aria-hidden', String(isAutoMediaLimited));
     carouselToggle.setAttribute('aria-pressed', String(isPaused));
     carouselToggle.setAttribute('aria-label', isPaused ? 'Tiếp tục trình chiếu' : 'Tạm dừng trình chiếu');
     document.getElementById('carousel-toggle-text').textContent = isPaused ? 'Tiếp tục' : 'Tạm dừng';
@@ -229,7 +235,7 @@ if (slides.length > 0 && prevBtn && nextBtn) {
 
   const startAutoSlide = () => {
     clearInterval(slideInterval);
-    if (isPaused || prefersReducedMotion.matches || document.hidden) return;
+    if (isPaused || shouldLimitAutoMedia() || document.hidden) return;
     slideInterval = setInterval(nextSlide, 3200);
   };
 
@@ -279,7 +285,14 @@ if (slides.length > 0 && prevBtn && nextBtn) {
 
   prefersReducedMotion.addEventListener('change', (event) => {
     clearInterval(slideInterval);
+    syncCarouselToggle();
     if (!event.matches) startAutoSlide();
+  });
+
+  networkConnection?.addEventListener('change', () => {
+    clearInterval(slideInterval);
+    syncCarouselToggle();
+    startAutoSlide();
   });
 }
 
@@ -323,7 +336,7 @@ if (scrollToTopBtn) {
 // A short exit transition keeps navigation between static pages from feeling abrupt.
 document.addEventListener('click', (event) => {
   const link = event.target.closest('a[href]');
-  if (!link || prefersReducedMotion.matches || event.defaultPrevented || event.button !== 0) return;
+  if (!link || event.defaultPrevented || event.button !== 0) return;
   if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || link.target || link.hasAttribute('download')) return;
 
   const destination = new URL(link.href, window.location.href);

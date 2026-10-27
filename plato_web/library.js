@@ -14,6 +14,10 @@ const searchIndex = new Map(exercisesData.map((exercise) => [
 ]));
 const exercisesById = new Map(exercisesData.map((exercise) => [exercise.id, exercise]));
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+const motionDuration = (duration) => prefersReducedMotion.matches ? Math.min(duration, 180) : duration;
+const networkConnection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+const shouldLimitAutoMedia = () => Boolean(networkConnection?.saveData)
+  || ['slow-2g', '2g'].includes(networkConnection?.effectiveType);
 
 document.addEventListener('DOMContentLoaded', () => {
   const grid = document.getElementById('exercise-grid');
@@ -46,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const image = card.querySelector('img[data-gif-src]');
     if (!image?.dataset.gifSrc) return;
 
-    shouldPlay = shouldPlay && !prefersReducedMotion.matches;
+    shouldPlay = shouldPlay && !shouldLimitAutoMedia();
     const nextSource = shouldPlay ? image.dataset.gifSrc : image.dataset.staticSrc;
     if (image.getAttribute('src') !== nextSource) image.src = nextSource;
   }
@@ -82,7 +86,7 @@ document.addEventListener('DOMContentLoaded', () => {
       closeTimer = setTimeout(() => {
         menu.classList.add('hidden');
         menu.classList.remove('flex');
-      }, prefersReducedMotion.matches ? 0 : 180);
+      }, motionDuration(180));
     };
 
     const openMenu = () => {
@@ -276,7 +280,7 @@ document.addEventListener('DOMContentLoaded', () => {
       modalImage.removeAttribute('src');
       document.body.style.overflow = '';
       lastFocusedElement?.focus();
-    }, prefersReducedMotion.matches ? 0 : 320);
+    }, motionDuration(320));
   }
 
   setupCustomDropdown('muscle-filter-wrapper', muscles, selectedMuscles, 'Tất cả nhóm cơ');
@@ -311,8 +315,8 @@ document.addEventListener('DOMContentLoaded', () => {
     setCardPreview(card, false);
   });
 
-  prefersReducedMotion.addEventListener('change', (event) => {
-    if (!event.matches) return;
+  networkConnection?.addEventListener('change', () => {
+    if (!shouldLimitAutoMedia()) return;
     grid.querySelectorAll('.exercise-card').forEach((card) => setCardPreview(card, false));
   });
 

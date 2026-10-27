@@ -54,6 +54,16 @@
   .btn-secondary:hover::before {
     transform: translateX(120%);
   }
+
+  .btn-primary > svg,
+  .btn-secondary > svg {
+    transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .btn-primary:hover > svg,
+  .btn-secondary:hover > svg {
+    transform: translateX(3px);
+  }
   
   .light-mode .btn-secondary {
     @apply bg-white text-gray-900 border-gray-300;
@@ -76,8 +86,33 @@
     @apply bg-white/50 border-white/60 backdrop-blur-lg saturate-150 text-gray-900;
   }
 
+  .founder-card {
+    transition: transform 360ms cubic-bezier(0.22, 1, 0.36, 1), border-color 240ms ease, box-shadow 360ms ease;
+  }
+
+  .founder-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 28px 70px -34px rgb(168 85 247 / 0.6);
+  }
+
+  .founder-card > div[role="img"] svg {
+    transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1), color 240ms ease;
+  }
+
+  .founder-card:hover > div[role="img"] svg {
+    transform: translateY(-6px);
+  }
+
   .social-btn {
     @apply w-14 h-14 rounded-full bg-plato-surface/80 text-white flex items-center justify-center border border-white/5 hover:bg-plato-surface hover:-translate-y-1 hover:text-plato-primary transition-all shadow-lg;
+  }
+
+  .social-btn svg {
+    transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .social-btn:hover svg {
+    transform: translateY(-2px);
   }
   
   .light-mode .social-btn {
@@ -232,6 +267,11 @@
     to { opacity: 1; transform: translate3d(0, 0, 0); }
   }
 
+  @keyframes page-fade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
   @keyframes icon-switch {
     0% { opacity: 0; transform: rotate(-35deg) scale(0.7); }
     100% { opacity: 1; transform: rotate(0) scale(1); }
@@ -240,6 +280,11 @@
   @keyframes store-sheen {
     0%, 64% { transform: translateX(-100%) skewX(-18deg); }
     84%, 100% { transform: translateX(500%) skewX(-18deg); }
+  }
+
+  @keyframes modal-detail-in {
+    from { opacity: 0; transform: translate3d(0, 12px, 0); }
+    to { opacity: 1; transform: translate3d(0, 0, 0); }
   }
 
   @keyframes float {
@@ -541,6 +586,11 @@ body [data-aos][data-aos="zoom-in"].aos-animate {
   transform: rotate(180deg);
 }
 
+[id$="-filter-wrapper"].is-open .filter-btn {
+  border-color: rgb(168 85 247 / 0.72);
+  box-shadow: 0 0 0 3px rgb(168 85 247 / 0.12), 0 12px 28px -18px rgb(168 85 247 / 0.8);
+}
+
 #exercise-modal {
   transition: opacity 240ms ease;
 }
@@ -564,6 +614,14 @@ body [data-aos][data-aos="zoom-in"].aos-animate {
 #exercise-modal.is-open #modal-content {
   transform: translate3d(0, 0, 0) scale(1);
 }
+
+#exercise-modal.is-open .modal-right > * {
+  animation: modal-detail-in 420ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+#exercise-modal.is-open .modal-right > :nth-child(2) { animation-delay: 45ms; }
+#exercise-modal.is-open .modal-right > :nth-child(3) { animation-delay: 90ms; }
+#exercise-modal.is-open .modal-right > :nth-child(4) { animation-delay: 135ms; }
 
 #scrollToTopBtn {
   --scroll-progress: 0deg;
@@ -608,27 +666,103 @@ a.btn-secondary:active,
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    scroll-behavior: auto !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
-
   html {
     scroll-behavior: auto;
   }
 
+  body.page-entered > nav,
+  body.page-entered > main,
+  body.page-entered > section,
+  body.page-entered > footer {
+    animation: page-fade 160ms ease both;
+  }
+
+  body.page-leaving > nav,
+  body.page-leaving > main,
+  body.page-leaving > section,
+  body.page-leaving > footer {
+    translate: none;
+  }
+
   [data-aos] {
-    opacity: 1 !important;
-    filter: none !important;
     transform: none !important;
+    transition-duration: 160ms !important;
+    transition-property: opacity !important;
   }
 
   .exercise-card.card-enter {
-    opacity: 1;
     transform: none;
+    transition-duration: 180ms, 180ms, 180ms, 180ms;
+  }
+
+  .animate-float,
+  .animate-float-delayed,
+  .animate-glow,
+  .animate-pulse,
+  .animate-spin,
+  .skeleton-box,
+  .play-store-link::after {
+    animation: none !important;
+  }
+
+  .bento-card:hover,
+  .exercise-card:hover,
+  .founder-card:hover,
+  .play-store-link:hover,
+  .play-store-link:focus-visible,
+  #scrollToTopBtn,
+  #scrollToTopBtn.is-visible,
+  #scrollToTopBtn.is-visible:hover,
+  #mobile-menu,
+  #mobile-menu.is-open,
+  .filter-menu,
+  .filter-menu.is-open,
+  #exercise-modal #modal-content,
+  #exercise-modal.is-open #modal-content {
+    transform: none !important;
+  }
+
+  .carousel-slide,
+  .carousel-slide.from-previous,
+  .carousel-slide.is-active {
+    transform: none;
+    transition: opacity 180ms ease !important;
+  }
+
+  #exercise-modal.is-open .modal-right > * {
+    animation: none;
+  }
+
+  #theme-toggle.is-switching svg {
+    animation: page-fade 120ms ease both;
+  }
+
+  #mobile-menu a,
+  #mobile-menu.is-open a,
+  .bento-card:hover svg,
+  .founder-card:hover > div[role="img"] svg,
+  .social-btn:hover svg,
+  .btn-primary:hover > svg,
+  .btn-secondary:hover > svg,
+  #modal-close:hover svg,
+  #scrollToTopBtn:hover svg {
+    transform: none !important;
+  }
+
+  #global-loader,
+  #mobile-menu,
+  .filter-menu,
+  #exercise-modal,
+  #exercise-modal #modal-backdrop,
+  #exercise-modal #modal-content,
+  #scrollToTopBtn,
+  .bento-card,
+  .exercise-card,
+  .founder-card,
+  .play-store-link,
+  .btn-primary,
+  .btn-secondary,
+  .social-btn {
+    transition-duration: 160ms !important;
   }
 }
