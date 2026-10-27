@@ -159,6 +159,8 @@
 
   .exercise-card {
     @apply relative bg-white/5 border border-white/10 rounded-3xl overflow-hidden cursor-pointer flex flex-col h-full;
+    content-visibility: auto;
+    contain-intrinsic-size: auto 430px;
     transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1), border-color 220ms ease, background-color 220ms ease, box-shadow 300ms ease;
   }
 
@@ -265,11 +267,6 @@
   @keyframes page-enter {
     from { opacity: 0; transform: translate3d(0, 12px, 0); }
     to { opacity: 1; transform: translate3d(0, 0, 0); }
-  }
-
-  @keyframes page-fade {
-    from { opacity: 0; }
-    to { opacity: 1; }
   }
 
   @keyframes icon-switch {
@@ -532,29 +529,30 @@ body [data-aos][data-aos="zoom-in"].aos-animate {
   overflow: hidden;
   isolation: isolate;
   border-radius: 14px;
-  transform: translateY(0);
-  transition: transform 260ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 260ms ease;
+  transform: translate3d(0, 0, 0) scale(1);
+  transition: transform 280ms cubic-bezier(0.22, 1, 0.36, 1), filter 280ms ease;
 }
 
 .play-store-link::after {
   content: '';
   position: absolute;
-  inset: -35% auto -35% -45%;
+  inset: 0 auto 0 -45%;
   z-index: 2;
   width: 36%;
   pointer-events: none;
   background: linear-gradient(90deg, transparent, rgb(255 255 255 / 0.42), transparent);
+  clip-path: inset(0 round 14px);
   animation: store-sheen 4.8s ease-in-out infinite;
 }
 
 .play-store-link:hover,
 .play-store-link:focus-visible {
-  transform: translateY(-4px);
-  box-shadow: 0 18px 38px -18px rgb(168 85 247 / 0.85);
+  transform: translate3d(0, -3px, 0) scale(1.06);
+  filter: drop-shadow(0 0 18px rgb(168 85 247 / 0.36));
 }
 
 .play-store-link:hover .play-btn-glow {
-  opacity: 0.92;
+  opacity: 1;
 }
 
 .carousel-slide {
@@ -624,10 +622,9 @@ body [data-aos][data-aos="zoom-in"].aos-animate {
 #exercise-modal.is-open .modal-right > :nth-child(4) { animation-delay: 135ms; }
 
 #scrollToTopBtn {
-  --scroll-progress: 0deg;
   opacity: 0 !important;
   transform: translate3d(0, 18px, 0) !important;
-  background: conic-gradient(#c084fc var(--scroll-progress), #7c3aed var(--scroll-progress));
+  background: linear-gradient(135deg, #a855f7, #6d28d9);
   transition: opacity 220ms ease, transform 320ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 250ms ease !important;
 }
 
@@ -665,104 +662,6 @@ a.btn-secondary:active,
   opacity: 0.82;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
-  body.page-entered > nav,
-  body.page-entered > main,
-  body.page-entered > section,
-  body.page-entered > footer {
-    animation: page-fade 160ms ease both;
-  }
-
-  body.page-leaving > nav,
-  body.page-leaving > main,
-  body.page-leaving > section,
-  body.page-leaving > footer {
-    translate: none;
-  }
-
-  [data-aos] {
-    transform: none !important;
-    transition-duration: 160ms !important;
-    transition-property: opacity !important;
-  }
-
-  .exercise-card.card-enter {
-    transform: none;
-    transition-duration: 180ms, 180ms, 180ms, 180ms;
-  }
-
-  .animate-float,
-  .animate-float-delayed,
-  .animate-glow,
-  .animate-pulse,
-  .animate-spin,
-  .skeleton-box,
-  .play-store-link::after {
-    animation: none !important;
-  }
-
-  .bento-card:hover,
-  .exercise-card:hover,
-  .founder-card:hover,
-  .play-store-link:hover,
-  .play-store-link:focus-visible,
-  #scrollToTopBtn,
-  #scrollToTopBtn.is-visible,
-  #scrollToTopBtn.is-visible:hover,
-  #mobile-menu,
-  #mobile-menu.is-open,
-  .filter-menu,
-  .filter-menu.is-open,
-  #exercise-modal #modal-content,
-  #exercise-modal.is-open #modal-content {
-    transform: none !important;
-  }
-
-  .carousel-slide,
-  .carousel-slide.from-previous,
-  .carousel-slide.is-active {
-    transform: none;
-    transition: opacity 180ms ease !important;
-  }
-
-  #exercise-modal.is-open .modal-right > * {
-    animation: none;
-  }
-
-  #theme-toggle.is-switching svg {
-    animation: page-fade 120ms ease both;
-  }
-
-  #mobile-menu a,
-  #mobile-menu.is-open a,
-  .bento-card:hover svg,
-  .founder-card:hover > div[role="img"] svg,
-  .social-btn:hover svg,
-  .btn-primary:hover > svg,
-  .btn-secondary:hover > svg,
-  #modal-close:hover svg,
-  #scrollToTopBtn:hover svg {
-    transform: none !important;
-  }
-
-  #global-loader,
-  #mobile-menu,
-  .filter-menu,
-  #exercise-modal,
-  #exercise-modal #modal-backdrop,
-  #exercise-modal #modal-content,
-  #scrollToTopBtn,
-  .bento-card,
-  .exercise-card,
-  .founder-card,
-  .play-store-link,
-  .btn-primary,
-  .btn-secondary,
-  .social-btn {
-    transition-duration: 160ms !important;
-  }
+#load-sentinel {
+  overflow-anchor: none;
 }

@@ -1,6 +1,6 @@
 import { exercisesData } from './exercises_data.js';
 
-const PAGE_SIZE = 12;
+const PAGE_SIZE = 8;
 
 const removeAccents = (value) => value
   .normalize('NFD')
@@ -13,8 +13,6 @@ const searchIndex = new Map(exercisesData.map((exercise) => [
   removeAccents(`${exercise.name} ${exercise.primaryMuscleVi}`).toLowerCase(),
 ]));
 const exercisesById = new Map(exercisesData.map((exercise) => [exercise.id, exercise]));
-const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-const motionDuration = (duration) => prefersReducedMotion.matches ? Math.min(duration, 180) : duration;
 const networkConnection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
 const shouldLimitAutoMedia = () => Boolean(networkConnection?.saveData)
   || ['slow-2g', '2g'].includes(networkConnection?.effectiveType);
@@ -22,7 +20,6 @@ const shouldLimitAutoMedia = () => Boolean(networkConnection?.saveData)
 document.addEventListener('DOMContentLoaded', () => {
   const grid = document.getElementById('exercise-grid');
   const loadSentinel = document.getElementById('load-sentinel');
-  const loadStatus = document.getElementById('load-status');
   const searchInput = document.getElementById('search-input');
   const clearSearchBtn = document.getElementById('clear-search');
   const countSpan = document.getElementById('exercise-count');
@@ -86,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
       closeTimer = setTimeout(() => {
         menu.classList.add('hidden');
         menu.classList.remove('flex');
-      }, motionDuration(180));
+      }, 180);
     };
 
     const openMenu = () => {
@@ -178,12 +175,10 @@ document.addEventListener('DOMContentLoaded', () => {
     return card;
   }
 
-  function updateLoadStatus() {
+  function updateLoadState() {
     const hasMore = renderedCount < filteredExercises.length;
-    loadStatus.textContent = filteredExercises.length > 0
-      ? `Đã tải ${renderedCount}/${filteredExercises.length} bài tập`
-      : '';
     loadSentinel.classList.toggle('hidden', !hasMore);
+    loadSentinel.setAttribute('aria-hidden', String(!hasMore));
   }
 
   function loadNextBatch() {
@@ -200,13 +195,13 @@ document.addEventListener('DOMContentLoaded', () => {
     grid.appendChild(fragment);
     requestAnimationFrame(() => newCards.forEach((card) => card.classList.add('is-visible')));
     renderedCount += nextExercises.length;
-    updateLoadStatus();
+    updateLoadState();
   }
 
   const loadObserver = 'IntersectionObserver' in window
     ? new IntersectionObserver((entries) => {
         if (entries[0].isIntersecting) loadNextBatch();
-      }, { rootMargin: '600px 0px' })
+      }, { rootMargin: '700px 0px' })
     : null;
 
   if (loadObserver) loadObserver.observe(loadSentinel);
@@ -228,7 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
       emptyState.className = 'col-span-full text-center py-16 px-6 rounded-3xl border border-dashed border-white/15 bg-white/[0.03]';
       emptyState.innerHTML = '<p class="text-lg font-bold text-gray-200 mb-2">Không tìm thấy bài tập phù hợp</p><p class="text-gray-400">Hãy thử tên bài tập, nhóm cơ hoặc bỏ bớt bộ lọc.</p>';
       grid.appendChild(emptyState);
-      updateLoadStatus();
+      updateLoadState();
       return;
     }
 
@@ -280,7 +275,7 @@ document.addEventListener('DOMContentLoaded', () => {
       modalImage.removeAttribute('src');
       document.body.style.overflow = '';
       lastFocusedElement?.focus();
-    }, motionDuration(320));
+    }, 320);
   }
 
   setupCustomDropdown('muscle-filter-wrapper', muscles, selectedMuscles, 'Tất cả nhóm cơ');

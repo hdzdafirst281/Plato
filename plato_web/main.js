@@ -2,13 +2,6 @@ import AOS from 'aos';
 import 'aos/dist/aos.css';
 import { createIcons, Download, ChevronRight, ChevronLeft, CheckCircle, Smartphone, Moon, Sun, Menu, X, Activity, Target, Shield, ArrowRight, MessageCircle, Music, Globe, Star, Calendar, BarChart2, Zap, Dumbbell, Play, Search, Info, ArrowUp } from 'lucide';
 
-const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-const motionDuration = (duration) => prefersReducedMotion.matches ? Math.min(duration, 180) : duration;
-const networkConnection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-const shouldLimitAutoMedia = () => prefersReducedMotion.matches
-  || Boolean(networkConnection?.saveData)
-  || ['slow-2g', '2g'].includes(networkConnection?.effectiveType);
-
 const enhanceMotionTargets = () => {
   document.querySelectorAll('.prose > section').forEach((section, index) => {
     section.dataset.aos ||= 'fade-up';
@@ -30,7 +23,7 @@ const initAOS = () => {
     offset: 70,
     easing: 'cubic-bezier(0.22, 1, 0.36, 1)',
   });
-  setTimeout(() => AOS.refresh(), motionDuration(80));
+  setTimeout(() => AOS.refresh(), 80);
 };
 
 document.addEventListener('DOMContentLoaded', () => {
@@ -39,7 +32,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.classList.add('page-entered');
     if (loader) {
       loader.classList.add('is-exiting');
-      setTimeout(() => loader.classList.add('hidden'), motionDuration(420));
+      setTimeout(() => loader.classList.add('hidden'), 420);
     }
     initAOS();
   };
@@ -121,7 +114,7 @@ if (themeToggleBtn) {
       iconSun.classList.remove('hidden');
       iconMoon.classList.add('hidden');
     }
-    setTimeout(() => themeToggleBtn.classList.remove('is-switching'), motionDuration(420));
+    setTimeout(() => themeToggleBtn.classList.remove('is-switching'), 420);
   });
 }
 
@@ -150,7 +143,7 @@ if (mobileMenuBtn && mobileMenu) {
     mobileMenuTimer = setTimeout(() => {
       mobileMenu.classList.add('hidden');
       mobileMenu.classList.remove('flex');
-    }, motionDuration(220));
+    }, 220);
   };
 
   mobileMenuBtn.setAttribute('aria-expanded', 'false');
@@ -190,11 +183,14 @@ if (slides.length > 0 && prevBtn && nextBtn) {
   let slideInterval;
   let isPaused = false;
 
+  const preloadSlide = (slide) => {
+    if (!slide?.dataset.src) return;
+    slide.src = slide.dataset.src;
+    delete slide.dataset.src;
+  };
+
   const syncCarouselToggle = () => {
     if (!carouselToggle) return;
-    const isAutoMediaLimited = shouldLimitAutoMedia();
-    carouselToggle.style.display = isAutoMediaLimited ? 'none' : '';
-    carouselToggle.setAttribute('aria-hidden', String(isAutoMediaLimited));
     carouselToggle.setAttribute('aria-pressed', String(isPaused));
     carouselToggle.setAttribute('aria-label', isPaused ? 'Tiếp tục trình chiếu' : 'Tạm dừng trình chiếu');
     document.getElementById('carousel-toggle-text').textContent = isPaused ? 'Tiếp tục' : 'Tạm dừng';
@@ -204,10 +200,7 @@ if (slides.length > 0 && prevBtn && nextBtn) {
 
   const showSlide = (index, direction = 1) => {
     const nextImage = slides[index];
-    if (nextImage.dataset.src) {
-      nextImage.src = nextImage.dataset.src;
-      delete nextImage.dataset.src;
-    }
+    preloadSlide(nextImage);
     slides.forEach((slide, i) => {
       slide.setAttribute('aria-hidden', String(i !== index));
       slide.classList.toggle('from-previous', direction < 0 && i === index);
@@ -221,6 +214,7 @@ if (slides.length > 0 && prevBtn && nextBtn) {
       }
     });
     if (carouselStatus) carouselStatus.textContent = `Hình ${index + 1} trên ${slides.length}`;
+    preloadSlide(slides[(index + 1) % slides.length]);
   };
 
   const nextSlide = () => {
@@ -235,7 +229,7 @@ if (slides.length > 0 && prevBtn && nextBtn) {
 
   const startAutoSlide = () => {
     clearInterval(slideInterval);
-    if (isPaused || shouldLimitAutoMedia() || document.hidden) return;
+    if (isPaused || document.hidden) return;
     slideInterval = setInterval(nextSlide, 3200);
   };
 
@@ -283,28 +277,14 @@ if (slides.length > 0 && prevBtn && nextBtn) {
     if (!document.hidden) startAutoSlide();
   });
 
-  prefersReducedMotion.addEventListener('change', (event) => {
-    clearInterval(slideInterval);
-    syncCarouselToggle();
-    if (!event.matches) startAutoSlide();
-  });
-
-  networkConnection?.addEventListener('change', () => {
-    clearInterval(slideInterval);
-    syncCarouselToggle();
-    startAutoSlide();
-  });
 }
 
 // Scroll to Top Logic
 const scrollToTopBtn = document.getElementById('scrollToTopBtn');
 if (scrollToTopBtn) {
   let scrollTicking = false;
-  const updateScrollProgress = () => {
-    const scrollRange = document.documentElement.scrollHeight - window.innerHeight;
-    const progress = scrollRange > 0 ? Math.min(window.scrollY / scrollRange, 1) : 0;
+  const updateScrollButton = () => {
     const isVisible = window.scrollY > 300;
-    scrollToTopBtn.style.setProperty('--scroll-progress', `${progress * 360}deg`);
     scrollToTopBtn.classList.toggle('is-visible', isVisible);
     scrollToTopBtn.classList.toggle('opacity-0', !isVisible);
     scrollToTopBtn.classList.toggle('pointer-events-none', !isVisible);
@@ -315,12 +295,12 @@ if (scrollToTopBtn) {
     scrollToTopBtn.tabIndex = isVisible ? 0 : -1;
   };
 
-  updateScrollProgress();
+  updateScrollButton();
   window.addEventListener('scroll', () => {
     if (scrollTicking) return;
     scrollTicking = true;
     requestAnimationFrame(() => {
-      updateScrollProgress();
+      updateScrollButton();
       scrollTicking = false;
     });
   }, { passive: true });
@@ -328,7 +308,7 @@ if (scrollToTopBtn) {
   scrollToTopBtn.addEventListener('click', () => {
     window.scrollTo({
       top: 0,
-      behavior: prefersReducedMotion.matches ? 'auto' : 'smooth'
+      behavior: 'smooth'
     });
   });
 }
