@@ -175,27 +175,16 @@ const slides = document.querySelectorAll('.carousel-slide');
 const prevBtn = document.getElementById('prev-slide');
 const nextBtn = document.getElementById('next-slide');
 const carouselRegion = document.getElementById('carousel-region');
-const carouselToggle = document.getElementById('carousel-toggle');
 const carouselStatus = document.getElementById('carousel-status');
 
 if (slides.length > 0 && prevBtn && nextBtn) {
   let currentSlide = 0;
   let slideInterval;
-  let isPaused = false;
 
   const preloadSlide = (slide) => {
     if (!slide?.dataset.src) return;
     slide.src = slide.dataset.src;
     delete slide.dataset.src;
-  };
-
-  const syncCarouselToggle = () => {
-    if (!carouselToggle) return;
-    carouselToggle.setAttribute('aria-pressed', String(isPaused));
-    carouselToggle.setAttribute('aria-label', isPaused ? 'Tiếp tục trình chiếu' : 'Tạm dừng trình chiếu');
-    document.getElementById('carousel-toggle-text').textContent = isPaused ? 'Tiếp tục' : 'Tạm dừng';
-    document.getElementById('carousel-pause-icon').classList.toggle('hidden', isPaused);
-    document.getElementById('carousel-play-icon').classList.toggle('hidden', !isPaused);
   };
 
   const showSlide = (index, direction = 1) => {
@@ -229,7 +218,7 @@ if (slides.length > 0 && prevBtn && nextBtn) {
 
   const startAutoSlide = () => {
     clearInterval(slideInterval);
-    if (isPaused || document.hidden) return;
+    if (document.hidden) return;
     slideInterval = setInterval(nextSlide, 3200);
   };
 
@@ -248,12 +237,6 @@ if (slides.length > 0 && prevBtn && nextBtn) {
     resetAutoSlide();
   });
 
-  carouselToggle?.addEventListener('click', () => {
-    isPaused = !isPaused;
-    syncCarouselToggle();
-    isPaused ? clearInterval(slideInterval) : startAutoSlide();
-  });
-
   carouselRegion?.addEventListener('keydown', (event) => {
     if (event.key === 'ArrowLeft') {
       event.preventDefault();
@@ -268,7 +251,6 @@ if (slides.length > 0 && prevBtn && nextBtn) {
   });
 
   // Start the slideshow automatically
-  syncCarouselToggle();
   showSlide(0);
   startAutoSlide();
 
@@ -283,8 +265,12 @@ if (slides.length > 0 && prevBtn && nextBtn) {
 const scrollToTopBtn = document.getElementById('scrollToTopBtn');
 if (scrollToTopBtn) {
   let scrollTicking = false;
+  let scrollAnimationFrame;
   const updateScrollButton = () => {
+    const scrollRange = document.documentElement.scrollHeight - window.innerHeight;
+    const progress = scrollRange > 0 ? Math.min(window.scrollY / scrollRange, 1) : 0;
     const isVisible = window.scrollY > 300;
+    scrollToTopBtn.style.setProperty('--scroll-progress', `${progress * 360}deg`);
     scrollToTopBtn.classList.toggle('is-visible', isVisible);
     scrollToTopBtn.classList.toggle('opacity-0', !isVisible);
     scrollToTopBtn.classList.toggle('pointer-events-none', !isVisible);
@@ -306,10 +292,19 @@ if (scrollToTopBtn) {
   }, { passive: true });
 
   scrollToTopBtn.addEventListener('click', () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
+    cancelAnimationFrame(scrollAnimationFrame);
+    const startY = window.scrollY;
+    const duration = Math.min(1100, Math.max(550, startY * 0.3));
+    const startTime = performance.now();
+
+    const animateScroll = (currentTime) => {
+      const progress = Math.min((currentTime - startTime) / duration, 1);
+      const easedProgress = 1 - Math.pow(1 - progress, 4);
+      window.scrollTo(0, startY * (1 - easedProgress));
+      if (progress < 1) scrollAnimationFrame = requestAnimationFrame(animateScroll);
+    };
+
+    scrollAnimationFrame = requestAnimationFrame(animateScroll);
   });
 }
 

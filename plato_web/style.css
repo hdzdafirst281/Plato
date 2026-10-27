@@ -622,9 +622,10 @@ body [data-aos][data-aos="zoom-in"].aos-animate {
 #exercise-modal.is-open .modal-right > :nth-child(4) { animation-delay: 135ms; }
 
 #scrollToTopBtn {
+  --scroll-progress: 0deg;
   opacity: 0 !important;
   transform: translate3d(0, 18px, 0) !important;
-  background: linear-gradient(135deg, #a855f7, #6d28d9);
+  background: conic-gradient(#c084fc var(--scroll-progress), #7c3aed var(--scroll-progress));
   transition: opacity 220ms ease, transform 320ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 250ms ease !important;
 }
 
