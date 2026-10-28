@@ -7,6 +7,8 @@ usecases:
       - profile
       - nutrition_targets
       - program_recommendation
+      - dietary_preferences
+      - allergen_preferences
     code_paths:
       - "plato_gymapp/lib/features/auth/presentation/screens/custom_splash_screen.dart"
       - "plato_gymapp/lib/core/navigation/app_router.dart"
@@ -16,6 +18,7 @@ usecases:
       - "plato_gymapp/lib/features/auth/data/models/user_models.dart"
       - "plato_gymapp/lib/features/auth/data/repositories/auth_repository_impl.dart"
       - "plato_gymapp/lib/features/nutrition/domain/nutrition_calculator.dart"
+      - "plato_gymapp/lib/features/nutrition/domain/nutrition_safety_helper.dart"
       - "plato_gymapp/lib/features/workout/presentation/bloc/workout_cubit.dart"
     localization_keys:
       - onboarding.msg_err_name_empty
@@ -33,6 +36,9 @@ usecases:
       - UC07
       - UC08
       - UC11
+      - UC20
+      - UC21
+      - UC22
       - UC29
   UC02:
     title: "Đăng nhập và khôi phục dữ liệu bằng Email OTP"
@@ -61,6 +67,7 @@ usecases:
       - auth.btn_click_to_resend
       - auth.btn_resend_cooldown
       - auth.msg_processing
+      - auth.err_no_internet
     related_usecases:
       - UC01
       - UC07
@@ -69,6 +76,7 @@ usecases:
       - UC17
       - UC25
       - UC27
+      - UC28
       - UC30
   UC03:
     title: "Liên kết hoặc thay đổi Email"
@@ -85,6 +93,7 @@ usecases:
       - "plato_gymapp/lib/features/auth/domain/usecases/auth_usecases.dart"
       - "plato_gymapp/lib/features/auth/data/repositories/auth_repository_impl.dart"
       - "plato_gymapp/lib/core/worker/sync_manager.dart"
+      - "plato_gymapp/lib/features/workout/data/repositories/workout_repository.dart"
     localization_keys:
       - auth.title_link_email
       - auth.btn_change_email
@@ -94,13 +103,16 @@ usecases:
       - auth.btn_click_to_resend
       - auth.btn_resend_cooldown
       - auth.msg_processing
+      - auth.err_no_internet
     related_usecases:
       - UC04
       - UC07
       - UC08
+      - UC12
       - UC17
       - UC25
       - UC27
+      - UC28
       - UC30
   UC04:
     title: "Chuyển đổi tài khoản"
@@ -117,6 +129,7 @@ usecases:
       - "plato_gymapp/lib/features/auth/domain/usecases/auth_usecases.dart"
       - "plato_gymapp/lib/features/auth/data/repositories/auth_repository_impl.dart"
       - "plato_gymapp/lib/core/worker/sync_manager.dart"
+      - "plato_gymapp/lib/features/workout/data/repositories/workout_repository.dart"
     localization_keys:
       - auth.title_switch_account
       - auth.desc_switch_account
@@ -125,6 +138,7 @@ usecases:
       - auth.btn_send_otp
       - auth.title_verify_otp
       - auth.msg_processing
+      - auth.err_no_internet
     related_usecases:
       - UC02
       - UC03
@@ -139,6 +153,7 @@ usecases:
       - UC23
       - UC25
       - UC27
+      - UC28
       - UC30
   UC05:
     title: "Đăng xuất tài khoản"
@@ -204,6 +219,7 @@ usecases:
       - profile
       - training_preferences
       - avatar
+      - cloud_avatar
     code_paths:
       - "plato_gymapp/lib/features/profile/presentation/screens/profile_screen.dart"
       - "plato_gymapp/lib/features/profile/presentation/screens/profile_settings_screen.dart"
@@ -227,6 +243,7 @@ usecases:
       - UC01
       - UC02
       - UC08
+      - UC26
   UC08:
     title: "Quản lý cân nặng và mục tiêu dinh dưỡng"
     source: "plato_docs/usecases/UC08.md"
@@ -348,6 +365,7 @@ usecases:
       - exercise_sets
       - supersets
       - muscle_split
+      - routine_cloud_sync
     code_paths:
       - "plato_gymapp/lib/features/workout/presentation/screens/routine_screen.dart"
       - "plato_gymapp/lib/features/workout/presentation/screens/workout_screen.dart"
@@ -408,13 +426,18 @@ usecases:
       - workout_calendar
       - workout_scheduling
       - recurrence
+      - scheduled_workout_reminders
+      - weekly_streak
     code_paths:
       - "plato_gymapp/lib/features/profile/presentation/screens/calendar_screen.dart"
       - "plato_gymapp/lib/features/workout/presentation/screens/routine_screen.dart"
       - "plato_gymapp/lib/features/workout/presentation/screens/workout_detail_screen.dart"
       - "plato_gymapp/lib/features/workout/presentation/bloc/workout_cubit.dart"
       - "plato_gymapp/lib/features/workout/data/repositories/workout_repository.dart"
+      - "plato_gymapp/lib/features/workout/domain/streak_calculator.dart"
       - "plato_gymapp/lib/core/bloc/tour/tour_cubit.dart"
+      - "plato_gymapp/lib/features/notifications/application/notification_coordinator.dart"
+      - "plato_gymapp/lib/features/notifications/domain/reminder_planner.dart"
     localization_keys:
       - calendar.view_month
       - calendar.view_year
@@ -428,7 +451,9 @@ usecases:
     related_usecases:
       - UC12
       - UC17
+      - UC18
       - UC30
+      - UC31
   UC15:
     title: "Thực hiện và hoàn tất buổi tập"
     source: "plato_docs/usecases/UC15.md"
@@ -437,7 +462,12 @@ usecases:
       - workout_tracking
       - workout_completion
       - background_workout
+      - workout_settings
+      - workout_rewards
+      - proactive_weight_safety
+      - workout_xp_rate_limit
     code_paths:
+      - "plato_gymapp/lib/core/navigation/main_scaffold.dart"
       - "plato_gymapp/lib/features/workout/presentation/screens/workout_screen.dart"
       - "plato_gymapp/lib/features/workout/presentation/screens/log_workout_screen.dart"
       - "plato_gymapp/lib/features/workout/presentation/components/workout_components.dart"
@@ -445,7 +475,13 @@ usecases:
       - "plato_gymapp/lib/features/workout/presentation/bloc/active_session_cubit.dart"
       - "plato_gymapp/lib/features/workout/presentation/bloc/session_effect_mixin.dart"
       - "plato_gymapp/lib/features/workout/data/workout_settings_preferences.dart"
+      - "plato_gymapp/lib/features/workout/data/workout_effort_preferences.dart"
+      - "plato_gymapp/lib/features/workout/presentation/screens/workout_settings_screen.dart"
+      - "plato_gymapp/lib/features/gamification/presentation/screens/workout_rewards_screen.dart"
+      - "plato_gymapp/lib/features/gamification/presentation/components/workout_rewards_content.dart"
       - "plato_gymapp/lib/features/workout/data/repositories/workout_repository.dart"
+      - "plato_gymapp/lib/features/workout/domain/training_load_manager.dart"
+      - "plato_gymapp/lib/features/gamification/data/repositories/gamification_repository.dart"
       - "plato_gymapp/lib/core/worker/background_workout_service.dart"
       - "plato_gymapp/lib/core/utils/workout_permission_helper.dart"
     localization_keys:
@@ -467,6 +503,7 @@ usecases:
       - UC12
       - UC16
       - UC17
+      - UC25
       - UC30
       - UC31
   UC16:
@@ -476,12 +513,16 @@ usecases:
       - workout_summary
       - training_load
       - rpe
+      - session_heatmap
     code_paths:
       - "plato_gymapp/lib/core/navigation/app_router.dart"
       - "plato_gymapp/lib/features/workout/presentation/screens/session_summary_screen.dart"
       - "plato_gymapp/lib/features/workout/presentation/bloc/workout_cubit.dart"
       - "plato_gymapp/lib/features/workout/data/repositories/workout_repository.dart"
       - "plato_gymapp/lib/features/workout/domain/training_load_manager.dart"
+      - "plato_gymapp/lib/features/workout/domain/muscle_exposure_calculator.dart"
+      - "plato_gymapp/lib/features/profile/presentation/components/bodymap/body_map_repository.dart"
+      - "plato_gymapp/lib/features/workout/data/workout_effort_preferences.dart"
     localization_keys:
       - workout.title_ssn_sum_complete
       - workout.title_ssn_sum_rpe_card
@@ -498,6 +539,7 @@ usecases:
       - UC17
       - UC18
       - UC19
+      - UC25
   UC17:
     title: "Quản lý lịch sử tập luyện"
     source: "plato_docs/usecases/UC17.md"
@@ -505,6 +547,7 @@ usecases:
       - workout_history
       - personal_records
       - workout_deletion
+      - workout_metrics
     code_paths:
       - "plato_gymapp/lib/features/profile/presentation/screens/profile_screen.dart"
       - "plato_gymapp/lib/features/profile/presentation/screens/calendar_screen.dart"
@@ -541,6 +584,9 @@ usecases:
     features:
       - muscle_recovery
       - recovery_guidance
+      - routine_recommendations
+      - recovery_notifications
+      - decayed_training_balance
     code_paths:
       - "plato_gymapp/lib/features/workout/presentation/screens/workout_screen.dart"
       - "plato_gymapp/lib/features/workout/presentation/components/workout_components.dart"
@@ -549,6 +595,10 @@ usecases:
       - "plato_gymapp/lib/features/workout/domain/muscle_recovery_calculator.dart"
       - "plato_gymapp/lib/features/workout/domain/major_muscle_recovery_projection.dart"
       - "plato_gymapp/lib/features/workout/domain/recovery_scale.dart"
+      - "plato_gymapp/lib/features/workout/domain/muscle_exposure_calculator.dart"
+      - "plato_gymapp/lib/features/notifications/presentation/recovery_recommendations.dart"
+      - "plato_gymapp/lib/features/notifications/domain/recovery_forecast_service.dart"
+      - "plato_gymapp/lib/features/notifications/application/notification_coordinator.dart"
     localization_keys:
       - workout.title_recovery_status
       - workout.desc_warn_muscle_info_general
@@ -562,9 +612,12 @@ usecases:
     related_usecases:
       - UC01
       - UC02
+      - UC12
+      - UC14
       - UC15
       - UC16
       - UC17
+      - UC31
   UC19:
     title: "Xem thống kê tiến độ tập luyện"
     source: "plato_docs/usecases/UC19.md"
@@ -606,12 +659,15 @@ usecases:
       - meal_logging
       - nutrition_totals
       - portion_management
+      - nutrition_safety
     code_paths:
       - "plato_gymapp/lib/features/nutrition/presentation/screens/nutrition_screen.dart"
       - "plato_gymapp/lib/features/nutrition/presentation/screens/food_encyclopedia_screen.dart"
       - "plato_gymapp/lib/features/nutrition/presentation/bloc/nutrition_cubit.dart"
       - "plato_gymapp/lib/features/nutrition/presentation/components/nutrition_components.dart"
       - "plato_gymapp/lib/features/nutrition/data/repositories/nutrition_repository.dart"
+      - "plato_gymapp/lib/features/nutrition/domain/nutrition_safety_helper.dart"
+      - "plato_gymapp/lib/features/nutrition/data/models/nutrition_models.dart"
     localization_keys:
       - nutrition.title_main
       - nutrition.btn_meal_add_food
@@ -624,6 +680,7 @@ usecases:
       - nutrition.err_food_pcf
     related_usecases:
       - UC01
+      - UC07
       - UC08
       - UC21
       - UC22
@@ -636,12 +693,14 @@ usecases:
       - food_search
       - meal_selection
       - portion_management
+      - nutrition_safety
     code_paths:
       - "plato_gymapp/lib/features/nutrition/presentation/screens/food_encyclopedia_screen.dart"
       - "plato_gymapp/lib/features/nutrition/presentation/screens/nutrition_screen.dart"
       - "plato_gymapp/lib/features/nutrition/presentation/bloc/nutrition_cubit.dart"
       - "plato_gymapp/lib/features/nutrition/data/repositories/nutrition_repository.dart"
       - "plato_gymapp/lib/features/nutrition/data/models/nutrition_models.dart"
+      - "plato_gymapp/lib/features/nutrition/domain/nutrition_safety_helper.dart"
     localization_keys:
       - nutrition.title_food_add_to_meal
       - nutrition.hint_food_search
@@ -653,6 +712,8 @@ usecases:
       - nutrition.err_portion_qty
       - nutrition.err_portion_scale
     related_usecases:
+      - UC01
+      - UC07
       - UC20
       - UC22
   UC22:
@@ -662,12 +723,15 @@ usecases:
       - custom_foods
       - quick_food_entry
       - food_library
+      - food_ingredients
+      - nutrition_safety
     code_paths:
       - "plato_gymapp/lib/features/nutrition/presentation/screens/food_encyclopedia_screen.dart"
       - "plato_gymapp/lib/features/nutrition/presentation/screens/nutrition_screen.dart"
       - "plato_gymapp/lib/features/nutrition/presentation/bloc/nutrition_cubit.dart"
       - "plato_gymapp/lib/features/nutrition/data/repositories/nutrition_repository.dart"
       - "plato_gymapp/lib/features/nutrition/data/models/nutrition_models.dart"
+      - "plato_gymapp/lib/features/nutrition/domain/nutrition_safety_helper.dart"
     localization_keys:
       - nutrition.title_food_quick_input
       - nutrition.btn_quick_save_log
@@ -679,7 +743,9 @@ usecases:
       - nutrition.err_food_cal
       - nutrition.err_food_pcf
     related_usecases:
+      - UC01
       - UC04
+      - UC07
       - UC20
       - UC21
       - UC24
@@ -689,11 +755,13 @@ usecases:
     features:
       - hydration_tracking
       - hydration_target
+      - hydration_notifications
     code_paths:
       - "plato_gymapp/lib/features/nutrition/presentation/screens/nutrition_screen.dart"
       - "plato_gymapp/lib/features/nutrition/presentation/components/nutrition_components.dart"
       - "plato_gymapp/lib/features/nutrition/presentation/bloc/nutrition_cubit.dart"
       - "plato_gymapp/lib/features/nutrition/data/repositories/nutrition_repository.dart"
+      - "plato_gymapp/lib/features/notifications/application/notification_coordinator.dart"
     localization_keys:
       - nutrition.title_water_tracker
       - nutrition.title_water_settings
@@ -709,6 +777,8 @@ usecases:
       - UC06
       - UC20
       - UC24
+      - UC28
+      - UC31
   UC24:
     title: "Xem lịch sử dinh dưỡng"
     source: "plato_docs/usecases/UC24.md"
@@ -744,8 +814,10 @@ usecases:
     features:
       - weekly_quests
       - xp_rewards
+      - workout_xp_rate_limit
       - weekly_chest
       - reward_revocation
+      - automatic_reward_claim
     code_paths:
       - "plato_gymapp/lib/features/gamification/presentation/screens/gamification_screen.dart"
       - "plato_gymapp/lib/features/gamification/presentation/components/gamification_components.dart"
@@ -754,6 +826,9 @@ usecases:
       - "plato_gymapp/lib/features/gamification/domain/usecases/claim_quest_reward_usecase.dart"
       - "plato_gymapp/lib/features/gamification/domain/usecases/claim_chest_reward_usecase.dart"
       - "plato_gymapp/lib/features/gamification/data/repositories/gamification_repository.dart"
+      - "plato_gymapp/lib/features/gamification/presentation/screens/workout_rewards_screen.dart"
+      - "plato_gymapp/lib/features/gamification/presentation/components/workout_rewards_content.dart"
+      - "plato_gymapp/lib/core/navigation/app_router.dart"
     localization_keys:
       - gamification.tab_quests
       - gamification.title_weekly_quests
@@ -769,6 +844,7 @@ usecases:
       - UC05
       - UC06
       - UC15
+      - UC16
       - UC17
       - UC26
       - UC27
@@ -779,6 +855,7 @@ usecases:
       - leaderboard
       - xp_ranking
       - leaderboard_cache
+      - leaderboard_avatar
     code_paths:
       - "plato_gymapp/lib/features/gamification/presentation/screens/gamification_screen.dart"
       - "plato_gymapp/lib/features/gamification/presentation/components/gamification_components.dart"
@@ -794,6 +871,7 @@ usecases:
       - gamification.fmt_xp_value
     related_usecases:
       - UC01
+      - UC07
       - UC25
       - UC27
   UC27:
@@ -803,6 +881,9 @@ usecases:
       - rank_journey
       - rank_cycles
       - rank_history
+      - rank_notifications
+      - rank_result_feedback
+      - daily_rp_cap
     code_paths:
       - "plato_gymapp/lib/features/gamification/presentation/screens/rank_screen.dart"
       - "plato_gymapp/lib/features/gamification/presentation/components/rank_components.dart"
@@ -810,6 +891,7 @@ usecases:
       - "plato_gymapp/lib/features/gamification/domain/rank_calculator.dart"
       - "plato_gymapp/lib/features/gamification/data/repositories/gamification_repository.dart"
       - "plato_gymapp/lib/features/workout/data/repositories/workout_repository.dart"
+      - "plato_gymapp/lib/features/notifications/application/notification_coordinator.dart"
     localization_keys:
       - rank.title_main
       - rank.tab_journey
@@ -820,19 +902,23 @@ usecases:
       - rank.title_info_zone_red
       - rank.title_history_chart
       - rank.msg_history_empty
+      - rank.desc_info_daily_cap
+      - workout_rewards.msg_daily_rp_capped
     related_usecases:
       - UC07
       - UC15
       - UC17
       - UC25
       - UC26
+      - UC31
   UC28:
-    title: "Tùy chỉnh giao diện và ngôn ngữ"
+    title: "Tùy chỉnh giao diện, ngôn ngữ và đơn vị"
     source: "plato_docs/usecases/UC28.md"
     features:
       - theme
       - localization
       - preferences
+      - measurement_units
     code_paths:
       - "plato_gymapp/lib/features/profile/presentation/screens/settings_screen.dart"
       - "plato_gymapp/lib/features/auth/presentation/screens/onboarding_screen.dart"
@@ -840,6 +926,10 @@ usecases:
       - "plato_gymapp/lib/i18n/translation_helper.dart"
       - "plato_gymapp/lib/i18n/strings_vi.i18n.json"
       - "plato_gymapp/lib/i18n/strings_en.i18n.json"
+      - "plato_gymapp/lib/core/utils/measurement_units.dart"
+      - "plato_gymapp/lib/features/profile/presentation/bloc/profile_cubit.dart"
+      - "plato_gymapp/lib/features/auth/data/models/user_models.dart"
+      - "plato_gymapp/lib/core/worker/sync_manager.dart"
     localization_keys:
       - settings.title_theme_section
       - settings.btn_theme_system
@@ -847,8 +937,21 @@ usecases:
       - settings.btn_theme_dark
       - settings.lbl_item_language
       - settings.title_language_dialog
+      - settings.title_measurement_units
+      - settings.desc_measurement_units
+      - settings.lbl_weight_unit
+      - settings.lbl_hydration_unit
+      - settings.lbl_body_length_unit
+      - settings.lbl_food_mass_unit
+      - settings.msg_measurement_units_saved
     related_usecases:
       - UC01
+      - UC02
+      - UC07
+      - UC08
+      - UC15
+      - UC20
+      - UC23
   UC29:
     title: "Xem video hướng dẫn và thông tin hỗ trợ"
     source: "plato_docs/usecases/UC29.md"
@@ -916,16 +1019,28 @@ usecases:
       - UC23
       - UC24
   UC31:
-    title: "Quản lý chạy nền và quyền thông báo"
+    title: "Quản lý thông báo và chạy nền"
     source: "plato_docs/usecases/UC31.md"
     features:
       - permissions
       - background_workout
       - notifications
+      - notification_policy
+      - scheduled_notifications
+      - in_app_notifications
     code_paths:
       - "plato_gymapp/lib/features/profile/presentation/screens/settings_screen.dart"
       - "plato_gymapp/lib/features/notifications/presentation/screens/notification_settings_screen.dart"
       - "plato_gymapp/lib/features/notifications/application/notification_coordinator.dart"
+      - "plato_gymapp/lib/features/notifications/application/notification_background_worker.dart"
+      - "plato_gymapp/lib/features/notifications/domain/notification_policy.dart"
+      - "plato_gymapp/lib/features/notifications/domain/reminder_planner.dart"
+      - "plato_gymapp/lib/features/notifications/domain/recovery_forecast_service.dart"
+      - "plato_gymapp/lib/features/notifications/data/notification_preferences.dart"
+      - "plato_gymapp/lib/features/notifications/data/notification_store.dart"
+      - "plato_gymapp/lib/features/notifications/data/local_notification_gateway.dart"
+      - "plato_gymapp/lib/features/notifications/presentation/notification_feedback_host.dart"
+      - "plato_gymapp/lib/core/designsystem/components/gym_top_notification.dart"
       - "plato_gymapp/lib/core/utils/workout_permission_helper.dart"
       - "plato_gymapp/lib/core/worker/background_workout_service.dart"
       - "plato_gymapp/lib/features/workout/presentation/components/workout_components.dart"
@@ -946,4 +1061,9 @@ usecases:
       - workout.err_permission_partial
     related_usecases:
       - UC06
+      - UC14
       - UC15
+      - UC18
+      - UC23
+      - UC25
+      - UC27

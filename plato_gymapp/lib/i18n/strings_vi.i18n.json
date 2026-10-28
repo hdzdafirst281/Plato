@@ -1294,7 +1294,7 @@
     "btn_pr_awesome": "TUYỆT VỜI",
     "title_pr_congrats": "THÀNH TÍCH MỚI!",
     "pre_permission_btn_allow": "Cấp quyền ngay",
-    "pre_permission_btn_later": "Để sau",
+    "pre_permission_btn_later": "Không bật",
     "pre_permission_desc": "Để tính năng đếm giờ nghỉ tiếp tục hoạt động khi bạn tắt màn hình và tự động đếm số bước chân, Plato cần quyền gửi Thông báo và Hoạt động thể chất.",
     "pre_permission_title": "Chạy nền buổi tập",
     "title_recovery_status": "Trạng thái Phục hồi",

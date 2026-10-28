@@ -1392,7 +1392,12 @@ class WorkoutMiniPlayer extends StatelessWidget {
         }
 
         Widget playerUI = Container(
-          margin: const EdgeInsets.only(left: 16, right: 16, top: 8, bottom: 4),
+          margin: const EdgeInsets.only(
+            left: 16,
+            right: 16,
+            top: 8,
+            bottom: 12,
+          ),
           decoration: BoxDecoration(
             color: colorScheme.surfaceContainerHighest,
             borderRadius: BorderRadius.circular(24),

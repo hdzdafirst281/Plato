@@ -57,6 +57,37 @@ class ValidateUsecasesTest(unittest.TestCase):
                 }
             }
         }
+        template = self.root / "plato_docs/templates/usecase-template.docx"
+        template.parent.mkdir(parents=True)
+        template.write_bytes(b"template fixture")
+        self.document_spec = {
+            "template": "plato_docs/templates/usecase-template.docx",
+            "groups": [
+                {"title": "A. Ví dụ", "usecases": ["UC01"]},
+                {"title": "B. Nhóm 2", "usecases": []},
+                {"title": "C. Nhóm 3", "usecases": []},
+                {"title": "D. Nhóm 4", "usecases": []},
+                {"title": "E. Nhóm 5", "usecases": []},
+                {"title": "F. Nhóm 6", "usecases": []},
+                {"title": "G. Nhóm 7", "usecases": []},
+            ],
+            "glossary": [{"term": "Ví dụ", "definition": "Mô tả"}],
+            "usecases": {
+                "UC01": {
+                    "summary": "Tóm tắt",
+                    "importance": "Cao",
+                    "type": "essential",
+                    "supporting_actor": "Không có",
+                    "offstage_actor": "Không có",
+                    "relationships": {
+                        "entry_point": "Màn hình ví dụ",
+                        "association": "Người dùng",
+                        "include": "Không có",
+                        "extend": "Không có",
+                    },
+                }
+            },
+        }
         self._write_index()
 
     def tearDown(self) -> None:
@@ -65,6 +96,10 @@ class ValidateUsecasesTest(unittest.TestCase):
     def _write_index(self) -> None:
         (self.root / "plato_docs/usecase-index.yaml").write_text(
             yaml.safe_dump(self.index, allow_unicode=True, sort_keys=False),
+            encoding="utf-8",
+        )
+        (self.root / "plato_docs/usecase-document.yaml").write_text(
+            yaml.safe_dump(self.document_spec, allow_unicode=True, sort_keys=False),
             encoding="utf-8",
         )
 

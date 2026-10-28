@@ -1294,7 +1294,7 @@
     "btn_pr_awesome": "AWESOME",
     "title_pr_congrats": "NEW ACHIEVEMENT!",
     "pre_permission_btn_allow": "Allow Now",
-    "pre_permission_btn_later": "Later",
+    "pre_permission_btn_later": "Don't Enable",
     "pre_permission_desc": "To keep the rest timer running when the screen is off and automatically track your steps, Plato needs Notification and Physical Activity permissions.",
     "pre_permission_title": "Run Workout in Background",
     "title_recovery_status": "Recovery Status",

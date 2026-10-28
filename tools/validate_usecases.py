@@ -9,10 +9,12 @@ from typing import Any, Iterable
 try:
     from tools.usecase_common import (
         DEFAULT_INDEX,
+        DEFAULT_DOCUMENT_SPEC,
         REQUIRED_SECTIONS,
         USECASE_HEADING_PATTERN,
         USECASE_ID_PATTERN,
         load_localization_keys,
+        load_document_spec,
         load_usecase_index,
         repository_path,
         repository_root,
@@ -20,10 +22,12 @@ try:
 except ModuleNotFoundError:
     from usecase_common import (  # type: ignore[no-redef]
         DEFAULT_INDEX,
+        DEFAULT_DOCUMENT_SPEC,
         REQUIRED_SECTIONS,
         USECASE_HEADING_PATTERN,
         USECASE_ID_PATTERN,
         load_localization_keys,
+        load_document_spec,
         load_usecase_index,
         repository_path,
         repository_root,
@@ -63,18 +67,108 @@ def _validate_string_list(
     return value, issues
 
 
+def _validate_document_spec(
+    repo: Path, spec: dict[str, Any], usecases: dict[str, dict[str, Any]]
+) -> list[Issue]:
+    issues: list[Issue] = []
+    template = spec.get("template")
+    if not isinstance(template, str) or not template.strip():
+        issues.append(Issue("ERROR", "document spec: template is required"))
+    else:
+        try:
+            template_path = repository_path(repo, template)
+        except ValueError as error:
+            issues.append(Issue("ERROR", f"document spec: {error}"))
+        else:
+            if not template_path.is_file():
+                issues.append(Issue("ERROR", f"document spec: template not found: {template}"))
+
+    groups = spec.get("groups")
+    grouped_ids: list[str] = []
+    if not isinstance(groups, list) or not groups:
+        issues.append(Issue("ERROR", "document spec: groups must be a non-empty list"))
+    elif len(groups) != 7:
+        issues.append(Issue("ERROR", "document spec: exactly 7 use case groups are required"))
+    if isinstance(groups, list):
+        for position, group in enumerate(groups, start=1):
+            if not isinstance(group, dict):
+                issues.append(Issue("ERROR", f"document spec: group {position} must be a mapping"))
+                continue
+            title = group.get("title")
+            if not isinstance(title, str) or not title.strip():
+                issues.append(Issue("ERROR", f"document spec: group {position} title is required"))
+            ids = group.get("usecases")
+            if not isinstance(ids, list) or not all(isinstance(item, str) for item in ids):
+                issues.append(Issue("ERROR", f"document spec: group {position} usecases must be a list of IDs"))
+            else:
+                grouped_ids.extend(ids)
+        for duplicate in sorted(_duplicates(grouped_ids)):
+            issues.append(Issue("ERROR", f"document spec: duplicate grouped use case: {duplicate}"))
+        missing = sorted(set(usecases) - set(grouped_ids))
+        extra = sorted(set(grouped_ids) - set(usecases))
+        if missing:
+            issues.append(Issue("ERROR", f"document spec: ungrouped use cases: {', '.join(missing)}"))
+        if extra:
+            issues.append(Issue("ERROR", f"document spec: unknown grouped use cases: {', '.join(extra)}"))
+
+    glossary = spec.get("glossary")
+    if not isinstance(glossary, list) or not glossary:
+        issues.append(Issue("ERROR", "document spec: glossary must be a non-empty list"))
+    else:
+        for position, item in enumerate(glossary, start=1):
+            if not isinstance(item, dict) or not all(
+                isinstance(item.get(field), str) and item[field].strip()
+                for field in ("term", "definition")
+            ):
+                issues.append(Issue("ERROR", f"document spec: glossary item {position} is invalid"))
+
+    metadata = spec.get("usecases")
+    if not isinstance(metadata, dict):
+        return issues + [Issue("ERROR", "document spec: usecases must be a mapping")]
+    missing_metadata = sorted(set(usecases) - set(metadata))
+    extra_metadata = sorted(set(metadata) - set(usecases))
+    if missing_metadata:
+        issues.append(Issue("ERROR", f"document spec: missing metadata: {', '.join(missing_metadata)}"))
+    if extra_metadata:
+        issues.append(Issue("ERROR", f"document spec: unknown metadata: {', '.join(extra_metadata)}"))
+    for uc_id in sorted(set(usecases) & set(metadata)):
+        entry = metadata[uc_id]
+        if not isinstance(entry, dict):
+            issues.append(Issue("ERROR", f"{uc_id}: document metadata must be a mapping"))
+            continue
+        for field in ("summary", "importance", "supporting_actor", "offstage_actor"):
+            value = entry.get(field)
+            if not isinstance(value, str) or not value.strip():
+                issues.append(Issue("ERROR", f"{uc_id}: document field '{field}' is required"))
+        if entry.get("type") not in {"essential", "temporal"}:
+            issues.append(Issue("ERROR", f"{uc_id}: document type must be essential or temporal"))
+        relationships = entry.get("relationships")
+        if not isinstance(relationships, dict):
+            issues.append(Issue("ERROR", f"{uc_id}: relationships must be a mapping"))
+            continue
+        for field in ("entry_point", "association", "include", "extend"):
+            value = relationships.get(field)
+            if not isinstance(value, str) or not value.strip():
+                issues.append(Issue("ERROR", f"{uc_id}: relationship '{field}' is required"))
+    return issues
+
+
 def validate_repository(
     root: str | Path | None = None,
     index_path: str | Path = DEFAULT_INDEX,
     selected_uc: str | None = None,
+    document_spec_path: str | Path = DEFAULT_DOCUMENT_SPEC,
 ) -> list[Issue]:
     repo = repository_root(root)
     issues: list[Issue] = []
     try:
         _, usecases = load_usecase_index(repo, index_path)
+        _, document_spec = load_document_spec(repo, document_spec_path)
         localization = load_localization_keys(repo)
     except (OSError, ValueError) as error:
         return [Issue("ERROR", str(error))]
+
+    issues.extend(_validate_document_spec(repo, document_spec, usecases))
 
     if selected_uc:
         if selected_uc not in usecases:

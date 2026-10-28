@@ -9,6 +9,7 @@ import yaml
 
 
 DEFAULT_INDEX = Path("plato_docs/usecase-index.yaml")
+DEFAULT_DOCUMENT_SPEC = Path("plato_docs/usecase-document.yaml")
 LOCALIZATION_FILES = (
     Path("plato_gymapp/lib/i18n/strings_vi.i18n.json"),
     Path("plato_gymapp/lib/i18n/strings_en.i18n.json"),
@@ -76,6 +77,20 @@ def load_usecase_index(
     if not isinstance(usecases, dict):
         raise ValueError(f"{index_path} must contain a 'usecases' mapping")
     return path, usecases
+
+
+def load_document_spec(
+    root: Path, spec_path: str | Path = DEFAULT_DOCUMENT_SPEC
+) -> tuple[Path, dict[str, Any]]:
+    path = repository_path(root, spec_path)
+    try:
+        with path.open("r", encoding="utf-8") as stream:
+            data = yaml.load(stream, Loader=UniqueKeyLoader) or {}
+    except yaml.YAMLError as error:
+        raise ValueError(f"Invalid YAML in {spec_path}: {error}") from error
+    if not isinstance(data, dict):
+        raise ValueError(f"{spec_path} must contain a mapping")
+    return path, data
 
 
 def load_localization_keys(root: Path) -> dict[Path, set[str]]:
