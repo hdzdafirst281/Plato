@@ -8,8 +8,11 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_motion.dart';
+import 'package:plato_gymapp/core/di/injection.dart';
 import 'package:plato_gymapp/core/utils/measurement_units.dart';
 import 'package:plato_gymapp/features/profile/presentation/bloc/profile_cubit.dart';
+import 'package:plato_gymapp/features/workout/data/workout_effort_preferences.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:plato_gymapp/features/workout/data/models/workout_models.dart';
 import 'package:plato_gymapp/features/workout/domain/workout_extensions.dart';
@@ -61,8 +64,17 @@ class WorkoutDetailScreen extends StatefulWidget {
 
 class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
   bool _isExpandedMuscle = false;
+  late final bool _advancedEffortEnabled;
 
   static const bool kShowCaloriesFeature = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _advancedEffortEnabled = WorkoutEffortPreferences.advancedEnabled(
+      getIt<SharedPreferences>(),
+    );
+  }
 
   String _formatDuration(int totalSeconds) {
     final h = totalSeconds ~/ 3600;
@@ -314,47 +326,53 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 24),
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          if (kShowCaloriesFeature) ...[
-                            Expanded(
-                              child: _DetailSummaryItem(
-                                icon: Symbols.local_fire_department,
-                                label: t.workout.lbl_dtl_stat_calories,
-                                value: "${session.totalCaloriesBurned} kcal",
+                      if (!_advancedEffortEnabled ||
+                          kShowCaloriesFeature ||
+                          sessionPRCount > 0) ...[
+                        const SizedBox(height: 24),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            if (kShowCaloriesFeature) ...[
+                              Expanded(
+                                child: _DetailSummaryItem(
+                                  icon: Symbols.local_fire_department,
+                                  label: t.workout.lbl_dtl_stat_calories,
+                                  value: "${session.totalCaloriesBurned} kcal",
+                                ),
                               ),
-                            ),
-                            const SizedBox(width: 16),
-                          ],
-                          Expanded(
-                            child: _DetailSummaryItem(
-                              icon: Symbols.speed,
-                              label: t.workout.lbl_dtl_stat_rpe,
-                              value: effectiveRpeLabel != null
-                                  ? t.workout.fmt_dtl_rpe_value(
-                                      arg1: effectiveRpeLabel,
+                              const SizedBox(width: 16),
+                            ],
+                            if (!_advancedEffortEnabled) ...[
+                              Expanded(
+                                child: _DetailSummaryItem(
+                                  icon: Symbols.speed,
+                                  label: t.workout.lbl_dtl_stat_rpe,
+                                  value: effectiveRpeLabel != null
+                                      ? t.workout.fmt_dtl_rpe_value(
+                                          arg1: effectiveRpeLabel,
+                                        )
+                                      : t.workout.lbl_dtl_rpe_unrated,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                            ],
+                            Expanded(
+                              child: sessionPRCount > 0
+                                  ? _DetailSummaryItem(
+                                      icon: 'assets/svg/icons/trophy.svg',
+                                      label: t.gamification.title_main,
+                                      value: t.workout.fmt_dtl_pr_count(
+                                        arg1: sessionPRCount.toString(),
+                                      ),
+                                      highlightColor: gymColors.goldRank,
                                     )
-                                  : t.workout.lbl_dtl_rpe_unrated,
+                                  : const SizedBox.shrink(),
                             ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: sessionPRCount > 0
-                                ? _DetailSummaryItem(
-                                    icon: 'assets/svg/icons/trophy.svg',
-                                    label: t.gamification.title_main,
-                                    value: t.workout.fmt_dtl_pr_count(
-                                      arg1: sessionPRCount.toString(),
-                                    ),
-                                    highlightColor: gymColors.goldRank,
-                                  )
-                                : const SizedBox.shrink(),
-                          ),
-                          if (!kShowCaloriesFeature) const Spacer(),
-                        ],
-                      ),
+                            if (!kShowCaloriesFeature) const Spacer(),
+                          ],
+                        ),
+                      ],
                     ],
                   )
                   .animate()
@@ -726,6 +744,18 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                                 hasPastHistory &&
                                 s.isCompleted &&
                                 setPRs.isNotEmpty;
+                            final setRpeColor = s.rpe == null
+                                ? colorScheme.onSurfaceVariant
+                                : s.rpe! <= 4
+                                ? gymColors.success
+                                : s.rpe! <= 7
+                                ? gymColors.warning
+                                : colorScheme.error;
+                            final setRpeLabel = s.rpe == null
+                                ? '--'
+                                : t.workout.fmt_dtl_rpe_value(
+                                    arg1: s.rpe.toString(),
+                                  );
 
                             pastSetsForThisEx.add(s);
 
@@ -871,13 +901,78 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                                               },
                                             ),
                                             Expanded(
-                                              child: Text(
-                                                detailsString,
-                                                style: TextStyle(
-                                                  fontWeight: FontWeight.w600,
-                                                  color: colorScheme.onSurface,
-                                                  fontSize: 16,
-                                                ),
+                                              child: Column(
+                                                mainAxisSize: MainAxisSize.min,
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    detailsString,
+                                                    style: TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.w600,
+                                                      color:
+                                                          colorScheme.onSurface,
+                                                      fontSize: 16,
+                                                    ),
+                                                  ),
+                                                  if (_advancedEffortEnabled) ...[
+                                                    const SizedBox(height: 6),
+                                                    Semantics(
+                                                      label:
+                                                          '${t.workout.lbl_dtl_stat_rpe}: $setRpeLabel',
+                                                      child: Container(
+                                                        key: ValueKey(
+                                                          'set_rpe_${s.id}',
+                                                        ),
+                                                        padding:
+                                                            const EdgeInsets.symmetric(
+                                                              horizontal: 8,
+                                                              vertical: 5,
+                                                            ),
+                                                        decoration: BoxDecoration(
+                                                          color: setRpeColor
+                                                              .withValues(
+                                                                alpha: 0.12,
+                                                              ),
+                                                          borderRadius:
+                                                              BorderRadius.circular(
+                                                                8,
+                                                              ),
+                                                        ),
+                                                        child: ExcludeSemantics(
+                                                          child: Row(
+                                                            mainAxisSize:
+                                                                MainAxisSize
+                                                                    .min,
+                                                            children: [
+                                                              Icon(
+                                                                Symbols.speed,
+                                                                size: 14,
+                                                                color:
+                                                                    setRpeColor,
+                                                              ),
+                                                              const SizedBox(
+                                                                width: 4,
+                                                              ),
+                                                              Text(
+                                                                'RPE $setRpeLabel',
+                                                                style: TextStyle(
+                                                                  color:
+                                                                      setRpeColor,
+                                                                  fontSize: 12,
+                                                                  fontWeight:
+                                                                      FontWeight
+                                                                          .w800,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ],
                                               ),
                                             ),
                                           ],
