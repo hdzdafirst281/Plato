@@ -8,6 +8,7 @@ class GymAnimatedProgressBar extends StatelessWidget {
   final Color trackColor;
   final double height;
   final int animationDuration;
+  final GymMotionValue? motionValue;
 
   const GymAnimatedProgressBar({
     super.key,
@@ -16,6 +17,7 @@ class GymAnimatedProgressBar extends StatelessWidget {
     required this.trackColor,
     this.height = 8.0,
     this.animationDuration = 600,
+    this.motionValue,
   });
 
   @override
@@ -31,24 +33,33 @@ class GymAnimatedProgressBar extends StatelessWidget {
         borderRadius: BorderRadius.circular(height / 2), // Bo tròn 2 đầu
       ),
       alignment: Alignment.centerLeft, // Đảm bảo thanh chạy từ trái qua phải
-      child: TweenAnimationBuilder<double>(
-        tween: Tween<double>(begin: 0.0, end: clampedProgress),
-        duration: GymMotion.reduceMotion(context)
-            ? Duration.zero
-            : Duration(milliseconds: animationDuration),
-        curve: GymMotion.enterCurve,
-        builder: (context, value, child) {
-          return FractionallySizedBox(
-            widthFactor: value, // Lấp đầy % chiều rộng theo animation
-            child: Container(
-              height: height,
-              decoration: BoxDecoration(
-                color: color,
-                borderRadius: BorderRadius.circular(height / 2),
-              ),
+      child: motionValue == null
+          ? TweenAnimationBuilder<double>(
+              tween: Tween<double>(begin: 0.0, end: clampedProgress),
+              duration: GymMotion.reduceMotion(context)
+                  ? Duration.zero
+                  : Duration(milliseconds: animationDuration),
+              curve: GymMotion.enterCurve,
+              builder: (context, value, child) => _buildFill(value),
+            )
+          : GymStableValueBuilder(
+              motionValue: motionValue!,
+              value: clampedProgress,
+              duration: Duration(milliseconds: animationDuration),
+              builder: (context, value, child) => _buildFill(value),
             ),
-          );
-        },
+    );
+  }
+
+  Widget _buildFill(double value) {
+    return FractionallySizedBox(
+      widthFactor: value,
+      child: Container(
+        height: height,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(height / 2),
+        ),
       ),
     );
   }

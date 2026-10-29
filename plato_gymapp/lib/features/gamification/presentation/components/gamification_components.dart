@@ -503,12 +503,14 @@ class _WeeklyChestBanner extends StatelessWidget {
   final int completedQuests;
   final int targetQuests;
   final bool isClaimed;
+  final GymMotionValue motionValue;
   final VoidCallback onClaim;
 
   const _WeeklyChestBanner({
     required this.completedQuests,
     required this.targetQuests,
     required this.isClaimed,
+    required this.motionValue,
     required this.onClaim,
   });
 
@@ -637,6 +639,7 @@ class _WeeklyChestBanner extends StatelessWidget {
                               0.0,
                               1.0,
                             ),
+                            motionValue: motionValue,
                             color: gymColors.goldRank,
                             trackColor: Colors.white30,
                             height: 16,
@@ -667,9 +670,14 @@ class _WeeklyChestBanner extends StatelessWidget {
 
 class _QuestItem extends StatelessWidget {
   final Quest quest;
+  final GymMotionValue motionValue;
   final Function(String) onClaim;
 
-  const _QuestItem({required this.quest, required this.onClaim});
+  const _QuestItem({
+    required this.quest,
+    required this.motionValue,
+    required this.onClaim,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -785,6 +793,7 @@ class _QuestItem extends StatelessWidget {
                       children: [
                         GymAnimatedProgressBar(
                           progress: progressRatio,
+                          motionValue: motionValue,
                           color: quest.isCompleted
                               ? Theme.of(context).gymColors.success
                               : colorScheme.primary,

@@ -48,6 +48,8 @@ class _GamificationScreenState extends State<GamificationScreen>
   late TabController _tabController;
   late final AnimationController _marqueeController;
   final GymMotionValue _xpMotion = GymMotionValue();
+  final GymMotionValue _chestMotion = GymMotionValue();
+  final Map<String, GymMotionValue> _questMotions = {};
   final Map<String, GymMotionValue> _podiumMotions = {};
 
   @override
@@ -120,13 +122,15 @@ class _GamificationScreenState extends State<GamificationScreen>
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
 
-    final gamificationState = context.watch<GamificationCubit>().state;
-    final userStats = gamificationState.stats;
-
-    final profileState = context.watch<ProfileCubit>().state;
-    final userProfile = profileState.userProfile;
-
-    final currentWeeklyStreak = context.watch<StatsCubit>().state.weeklyStreak;
+    final userStats = context.select<GamificationCubit, UserGamificationStats>(
+      (cubit) => cubit.state.stats,
+    );
+    final userProfile = context.select<ProfileCubit, UserProfile>(
+      (cubit) => cubit.state.userProfile,
+    );
+    final currentWeeklyStreak = context.select<StatsCubit, int>(
+      (cubit) => cubit.state.weeklyStreak,
+    );
 
     // Sử dụng ResponsiveBreakpoints thay vì MediaQuery cứng
     final isTablet = ResponsiveBreakpoints.of(context).largerOrEqualTo(TABLET);
@@ -348,6 +352,7 @@ class _GamificationScreenState extends State<GamificationScreen>
             completedQuests: completedCount,
             targetQuests: 5,
             isClaimed: stats.isChestClaimed,
+            motionValue: _chestMotion,
             onClaim: () => _showChestRewardDialog(context),
           ),
         ),
@@ -384,6 +389,10 @@ class _GamificationScreenState extends State<GamificationScreen>
               effect: GymMotionEffect.slideFromEnd,
               child: _QuestItem(
                 quest: entry.value,
+                motionValue: _questMotions.putIfAbsent(
+                  entry.value.id,
+                  GymMotionValue.new,
+                ),
                 onClaim: (id) async {
                   await context.read<GamificationCubit>().claimQuestReward(id);
                   if (mounted) {
@@ -401,8 +410,20 @@ class _GamificationScreenState extends State<GamificationScreen>
     UserProfile userProfile, {
     required bool isTablet,
   }) {
-    final state = context.watch<GamificationCubit>().state;
+    return BlocBuilder<GamificationCubit, GamificationState>(
+      buildWhen: (previous, current) =>
+          previous.isLeaderboardLoading != current.isLeaderboardLoading ||
+          previous.leaderboard != current.leaderboard,
+      builder: (context, state) =>
+          _buildLeaderboardContent(state, userProfile, isTablet: isTablet),
+    );
+  }
 
+  Widget _buildLeaderboardContent(
+    GamificationState state,
+    UserProfile userProfile, {
+    required bool isTablet,
+  }) {
     if ((state.isLeaderboardLoading && state.leaderboard == null) ||
         debugForceLoading) {
       return const GymContentSwitcher(

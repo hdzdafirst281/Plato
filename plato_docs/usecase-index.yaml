@@ -589,6 +589,7 @@ usecases:
       - recovery_notifications
       - decayed_training_balance
     code_paths:
+      - "plato_gymapp/lib/core/designsystem/components/gym_animated_progress_bar.dart"
       - "plato_gymapp/lib/features/workout/presentation/screens/workout_screen.dart"
       - "plato_gymapp/lib/features/workout/presentation/components/workout_components.dart"
       - "plato_gymapp/lib/features/workout/presentation/bloc/workout_cubit.dart"
@@ -820,6 +821,7 @@ usecases:
       - reward_revocation
       - automatic_reward_claim
     code_paths:
+      - "plato_gymapp/lib/core/designsystem/components/gym_animated_progress_bar.dart"
       - "plato_gymapp/lib/features/gamification/presentation/screens/gamification_screen.dart"
       - "plato_gymapp/lib/features/gamification/presentation/components/gamification_components.dart"
       - "plato_gymapp/lib/features/gamification/presentation/bloc/gamification_cubit.dart"
