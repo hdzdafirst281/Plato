@@ -47,14 +47,14 @@ void main() {
     expect(second.streakEnabled, isTrue);
   });
 
-  test('turning master off disables categories but preserves selections', () {
+  test('master switch applies its value to every category', () {
     final result = NotificationPreferences.defaults
         .copyWith(hydrationEnabled: true)
         .withMasterEnabled(false);
 
     expect(result.masterEnabled, isFalse);
     expect(result.hasEnabledCategory, isFalse);
-    expect(result.hasSelectedCategory, isTrue);
+    expect(result.hasSelectedCategory, isFalse);
     expect(
       result.withMasterEnabled(true).enabledCategoryCount,
       NotificationPreferenceKind.values.length,
@@ -93,22 +93,22 @@ void main() {
     expect(result.withMasterEnabled(false).enabledCategoryCount, 0);
   });
 
-  test(
-    'store preserves category selections while master is disabled',
-    () async {
-      final prefs = await SharedPreferences.getInstance();
-      final store = NotificationPreferencesStore(prefs);
-      await store.load('account-a');
-      await store.save(
-        'account-a',
-        NotificationPreferences.defaults.copyWith(masterEnabled: false),
-      );
+  test('store persists categories disabled by the master switch', () async {
+    final prefs = await SharedPreferences.getInstance();
+    final store = NotificationPreferencesStore(prefs);
+    await store.load('account-a');
+    await store.save(
+      'account-a',
+      NotificationPreferences.defaults.withMasterEnabled(false),
+    );
 
-      final loaded = await store.load('account-a');
-      expect(loaded.masterEnabled, isFalse);
-      expect(loaded.hasEnabledCategory, isFalse);
-      expect(loaded.hasSelectedCategory, isTrue);
-      expect(loaded.withMasterEnabled(true).enabledCategoryCount, 3);
-    },
-  );
+    final loaded = await store.load('account-a');
+    expect(loaded.masterEnabled, isFalse);
+    expect(loaded.hasEnabledCategory, isFalse);
+    expect(loaded.hasSelectedCategory, isFalse);
+    expect(
+      loaded.withMasterEnabled(true).enabledCategoryCount,
+      NotificationPreferenceKind.values.length,
+    );
+  });
 }
