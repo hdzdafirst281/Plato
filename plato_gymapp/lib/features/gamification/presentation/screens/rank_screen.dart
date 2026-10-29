@@ -130,7 +130,9 @@ class _RankScreenState extends State<RankScreen>
                   TextSpan(text: t.rank.desc_info_rp_definition),
                   const TextSpan(text: " "),
                   TextSpan(
-                    text: t.rank.desc_info_daily_cap(max: RankConfig.dailyRpCap),
+                    text: t.rank.desc_info_daily_cap(
+                      max: RankConfig.dailyRpCap,
+                    ),
                   ),
                 ],
               ),
@@ -195,22 +197,29 @@ class _RankScreenState extends State<RankScreen>
         top: false,
         bottom: !isTablet,
         child: Padding(
-          padding: const EdgeInsets.symmetric(vertical: 8.0),
+          padding: const EdgeInsets.only(bottom: 2),
           child: TabBar(
             controller: _tabController,
             labelColor: colorScheme.primary,
             unselectedLabelColor: colorScheme.onSurfaceVariant,
-            indicatorColor: colorScheme.primary,
             dividerColor: Colors.transparent,
             labelStyle: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 13,
             ),
+            indicator: _TopTabIndicator(
+              color: colorScheme.primary,
+              width: 40,
+              thickness: 3,
+              borderRadius: const BorderRadius.vertical(
+                bottom: Radius.circular(3),
+              ),
+            ),
             indicatorPadding: EdgeInsets.zero,
-            indicatorSize: TabBarIndicatorSize.label,
-            indicatorWeight: 3,
+            indicatorSize: TabBarIndicatorSize.tab,
             tabs: [
               Tab(
+                height: 56,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -222,6 +231,7 @@ class _RankScreenState extends State<RankScreen>
                 ),
               ),
               Tab(
+                height: 56,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.center,
@@ -645,5 +655,82 @@ class _RankShimmer extends StatelessWidget {
         ),
       ),
     );
+  }
+}
+
+class _TopTabIndicator extends Decoration {
+  final Color color;
+  final double width;
+  final double thickness;
+  final BorderRadius? borderRadius;
+
+  const _TopTabIndicator({
+    required this.color,
+    this.width = 40.0,
+    this.thickness = 3.0,
+    this.borderRadius,
+  });
+
+  @override
+  Decoration? lerpFrom(Decoration? a, double t) {
+    if (a is _TopTabIndicator) {
+      return _TopTabIndicator(
+        color: Color.lerp(a.color, color, t) ?? color,
+        width: ui.lerpDouble(a.width, width, t) ?? width,
+        thickness: ui.lerpDouble(a.thickness, thickness, t) ?? thickness,
+        borderRadius: BorderRadius.lerp(a.borderRadius, borderRadius, t),
+      );
+    }
+    return super.lerpFrom(a, t);
+  }
+
+  @override
+  Decoration? lerpTo(Decoration? b, double t) {
+    if (b is _TopTabIndicator) {
+      return _TopTabIndicator(
+        color: Color.lerp(color, b.color, t) ?? b.color,
+        width: ui.lerpDouble(width, b.width, t) ?? b.width,
+        thickness: ui.lerpDouble(thickness, b.thickness, t) ?? b.thickness,
+        borderRadius: BorderRadius.lerp(borderRadius, b.borderRadius, t),
+      );
+    }
+    return super.lerpTo(b, t);
+  }
+
+  @override
+  BoxPainter createBoxPainter([VoidCallback? onChanged]) {
+    return _TopTabIndicatorPainter(this, onChanged);
+  }
+}
+
+class _TopTabIndicatorPainter extends BoxPainter {
+  final _TopTabIndicator decoration;
+
+  _TopTabIndicatorPainter(this.decoration, super.onChanged);
+
+  @override
+  void paint(Canvas canvas, Offset offset, ImageConfiguration configuration) {
+    final size = configuration.size;
+    if (size == null) return;
+
+    final Rect rect = offset & size;
+    final double left = rect.left + (rect.width - decoration.width) / 2;
+    final Rect indicatorRect = Rect.fromLTWH(
+      left,
+      rect.top,
+      decoration.width,
+      decoration.thickness,
+    );
+
+    final Paint paint = Paint()
+      ..color = decoration.color
+      ..style = PaintingStyle.fill;
+
+    final radius = decoration.borderRadius;
+    if (radius != null) {
+      canvas.drawRRect(radius.toRRect(indicatorRect), paint);
+    } else {
+      canvas.drawRect(indicatorRect, paint);
+    }
   }
 }

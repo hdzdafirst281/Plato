@@ -1,7 +1,7 @@
 name: plato_gymapp
 description: "Ứng dụng quản lý tập luyện và dinh dưỡng cho người dùng."
 publish_to: 'none'
-version: 1.1.1+9
+version: 1.2.0+10
 
 environment:
   sdk: ^3.11.4

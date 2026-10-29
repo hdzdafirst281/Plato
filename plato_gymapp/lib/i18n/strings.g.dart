@@ -1598,7 +1598,7 @@ class _StringsWorkoutEn {
 	String get btn_pr_awesome => 'AWESOME';
 	String get title_pr_congrats => 'NEW ACHIEVEMENT!';
 	String get pre_permission_btn_allow => 'Allow Now';
-	String get pre_permission_btn_later => 'Later';
+	String get pre_permission_btn_later => 'Don\'t Enable';
 	String get pre_permission_desc => 'To keep the rest timer running when the screen is off and automatically track your steps, Plato needs Notification and Physical Activity permissions.';
 	String get pre_permission_title => 'Run Workout in Background';
 	String get title_recovery_status => 'Recovery Status';
@@ -3307,7 +3307,7 @@ class _StringsWorkoutVi extends _StringsWorkoutEn {
 	@override String get btn_pr_awesome => 'TUYỆT VỜI';
 	@override String get title_pr_congrats => 'THÀNH TÍCH MỚI!';
 	@override String get pre_permission_btn_allow => 'Cấp quyền ngay';
-	@override String get pre_permission_btn_later => 'Để sau';
+	@override String get pre_permission_btn_later => 'Không bật';
 	@override String get pre_permission_desc => 'Để tính năng đếm giờ nghỉ tiếp tục hoạt động khi bạn tắt màn hình và tự động đếm số bước chân, Plato cần quyền gửi Thông báo và Hoạt động thể chất.';
 	@override String get pre_permission_title => 'Chạy nền buổi tập';
 	@override String get title_recovery_status => 'Trạng thái Phục hồi';
@@ -4804,7 +4804,7 @@ extension on Translations {
 			case 'workout.btn_pr_awesome': return 'AWESOME';
 			case 'workout.title_pr_congrats': return 'NEW ACHIEVEMENT!';
 			case 'workout.pre_permission_btn_allow': return 'Allow Now';
-			case 'workout.pre_permission_btn_later': return 'Later';
+			case 'workout.pre_permission_btn_later': return 'Don\'t Enable';
 			case 'workout.pre_permission_desc': return 'To keep the rest timer running when the screen is off and automatically track your steps, Plato needs Notification and Physical Activity permissions.';
 			case 'workout.pre_permission_title': return 'Run Workout in Background';
 			case 'workout.title_recovery_status': return 'Recovery Status';
@@ -6283,7 +6283,7 @@ extension on _StringsVi {
 			case 'workout.btn_pr_awesome': return 'TUYỆT VỜI';
 			case 'workout.title_pr_congrats': return 'THÀNH TÍCH MỚI!';
 			case 'workout.pre_permission_btn_allow': return 'Cấp quyền ngay';
-			case 'workout.pre_permission_btn_later': return 'Để sau';
+			case 'workout.pre_permission_btn_later': return 'Không bật';
 			case 'workout.pre_permission_desc': return 'Để tính năng đếm giờ nghỉ tiếp tục hoạt động khi bạn tắt màn hình và tự động đếm số bước chân, Plato cần quyền gửi Thông báo và Hoạt động thể chất.';
 			case 'workout.pre_permission_title': return 'Chạy nền buổi tập';
 			case 'workout.title_recovery_status': return 'Trạng thái Phục hồi';

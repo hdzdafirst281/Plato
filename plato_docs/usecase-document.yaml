@@ -1,0 +1,720 @@
+version: 1
+template: plato_docs/templates/usecase-template.docx
+glossary_note: Tên tiếng Việt được dùng trước; thuật ngữ tiếng Anh trong ngoặc giúp đối chiếu với khái
+  niệm và nhãn trong ứng dụng.
+groups:
+- title: A. Khởi tạo và tài khoản
+  usecases:
+  - UC01
+  - UC02
+  - UC03
+  - UC04
+  - UC05
+  - UC06
+- title: B. Hồ sơ cá nhân và mục tiêu
+  usecases:
+  - UC07
+  - UC08
+- title: C. Bài tập, chương trình và Routine
+  usecases:
+  - UC09
+  - UC10
+  - UC11
+  - UC12
+  - UC13
+  - UC14
+- title: D. Thực hiện và đánh giá buổi tập
+  usecases:
+  - UC15
+  - UC16
+  - UC17
+  - UC18
+  - UC19
+- title: E. Dinh dưỡng
+  usecases:
+  - UC20
+  - UC21
+  - UC22
+  - UC23
+  - UC24
+- title: F. Gamification
+  usecases:
+  - UC25
+  - UC26
+  - UC27
+- title: G. Thiết lập và hỗ trợ
+  usecases:
+  - UC28
+  - UC29
+  - UC30
+  - UC31
+glossary:
+- term: Giáo án (Program)
+  definition: Một chương trình tập gồm nhiều Lịch tập.
+- term: Lịch tập (Routine)
+  definition: Một mẫu buổi tập gồm danh sách bài tập và các hiệp.
+- term: Hiệp (Set)
+  definition: Một lượt thực hiện bài tập với dữ liệu cần ghi nhận.
+- term: Nhóm hiệp liên hoàn (Superset)
+  definition: Hai hoặc nhiều bài được thực hiện liên tiếp theo nhóm.
+- term: Năng lượng (Calories)
+  definition: Năng lượng nạp vào hoặc mục tiêu dinh dưỡng, tính bằng kcal.
+- term: Tỉ lệ dinh dưỡng đa lượng (Macro)
+  definition: Protein, carbohydrate và chất béo.
+- term: Chuỗi tập luyện (Streak)
+  definition: Số ngày hoặc tuần tập liên tiếp theo quy tắc của hệ thống.
+- term: Điểm kinh nghiệm (XP)
+  definition: Điểm ghi nhận tiến độ hoạt động.
+- term: Điểm hạng (RP) và Hạng (Rank)
+  definition: Điểm và cấp bậc trong hành trình xếp hạng.
+- term: Dữ liệu cục bộ (Local)
+  definition: Dữ liệu được lưu trên thiết bị.
+- term: Dữ liệu đám mây (Cloud)
+  definition: Dữ liệu được lưu hoặc đồng bộ qua dịch vụ trực tuyến.
+usecases:
+  UC01:
+    summary: 'Thực hiện onboarding: nhập thông tin cá nhân, mục tiêu tập luyện và dinh dưỡng, chấn thương,
+      dị ứng và chế độ ăn. Người dùng đồng ý Điều khoản/EULA; hệ thống tính BMR, TDEE, calories/macro,
+      dùng kế hoạch cân bằng mặc định, lưu các hạn chế ăn uống để sàng lọc thực phẩm và tự động lưu Program phù hợp.'
+    importance: Cao
+    type: essential
+    supporting_actor: Không có
+    offstage_actor: Không có
+    relationships:
+      entry_point: Màn hình khởi động tự động mở màn hình thiết lập ban đầu khi chưa có dấu hoàn tất.
+      association: Người dùng – cung cấp và xác nhận thông tin thiết lập ban đầu.
+      include: Khám phá và lưu chương trình tập (UC11) – hệ thống lưu các Routine của chương trình được
+        đề xuất trước khi lưu hồ sơ.
+      extend: Xem video hướng dẫn và thông tin hỗ trợ (UC29) – tại bước xác nhận cuối, người dùng có thể
+        mở Điều khoản sử dụng hoặc EULA để xem trước khi đồng ý.
+  UC02:
+    summary: Kiểm tra kết nối và email đã đăng ký, gửi OTP, xác thực và đăng nhập. Hệ thống khôi phục hoặc
+      hợp nhất dữ liệu cloud được hỗ trợ, gồm hồ sơ với avatar/tùy chọn đơn vị, gamification, lịch sử tập,
+      Routine và cấu hình dinh dưỡng; không gồm nhật ký bữa ăn/nước theo ngày, lịch đã lên và dữ liệu tùy chỉnh chỉ lưu local.
+    importance: Cao
+    type: essential
+    supporting_actor: Supabase – kiểm tra sự tồn tại của tài khoản, tiếp nhận yêu cầu gửi Email OTP, xác
+      thực người dùng và cung cấp dữ liệu tài khoản trực tuyến.
+    offstage_actor: Không có
+    relationships:
+      entry_point: '1. Nút “Đã có tài khoản? Đăng nhập ngay” trong Khởi tạo hồ sơ và thiết lập ban đầu
+        (UC01).
+
+        2. Thẻ Đăng nhập trên màn hình quản lý tài khoản của hồ sơ chưa liên kết.
+
+        3. Điểm điều hướng trực tiếp đến màn hình đăng nhập của ứng dụng.'
+      association: '1. Người dùng – nhập email và mã xác nhận.
+
+        2. Supabase – kiểm tra tài khoản, tiếp nhận yêu cầu Email OTP, xác thực và cung cấp dữ liệu trực
+        tuyến.'
+      include: Không có
+      extend: Không có
+  UC03:
+    summary: Liên kết hồ sơ local với email mới hoặc đổi email tài khoản đang đăng nhập. Hệ thống chặn
+      gửi OTP khi phát hiện mất mạng, kiểm tra email chưa sử dụng, xác thực và đồng bộ hồ sơ/Routine theo phạm vi cloud hỗ trợ.
+    importance: Cao
+    type: essential
+    supporting_actor: Supabase – kiểm tra email, tiếp nhận yêu cầu liên kết hoặc thay đổi email, xác thực
+      Email OTP và tiếp nhận dữ liệu được đồng bộ.
+    offstage_actor: Không có
+    relationships:
+      entry_point: '1. Thẻ Liên kết Email trên màn hình quản lý tài khoản của hồ sơ chưa liên kết.
+
+        2. Thẻ Đổi Email liên kết trên màn hình quản lý tài khoản của người dùng đang đăng nhập.'
+      association: '1. Người dùng – nhập email và mã xác nhận.
+
+        2. Supabase – kiểm tra email, tiếp nhận yêu cầu liên kết hoặc thay đổi, xác thực và tiếp nhận
+        dữ liệu.'
+      include: Không có
+      extend: Không có
+  UC04:
+    summary: Kiểm tra kết nối và email tài khoản đích, gửi/xác thực OTP; backup dữ liệu được hỗ trợ của
+      tài khoản hiện tại, xóa dữ liệu local, đăng nhập tài khoản đích rồi khôi phục hồ sơ, Routine, lịch sử và gamification tương ứng.
+    importance: Cao
+    type: essential
+    supporting_actor: Supabase – kiểm tra tài khoản đích, tiếp nhận yêu cầu Email OTP, xác thực, tiếp
+      nhận dữ liệu của tài khoản hiện tại và cung cấp dữ liệu tài khoản đích.
+    offstage_actor: Không có
+    relationships:
+      entry_point: Thẻ Chuyển đổi tài khoản khác trên màn hình quản lý tài khoản của người dùng đang đăng
+        nhập.
+      association: '1. Người dùng – cung cấp email tài khoản đích và mã xác nhận.
+
+        2. Supabase – kiểm tra tài khoản, xác thực, tiếp nhận dữ liệu tài khoản hiện tại và cung cấp dữ
+        liệu tài khoản đích.'
+      include: Không có
+      extend: Không có
+  UC05:
+    summary: Yêu cầu xác nhận; backup dữ liệu được cloud hỗ trợ; xóa hồ sơ và toàn bộ dữ liệu cá nhân
+      local như lịch sử tập, routine, lịch đã lên, nutrition, reward ledger, custom exercise và ghi chú
+      bài tập; đăng xuất Supabase và đưa ứng dụng về trạng thái chưa liên kết. Dữ liệu master của hệ thống
+      vẫn được giữ lại.
+    importance: Cao
+    type: essential
+    supporting_actor: Supabase – tiếp nhận các yêu cầu lưu hoặc cập nhật những nhóm dữ liệu được hỗ trợ
+      và yêu cầu kết thúc phiên tài khoản.
+    offstage_actor: Không có
+    relationships:
+      entry_point: Màn hình cài đặt → mục Đăng xuất, chỉ hiển thị khi có phiên tài khoản đang hoạt động.
+      association: '1. Người dùng.
+
+        2. Supabase – tiếp nhận các yêu cầu lưu hoặc cập nhật những nhóm dữ liệu được hỗ trợ và yêu cầu
+        kết thúc phiên tài khoản.'
+      include: Không có
+      extend: Không có
+  UC06:
+    summary: Người dùng xác nhận yêu cầu xóa bằng email hiện tại hoặc chuỗi “DELETE”. Với tài khoản đã
+      liên kết, hệ thống xóa tài khoản và dữ liệu đám mây (cloud) trước khi dọn dữ liệu cá nhân cục bộ
+      (local) và kết thúc phiên. Với hồ sơ khách, hệ thống chỉ dọn dữ liệu cá nhân cục bộ. Khi thành công,
+      ứng dụng đặt lại trạng thái lần chạy đầu và đưa người dùng về onboarding để khởi tạo hồ sơ mới.
+      Lựa chọn chạy nền, trạng thái đã hỏi quyền và các quyền của hệ điều hành được giữ lại trên thiết
+      bị.
+    importance: Cao
+    type: essential
+    supporting_actor: Supabase – tiếp nhận yêu cầu xóa tài khoản và dữ liệu trực tuyến đối với phiên đã
+      liên kết, đồng thời tiếp nhận yêu cầu kết thúc phiên.
+    offstage_actor: Không có
+    relationships:
+      entry_point: Cá nhân → biểu tượng bánh răng → Cài đặt Ứng dụng → Quản lý tài khoản → Xóa tài khoản.
+      association: '1. Người dùng.
+
+        2. Supabase – xóa tài khoản và dữ liệu cloud đối với tài khoản đã liên kết.'
+      include: Đăng xuất tài khoản (UC05) – kết thúc phiên sau khi xóa dữ liệu.
+      extend: Khởi tạo hồ sơ và thiết lập ban đầu (UC01) – được mở lại sau khi xóa thành công.
+  UC07:
+    summary: Cập nhật thông tin cá nhân, thể trạng, số đo và cấu hình tập/dinh dưỡng. Với tài khoản liên
+      kết, ảnh đại diện được tải lên Supabase Storage bucket avatars, URL công khai được lưu trong hồ sơ và đồng bộ để dùng ở leaderboard.
+    importance: Trung Bình
+    type: essential
+    supporting_actor: '1. Thư viện ảnh trên thiết bị – cung cấp ảnh để người dùng chọn làm ảnh đại diện.
+
+      2. Supabase – tiếp nhận yêu cầu cập nhật các thông tin hồ sơ được hỗ trợ khi người dùng có phiên
+      tài khoản đã liên kết.'
+    offstage_actor: Không có
+    relationships:
+      entry_point: '1. Màn hình hồ sơ → chạm vào ảnh đại diện.
+
+        2. Màn hình hồ sơ → nút Chỉnh sửa.'
+      association: '1. Người dùng.
+
+        2. Thư viện ảnh trên thiết bị.
+
+        3. Supabase – tiếp nhận yêu cầu cập nhật các trường hồ sơ được hỗ trợ khi tài khoản đã liên kết.'
+      include: Không có
+      extend: Không có
+  UC08:
+    summary: Cập nhật cân nặng hiện tại và ghi nhận lịch sử cân; thiết lập cân nặng mục tiêu, thời hạn
+      và tốc độ thay đổi cân nặng; xem lộ trình cân nặng; quản lý calories và protein/carbs/fat mục tiêu;
+      chuyển giữa macro tự động và macro tùy chỉnh; nhận, bỏ qua hoặc tắt nhắc cân hằng tuần; xử lý khi
+      đạt hoặc hết hạn mục tiêu bằng cách duy trì cân nặng hoặc thiết lập mục tiêu mới.
+    importance: Cao
+    type: essential
+    supporting_actor: Supabase – tiếp nhận yêu cầu đồng bộ hồ sơ khi người dùng đã đăng nhập và lưu thay
+      đổi từ màn hình chỉnh sửa hồ sơ.
+    offstage_actor: Không có
+    relationships:
+      entry_point: Tab Dinh dưỡng; thẻ mục tiêu Calories và macro; thẻ Lộ trình Cân nặng; nút Cập nhật
+        Cân nặng; biểu tượng chỉnh sửa mục tiêu; màn hình Chỉnh sửa hồ sơ thuộc Quản lý hồ sơ cá nhân
+        và cấu hình tập luyện (UC07); hộp thoại nhắc cân và rà soát mục tiêu do hệ thống hiển thị có điều
+        kiện.
+      association: '1. Người dùng.
+
+        2. Supabase – chỉ tham gia khi đồng bộ hồ sơ của người dùng đã đăng nhập.'
+      include: Không có
+      extend: Không có
+  UC09:
+    summary: Tìm kiếm bài tập; lọc theo nhóm cơ và thiết bị; xem hình ảnh, hướng dẫn thực hiện, nhóm cơ
+      chính/phụ, ghi chú cá nhân, lịch sử thực hiện và tiến độ của bài tập.
+    importance: Trung Bình
+    type: essential
+    supporting_actor: Không có
+    offstage_actor: Không có
+    relationships:
+      entry_point: '1. Hồ sơ → Bài tập.
+
+        2. Danh sách bài tập trong chi tiết chương trình của Khám phá và lưu chương trình tập (UC11).
+
+        3. Tên bài tập, thao tác thêm và thay thế trong Quản lý Routine (UC12).
+
+        4. Tên bài tập, thao tác thêm và thay thế trong Thực hiện và hoàn tất buổi tập (UC15).
+
+        5. Tên bài tập trong chi tiết buổi tập của Quản lý lịch sử tập luyện (UC17).
+
+        6. Thẻ bài tập hoặc biểu tượng Xem chi tiết trong thư viện.'
+      association: Người dùng.
+      include: Không có
+      extend: Không có
+  UC10:
+    summary: Tạo, sửa và xóa bài tập do người dùng định nghĩa; cấu hình tên, loại bài, thiết bị, nhóm
+      cơ chính/phụ, hình ảnh local và ghi chú.
+    importance: Trung Bình
+    type: essential
+    supporting_actor: Thư viện ảnh của thiết bị – cung cấp ảnh do người dùng lựa chọn.
+    offstage_actor: Không có
+    relationships:
+      entry_point: '1. Dấu cộng trong Thư viện bài tập thuộc Tra cứu và xem thông tin bài tập (UC09).
+
+        2. Menu Sửa hoặc Xóa tại chi tiết bài tự tạo thuộc Tra cứu và xem thông tin bài tập (UC09).'
+      association: '1. Người dùng.
+
+        2. Thư viện ảnh của thiết bị – tham gia khi người dùng chọn ảnh minh họa.'
+      include: Không có
+      extend: Không có
+  UC11:
+    summary: Xem và lọc chương trình mẫu theo mục tiêu, môi trường và độ khó; ẩn hoặc hiện chương trình
+      đã thêm; xem chi tiết các routine và bài tập trong chương trình; lưu toàn bộ routine của chương
+      trình vào khu vực cá nhân.
+    importance: Trung Bình
+    type: essential
+    supporting_actor: Không có
+    offstage_actor: Không có
+    relationships:
+      entry_point: '1. Nút “Khám phá” tại khu vực tập luyện.
+
+        2. Điểm hoàn tất thiết lập ban đầu trong Khởi tạo hồ sơ và thiết lập ban đầu (UC01).'
+      association: Người dùng.
+      include: Không có
+      extend: '1. Khởi tạo hồ sơ và thiết lập ban đầu (UC01) – Use Case hiện tại được kích hoạt có điều
+        kiện tại thời điểm hoàn tất thiết lập khi hệ thống tìm được chương trình phù hợp.
+
+        2. Tra cứu và xem thông tin bài tập (UC09) – được kích hoạt có điều kiện khi người dùng chọn một
+        bài tập trong chi tiết chương trình.'
+  UC12:
+    summary: Xem, bắt đầu, tạo, sửa, nhân bản và xóa Routine; quản lý bài, set, mục tiêu, thời gian nghỉ,
+      ghi chú, superset và Muscle Split. Tối đa 10 Routine được kiểm tra trong các luồng tạo/copy/Program;
+      thay đổi lưu local trước rồi đồng bộ với bảng routines khi tài khoản và kết nối cho phép.
+    importance: Cao
+    type: essential
+    supporting_actor: Không có
+    offstage_actor: Không có
+    relationships:
+      entry_point: '1. Thẻ Routine, nút “Bắt đầu” và menu Sửa, Sao chép, Xóa tại khu vực tập luyện.
+
+        2. Nút tạo Routine trong một thư mục thuộc Quản lý thư mục Routine (UC13).
+
+        3. Thẻ lịch tập tương lai trong Quản lý lịch tập luyện (UC14).
+
+        4. Menu “Lưu thành giáo án mới” trong Quản lý lịch sử tập luyện (UC17).
+
+        5. Thao tác lưu chương trình trong Khám phá và lưu chương trình tập (UC11).
+
+        6. Hộp thoại lưu thay đổi cấu trúc khi hoàn tất buổi tập trong Thực hiện và hoàn tất buổi tập
+        (UC15).'
+      association: Người dùng.
+      include: Không có
+      extend: '1. Tra cứu và xem thông tin bài tập (UC09) – được mở có điều kiện khi người dùng thêm,
+        thay thế hoặc xem chi tiết một bài tập trong Routine.
+
+        2. Khám phá và lưu chương trình tập (UC11) – tạo nhiều Routine có điều kiện khi người dùng lưu
+        một chương trình.
+
+        3. Quản lý thư mục Routine (UC13) – Use Case hiện tại được mở tại điểm thêm Routine vào một thư
+        mục.
+
+        4. Quản lý lịch tập luyện (UC14) – Use Case hiện tại được mở ở chế độ xem khi người dùng chọn
+        một lịch tương lai còn Routine tương ứng.
+
+        5. Thực hiện và hoàn tất buổi tập (UC15) – được kích hoạt khi người dùng bắt đầu Routine và có
+        thể cập nhật lại Routine khi hoàn tất buổi tập.
+
+        6. Quản lý lịch sử tập luyện (UC17) – Use Case hiện tại được mở để tạo Routine mới từ một buổi
+        tập cũ.'
+  UC13:
+    summary: Tạo thư mục rỗng; đổi tên, xóa và sắp xếp thư mục; thêm routine vào thư mục; sắp xếp routine
+      trong từng thư mục; kéo và di chuyển routine giữa các thư mục. Khi xóa thư mục, hệ thống yêu cầu
+      xác nhận và xử lý các routine thuộc thư mục theo quy tắc được xác định.
+    importance: Cao
+    type: essential
+    supporting_actor: Không có
+    offstage_actor: Không có
+    relationships:
+      entry_point: '1. Khu vực thư mục Routine trong mục Tập luyện.
+
+        2. Nút thêm thư mục.
+
+        3. Menu tùy chọn của từng thư mục.
+
+        4. Nút thêm Routine và vùng thả ở cuối danh sách Routine.
+
+        5. Thao tác nhấn giữ và kéo Routine.'
+      association: Người dùng – trực tiếp tạo, đổi tên, xóa, sắp xếp thư mục và tổ chức Routine.
+      include: Không có
+      extend: '1. Quản lý Routine (UC12) – được kích hoạt có điều kiện tại điểm người dùng chọn thêm Routine
+        vào một thư mục.
+
+        2. Xem hướng dẫn tương tác theo ngữ cảnh (UC30) – được kích hoạt có điều kiện khi người dùng mở
+        mục Tập luyện và hướng dẫn tương ứng chưa được đánh dấu đã xem.'
+  UC14:
+    summary: Xem Calendar theo Tháng/Năm/Nhiều Năm và streak; quản lý lịch tương lai gắn Routine với
+      ngày, màu, giờ, múi giờ, quy tắc lặp và nhắc trước 15/30/60 phút. Streak chỉ tính buổi đã kết thúc
+      có hiệp hợp lệ theo tuần bắt đầu thứ Hai; tối đa bốn nhắc lịch tập được bật trong cùng ngày.
+    importance: Trung Bình
+    type: essential
+    supporting_actor: Không có
+    offstage_actor: Không có
+    relationships:
+      entry_point: '1. Nút Lịch trên màn hình Hồ sơ.
+
+        2. Nút xem tất cả tại khu vực lịch sử gần đây của Quản lý lịch sử tập luyện (UC17).
+
+        3. Ô ngày trong chế độ xem Tháng.
+
+        4. Nút tạo lịch tại chi tiết ngày hiện tại hoặc ngày tương lai.
+
+        5. Nút sửa và xóa trên thẻ lịch tập tương lai.'
+      association: Người dùng – trực tiếp xem, tạo, sửa và xóa lịch tập.
+      include: Không có
+      extend: '1. Quản lý Routine (UC12) – được kích hoạt có điều kiện khi người dùng chọn Routine để
+        tạo lịch hoặc mở Routine từ một lịch tương lai.
+
+        2. Quản lý lịch sử tập luyện (UC17) – được kích hoạt có điều kiện khi người dùng chọn một buổi
+        tập quá khứ.
+
+        3. Xem hướng dẫn tương tác theo ngữ cảnh (UC30) – được kích hoạt có điều kiện khi người dùng mở
+        lịch và hướng dẫn tương ứng chưa được đánh dấu đã xem.'
+  UC15:
+    summary: Thực hiện workout từ Routine hoặc buổi trống; áp dụng tùy chọn RPE từng set, nghỉ mặc định,
+      giữ màn hình sáng, âm thanh rest timer và xác nhận kết thúc; lưu/khôi phục buổi dở và chạy nền.
+      Hệ thống cảnh báo ngưỡng tạ theo e1RM 30 ngày, tính volume/PR/XP và giới hạn XP workout 300/ngày.
+      Sau khi lưu, Workout Rewards làm mới và tự nhận quest/rương đủ điều kiện trước khi mở tổng kết.
+    importance: Cao
+    type: essential
+    supporting_actor: Hệ điều hành thiết bị – hỗ trợ theo dõi buổi tập ở nền và hiển thị thông báo tiến
+      độ.
+    offstage_actor: Không có
+    relationships:
+      entry_point: '1. Nút bắt đầu buổi tập trống tại khu vực Workout.
+
+        2. Nút bắt đầu trên thẻ hoặc màn hình chi tiết Routine trong Quản lý Routine (UC12).
+
+        3. Thanh buổi tập thu nhỏ hoặc thông báo của buổi tập đang diễn ra.
+
+        4. Tác vụ khôi phục buổi tập đang dở khi ứng dụng khởi động.'
+      association: '1. Người dùng.
+
+        2. Hệ điều hành thiết bị.'
+      include: Quản lý thông báo và chạy nền (UC31) – hệ thống kiểm tra lựa chọn chạy nền và các
+        quyền cần thiết trước khi bắt đầu buổi tập.
+      extend: '1. Xem tổng kết buổi tập (UC16) – được mở sau khi người dùng tiếp tục từ màn hình Workout Rewards.
+
+        2. Xem hướng dẫn tương tác theo ngữ cảnh (UC30) – xuất hiện khi hướng dẫn Log Workout tương ứng
+        chưa được đánh dấu đã xem.'
+  UC16:
+    summary: Sau Workout Rewards, xem số bài, thời lượng, XP, body heatmap nam/nữ từ các working set đã
+      hoàn tất và ACWR. Chỉ hiển thị/chỉnh RPE chung khi chế độ RPE từng set đang tắt.
+    importance: Cao
+    type: essential
+    supporting_actor: Không có
+    offstage_actor: Không có
+    relationships:
+      entry_point: Màn hình tổng kết được mở sau khi người dùng chọn tiếp tục từ màn hình Workout Rewards
+        của Thực hiện và hoàn tất buổi tập (UC15).
+      association: Người dùng.
+      include: Không có
+      extend: Thực hiện và hoàn tất buổi tập (UC15) – mở rộng sau màn hình Workout Rewards khi người dùng
+        chọn tiếp tục.
+  UC17:
+    summary: Xem danh sách và chi tiết các buổi đã tập, bao gồm thời lượng, volume, tổng set, XP, RPE,
+      phân bố nhóm cơ, bài tập, dữ liệu set, loại set, thời gian nghỉ, superset và kỷ lục cá nhân; xóa
+      buổi tập; tính lại huy hiệu PR theo từng chỉ số; tạo routine mới từ một buổi tập cũ. Không bao gồm
+      sửa RPE trực tiếp từ màn hình lịch sử.
+    importance: Cao
+    type: essential
+    supporting_actor: Supabase – tiếp nhận yêu cầu xóa lịch sử khi người dùng đã liên kết tài khoản và
+      thao tác đồng bộ được thực hiện.
+    offstage_actor: Không có
+    relationships:
+      entry_point: '1. Các thẻ lịch sử gần đây trên màn hình hồ sơ.
+
+        2. Danh sách buổi tập quá khứ của một ngày trong Quản lý lịch tập luyện (UC14).
+
+        3. Tab lịch sử trong Tra cứu và xem thông tin bài tập (UC09).'
+      association: '1. Người dùng.
+
+        2. Supabase khi đồng bộ thao tác xóa.'
+      include: Không có
+      extend: '1. Quản lý lịch tập luyện (UC14) – mở chi tiết lịch sử khi người dùng chọn một buổi tập
+        quá khứ trên lịch.
+
+        2. Tra cứu và xem thông tin bài tập (UC09) – mở chi tiết buổi tập từ tab lịch sử của một bài hoặc
+        mở thông tin bài từ chi tiết buổi tập.
+
+        3. Quản lý Routine (UC12) – được mở khi người dùng chọn lưu một buổi tập cũ thành Routine mới.'
+  UC18:
+    summary: Xem phần trăm phục hồi sáu nhóm cơ theo tải working set, RPE và suy giảm mệt mỏi; nhận tối
+      đa hai Routine đủ khác biệt hoặc lời khuyên nghỉ/điều chỉnh. Cân bằng tải dùng cửa sổ 28 ngày,
+      bán rã 14 ngày; Recovery notification có thể gửi một lần/ngày hoặc gộp vào nhắc lịch tập.
+    importance: Thấp
+    type: essential
+    supporting_actor: Không có
+    offstage_actor: Không có
+    relationships:
+      entry_point: '1. Khu vực Tập luyện trên thanh điều hướng chính.
+
+        2. Mục Trạng thái Phục hồi trên màn hình Tập luyện.
+
+        3. Biểu tượng thông tin trong mục Trạng thái Phục hồi.
+
+        4. Thay đổi dữ liệu từ Thực hiện và hoàn tất buổi tập (UC15), Xem tổng kết buổi tập (UC16) hoặc
+        Quản lý lịch sử tập luyện (UC17) khởi chạy việc tính lại.'
+      association: Người dùng – xem trạng thái phục hồi và mở phần giải thích, khuyến nghị.
+      include: Không có
+      extend: Không có
+  UC19:
+    summary: Xem ACWR, cân bằng cơ, body heatmap theo tần suất/cường độ và lịch sử volume/thời lượng/reps;
+      chuẩn hóa theo mốc riêng của nhóm cơ; body map dùng hình học nam hoặc nữ theo giới tính hồ sơ nhưng
+      cùng dữ liệu và thang cường độ.
+    importance: Thấp
+    type: essential
+    supporting_actor: Không có
+    offstage_actor: Không có
+    relationships:
+      entry_point: '1. Nút Thống kê trên màn hình Hồ sơ.
+
+        2. Biểu đồ cân bằng cơ bắp thu nhỏ trên màn hình Hồ sơ.
+
+        3. Bốn thẻ Tải trọng tập luyện, Cân bằng cơ bắp, Bản đồ nhiệt cơ bắp và Nhật ký hoạt động trên
+        Bảng Tổng quan.
+
+        4. Thay đổi dữ liệu từ Thực hiện và hoàn tất buổi tập (UC15), Xem tổng kết buổi tập (UC16) hoặc
+        Quản lý lịch sử tập luyện (UC17) khởi chạy việc cập nhật thống kê.'
+      association: Người dùng – chọn loại thống kê, thay đổi chế độ hoặc khoảng thời gian và xem dữ liệu
+        chi tiết.
+      include: Không có
+      extend: Không có
+  UC20:
+    summary: Ghi nhận và quản lý món ăn theo bữa, khẩu phần, calories/macro; hiển thị nguyên liệu, diet
+      tag phù hợp và cảnh báo allergen tag xung đột với hồ sơ. Cảnh báo không tự xóa món và không thay thế kiểm tra y khoa/nhãn sản phẩm.
+    importance: Trung Bình
+    type: essential
+    supporting_actor: Không có
+    offstage_actor: Không có
+    relationships:
+      entry_point: '1. Mục Dinh dưỡng trên thanh điều hướng chính.
+
+        2. Nút Thêm món ăn hoặc Thêm món ăn khác trong từng thẻ bữa ăn, mở Tra cứu và chọn thực phẩm (UC21).
+
+        3. Menu Sửa hoặc Xóa của từng mục thực phẩm đã ghi.
+
+        4. Nút Sao chép bữa ăn hôm qua trên từng thẻ bữa ăn.'
+      association: Người dùng – xem và thay đổi nhật ký bữa ăn.
+      include: Không có
+      extend: '1. Tra cứu và chọn thực phẩm (UC21) – mở rộng tại điểm người dùng chọn thêm thực phẩm từ
+        thư viện.
+
+        2. Quản lý thực phẩm tùy chỉnh (UC22) – mở rộng tại điểm người dùng nhập nhanh thực phẩm hoặc
+        thay đổi tên và thành phần dinh dưỡng của một mục trong nhật ký.'
+  UC21:
+    summary: Tìm/duyệt thư viện, xem dinh dưỡng và nguyên liệu, lọc “An toàn cho tôi” bằng allergen tag,
+      xem diet tag phù hợp, chọn thực phẩm và khẩu phần để thêm vào bữa đã chọn trong UC20.
+    importance: Trung Bình
+    type: essential
+    supporting_actor: Không có
+    offstage_actor: Không có
+    relationships:
+      entry_point: '1. Nút Thêm món ăn trong thẻ bữa ăn trống thuộc Quản lý nhật ký bữa ăn (UC20).
+
+        2. Nút Thêm món ăn khác trong thẻ bữa ăn đã có dữ liệu thuộc Quản lý nhật ký bữa ăn (UC20).
+
+        3. Liên kết trực tiếp đến màn hình tra cứu với một bữa ăn được chỉ định.'
+      association: Người dùng – tìm kiếm, xem, chọn và điều chỉnh khẩu phần thực phẩm.
+      include: Không có
+      extend: '1. Quản lý nhật ký bữa ăn (UC20) – Use Case này mở rộng tại điểm thêm thực phẩm cho một
+        bữa đã chọn.
+
+        2. Quản lý thực phẩm tùy chỉnh (UC22) – mở rộng tại các lựa chọn nhập nhanh, sửa hoặc xóa thực
+        phẩm cá nhân trên cùng màn hình.'
+  UC22:
+    summary: Tạo, sửa và xóa thực phẩm cá nhân với tên, khẩu phần, đơn vị, calories/macro và nguyên liệu;
+      hệ thống suy ra diet/allergen tags để UC20–UC21 hiển thị mức phù hợp và cảnh báo.
+    importance: Trung Bình
+    type: essential
+    supporting_actor: Không có
+    offstage_actor: Không có
+    relationships:
+      entry_point: '1. Nút “Thêm món ăn” hoặc “Thêm món ăn khác” tại từng bữa ăn, sau đó chọn “Nhập món
+        ăn” (UC20).
+
+        2. Biểu tượng sửa trên thẻ thực phẩm và biểu tượng xóa trên thẻ thực phẩm cá nhân trong thư viện
+        (UC21).
+
+        3. Lựa chọn sửa tại món đã ghi trong một bữa ăn (UC20).'
+      association: Người dùng.
+      include: Không có
+      extend: '1. Tra cứu và quản lý thực phẩm (UC21) – khi người dùng tạo bản sao cá nhân, sửa hoặc xóa
+        thực phẩm cá nhân trong thư viện.
+
+        2. Quản lý nhật ký bữa ăn (UC20) – khi người dùng nhập một thực phẩm mới hoặc thay đổi tên, Calories
+        hay Macro của món đã ghi trong bữa ăn.'
+  UC23:
+    summary: Thiết lập mục tiêu và ghi lượng nước theo ngày; hiển thị lít hoặc gallon Mỹ. Có thể nhắc đúng
+      một lần lúc 16:00 khi chưa đạt mục tiêu; khi chuyển sang đạt mục tiêu, WaterTrackerCard hiển thị trạng thái hoàn thành một lần/ngày.
+    importance: Trung Bình
+    type: essential
+    supporting_actor: Không có
+    offstage_actor: Không có
+    relationships:
+      entry_point: '1. Thẻ “Nước uống” trên màn hình Dinh dưỡng.
+
+        2. Nút tăng và nút giảm trên thẻ “Nước uống”.
+
+        3. Hộp thoại “Thiết lập Nước” được mở khi người dùng chọn thẻ.'
+      association: Người dùng.
+      include: Không có
+      extend: Không có
+  UC24:
+    summary: Chọn ngày để xem lại nhật ký dinh dưỡng, gồm tổng năng lượng (calories), protein, carbs,
+      fat, lượng nước và danh sách món theo từng bữa.
+    importance: Thấp
+    type: essential
+    supporting_actor: Không có
+    offstage_actor: Không có
+    relationships:
+      entry_point: Biểu tượng lịch sử trên thanh trên cùng của màn hình Dinh dưỡng.
+      association: Người dùng.
+      include: Không có
+      extend: Không có
+  UC25:
+    summary: Tính sáu quest tuần, nhận XP và mở rương khi đủ 5/6. Người dùng vẫn có thể nhận thủ công tại
+      Thành tích; XP workout là 50 + 20 cho mỗi bài có PR và bị giới hạn 300/ngày; Workout Rewards tự nhận
+      tuần tự quest hoàn thành và tự mở rương đủ điều kiện trước UC16.
+    importance: Trung Bình
+    type: essential
+    supporting_actor: Supabase – cung cấp thời gian tham chiếu và đồng bộ thông tin nhận hoặc thu hồi
+      phần thưởng khi người dùng đã liên kết tài khoản và thực hiện đồng bộ.
+    offstage_actor: Không có
+    relationships:
+      entry_point: '1. Tab “Thành tích” trên thanh điều hướng chính, phần “Nhiệm vụ”.
+
+        2. Nút “NHẬN” trên nhiệm vụ đã hoàn thành.
+
+        3. Nút “MỞ RƯƠNG” trên khu vực “Rương Tuần”.
+
+        4. Thao tác kéo xuống làm mới màn hình.
+
+        5. Thay đổi lịch sử tập luyện sau khi hoàn tất hoặc xóa buổi tập (UC15, UC17).'
+      association: '1. Người dùng.
+
+        2. Supabase – khi đồng bộ thời gian, lịch sử tập luyện, XP và thông tin phần thưởng.'
+      include: Không có
+      extend: '1. Thực hiện và hoàn tất buổi tập (UC15) – sau khi buổi tập được ghi nhận, hệ thống cập
+        nhật tiến độ nhiệm vụ tuần.
+
+        2. Quản lý lịch sử tập luyện (UC17) – khi một buổi tập bị xóa, hệ thống đánh giá lại điều kiện
+        nhiệm vụ và phần thưởng.'
+  UC26:
+    summary: Tải tối đa 50 hồ sơ từ Supabase, kết hợp hồ sơ local hiện tại, sắp xếp theo XP và hiển thị
+      podium/danh sách với avatar từ URL cloud; dữ liệu local hiện tại thay bản server trùng ID để tránh cache cũ.
+    importance: Thấp
+    type: essential
+    supporting_actor: Supabase – cung cấp dữ liệu người dùng phục vụ bảng xếp hạng.
+    offstage_actor: Không có
+    relationships:
+      entry_point: '1. Mục Thành tích trên thanh điều hướng chính.
+
+        2. Thẻ Xếp hạng trên màn hình Thành tích của thiết bị di động.
+
+        3. Khu vực Xếp hạng được hiển thị trực tiếp cùng nhiệm vụ trên thiết bị có màn hình lớn.
+
+        4. Thao tác kéo xuống để làm mới khu vực Xếp hạng.'
+      association: '1. Người dùng – mở, xem và yêu cầu làm mới bảng xếp hạng.
+
+        2. Supabase – cung cấp danh sách hồ sơ và XP trực tuyến.'
+      include: Không có
+      extend: '1. Thực hiện nhiệm vụ và nhận phần thưởng (UC25) – tại điểm làm mới thủ công, hệ thống
+        đồng thời khởi chạy việc cập nhật tiến độ nhiệm vụ tuần.
+
+        2. Xem hành trình Rank (UC27) – người dùng có thể mở hành trình Rank bằng cách chọn khu vực hồ
+        sơ hiện tại phía trên màn hình Thành tích.'
+  UC27:
+    summary: Xem Rank/RP, chu kỳ 45 ngày, vùng thăng/giữ/hạ và lịch sử. Kết quả chu kỳ mới nhất chưa xem
+      hiển thị dialog; mỗi set hoàn tất cho 1 RP, tối đa 40 RP/ngày, với ngưỡng theo từng Rank. Có thể nhắc
+      lúc 10:00 D-3, chuyển sớm D-4/D-5 nếu ngày dự kiến quá tải thông báo.
+    importance: Thấp
+    type: essential
+    supporting_actor: Không có
+    offstage_actor: Không có
+    relationships:
+      entry_point: '1. Thẻ tiến trình Rank trên màn hình Hồ sơ thuộc Quản lý hồ sơ cá nhân và cấu hình
+        tập luyện (UC07).
+
+        2. Ảnh đại diện tại khu vực Gamification thuộc Thực hiện nhiệm vụ và nhận phần thưởng (UC25) hoặc
+        Xem bảng xếp hạng XP (UC26).'
+      association: Người dùng.
+      include: Không có
+      extend: Không có
+  UC28:
+    summary: Chọn theme System/Light/Dark, ngôn ngữ Việt/Anh và độc lập các đơn vị kg/lb, lít/gallon Mỹ,
+      km/m, cm/in, g/oz. Theme/ngôn ngữ lưu cấp thiết bị; đơn vị nằm trong hồ sơ và được yêu cầu đồng bộ qua measurement_units.
+    importance: Thấp
+    type: essential
+    supporting_actor: Hệ điều hành thiết bị – cung cấp chế độ giao diện và ngôn ngữ thiết bị khi hệ thống
+      cần áp dụng.
+    offstage_actor: Không có
+    relationships:
+      entry_point: Cá nhân → biểu tượng bánh răng → Cài đặt Ứng dụng.
+      association: Người dùng.
+      include: Không có.
+      extend: Không có.
+  UC29:
+    summary: Từ Cài đặt Ứng dụng, xem video hướng dẫn theo các nhóm Tập luyện (Workout), Nhật ký Tập luyện
+      (Log Workout), Dinh dưỡng (Nutrition) và Lịch trình (Calendar); mở Điều khoản sử dụng, EULA, thông
+      tin phiên bản; soạn email hỗ trợ hoặc mở các kênh mạng xã hội của Plato.
+    importance: Thấp
+    type: essential
+    supporting_actor: Ứng dụng email bên ngoài – tiếp nhận yêu cầu soạn thư hỗ trợ từ ứng dụng.
+    offstage_actor: Zenithas – đơn vị được nêu trong Điều khoản, EULA và thông tin hỗ trợ.
+    relationships:
+      entry_point: '1. Cá nhân → biểu tượng bánh răng → Cài đặt Ứng dụng.
+
+        2. Các liên kết Điều khoản sử dụng và EULA trong Khởi tạo hồ sơ và thiết lập ban đầu (UC01).'
+      association: '1. Người dùng.
+
+        2. Ứng dụng email, trình duyệt hoặc ứng dụng mạng xã hội bên ngoài.'
+      include: Không có.
+      extend: UC01 – cho phép xem nội dung pháp lý trước khi đồng ý.
+  UC30:
+    summary: Xem hướng dẫn tương tác theo ngữ cảnh tại Tập luyện (Workout), Dinh dưỡng (Nutrition), Lịch
+      tập luyện (Calendar), Thư viện Bài tập (Exercise Library) và màn hình ghi nhận buổi tập. Các hướng
+      dẫn tự động chỉ xuất hiện khi chưa được đánh dấu đã xem; hướng dẫn riêng của bộ đếm giờ cardio có
+      thể xuất hiện lại khi người dùng tương tác với bộ đếm.
+    importance: Thấp
+    type: temporal
+    supporting_actor: Không có
+    offstage_actor: Không có
+    relationships:
+      entry_point: '1. Tập luyện (Workout).
+
+        2. Dinh dưỡng (Nutrition).
+
+        3. Lịch trình → Lịch tập luyện (Calendar).
+
+        4. Thư viện Bài tập (Exercise Library).
+
+        5. Màn hình ghi nhận buổi tập và bộ đếm giờ cardio trong UC15.'
+      association: Người dùng.
+      include: Không có.
+      extend: UC09, UC11, UC12, UC14, UC15, UC18, UC20, UC23 và UC24 – bổ sung hướng dẫn trực quan tại
+        đúng ngữ cảnh.
+  UC31:
+    summary: Quản lý công tắc tổng/danh mục, quyền OS, thông báo nghiệp vụ và chạy nền workout. Hệ thống
+      cố giữ tối đa ba, không vượt bốn thông báo OS/ngày; ưu tiên nhắc workout, có thể dời/lược bỏ tự động,
+      dùng kênh không âm thanh. Lựa chọn chạy nền trong Settings được giữ nguyên và kết thúc luồng hỏi lần đầu;
+      in-app notification không dùng ngân sách OS, từ chối quyền không chặn nghiệp vụ chính.
+    importance: Trung bình
+    type: essential
+    supporting_actor: Hệ điều hành thiết bị – quản lý quyền Thông báo (Notification), quyền Hoạt động
+      thể chất (Physical Activity) trên phiên bản Android áp dụng, và dịch vụ chạy nền.
+    offstage_actor: Không có
+    relationships:
+      entry_point: '1. Cá nhân → biểu tượng bánh răng → Cài đặt Ứng dụng → Thông báo.
+
+        2. Thao tác bắt đầu buổi tập lần đầu trong Thực hiện và hoàn tất buổi tập (UC15).
+
+        3. Thay đổi dữ liệu lịch tập, phục hồi, nước, streak, Rank hoặc mốc không hoạt động.'
+      association: '1. Người dùng.
+
+        2. Hệ điều hành thiết bị.'
+      include: Không có
+      extend: Thực hiện và hoàn tất buổi tập (UC15) – bổ sung bước giải thích, kiểm tra và yêu cầu quyền
+        khi người dùng bắt đầu buổi tập lần đầu.

@@ -135,6 +135,7 @@ class _NotificationSettingsScreenState extends State<NotificationSettingsScreen>
   Future<void> _setBackgroundWorkout(bool value) async {
     _refreshGeneration++;
     final prefs = getIt<SharedPreferences>();
+    await WorkoutPermissionHelper.markPrePermissionHandled(prefs);
     if (mounted) setState(() => _backgroundWorkoutEnabled = value);
     if (value && !await _hasWorkoutPermissions()) {
       await Permission.notification.request();

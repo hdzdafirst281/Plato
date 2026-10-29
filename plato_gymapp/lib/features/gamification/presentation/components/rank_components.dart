@@ -1414,8 +1414,7 @@ class _RankLineBasePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _RankLineBasePainter old) =>
-      old.progress != progress;
+  bool shouldRepaint(covariant _RankLineBasePainter old) => true;
 }
 
 // ============== PAINTER 2: TOOLTIP ==============
@@ -1511,8 +1510,7 @@ class _RankTooltipPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(covariant _RankTooltipPainter old) =>
-      old.selectedIndex != selectedIndex || old.progress != progress;
+  bool shouldRepaint(covariant _RankTooltipPainter old) => true;
 }
 
 class _HistorySummaryStats extends StatelessWidget {

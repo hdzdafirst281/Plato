@@ -517,10 +517,14 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
       final units = MeasurementFormatter(
         context.read<ProfileCubit>().state.userProfile.measurementPreferences,
       );
-      return MeasurementFormatter.number(units.weightFromKg(numeric), 1);
+      return MeasurementFormatter.number(
+        units.weightFromKg(numeric),
+        units.compactWeightDecimals,
+      );
     }
     return _number(value.toInt());
   }
+
   String _number(int value) =>
       value >= 1000 && value % 1000 == 0 ? '${value ~/ 1000}k' : '$value';
 

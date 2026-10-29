@@ -13,6 +13,7 @@ import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:plato_gymapp/core/bloc/tour/tour_cubit.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_marquee_text.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_motion.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_tour_target.dart';
 
@@ -580,8 +581,25 @@ class _MealSectionCard extends StatefulWidget {
   State<_MealSectionCard> createState() => _MealSectionCardState();
 }
 
-class _MealSectionCardState extends State<_MealSectionCard> {
+class _MealSectionCardState extends State<_MealSectionCard>
+    with SingleTickerProviderStateMixin {
   List<String> _copiedIds = [];
+  late final AnimationController _marqueeController;
+
+  @override
+  void initState() {
+    super.initState();
+    _marqueeController = AnimationController(
+      vsync: this,
+      duration: GymMarqueeText.cycleDuration,
+    )..repeat();
+  }
+
+  @override
+  void dispose() {
+    _marqueeController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -830,6 +848,7 @@ class _MealSectionCardState extends State<_MealSectionCard> {
                 food: food,
                 mealType: widget.mealType,
                 nutritionCubit: widget.nutritionCubit,
+                marqueeAnimation: _marqueeController,
               ),
             ),
             const SizedBox(height: 12),
@@ -859,11 +878,13 @@ class _FoodItemRow extends StatefulWidget {
   final FoodResult food;
   final MealType mealType;
   final NutritionCubit nutritionCubit;
+  final Animation<double> marqueeAnimation;
 
   const _FoodItemRow({
     required this.food,
     required this.mealType,
     required this.nutritionCubit,
+    required this.marqueeAnimation,
   });
 
   @override
@@ -947,7 +968,7 @@ class _FoodItemRowState extends State<_FoodItemRow> {
             color: statusColor?.withValues(alpha: 0.08),
             borderRadius: BorderRadius.circular(12),
           ),
-          padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
+          padding: const EdgeInsets.symmetric(vertical: 8),
           child: Column(
             children: [
               Row(
@@ -957,14 +978,14 @@ class _FoodItemRowState extends State<_FoodItemRow> {
                     Container(
                       width: 4,
                       height: 40,
-                      margin: const EdgeInsets.only(right: 8, left: 4),
+                      margin: const EdgeInsets.only(right: 8),
                       decoration: BoxDecoration(
                         color: statusColor,
                         borderRadius: BorderRadius.circular(2),
                       ),
                     )
                   else
-                    const SizedBox(width: 16),
+                    const SizedBox.shrink(),
 
                   Container(
                     width: 40,
@@ -986,25 +1007,23 @@ class _FoodItemRowState extends State<_FoodItemRow> {
                     ),
                   ),
                   const SizedBox(width: 8),
+                  Expanded(
+                    child: GymMarqueeText(
+                      localizedName,
+                      animation: widget.marqueeAnimation,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
                   Icon(
                     _isExpanded ? Symbols.expand_less : Symbols.expand_more,
                     color: colorScheme.onSurfaceVariant,
                     size: 20,
                   ),
                   const SizedBox(width: 4),
-
-                  Expanded(
-                    child: Text(
-                      localizedName,
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15,
-                      ),
-                      maxLines: 2,
-                      softWrap: true,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
 
                   // Trailing section
                   Row(

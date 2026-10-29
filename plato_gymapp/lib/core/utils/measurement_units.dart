@@ -104,6 +104,9 @@ class MeasurementFormatter {
 
   final MeasurementPreferences preferences;
 
+  int get compactWeightDecimals =>
+      preferences.weight == WeightUnit.pound ? 0 : 1;
+
   String get weightUnit => preferences.weight == WeightUnit.kilogram
       ? t.common.unit_kg
       : t.common.unit_lb;

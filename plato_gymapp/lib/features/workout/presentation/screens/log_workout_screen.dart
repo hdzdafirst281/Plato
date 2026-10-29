@@ -39,6 +39,7 @@ import '../bloc/workout_cubit.dart';
 import '../components/workout_components.dart';
 import '../components/workout_shared_ui.dart';
 import 'exercise_library_screen.dart';
+import 'workout_settings_screen.dart';
 import '../../../gamification/presentation/screens/workout_rewards_screen.dart';
 import '../../../gamification/presentation/bloc/gamification_cubit.dart';
 
@@ -132,6 +133,13 @@ class _LogWorkoutScreenState extends State<LogWorkoutScreen>
             lifecycleState == AppLifecycleState.resumed) &&
         WorkoutSettingsPreferences.keepScreenAwake(_activeSessionCubit.prefs);
     unawaited(WakelockPlus.toggle(enable: shouldKeepAwake));
+  }
+
+  Future<void> _openWorkoutSettings() async {
+    await Navigator.of(context).push<void>(
+      MaterialPageRoute(builder: (_) => const WorkoutSettingsScreen()),
+    );
+    if (mounted) _syncWakelock();
   }
 
   Future<void> _handleInitialSetup() async {
@@ -1643,6 +1651,12 @@ class _LogWorkoutScreenState extends State<LogWorkoutScreen>
                         navTourTitle: t.tour.log_minimize_title,
                         navTourDesc: t.tour.log_minimize_desc,
                         actions: [
+                          IconButton(
+                            key: const ValueKey('log_workout_settings_button'),
+                            tooltip: t.settings.lbl_item_workout_settings,
+                            onPressed: _openWorkoutSettings,
+                            icon: const Icon(Symbols.settings),
+                          ),
                           TextButton(
                             onPressed: () => _handleDoneClick(currentSession),
                             child: Text(

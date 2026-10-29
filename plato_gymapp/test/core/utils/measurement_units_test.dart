@@ -72,6 +72,20 @@ void main() {
       );
     });
 
+    test('uses whole pounds for compact weight displays', () {
+      const kilograms = MeasurementFormatter(MeasurementPreferences());
+      const pounds = MeasurementFormatter(
+        MeasurementPreferences(weight: WeightUnit.pound),
+      );
+
+      expect(kilograms.compactWeightDecimals, 1);
+      expect(pounds.compactWeightDecimals, 0);
+      expect(
+        pounds.formatWeight(10000, decimals: pounds.compactWeightDecimals),
+        '22046 ${t.common.unit_lb}',
+      );
+    });
+
     test('converts hydration and food liquid volumes through milliliters', () {
       const formatter = MeasurementFormatter(
         MeasurementPreferences(hydration: HydrationUnit.milliliter),

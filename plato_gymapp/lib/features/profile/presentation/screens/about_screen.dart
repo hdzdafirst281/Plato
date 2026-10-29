@@ -89,6 +89,9 @@ class _AboutScreenState extends State<AboutScreen> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
+    const logoSize = 80.0;
+    final logoCacheSize = (logoSize * MediaQuery.devicePixelRatioOf(context))
+        .ceil();
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -110,8 +113,8 @@ class _AboutScreenState extends State<AboutScreen> {
                 child: Column(
                   children: [
                     Container(
-                      width: 80,
-                      height: 80,
+                      width: logoSize,
+                      height: logoSize,
                       decoration: BoxDecoration(
                         color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
                         borderRadius: BorderRadius.circular(20),
@@ -122,11 +125,13 @@ class _AboutScreenState extends State<AboutScreen> {
                       clipBehavior: Clip.antiAlias,
                       child: Image.asset(
                         'assets/logo/logo_plato.png',
-                        width: 80,
-                        height: 80,
-                        cacheWidth: 160,
-                        cacheHeight: 160,
+                        width: logoSize,
+                        height: logoSize,
+                        cacheWidth: logoCacheSize,
+                        cacheHeight: logoCacheSize,
                         fit: BoxFit.contain,
+                        filterQuality: FilterQuality.high,
+                        isAntiAlias: true,
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -301,7 +306,7 @@ class _VersionCard extends StatelessWidget {
             ),
           ),
           child: Text(
-            'v1.1.1',
+            'v1.2.0',
             style: TextStyle(
               color: colorScheme.onPrimaryContainer,
               fontSize: 16,

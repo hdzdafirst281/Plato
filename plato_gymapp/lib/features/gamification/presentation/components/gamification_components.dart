@@ -679,11 +679,14 @@ class _QuestItem extends StatelessWidget {
     );
     final description = quest.type == QuestType.TOTAL_VOLUME
         ? t.gamification.desc_quest_2(
-            arg1: units.formatWeight(quest.target.toDouble()),
+            arg1: units.formatWeight(
+              quest.target.toDouble(),
+              decimals: units.compactWeightDecimals,
+            ),
           )
         : t.translateDynamic(quest.description);
     final progressText = quest.type == QuestType.TOTAL_VOLUME
-        ? '${units.formatWeight(quest.current.toDouble())} / ${units.formatWeight(quest.target.toDouble())}'
+        ? '${units.formatWeight(quest.current.toDouble(), decimals: units.compactWeightDecimals)} / ${units.formatWeight(quest.target.toDouble(), decimals: units.compactWeightDecimals)}'
         : '${quest.current}/${quest.target}';
 
     dynamic iconData = Symbols.star;
@@ -777,7 +780,7 @@ class _QuestItem extends StatelessWidget {
                   ),
                   const SizedBox(height: 10),
                   SizedBox(
-                    height: 14,
+                    height: 16,
                     child: Stack(
                       children: [
                         GymAnimatedProgressBar(
@@ -788,7 +791,7 @@ class _QuestItem extends StatelessWidget {
                           trackColor: colorScheme.onSurface.withValues(
                             alpha: 0.1,
                           ),
-                          height: 14,
+                          height: 16,
                         ),
                         if (!quest.isCompleted)
                           Center(
@@ -953,7 +956,7 @@ class _PodiumView extends StatelessWidget {
             gradientColors: gradientColors,
             rankColor: rankColor,
             rankId: rankId, // Truyền rankId xuống
-            animDelay: index * 200,
+            animDelay: GymMotion.screen.inMilliseconds + index * 200,
             marqueeAnimation: marqueeAnimation,
             motionValue: motionValueFor(user.id),
           );

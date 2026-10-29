@@ -848,6 +848,9 @@ class _GlobalPlayerWrapperState extends State<_GlobalPlayerWrapper>
                 valueListenable: globalBottomBarAnimationProgress,
                 builder: (context, animValue, _) {
                   final bottomSafeArea = MediaQuery.of(context).padding.bottom;
+                  final visibleBottomBarTop = mainBottomBarVisibleTop(
+                    bottomSafeArea,
+                  );
 
                   double maxPlayerBottom;
                   if (isTablet) {
@@ -855,7 +858,7 @@ class _GlobalPlayerWrapperState extends State<_GlobalPlayerWrapper>
                   } else if (hasBottomBar) {
                     maxPlayerBottom =
                         lerpDouble(
-                          58.0 + bottomSafeArea,
+                          visibleBottomBarTop,
                           bottomSafeArea + 4.0,
                           animValue,
                         ) ??

@@ -116,7 +116,7 @@ mixin SessionEffectMixin on Cubit<ActiveSessionState> {
 
     final isEnabled =
         prefs.getBool(WorkoutPermissionHelper.isBackgroundWorkoutEnabledKey) ??
-        true;
+        false;
     if (!isEnabled) {
       return;
     }

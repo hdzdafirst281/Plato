@@ -29,6 +29,16 @@ final ValueNotifier<double> globalBottomBarAnimationProgress =
 final ValueNotifier<int> globalActiveTabIndex = ValueNotifier<int>(0);
 final ValueNotifier<bool> globalIsTabSwiping = ValueNotifier<bool>(false);
 
+const double mainBottomBarHeight = 60.0;
+const double mainBottomBarSafeAreaGap = 8.0;
+const double mainBottomBarNoSafeAreaGap = 16.0;
+
+double mainBottomBarVisibleTop(double bottomSafeArea) =>
+    mainBottomBarHeight +
+    (bottomSafeArea > 0
+        ? bottomSafeArea + mainBottomBarSafeAreaGap
+        : mainBottomBarNoSafeAreaGap);
+
 /// Starts a tab's entrance only after the horizontal transition has settled.
 /// The [child] is kept outside both builders so tab changes do not rebuild the
 /// screen tree or restart child-owned animations.
@@ -759,9 +769,8 @@ class _FloatingPillBottomBar extends StatelessWidget {
       animation: barAnimController,
       builder: (context, child) {
         final bottomSafeArea = MediaQuery.paddingOf(context).bottom;
-        final barVisibleOffset = bottomSafeArea > 0
-            ? bottomSafeArea + 8.0
-            : 16.0;
+        final barVisibleOffset =
+            mainBottomBarVisibleTop(bottomSafeArea) - mainBottomBarHeight;
         const barHiddenOffset = -120.0;
         final barCurrentBottom =
             lerpDouble(
@@ -792,7 +801,7 @@ class _FloatingPillBottomBar extends StatelessWidget {
             child: Container(
               constraints: BoxConstraints(maxWidth: isTablet ? 380 : 288),
               margin: const EdgeInsets.symmetric(horizontal: 16.0),
-              height: 60,
+              height: mainBottomBarHeight,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(32),
                 boxShadow: [
