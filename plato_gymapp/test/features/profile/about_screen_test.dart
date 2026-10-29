@@ -21,7 +21,7 @@ void main() {
     expect(find.text(t.settings.lbl_item_about), findsOneWidget);
 
     // Verify version badge, terms, eula, contact
-    expect(find.text('v1.1.1'), findsOneWidget);
+    expect(find.text('v1.2.0'), findsOneWidget);
     expect(find.text(t.onboarding.lbl_terms_link), findsOneWidget);
     expect(find.text(t.onboarding.lbl_eula_link), findsOneWidget);
     expect(find.text(t.settings.lbl_item_contact), findsOneWidget);

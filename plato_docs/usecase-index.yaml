@@ -499,6 +499,7 @@ usecases:
       - workout.title_rest_time
       - workout.status_resting
       - workout.msg_superset_limit
+      - settings.lbl_item_workout_settings
     related_usecases:
       - UC12
       - UC16

@@ -306,7 +306,7 @@ class _VersionCard extends StatelessWidget {
             ),
           ),
           child: Text(
-            'v1.1.1',
+            'v1.2.0',
             style: TextStyle(
               color: colorScheme.onPrimaryContainer,
               fontSize: 16,
