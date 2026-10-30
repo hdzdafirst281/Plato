@@ -1134,11 +1134,29 @@ class _FolderHeader extends StatelessWidget {
             ),
             elevation: 4,
             onSelected: (v) {
+              if (v == 'create') onAddRoutine();
               if (v == 'reorder_dialog') onDialogReorderProgram();
               if (v == 'rename') onRename();
               if (v == 'delete') onDelete();
             },
             itemBuilder: (_) => [
+              PopupMenuItem(
+                value: 'create',
+                child: Row(
+                  children: [
+                    Icon(Symbols.add, color: colorScheme.onSurface),
+                    const SizedBox(width: 8),
+                    Flexible(
+                      child: Text(
+                        t.workout.title_routine_create_new.trim(),
+                        style: TextStyle(color: colorScheme.onSurface),
+                        maxLines: 2,
+                        softWrap: true,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               PopupMenuItem(
                 value: 'reorder_dialog',
                 child: Row(

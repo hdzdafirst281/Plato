@@ -355,13 +355,11 @@ usecases:
     relationships:
       entry_point: '1. Nút Lịch trên màn hình Hồ sơ.
 
-        2. Nút xem tất cả tại khu vực lịch sử gần đây của Quản lý lịch sử tập luyện (UC17).
+        2. Ô ngày trong chế độ xem Tháng.
 
-        3. Ô ngày trong chế độ xem Tháng.
+        3. Nút tạo lịch tại chi tiết ngày hiện tại hoặc ngày tương lai.
 
-        4. Nút tạo lịch tại chi tiết ngày hiện tại hoặc ngày tương lai.
-
-        5. Nút sửa và xóa trên thẻ lịch tập tương lai.'
+        4. Nút sửa và xóa trên thẻ lịch tập tương lai.'
       association: Người dùng – trực tiếp xem, tạo, sửa và xóa lịch tập.
       include: Không có
       extend: '1. Quản lý Routine (UC12) – được kích hoạt có điều kiện khi người dùng chọn Routine để
@@ -414,7 +412,7 @@ usecases:
       extend: Thực hiện và hoàn tất buổi tập (UC15) – mở rộng sau màn hình Workout Rewards khi người dùng
         chọn tiếp tục.
   UC17:
-    summary: Xem danh sách và chi tiết các buổi đã tập, bao gồm thời lượng, volume, tổng set, XP, RPE,
+    summary: Xem toàn bộ lịch sử theo nhóm Ngày, Tháng hoặc Năm với mật độ một, ba hoặc năm cột và mở trực tiếp chi tiết các buổi đã tập, bao gồm thời lượng, volume, tổng set, XP, RPE,
       phân bố nhóm cơ, bài tập, dữ liệu set, loại set, thời gian nghỉ, superset và kỷ lục cá nhân; xóa
       buổi tập; tính lại huy hiệu PR theo từng chỉ số; tạo routine mới từ một buổi tập cũ. Không bao gồm
       sửa RPE trực tiếp từ màn hình lịch sử.
@@ -426,9 +424,11 @@ usecases:
     relationships:
       entry_point: '1. Các thẻ lịch sử gần đây trên màn hình hồ sơ.
 
-        2. Danh sách buổi tập quá khứ của một ngày trong Quản lý lịch tập luyện (UC14).
+        2. Nút xem tất cả tại khu vực lịch sử gần đây trên màn hình hồ sơ.
 
-        3. Tab lịch sử trong Tra cứu và xem thông tin bài tập (UC09).'
+        3. Danh sách buổi tập quá khứ của một ngày trong Quản lý lịch tập luyện (UC14).
+
+        4. Tab lịch sử trong Tra cứu và xem thông tin bài tập (UC09).'
       association: '1. Người dùng.
 
         2. Supabase khi đồng bộ thao tác xóa.'

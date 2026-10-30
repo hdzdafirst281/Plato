@@ -2,7 +2,7 @@ class AppRoutes {
   static const onboarding = '/onboarding';
   static const auth = '/auth';
   static const splash = '/splash';
-  
+
   // Các Tab chính ở BottomBar
   static const workout = '/workout';
   static const nutrition = '/nutrition';
@@ -15,11 +15,11 @@ class AppRoutes {
   static const logWorkout = '/log_workout';
   static const sessionSummary = '/session_summary';
   static const workoutRewards = '/workout_rewards';
-  
+
   static const createRoutine = 'create_routine';
   static const workoutDetail = 'workout_detail/:workoutId';
   static const explorePrograms = 'explore_programs';
-  
+
   static const exerciseLibrary = 'exercise_library';
   static const exerciseDetail = 'exercise_details';
 
@@ -41,4 +41,5 @@ class AppRoutes {
   static const tutorial = 'tutorial';
   static const settings = 'settings';
   static const calendar = 'calendar';
+  static const workoutHistory = 'workout_history';
 }

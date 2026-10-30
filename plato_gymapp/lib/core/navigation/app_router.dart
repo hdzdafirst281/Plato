@@ -51,6 +51,7 @@ import '../../features/profile/presentation/screens/profile_settings_screen.dart
 import '../../features/profile/presentation/screens/tutorial_screen.dart';
 import '../../features/profile/presentation/screens/calendar_screen.dart';
 import '../../features/profile/presentation/screens/stats_screen.dart';
+import '../../features/profile/presentation/screens/workout_history_screen.dart';
 
 import '../../features/workout/presentation/bloc/active_session_cubit.dart';
 import '../../features/workout/presentation/components/workout_components.dart';
@@ -562,6 +563,12 @@ class AppRouter {
                           setupRoutineId:
                               state.uri.queryParameters['setupRoutine'],
                         ),
+                      ),
+                      GoRoute(
+                        path: AppRoutes.workoutHistory,
+                        parentNavigatorKey: _rootNavigatorKey,
+                        builder: (context, state) =>
+                            const WorkoutHistoryScreen(),
                       ),
                       GoRoute(
                         path: AppRoutes.profileSettings,

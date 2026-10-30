@@ -854,7 +854,8 @@ class _ProfileScreenState extends State<ProfileScreen>
           if (history.length > 7)
             Flexible(
               child: TextButton(
-                onPressed: () => context.push('/profile/${AppRoutes.calendar}'),
+                onPressed: () =>
+                    context.push('/profile/${AppRoutes.workoutHistory}'),
                 child: Text(
                   t.profile.btn_history_see_all(
                     arg1: history.length.toString(),

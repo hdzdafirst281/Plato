@@ -72,8 +72,29 @@ app.*.symbols
 migrate_working_dir/
 
 # AI Agent files
+AGENTS.md
+**/AGENTS.md
+AGENTS.override.md
+**/AGENTS.override.md
 .agents/
 **/.agents/
+.codex/
+**/.codex/
+.skills/
+**/.skills/
+SKILL.md
+**/SKILL.md
+.claude/
+**/.claude/
+CLAUDE.md
+**/CLAUDE.md
+.cursor/
+**/.cursor/
+.windsurf/
+**/.windsurf/
+.aider*
+**/.aider*
+.github/copilot-instructions.md
 rules/
 **/rules/
 rules.md

@@ -1,4 +1,5 @@
 import 'package:plato_gymapp/core/designsystem/components/gym_snackbar.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_scroll_to_top_button.dart';
 import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
@@ -56,7 +57,6 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
   final List<Exercise> _selectedExercises = [];
 
   final ScrollController _scrollController = ScrollController();
-  final ValueNotifier<bool> _showScrollToTop = ValueNotifier(false);
 
   Timer? _tourDelayTimer;
   ShowCaseWidgetState? _showcaseState;
@@ -67,7 +67,6 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
   @override
   void initState() {
     super.initState();
-    _scrollController.addListener(_onScroll);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _triggerTour();
     });
@@ -101,28 +100,13 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
     } catch (_) {}
   }
 
-  void _onScroll() {
-    if (!mounted || !_scrollController.hasClients) return;
-
-    // CRITIC FIX: Offset responsive dựa trên 50% chiều cao màn hình hiện tại
-    final responsiveThreshold = MediaQuery.of(context).size.height * 0.5;
-
-    final shouldShow = _scrollController.offset > responsiveThreshold;
-    if (_showScrollToTop.value != shouldShow) {
-      _showScrollToTop.value = shouldShow;
-    }
-  }
-
   @override
   void dispose() {
     _tourDelayTimer?.cancel();
     // ignore: deprecated_member_use
     _showcaseState?.dismiss();
     _debouncer?.cancel();
-    // Hủy đăng ký để tránh memory leak
-    _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
-    _showScrollToTop.dispose();
     super.dispose();
   }
 
@@ -517,29 +501,8 @@ class _ExerciseLibraryScreenState extends State<ExerciseLibraryScreen> {
           ),
         ],
       ),
-      floatingActionButton: ValueListenableBuilder<bool>(
-        valueListenable: _showScrollToTop,
-        builder: (context, show, child) {
-          return AnimatedScale(
-            scale: show ? 1.0 : 0.0,
-            duration: const Duration(milliseconds: 250),
-            curve: Curves.easeOutBack,
-            child: FloatingActionButton(
-              mini: true, // Dùng size mini để không chắn quá nhiều tầm nhìn
-              backgroundColor: colorScheme.primary,
-              foregroundColor: colorScheme.onPrimary,
-              elevation: 4,
-              onPressed: () {
-                _scrollController.animateTo(
-                  0,
-                  duration: const Duration(milliseconds: 500),
-                  curve: Curves.easeInOut,
-                );
-              },
-              child: const Icon(Symbols.keyboard_double_arrow_up),
-            ),
-          );
-        },
+      floatingActionButton: GymScrollToTopButton(
+        controller: _scrollController,
       ),
       body: GymMotionItem(
         stage: 1,

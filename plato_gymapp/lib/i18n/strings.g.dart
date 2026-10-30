@@ -4,9 +4,9 @@
 /// To regenerate, run: `dart run slang`
 ///
 /// Locales: 2
-/// Strings: 2942 (1471 per locale)
+/// Strings: 2956 (1478 per locale)
 ///
-/// Built on 2026-10-25 at 15:36 UTC
+/// Built on 2026-10-30 at 15:24 UTC
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -283,6 +283,7 @@ class _StringsCommonEn {
 	String get about_us => 'About Us';
 	String get agree => 'Agree';
 	String get back => 'Back';
+	String get scroll_to_top => 'Scroll to top';
 	String get cancel => 'Cancel';
 	String get close => 'Close';
 	String get confirm => 'Confirm';
@@ -1069,6 +1070,12 @@ class _StringsProfileEn {
 	String get goal_strength => 'Increase Strength';
 	String get goal_title => 'Goal Strategy';
 	String get goal_workout_title => 'Training Goal';
+	String get title_workout_history => 'Workout History';
+	String get desc_workout_history => 'Pinch or use the controls to change the time scale.';
+	String get history_group_day => 'Day';
+	String fmt_history_total({required Object arg1}) => '${arg1} workouts';
+	String fmt_history_months({required Object arg1}) => '${arg1} active months';
+	String fmt_history_years({required Object arg1}) => '${arg1} active years';
 	String get msg_history_empty => 'You have no workout history yet';
 	String fmt_history_more_exercises({required Object arg1}) => '+ ${arg1} more...';
 	String btn_history_see_all({required Object arg1}) => 'See All (${arg1})';
@@ -1992,6 +1999,7 @@ class _StringsCommonVi extends _StringsCommonEn {
 	@override String get about_us => 'Về chúng tôi';
 	@override String get agree => 'Đồng ý';
 	@override String get back => 'Quay lại';
+	@override String get scroll_to_top => 'Cuộn lên đầu';
 	@override String get cancel => 'Hủy';
 	@override String get close => 'Đóng';
 	@override String get confirm => 'Xác nhận';
@@ -2778,6 +2786,12 @@ class _StringsProfileVi extends _StringsProfileEn {
 	@override String get goal_strength => 'Tăng sức mạnh';
 	@override String get goal_title => 'Chiến lược mục tiêu';
 	@override String get goal_workout_title => 'Mục tiêu tập luyện';
+	@override String get title_workout_history => 'Lịch sử tập luyện';
+	@override String get desc_workout_history => 'Chụm, mở hai ngón hoặc dùng nút để đổi mốc thời gian.';
+	@override String get history_group_day => 'Ngày';
+	@override String fmt_history_total({required Object arg1}) => '${arg1} buổi tập';
+	@override String fmt_history_months({required Object arg1}) => '${arg1} tháng hoạt động';
+	@override String fmt_history_years({required Object arg1}) => '${arg1} năm hoạt động';
 	@override String get msg_history_empty => 'Bạn chưa có lịch sử tập luyện nào';
 	@override String fmt_history_more_exercises({required Object arg1}) => '+ ${arg1} bài khác...';
 	@override String btn_history_see_all({required Object arg1}) => 'Xem tất cả (${arg1})';
@@ -3633,6 +3647,7 @@ extension on Translations {
 			case 'common.about_us': return 'About Us';
 			case 'common.agree': return 'Agree';
 			case 'common.back': return 'Back';
+			case 'common.scroll_to_top': return 'Scroll to top';
 			case 'common.cancel': return 'Cancel';
 			case 'common.close': return 'Close';
 			case 'common.confirm': return 'Confirm';
@@ -4338,6 +4353,12 @@ extension on Translations {
 			case 'profile.goal_strength': return 'Increase Strength';
 			case 'profile.goal_title': return 'Goal Strategy';
 			case 'profile.goal_workout_title': return 'Training Goal';
+			case 'profile.title_workout_history': return 'Workout History';
+			case 'profile.desc_workout_history': return 'Pinch or use the controls to change the time scale.';
+			case 'profile.history_group_day': return 'Day';
+			case 'profile.fmt_history_total': return ({required Object arg1}) => '${arg1} workouts';
+			case 'profile.fmt_history_months': return ({required Object arg1}) => '${arg1} active months';
+			case 'profile.fmt_history_years': return ({required Object arg1}) => '${arg1} active years';
 			case 'profile.msg_history_empty': return 'You have no workout history yet';
 			case 'profile.fmt_history_more_exercises': return ({required Object arg1}) => '+ ${arg1} more...';
 			case 'profile.btn_history_see_all': return ({required Object arg1}) => 'See All (${arg1})';
@@ -5112,6 +5133,7 @@ extension on _StringsVi {
 			case 'common.about_us': return 'Về chúng tôi';
 			case 'common.agree': return 'Đồng ý';
 			case 'common.back': return 'Quay lại';
+			case 'common.scroll_to_top': return 'Cuộn lên đầu';
 			case 'common.cancel': return 'Hủy';
 			case 'common.close': return 'Đóng';
 			case 'common.confirm': return 'Xác nhận';
@@ -5817,6 +5839,12 @@ extension on _StringsVi {
 			case 'profile.goal_strength': return 'Tăng sức mạnh';
 			case 'profile.goal_title': return 'Chiến lược mục tiêu';
 			case 'profile.goal_workout_title': return 'Mục tiêu tập luyện';
+			case 'profile.title_workout_history': return 'Lịch sử tập luyện';
+			case 'profile.desc_workout_history': return 'Chụm, mở hai ngón hoặc dùng nút để đổi mốc thời gian.';
+			case 'profile.history_group_day': return 'Ngày';
+			case 'profile.fmt_history_total': return ({required Object arg1}) => '${arg1} buổi tập';
+			case 'profile.fmt_history_months': return ({required Object arg1}) => '${arg1} tháng hoạt động';
+			case 'profile.fmt_history_years': return ({required Object arg1}) => '${arg1} năm hoạt động';
 			case 'profile.msg_history_empty': return 'Bạn chưa có lịch sử tập luyện nào';
 			case 'profile.fmt_history_more_exercises': return ({required Object arg1}) => '+ ${arg1} bài khác...';
 			case 'profile.btn_history_see_all': return ({required Object arg1}) => 'Xem tất cả (${arg1})';

@@ -282,12 +282,14 @@ usecases:
       - exercise_details
       - exercise_progress
     code_paths:
+      - "plato_gymapp/lib/core/designsystem/components/gym_scroll_to_top_button.dart"
       - "plato_gymapp/lib/features/workout/presentation/screens/exercise_library_screen.dart"
       - "plato_gymapp/lib/features/workout/presentation/screens/exercise_details_screen.dart"
       - "plato_gymapp/lib/features/workout/presentation/bloc/exercise_library_cubit.dart"
       - "plato_gymapp/lib/features/workout/data/repositories/exercise_repository.dart"
       - "plato_gymapp/lib/features/workout/data/repositories/workout_repository.dart"
     localization_keys:
+      - common.scroll_to_top
       - explore.title_library_main
       - explore.hint_library_search
       - explore.lbl_filter_muscle
@@ -550,7 +552,11 @@ usecases:
       - workout_deletion
       - workout_metrics
     code_paths:
+      - "plato_gymapp/lib/core/designsystem/components/gym_scroll_to_top_button.dart"
+      - "plato_gymapp/lib/core/navigation/app_router.dart"
+      - "plato_gymapp/lib/core/navigation/app_routes.dart"
       - "plato_gymapp/lib/features/profile/presentation/screens/profile_screen.dart"
+      - "plato_gymapp/lib/features/profile/presentation/screens/workout_history_screen.dart"
       - "plato_gymapp/lib/features/profile/presentation/screens/calendar_screen.dart"
       - "plato_gymapp/lib/features/workout/presentation/screens/exercise_details_screen.dart"
       - "plato_gymapp/lib/features/workout/presentation/screens/workout_detail_screen.dart"
@@ -559,8 +565,17 @@ usecases:
       - "plato_gymapp/lib/features/workout/data/repositories/workout_repository.dart"
       - "plato_gymapp/lib/features/workout/domain/workout_extensions.dart"
     localization_keys:
+      - common.scroll_to_top
       - profile.title_recent_history
       - profile.btn_history_see_all
+      - profile.title_workout_history
+      - profile.desc_workout_history
+      - profile.history_group_day
+      - calendar.view_month
+      - calendar.view_year
+      - profile.fmt_history_total
+      - profile.fmt_history_months
+      - profile.fmt_history_years
       - profile.msg_history_empty
       - workout.title_dtl_main
       - workout.msg_dtl_not_found
