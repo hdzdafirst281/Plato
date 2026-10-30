@@ -6,7 +6,7 @@
 /// Locales: 2
 /// Strings: 2956 (1478 per locale)
 ///
-/// Built on 2026-10-30 at 15:24 UTC
+/// Built on 2026-10-30 at 15:46 UTC
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -283,7 +283,6 @@ class _StringsCommonEn {
 	String get about_us => 'About Us';
 	String get agree => 'Agree';
 	String get back => 'Back';
-	String get scroll_to_top => 'Scroll to top';
 	String get cancel => 'Cancel';
 	String get close => 'Close';
 	String get confirm => 'Confirm';
@@ -314,6 +313,7 @@ class _StringsCommonEn {
 	String get reps => 'Reps';
 	String get save => 'Save';
 	String get save_anyway => 'Save anyway';
+	String get scroll_to_top => 'Scroll to top';
 	String get set => 'Set';
 	String get skip => 'Skip';
 	String get start => 'Start';
@@ -1070,17 +1070,15 @@ class _StringsProfileEn {
 	String get goal_strength => 'Increase Strength';
 	String get goal_title => 'Goal Strategy';
 	String get goal_workout_title => 'Training Goal';
-	String get title_workout_history => 'Workout History';
-	String get desc_workout_history => 'Pinch or use the controls to change the time scale.';
-	String get history_group_day => 'Day';
-	String fmt_history_total({required Object arg1}) => '${arg1} workouts';
-	String fmt_history_months({required Object arg1}) => '${arg1} active months';
-	String fmt_history_years({required Object arg1}) => '${arg1} active years';
 	String get msg_history_empty => 'You have no workout history yet';
 	String fmt_history_more_exercises({required Object arg1}) => '+ ${arg1} more...';
 	String btn_history_see_all({required Object arg1}) => 'See All (${arg1})';
 	String fmt_history_sets({required Object arg1}) => '${arg1} sets';
 	String fmt_history_sum({required Object arg1, required Object arg2}) => '${arg1} exercises • ${arg2}';
+	String fmt_history_months({required Object arg1}) => '${arg1} months';
+	String fmt_history_total({required Object arg1}) => '${arg1} total';
+	String fmt_history_years({required Object arg1}) => '${arg1} years';
+	String get history_group_day => 'Day';
 	String get injury_back => 'Lower Back Pain';
 	String get injury_blood_pressure => 'High Blood Pressure';
 	String get injury_cardio => 'Cardiovascular Disease';
@@ -1133,6 +1131,8 @@ class _StringsProfileEn {
 	String get lbl_stats_workouts => 'workouts';
 	String get target_pace => 'Desired Pace of Change';
 	String get target_wt => 'Target Weight';
+	String get title_workout_history => 'Workout History';
+	String get desc_workout_history => 'Review your past workouts and training progress.';
 }
 
 // Path: programs
@@ -1605,7 +1605,7 @@ class _StringsWorkoutEn {
 	String get btn_pr_awesome => 'AWESOME';
 	String get title_pr_congrats => 'NEW ACHIEVEMENT!';
 	String get pre_permission_btn_allow => 'Allow Now';
-	String get pre_permission_btn_later => 'Don\'t Enable';
+	String get pre_permission_btn_later => 'Later';
 	String get pre_permission_desc => 'To keep the rest timer running when the screen is off and automatically track your steps, Plato needs Notification and Physical Activity permissions.';
 	String get pre_permission_title => 'Run Workout in Background';
 	String get title_recovery_status => 'Recovery Status';
@@ -1999,7 +1999,6 @@ class _StringsCommonVi extends _StringsCommonEn {
 	@override String get about_us => 'Về chúng tôi';
 	@override String get agree => 'Đồng ý';
 	@override String get back => 'Quay lại';
-	@override String get scroll_to_top => 'Cuộn lên đầu';
 	@override String get cancel => 'Hủy';
 	@override String get close => 'Đóng';
 	@override String get confirm => 'Xác nhận';
@@ -2030,6 +2029,7 @@ class _StringsCommonVi extends _StringsCommonEn {
 	@override String get reps => 'Lần lặp';
 	@override String get save => 'Lưu';
 	@override String get save_anyway => 'Vẫn lưu';
+	@override String get scroll_to_top => 'Cuộn lên đầu';
 	@override String get set => 'Hiệp';
 	@override String get skip => 'Bỏ qua';
 	@override String get start => 'Bắt đầu';
@@ -2786,17 +2786,15 @@ class _StringsProfileVi extends _StringsProfileEn {
 	@override String get goal_strength => 'Tăng sức mạnh';
 	@override String get goal_title => 'Chiến lược mục tiêu';
 	@override String get goal_workout_title => 'Mục tiêu tập luyện';
-	@override String get title_workout_history => 'Lịch sử tập luyện';
-	@override String get desc_workout_history => 'Chụm, mở hai ngón hoặc dùng nút để đổi mốc thời gian.';
-	@override String get history_group_day => 'Ngày';
-	@override String fmt_history_total({required Object arg1}) => '${arg1} buổi tập';
-	@override String fmt_history_months({required Object arg1}) => '${arg1} tháng hoạt động';
-	@override String fmt_history_years({required Object arg1}) => '${arg1} năm hoạt động';
 	@override String get msg_history_empty => 'Bạn chưa có lịch sử tập luyện nào';
 	@override String fmt_history_more_exercises({required Object arg1}) => '+ ${arg1} bài khác...';
 	@override String btn_history_see_all({required Object arg1}) => 'Xem tất cả (${arg1})';
 	@override String fmt_history_sets({required Object arg1}) => '${arg1} hiệp';
 	@override String fmt_history_sum({required Object arg1, required Object arg2}) => '${arg1} bài tập • ${arg2}';
+	@override String fmt_history_months({required Object arg1}) => '${arg1} tháng';
+	@override String fmt_history_total({required Object arg1}) => 'Tổng cộng ${arg1}';
+	@override String fmt_history_years({required Object arg1}) => '${arg1} năm';
+	@override String get history_group_day => 'Ngày';
 	@override String get injury_back => 'Đau thắt lưng';
 	@override String get injury_blood_pressure => 'Huyết áp cao';
 	@override String get injury_cardio => 'Bệnh lý tim mạch';
@@ -2849,6 +2847,8 @@ class _StringsProfileVi extends _StringsProfileEn {
 	@override String get lbl_stats_workouts => 'buổi tập';
 	@override String get target_pace => 'Tốc độ thay đổi mong muốn';
 	@override String get target_wt => 'Cân nặng mong muốn';
+	@override String get title_workout_history => 'Lịch sử tập luyện';
+	@override String get desc_workout_history => 'Xem lại lịch sử các buổi tập và tiến độ tập luyện.';
 }
 
 // Path: programs
@@ -3321,7 +3321,7 @@ class _StringsWorkoutVi extends _StringsWorkoutEn {
 	@override String get btn_pr_awesome => 'TUYỆT VỜI';
 	@override String get title_pr_congrats => 'THÀNH TÍCH MỚI!';
 	@override String get pre_permission_btn_allow => 'Cấp quyền ngay';
-	@override String get pre_permission_btn_later => 'Không bật';
+	@override String get pre_permission_btn_later => 'Để sau';
 	@override String get pre_permission_desc => 'Để tính năng đếm giờ nghỉ tiếp tục hoạt động khi bạn tắt màn hình và tự động đếm số bước chân, Plato cần quyền gửi Thông báo và Hoạt động thể chất.';
 	@override String get pre_permission_title => 'Chạy nền buổi tập';
 	@override String get title_recovery_status => 'Trạng thái Phục hồi';
@@ -3647,7 +3647,6 @@ extension on Translations {
 			case 'common.about_us': return 'About Us';
 			case 'common.agree': return 'Agree';
 			case 'common.back': return 'Back';
-			case 'common.scroll_to_top': return 'Scroll to top';
 			case 'common.cancel': return 'Cancel';
 			case 'common.close': return 'Close';
 			case 'common.confirm': return 'Confirm';
@@ -3678,6 +3677,7 @@ extension on Translations {
 			case 'common.reps': return 'Reps';
 			case 'common.save': return 'Save';
 			case 'common.save_anyway': return 'Save anyway';
+			case 'common.scroll_to_top': return 'Scroll to top';
 			case 'common.set': return 'Set';
 			case 'common.skip': return 'Skip';
 			case 'common.start': return 'Start';
@@ -4353,17 +4353,15 @@ extension on Translations {
 			case 'profile.goal_strength': return 'Increase Strength';
 			case 'profile.goal_title': return 'Goal Strategy';
 			case 'profile.goal_workout_title': return 'Training Goal';
-			case 'profile.title_workout_history': return 'Workout History';
-			case 'profile.desc_workout_history': return 'Pinch or use the controls to change the time scale.';
-			case 'profile.history_group_day': return 'Day';
-			case 'profile.fmt_history_total': return ({required Object arg1}) => '${arg1} workouts';
-			case 'profile.fmt_history_months': return ({required Object arg1}) => '${arg1} active months';
-			case 'profile.fmt_history_years': return ({required Object arg1}) => '${arg1} active years';
 			case 'profile.msg_history_empty': return 'You have no workout history yet';
 			case 'profile.fmt_history_more_exercises': return ({required Object arg1}) => '+ ${arg1} more...';
 			case 'profile.btn_history_see_all': return ({required Object arg1}) => 'See All (${arg1})';
 			case 'profile.fmt_history_sets': return ({required Object arg1}) => '${arg1} sets';
 			case 'profile.fmt_history_sum': return ({required Object arg1, required Object arg2}) => '${arg1} exercises • ${arg2}';
+			case 'profile.fmt_history_months': return ({required Object arg1}) => '${arg1} months';
+			case 'profile.fmt_history_total': return ({required Object arg1}) => '${arg1} total';
+			case 'profile.fmt_history_years': return ({required Object arg1}) => '${arg1} years';
+			case 'profile.history_group_day': return 'Day';
 			case 'profile.injury_back': return 'Lower Back Pain';
 			case 'profile.injury_blood_pressure': return 'High Blood Pressure';
 			case 'profile.injury_cardio': return 'Cardiovascular Disease';
@@ -4416,6 +4414,8 @@ extension on Translations {
 			case 'profile.lbl_stats_workouts': return 'workouts';
 			case 'profile.target_pace': return 'Desired Pace of Change';
 			case 'profile.target_wt': return 'Target Weight';
+			case 'profile.title_workout_history': return 'Workout History';
+			case 'profile.desc_workout_history': return 'Review your past workouts and training progress.';
 			case 'programs.cardio_gym_int_desc': return 'A cardiovascular training system with continuously varying, powerful intensities. Strongly emphasizes massive calorie burn, eliminating stubborn fat, and elevating endurance to a completely new standard.';
 			case 'programs.cardio_gym_int_name': return 'Fat Burning Cardio & HIIT (Gym)';
 			case 'programs.combo_db_adv_desc': return 'Challenge every limit of endurance at home with a relentless 5-day rotating schedule. By pushing dumbbell intensity to the max, this routine drains energy and forces the body to adapt by growing bigger and stronger.';
@@ -4825,7 +4825,7 @@ extension on Translations {
 			case 'workout.btn_pr_awesome': return 'AWESOME';
 			case 'workout.title_pr_congrats': return 'NEW ACHIEVEMENT!';
 			case 'workout.pre_permission_btn_allow': return 'Allow Now';
-			case 'workout.pre_permission_btn_later': return 'Don\'t Enable';
+			case 'workout.pre_permission_btn_later': return 'Later';
 			case 'workout.pre_permission_desc': return 'To keep the rest timer running when the screen is off and automatically track your steps, Plato needs Notification and Physical Activity permissions.';
 			case 'workout.pre_permission_title': return 'Run Workout in Background';
 			case 'workout.title_recovery_status': return 'Recovery Status';
@@ -5133,7 +5133,6 @@ extension on _StringsVi {
 			case 'common.about_us': return 'Về chúng tôi';
 			case 'common.agree': return 'Đồng ý';
 			case 'common.back': return 'Quay lại';
-			case 'common.scroll_to_top': return 'Cuộn lên đầu';
 			case 'common.cancel': return 'Hủy';
 			case 'common.close': return 'Đóng';
 			case 'common.confirm': return 'Xác nhận';
@@ -5164,6 +5163,7 @@ extension on _StringsVi {
 			case 'common.reps': return 'Lần lặp';
 			case 'common.save': return 'Lưu';
 			case 'common.save_anyway': return 'Vẫn lưu';
+			case 'common.scroll_to_top': return 'Cuộn lên đầu';
 			case 'common.set': return 'Hiệp';
 			case 'common.skip': return 'Bỏ qua';
 			case 'common.start': return 'Bắt đầu';
@@ -5839,17 +5839,15 @@ extension on _StringsVi {
 			case 'profile.goal_strength': return 'Tăng sức mạnh';
 			case 'profile.goal_title': return 'Chiến lược mục tiêu';
 			case 'profile.goal_workout_title': return 'Mục tiêu tập luyện';
-			case 'profile.title_workout_history': return 'Lịch sử tập luyện';
-			case 'profile.desc_workout_history': return 'Chụm, mở hai ngón hoặc dùng nút để đổi mốc thời gian.';
-			case 'profile.history_group_day': return 'Ngày';
-			case 'profile.fmt_history_total': return ({required Object arg1}) => '${arg1} buổi tập';
-			case 'profile.fmt_history_months': return ({required Object arg1}) => '${arg1} tháng hoạt động';
-			case 'profile.fmt_history_years': return ({required Object arg1}) => '${arg1} năm hoạt động';
 			case 'profile.msg_history_empty': return 'Bạn chưa có lịch sử tập luyện nào';
 			case 'profile.fmt_history_more_exercises': return ({required Object arg1}) => '+ ${arg1} bài khác...';
 			case 'profile.btn_history_see_all': return ({required Object arg1}) => 'Xem tất cả (${arg1})';
 			case 'profile.fmt_history_sets': return ({required Object arg1}) => '${arg1} hiệp';
 			case 'profile.fmt_history_sum': return ({required Object arg1, required Object arg2}) => '${arg1} bài tập • ${arg2}';
+			case 'profile.fmt_history_months': return ({required Object arg1}) => '${arg1} tháng';
+			case 'profile.fmt_history_total': return ({required Object arg1}) => 'Tổng cộng ${arg1}';
+			case 'profile.fmt_history_years': return ({required Object arg1}) => '${arg1} năm';
+			case 'profile.history_group_day': return 'Ngày';
 			case 'profile.injury_back': return 'Đau thắt lưng';
 			case 'profile.injury_blood_pressure': return 'Huyết áp cao';
 			case 'profile.injury_cardio': return 'Bệnh lý tim mạch';
@@ -5902,6 +5900,8 @@ extension on _StringsVi {
 			case 'profile.lbl_stats_workouts': return 'buổi tập';
 			case 'profile.target_pace': return 'Tốc độ thay đổi mong muốn';
 			case 'profile.target_wt': return 'Cân nặng mong muốn';
+			case 'profile.title_workout_history': return 'Lịch sử tập luyện';
+			case 'profile.desc_workout_history': return 'Xem lại lịch sử các buổi tập và tiến độ tập luyện.';
 			case 'programs.cardio_gym_int_desc': return 'Hệ thống bài tập rèn luyện hệ tim mạch với cường độ thay đổi liên tục và mạnh mẽ. Chú trọng đặc biệt vào khả năng đốt cháy lượng calo khổng lồ, loại bỏ mỡ thừa ngoan cố và nâng tầm sức bền thể lực lên một tiêu chuẩn hoàn toàn mới.';
 			case 'programs.cardio_gym_int_name': return 'Cardio & HIIT Đốt Mỡ (Phòng Tập)';
 			case 'programs.combo_db_adv_desc': return 'Thách thức mọi giới hạn sức chịu đựng tại nhà với lịch tập năm buổi luân phiên không ngừng nghỉ. Bằng cách đẩy cường độ tạ đơn lên mức cao nhất, giáo án này vắt kiệt năng lượng và ép buộc cơ thể phải thích nghi bằng cách phát triển to hơn và mạnh hơn.';
@@ -6311,7 +6311,7 @@ extension on _StringsVi {
 			case 'workout.btn_pr_awesome': return 'TUYỆT VỜI';
 			case 'workout.title_pr_congrats': return 'THÀNH TÍCH MỚI!';
 			case 'workout.pre_permission_btn_allow': return 'Cấp quyền ngay';
-			case 'workout.pre_permission_btn_later': return 'Không bật';
+			case 'workout.pre_permission_btn_later': return 'Để sau';
 			case 'workout.pre_permission_desc': return 'Để tính năng đếm giờ nghỉ tiếp tục hoạt động khi bạn tắt màn hình và tự động đếm số bước chân, Plato cần quyền gửi Thông báo và Hoạt động thể chất.';
 			case 'workout.pre_permission_title': return 'Chạy nền buổi tập';
 			case 'workout.title_recovery_status': return 'Trạng thái Phục hồi';
