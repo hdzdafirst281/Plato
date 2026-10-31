@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_theme.dart';
 import 'gym_motion.dart';
 
 class GymAnimatedProgressBar extends StatelessWidget {
@@ -59,6 +60,99 @@ class GymAnimatedProgressBar extends StatelessWidget {
         decoration: BoxDecoration(
           color: color,
           borderRadius: BorderRadius.circular(height / 2),
+        ),
+      ),
+    );
+  }
+}
+
+class GymLabeledGradientProgressBar extends StatelessWidget {
+  final double progress;
+  final String label;
+  final double height;
+  final GymMotionValue? motionValue;
+
+  const GymLabeledGradientProgressBar({
+    super.key,
+    required this.progress,
+    required this.label,
+    this.height = 18,
+    this.motionValue,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final colors = Theme.of(context).colorScheme;
+    final gym = Theme.of(context).gymColors;
+    final value = progress.clamp(0.0, 1.0);
+    final gradient = LinearGradient(
+      colors: [gym.xpGradientStart, gym.xpGradientEnd],
+      begin: Alignment.centerLeft,
+      end: Alignment.centerRight,
+    );
+
+    Widget fill(double progress) => Transform.scale(
+      alignment: Alignment.centerLeft,
+      scaleX: progress,
+      child: SizedBox.expand(
+        child: DecoratedBox(
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(height / 2),
+            gradient: gradient,
+            boxShadow: [
+              BoxShadow(
+                color: gym.xpGradientEnd.withValues(alpha: 0.4),
+                blurRadius: 6,
+                offset: const Offset(0, 2),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+
+    return Semantics(
+      label: label,
+      child: ExcludeSemantics(
+        child: SizedBox(
+          height: height,
+          child: Stack(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  color: colors.surfaceContainerHighest,
+                  borderRadius: BorderRadius.circular(height / 2),
+                ),
+              ),
+              if (motionValue == null)
+                fill(value)
+              else
+                GymStableValueBuilder(
+                  motionValue: motionValue!,
+                  value: value,
+                  duration: GymMotion.visualization,
+                  builder: (context, progress, child) => fill(progress),
+                ),
+              Center(
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 10,
+                    fontWeight: FontWeight.w900,
+                    shadows: [
+                      Shadow(
+                        color: Colors.black87,
+                        blurRadius: 4,
+                        offset: Offset(0, 1),
+                      ),
+                      Shadow(color: Colors.black45, blurRadius: 2),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

@@ -9,7 +9,6 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:lottie/lottie.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
-import 'package:plato_gymapp/core/designsystem/theme/colors.dart';
 import 'package:responsive_framework/responsive_framework.dart';
 
 import '../../../../core/navigation/app_routes.dart';

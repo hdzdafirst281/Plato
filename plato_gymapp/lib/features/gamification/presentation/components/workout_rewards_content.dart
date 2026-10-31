@@ -1,8 +1,10 @@
+import 'dart:async';
 import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:plato_gymapp/core/database/enums.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_animated_progress_bar.dart';
 import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
 import 'package:plato_gymapp/i18n/translation_helper.dart';
@@ -16,6 +18,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:plato_gymapp/core/utils/measurement_units.dart';
 import 'package:plato_gymapp/features/profile/presentation/bloc/profile_cubit.dart';
 import '../../../workout/presentation/bloc/workout_cubit.dart';
+import 'rank_zone_progress_bar.dart';
 
 class WorkoutRewardsContent extends StatefulWidget {
   final WorkoutSession session;
@@ -30,8 +33,8 @@ class WorkoutRewardsContent extends StatefulWidget {
   final String? claimingQuestId;
   final ValueChanged<Quest> onClaim;
   final VoidCallback? onClaimChest;
-  final VoidCallback? onAutoClaimQuests;
-  final VoidCallback? onAutoClaimChest;
+  final Future<void> Function()? onAutoClaimQuests;
+  final Future<void> Function()? onAutoClaimChest;
   final VoidCallback onContinue;
   final VoidCallback? onAnimationComplete;
 
@@ -75,8 +78,8 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
   Animation<double>? _routeAnimation;
   bool _started = false;
   bool _notified = false;
-  bool _autoClaimQuestsDone = false;
-  bool _autoClaimChestDone = false;
+  bool _autoClaimStarted = false;
+  bool _questsExpanded = false;
   late int _xpStart = math.max(
     0,
     RewardXpProgress.total(widget.stats) -
@@ -171,15 +174,17 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
       }
     });
     _sequence.addListener(() {
-      if (!_autoClaimQuestsDone && _phase('quests', 280, 800) == 1.0) {
-        _autoClaimQuestsDone = true;
-        widget.onAutoClaimQuests?.call();
-      }
-      if (!_autoClaimChestDone && _phase('chest', 280, 800) == 1.0) {
-        _autoClaimChestDone = true;
-        widget.onAutoClaimChest?.call();
+      if (!_autoClaimStarted && _phase('quests', 280, 800) == 1.0) {
+        _autoClaimStarted = true;
+        unawaited(_autoClaimRewards());
       }
     });
+  }
+
+  Future<void> _autoClaimRewards() async {
+    await widget.onAutoClaimQuests?.call();
+    if (!mounted) return;
+    await widget.onAutoClaimChest?.call();
   }
 
   @override
@@ -312,7 +317,10 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
                         child: Column(
                           children: [
                             Expanded(
-                              child: accessible || constraints.maxHeight < 500
+                              child:
+                                  accessible ||
+                                      constraints.maxHeight < 500 ||
+                                      _questsExpanded
                                   // Accessibility/landscape escape hatch; regular phone layouts never scroll.
                                   ? SingleChildScrollView(child: content)
                                   : Align(
@@ -366,9 +374,10 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
     );
   }
 
-  Widget _card(Widget child, bool compact, {Color? accent}) {
+  Widget _card(Widget child, bool compact, {Color? accent, Key? key}) {
     final colors = Theme.of(context).colorScheme;
     return Container(
+      key: key,
       padding: EdgeInsets.all(compact ? 6 : 14),
       decoration: BoxDecoration(
         color: colors.surfaceContainer,
@@ -417,7 +426,7 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
     final text = t.workout_rewards.streak(weeks: weeks);
     final weeksStr = weeks.toString();
     final index = text.indexOf(weeksStr);
-    
+
     final baseStyle = TextStyle(
       fontWeight: FontWeight.w800,
       fontSize: compact ? 22 : 28,
@@ -530,6 +539,23 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
 
   Widget _quests(bool compact) {
     final quests = widget.stats.weeklyQuests;
+    final colors = Theme.of(context).colorScheme;
+    final successColor =
+        Theme.of(context).extension<GymColors>()?.success ?? Colors.green;
+    final completed = quests.where((quest) => quest.isCompleted).length;
+    final completedBefore = widget.beforeQuests.isEmpty
+        ? completed
+        : widget.beforeQuests.where((quest) => quest.isCompleted).length;
+    final animatedCompleted =
+        completedBefore + (completed - completedBefore) * _progress('quests');
+    final current = animatedCompleted.round().clamp(0, quests.length);
+    final hasRewardReady = quests.any(
+      (quest) => quest.isCompleted && !quest.claimedReward,
+    );
+    final detailsLabel = _questsExpanded
+        ? t.workout.btn_dtl_muscle_collapse
+        : t.workout.tooltip_view_details;
+
     return _card(
       Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -545,36 +571,79 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
                   ),
                 ),
               ),
-              if (quests.any((q) => q.isCompleted && !q.claimedReward))
-                Tooltip(
-                  message: t.workout_rewards.tap_claim,
-                  child: Icon(
-                    Symbols.touch_app,
-                    size: 18,
-                    color: Theme.of(context).colorScheme.primary,
-                  ),
+              Text(
+                '$current/${quests.length}',
+                key: const ValueKey('quests-summary-count'),
+                style: TextStyle(
+                  color: completed == quests.length
+                      ? successColor
+                      : colors.primary,
+                  fontWeight: FontWeight.w800,
                 ),
+              ),
             ],
           ),
-          SizedBox(height: compact ? 3 : 10),
-          for (var i = 0; i < quests.length; i += 2) ...[
-            if (i > 0) SizedBox(height: compact ? 3 : 10),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(child: _questTile(quests[i], compact)),
-                const SizedBox(width: 10),
-                Expanded(
-                  child: i + 1 < quests.length
-                      ? _questTile(quests[i + 1], compact)
-                      : const SizedBox(),
-                ),
-              ],
+          SizedBox(height: compact ? 4 : 8),
+          _bar(
+            'quests-summary-progress',
+            animatedCompleted,
+            quests.length,
+            completed == quests.length ? successColor : colors.primary,
+          ),
+          Align(
+            alignment: Alignment.centerRight,
+            child: TextButton.icon(
+              key: const ValueKey('toggle-quest-details'),
+              onPressed: () =>
+                  setState(() => _questsExpanded = !_questsExpanded),
+              style: TextButton.styleFrom(
+                visualDensity: VisualDensity.compact,
+                tapTargetSize: MaterialTapTargetSize.padded,
+              ),
+              icon: AnimatedRotation(
+                turns: _questsExpanded ? 0.5 : 0,
+                duration: _reduceMotion
+                    ? Duration.zero
+                    : const Duration(milliseconds: 200),
+                child: const Icon(Symbols.expand_more, size: 18),
+              ),
+              label: Text(detailsLabel),
             ),
-          ],
+          ),
+          AnimatedSize(
+            alignment: Alignment.topCenter,
+            duration: _reduceMotion
+                ? Duration.zero
+                : const Duration(milliseconds: 200),
+            child: !_questsExpanded
+                ? const SizedBox(width: double.infinity)
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      const Divider(height: 8),
+                      for (var i = 0; i < quests.length; i += 2) ...[
+                        if (i > 0) SizedBox(height: compact ? 3 : 10),
+                        Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(child: _questTile(quests[i], compact)),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: i + 1 < quests.length
+                                  ? _questTile(quests[i + 1], compact)
+                                  : const SizedBox(),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ],
+                  ),
+          ),
         ],
       ),
       compact,
+      accent: hasRewardReady ? successColor : null,
+      key: const ValueKey('quests-card'),
     );
   }
 
@@ -756,7 +825,10 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
                   SvgPicture.asset(
                     'assets/svg/icons/weekly_chest.svg',
                     width: compact ? 24 : 30,
-                    colorFilter: ColorFilter.mode(colors.primary, BlendMode.srcIn),
+                    colorFilter: ColorFilter.mode(
+                      colors.primary,
+                      BlendMode.srcIn,
+                    ),
                   ),
                   const SizedBox(width: 10),
                   Expanded(
@@ -805,6 +877,7 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
               ),
               compact,
               accent: ready ? colors.primary : null,
+              key: const ValueKey('weekly-chest-card'),
             ),
           ),
         ),
@@ -829,11 +902,22 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Text(
-                      t.workout_rewards.level(level: level),
-                      style: const TextStyle(
-                        fontWeight: FontWeight.w800,
-                        fontSize: 16,
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: colors.primary.withValues(alpha: 0.15),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: Text(
+                        t.gamification.fmt_user_level(arg1: level.toString()),
+                        style: TextStyle(
+                          color: colors.primary,
+                          fontSize: 13,
+                          fontWeight: FontWeight.w800,
+                        ),
                       ),
                     ),
                     if (isCapped) ...[
@@ -856,32 +940,28 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
             ],
           ),
           SizedBox(height: compact ? 3 : 10),
-          _bar('xp-progress', xp, target, colors.primary),
-          const SizedBox(height: 4),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                '$xp / $target XP',
-                style: TextStyle(fontSize: 11, color: colors.onSurfaceVariant),
-              ),
-              if (isCapped)
-                Flexible(
-                  child: Text(
-                    t.workout_rewards.msg_daily_xp_capped(
-                      max: GamificationRepository.dailyXpCap,
-                    ),
-                    style: TextStyle(
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                      color: colors.error,
-                    ),
-                    textAlign: TextAlign.end,
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ),
-            ],
+          GymLabeledGradientProgressBar(
+            key: const ValueKey('xp-progress'),
+            progress: target > 0 ? xp / target : 0,
+            label: t.gamification.fmt_xp_progress(
+              arg1: xp.toString(),
+              arg2: target.toString(),
+            ),
           ),
+          if (isCapped) ...[
+            const SizedBox(height: 4),
+            Text(
+              t.workout_rewards.msg_daily_xp_capped(
+                max: GamificationRepository.dailyXpCap,
+              ),
+              style: TextStyle(
+                fontSize: 10,
+                fontWeight: FontWeight.w600,
+                color: colors.error,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ],
         ],
       ),
       compact,
@@ -902,9 +982,7 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
   Widget _rank(bool compact) {
     final rank = widget.rank!;
     final info = RankConfig.getRankById(rank.currentRankId);
-    final scale = RewardRankScale(info);
     final colors = Theme.of(context).colorScheme;
-    final gym = Theme.of(context).extension<GymColors>();
     final inCycle =
         widget.session.startTime >= rank.cycleStartTimeMillis &&
             widget.session.startTime <
@@ -981,91 +1059,9 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
             ],
           ),
           const SizedBox(height: 6),
-          Semantics(
-            label:
-                '$current RP, ${t.workout_rewards.zone_maintain} ${info.maintainPoints}'
-                '${scale.canPromote ? ', ${t.workout_rewards.zone_promote} ${info.promotePoints}' : ''}',
-            child: LayoutBuilder(
-              builder: (context, constraints) => SizedBox(
-                height: 16,
-                child: Stack(
-                  alignment: Alignment.centerLeft,
-                  children: [
-                    ClipRRect(
-                      borderRadius: BorderRadius.circular(6),
-                      child: SizedBox(
-                        height: 8,
-                        child: Row(
-                          children: [
-                            if (scale.canDemote)
-                              Expanded(
-                                flex: (scale.maintain * 10000).round(),
-                                child: Container(
-                                  key: const ValueKey('rank-zone-demote'),
-                                  color: colors.error,
-                                ),
-                              ),
-                            Expanded(
-                              flex: ((scale.promote - scale.maintain) * 10000)
-                                  .round(),
-                              child: Container(
-                                key: const ValueKey('rank-zone-maintain'),
-                                color: gym?.goldRank ?? Colors.amber,
-                              ),
-                            ),
-                            if (scale.canPromote)
-                              Expanded(
-                                flex: ((1 - scale.promote) * 10000).round(),
-                                child: Container(
-                                  key: const ValueKey('rank-zone-promote'),
-                                  color: gym?.success ?? Colors.green,
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      left:
-                          scale.position(
-                            before + (rank.totalRp - before) * _progress('rp'),
-                          ) *
-                          math.max(0, constraints.maxWidth - 10),
-                      child: Container(
-                        key: const ValueKey('rp-marker'),
-                        width: 10,
-                        height: 16,
-                        decoration: BoxDecoration(
-                          color: colors.onSurface,
-                          borderRadius: BorderRadius.circular(4),
-                          border: Border.all(color: colors.surface, width: 2),
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-          const SizedBox(height: 2),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              if (scale.canDemote)
-                Text(
-                  '${t.workout_rewards.zone_demote} <${info.maintainPoints}',
-                  style: const TextStyle(fontSize: 10),
-                ),
-              Text(
-                '${t.workout_rewards.zone_maintain} ≥${info.maintainPoints}',
-                style: const TextStyle(fontSize: 10),
-              ),
-              if (scale.canPromote)
-                Text(
-                  '${t.workout_rewards.zone_promote} ≥${info.promotePoints}',
-                  style: const TextStyle(fontSize: 10),
-                ),
-            ],
+          RankZoneProgressBar(
+            rank: info,
+            points: before + (rank.totalRp - before) * _progress('rp'),
           ),
           SizedBox(height: compact ? 6 : 10),
           if (isCapped)
@@ -1099,28 +1095,6 @@ class _WorkoutRewardsContentState extends State<WorkoutRewardsContent>
                   ),
                 ],
               ),
-            )
-          else
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Symbols.info,
-                  size: 12,
-                  color: colors.onSurfaceVariant,
-                ),
-                const SizedBox(width: 4),
-                Flexible(
-                  child: Text(
-                    t.rank.desc_info_daily_cap(max: RankConfig.dailyRpCap),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 10,
-                      color: colors.onSurfaceVariant,
-                    ),
-                  ),
-                ),
-              ],
             ),
           SizedBox(height: compact ? 4 : 6),
           Text(

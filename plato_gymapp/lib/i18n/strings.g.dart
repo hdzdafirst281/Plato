@@ -6,7 +6,7 @@
 /// Locales: 2
 /// Strings: 2956 (1478 per locale)
 ///
-/// Built on 2026-10-30 at 15:46 UTC
+/// Built on 2026-10-30 at 16:13 UTC
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -1075,9 +1075,9 @@ class _StringsProfileEn {
 	String btn_history_see_all({required Object arg1}) => 'See All (${arg1})';
 	String fmt_history_sets({required Object arg1}) => '${arg1} sets';
 	String fmt_history_sum({required Object arg1, required Object arg2}) => '${arg1} exercises • ${arg2}';
-	String fmt_history_months({required Object arg1}) => '${arg1} months';
-	String fmt_history_total({required Object arg1}) => '${arg1} total';
-	String fmt_history_years({required Object arg1}) => '${arg1} years';
+	String fmt_history_months({required Object arg1}) => '${arg1} active months';
+	String fmt_history_total({required Object arg1}) => 'Total ${arg1} workouts';
+	String fmt_history_years({required Object arg1}) => '${arg1} active years';
 	String get history_group_day => 'Day';
 	String get injury_back => 'Lower Back Pain';
 	String get injury_blood_pressure => 'High Blood Pressure';
@@ -1132,7 +1132,7 @@ class _StringsProfileEn {
 	String get target_pace => 'Desired Pace of Change';
 	String get target_wt => 'Target Weight';
 	String get title_workout_history => 'Workout History';
-	String get desc_workout_history => 'Review your past workouts and training progress.';
+	String get desc_workout_history => 'Pinch or use the controls to change the time scale.';
 }
 
 // Path: programs
@@ -2791,8 +2791,8 @@ class _StringsProfileVi extends _StringsProfileEn {
 	@override String btn_history_see_all({required Object arg1}) => 'Xem tất cả (${arg1})';
 	@override String fmt_history_sets({required Object arg1}) => '${arg1} hiệp';
 	@override String fmt_history_sum({required Object arg1, required Object arg2}) => '${arg1} bài tập • ${arg2}';
-	@override String fmt_history_months({required Object arg1}) => '${arg1} tháng';
-	@override String fmt_history_total({required Object arg1}) => 'Tổng cộng ${arg1}';
+	@override String fmt_history_months({required Object arg1}) => '${arg1} tháng hoạt động';
+	@override String fmt_history_total({required Object arg1}) => 'Tổng ${arg1} buổi đã tập';
 	@override String fmt_history_years({required Object arg1}) => '${arg1} năm';
 	@override String get history_group_day => 'Ngày';
 	@override String get injury_back => 'Đau thắt lưng';
@@ -2848,7 +2848,7 @@ class _StringsProfileVi extends _StringsProfileEn {
 	@override String get target_pace => 'Tốc độ thay đổi mong muốn';
 	@override String get target_wt => 'Cân nặng mong muốn';
 	@override String get title_workout_history => 'Lịch sử tập luyện';
-	@override String get desc_workout_history => 'Xem lại lịch sử các buổi tập và tiến độ tập luyện.';
+	@override String get desc_workout_history => 'Chụm, mở hai ngón hoặc dùng nút để đổi mốc thời gian.';
 }
 
 // Path: programs
@@ -4358,9 +4358,9 @@ extension on Translations {
 			case 'profile.btn_history_see_all': return ({required Object arg1}) => 'See All (${arg1})';
 			case 'profile.fmt_history_sets': return ({required Object arg1}) => '${arg1} sets';
 			case 'profile.fmt_history_sum': return ({required Object arg1, required Object arg2}) => '${arg1} exercises • ${arg2}';
-			case 'profile.fmt_history_months': return ({required Object arg1}) => '${arg1} months';
-			case 'profile.fmt_history_total': return ({required Object arg1}) => '${arg1} total';
-			case 'profile.fmt_history_years': return ({required Object arg1}) => '${arg1} years';
+			case 'profile.fmt_history_months': return ({required Object arg1}) => '${arg1} active months';
+			case 'profile.fmt_history_total': return ({required Object arg1}) => 'Total ${arg1} workouts';
+			case 'profile.fmt_history_years': return ({required Object arg1}) => '${arg1} active years';
 			case 'profile.history_group_day': return 'Day';
 			case 'profile.injury_back': return 'Lower Back Pain';
 			case 'profile.injury_blood_pressure': return 'High Blood Pressure';
@@ -4415,7 +4415,7 @@ extension on Translations {
 			case 'profile.target_pace': return 'Desired Pace of Change';
 			case 'profile.target_wt': return 'Target Weight';
 			case 'profile.title_workout_history': return 'Workout History';
-			case 'profile.desc_workout_history': return 'Review your past workouts and training progress.';
+			case 'profile.desc_workout_history': return 'Pinch or use the controls to change the time scale.';
 			case 'programs.cardio_gym_int_desc': return 'A cardiovascular training system with continuously varying, powerful intensities. Strongly emphasizes massive calorie burn, eliminating stubborn fat, and elevating endurance to a completely new standard.';
 			case 'programs.cardio_gym_int_name': return 'Fat Burning Cardio & HIIT (Gym)';
 			case 'programs.combo_db_adv_desc': return 'Challenge every limit of endurance at home with a relentless 5-day rotating schedule. By pushing dumbbell intensity to the max, this routine drains energy and forces the body to adapt by growing bigger and stronger.';
@@ -5844,8 +5844,8 @@ extension on _StringsVi {
 			case 'profile.btn_history_see_all': return ({required Object arg1}) => 'Xem tất cả (${arg1})';
 			case 'profile.fmt_history_sets': return ({required Object arg1}) => '${arg1} hiệp';
 			case 'profile.fmt_history_sum': return ({required Object arg1, required Object arg2}) => '${arg1} bài tập • ${arg2}';
-			case 'profile.fmt_history_months': return ({required Object arg1}) => '${arg1} tháng';
-			case 'profile.fmt_history_total': return ({required Object arg1}) => 'Tổng cộng ${arg1}';
+			case 'profile.fmt_history_months': return ({required Object arg1}) => '${arg1} tháng hoạt động';
+			case 'profile.fmt_history_total': return ({required Object arg1}) => 'Tổng ${arg1} buổi đã tập';
 			case 'profile.fmt_history_years': return ({required Object arg1}) => '${arg1} năm';
 			case 'profile.history_group_day': return 'Ngày';
 			case 'profile.injury_back': return 'Đau thắt lưng';
@@ -5901,7 +5901,7 @@ extension on _StringsVi {
 			case 'profile.target_pace': return 'Tốc độ thay đổi mong muốn';
 			case 'profile.target_wt': return 'Cân nặng mong muốn';
 			case 'profile.title_workout_history': return 'Lịch sử tập luyện';
-			case 'profile.desc_workout_history': return 'Xem lại lịch sử các buổi tập và tiến độ tập luyện.';
+			case 'profile.desc_workout_history': return 'Chụm, mở hai ngón hoặc dùng nút để đổi mốc thời gian.';
 			case 'programs.cardio_gym_int_desc': return 'Hệ thống bài tập rèn luyện hệ tim mạch với cường độ thay đổi liên tục và mạnh mẽ. Chú trọng đặc biệt vào khả năng đốt cháy lượng calo khổng lồ, loại bỏ mỡ thừa ngoan cố và nâng tầm sức bền thể lực lên một tiêu chuẩn hoàn toàn mới.';
 			case 'programs.cardio_gym_int_name': return 'Cardio & HIIT Đốt Mỡ (Phòng Tập)';
 			case 'programs.combo_db_adv_desc': return 'Thách thức mọi giới hạn sức chịu đựng tại nhà với lịch tập năm buổi luân phiên không ngừng nghỉ. Bằng cách đẩy cường độ tạ đơn lên mức cao nhất, giáo án này vắt kiệt năng lượng và ép buộc cơ thể phải thích nghi bằng cách phát triển to hơn và mạnh hơn.';

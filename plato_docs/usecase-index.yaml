@@ -481,6 +481,8 @@ usecases:
       - "plato_gymapp/lib/features/workout/presentation/screens/workout_settings_screen.dart"
       - "plato_gymapp/lib/features/gamification/presentation/screens/workout_rewards_screen.dart"
       - "plato_gymapp/lib/features/gamification/presentation/components/workout_rewards_content.dart"
+      - "plato_gymapp/lib/features/gamification/presentation/components/rank_zone_progress_bar.dart"
+      - "plato_gymapp/lib/core/designsystem/components/gym_animated_progress_bar.dart"
       - "plato_gymapp/lib/features/workout/data/repositories/workout_repository.dart"
       - "plato_gymapp/lib/features/workout/domain/training_load_manager.dart"
       - "plato_gymapp/lib/features/gamification/data/repositories/gamification_repository.dart"
@@ -502,6 +504,8 @@ usecases:
       - workout.status_resting
       - workout.msg_superset_limit
       - settings.lbl_item_workout_settings
+      - gamification.fmt_user_level
+      - gamification.fmt_xp_progress
     related_usecases:
       - UC12
       - UC16
@@ -846,6 +850,7 @@ usecases:
       - "plato_gymapp/lib/features/gamification/data/repositories/gamification_repository.dart"
       - "plato_gymapp/lib/features/gamification/presentation/screens/workout_rewards_screen.dart"
       - "plato_gymapp/lib/features/gamification/presentation/components/workout_rewards_content.dart"
+      - "plato_gymapp/lib/features/gamification/presentation/components/rank_zone_progress_bar.dart"
       - "plato_gymapp/lib/core/navigation/app_router.dart"
     localization_keys:
       - gamification.tab_quests
@@ -856,6 +861,10 @@ usecases:
       - gamification.dialog_chest_title_success
       - gamification.btn_claim_now
       - gamification.msg_chest_claimed
+      - workout.tooltip_view_details
+      - workout.btn_dtl_muscle_collapse
+      - gamification.fmt_user_level
+      - gamification.fmt_xp_progress
     related_usecases:
       - UC02
       - UC04
@@ -905,6 +914,8 @@ usecases:
     code_paths:
       - "plato_gymapp/lib/features/gamification/presentation/screens/rank_screen.dart"
       - "plato_gymapp/lib/features/gamification/presentation/components/rank_components.dart"
+      - "plato_gymapp/lib/features/gamification/presentation/components/rank_zone_progress_bar.dart"
+      - "plato_gymapp/lib/features/profile/presentation/screens/profile_screen.dart"
       - "plato_gymapp/lib/features/gamification/presentation/bloc/rank_cubit.dart"
       - "plato_gymapp/lib/features/gamification/domain/rank_calculator.dart"
       - "plato_gymapp/lib/features/gamification/data/repositories/gamification_repository.dart"
@@ -922,6 +933,9 @@ usecases:
       - rank.msg_history_empty
       - rank.desc_info_daily_cap
       - workout_rewards.msg_daily_rp_capped
+      - workout_rewards.zone_demote
+      - workout_rewards.zone_maintain
+      - workout_rewards.zone_promote
     related_usecases:
       - UC07
       - UC15

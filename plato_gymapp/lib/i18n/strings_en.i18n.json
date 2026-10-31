@@ -820,9 +820,9 @@
     "btn_history_see_all": "See All ({arg1})",
     "fmt_history_sets": "{arg1} sets",
     "fmt_history_sum": "{arg1} exercises • {arg2}",
-    "fmt_history_months": "{arg1} months",
-    "fmt_history_total": "{arg1} total",
-    "fmt_history_years": "{arg1} years",
+    "fmt_history_months": "{arg1} active months",
+    "fmt_history_total": "Total {arg1} workouts",
+    "fmt_history_years": "{arg1} active years",
     "history_group_day": "Day",
     "injury_back": "Lower Back Pain",
     "injury_blood_pressure": "High Blood Pressure",
@@ -877,7 +877,7 @@
     "target_pace": "Desired Pace of Change",
     "target_wt": "Target Weight",
     "title_workout_history": "Workout History",
-    "desc_workout_history": "Review your past workouts and training progress."
+    "desc_workout_history": "Pinch or use the controls to change the time scale."
   },
   "programs": {
     "cardio_gym_int_desc": "A cardiovascular training system with continuously varying, powerful intensities. Strongly emphasizes massive calorie burn, eliminating stubborn fat, and elevating endurance to a completely new standard.",

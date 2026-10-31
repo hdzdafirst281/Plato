@@ -193,7 +193,6 @@ class _UserProfileHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final gymColors = Theme.of(context).gymColors;
-    final isDark = Theme.of(context).brightness == Brightness.dark;
 
     double badgeScale;
     List<Color> badgeGradient;
@@ -235,10 +234,6 @@ class _UserProfileHeader extends StatelessWidget {
     ).value;
 
     final displayName = userProfile.displayName;
-
-    final List<Color> xpGradient = isDark
-        ? const [xpGradientStartDark, xpGradientEndDark]
-        : const [xpGradientStartLight, xpGradientEndLight];
 
     Widget avatarWidget;
     if (userProfile.avatarUrl != null && userProfile.avatarUrl!.isNotEmpty) {
@@ -425,70 +420,13 @@ class _UserProfileHeader extends StatelessWidget {
                   ],
                 ),
                 SizedBox(height: isTablet ? 8 : 12),
-                SizedBox(
-                  height: 18,
-                  child: Stack(
-                    children: [
-                      Container(
-                        width: double.infinity,
-                        height: 18,
-                        decoration: BoxDecoration(
-                          color: colorScheme.surfaceContainerHighest,
-                          borderRadius: BorderRadius.circular(9),
-                        ),
-                      ),
-                      GymStableValueBuilder(
-                        motionValue: xpMotion,
-                        value: progressRatio,
-                        duration: GymMotion.visualization,
-                        builder: (context, value, child) => Transform.scale(
-                          alignment: Alignment.centerLeft,
-                          scaleX: value,
-                          child: child,
-                        ),
-                        child: SizedBox.expand(
-                          child: DecoratedBox(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(9),
-                              gradient: LinearGradient(
-                                colors: xpGradient,
-                                begin: Alignment.centerLeft,
-                                end: Alignment.centerRight,
-                              ),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: xpGradient.last.withValues(alpha: 0.4),
-                                  blurRadius: 6,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ),
-                      Center(
-                        child: Text(
-                          t.gamification.fmt_xp_progress(
-                            arg1: userStats.currentXp.toString(),
-                            arg2: userStats.nextLevelXp.toString(),
-                          ),
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 10,
-                            fontWeight: FontWeight.w900,
-                            shadows: [
-                              Shadow(
-                                color: Colors.black87,
-                                blurRadius: 4,
-                                offset: Offset(0, 1),
-                              ),
-                              Shadow(color: Colors.black45, blurRadius: 2),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ],
+                GymLabeledGradientProgressBar(
+                  progress: progressRatio,
+                  label: t.gamification.fmt_xp_progress(
+                    arg1: userStats.currentXp.toString(),
+                    arg2: userStats.nextLevelXp.toString(),
                   ),
+                  motionValue: xpMotion,
                 ),
               ],
             ),

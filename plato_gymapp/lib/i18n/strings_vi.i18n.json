@@ -820,8 +820,8 @@
     "btn_history_see_all": "Xem tất cả ({arg1})",
     "fmt_history_sets": "{arg1} hiệp",
     "fmt_history_sum": "{arg1} bài tập • {arg2}",
-    "fmt_history_months": "{arg1} tháng",
-    "fmt_history_total": "Tổng cộng {arg1}",
+    "fmt_history_months": "{arg1} tháng hoạt động",
+    "fmt_history_total": "Tổng {arg1} buổi đã tập",
     "fmt_history_years": "{arg1} năm",
     "history_group_day": "Ngày",
     "injury_back": "Đau thắt lưng",
@@ -877,7 +877,7 @@
     "target_pace": "Tốc độ thay đổi mong muốn",
     "target_wt": "Cân nặng mong muốn",
     "title_workout_history": "Lịch sử tập luyện",
-    "desc_workout_history": "Xem lại lịch sử các buổi tập và tiến độ tập luyện."
+    "desc_workout_history": "Chụm, mở hai ngón hoặc dùng nút để đổi mốc thời gian."
   },
   "programs": {
     "cardio_gym_int_desc": "Hệ thống bài tập rèn luyện hệ tim mạch với cường độ thay đổi liên tục và mạnh mẽ. Chú trọng đặc biệt vào khả năng đốt cháy lượng calo khổng lồ, loại bỏ mỡ thừa ngoan cố và nâng tầm sức bền thể lực lên một tiêu chuẩn hoàn toàn mới.",

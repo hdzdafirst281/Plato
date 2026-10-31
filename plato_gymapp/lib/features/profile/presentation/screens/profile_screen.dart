@@ -30,6 +30,7 @@ import '../../../../core/worker/sync_manager.dart';
 
 import '../../../auth/data/models/user_models.dart';
 import '../../../workout/data/models/workout_models.dart';
+import '../../../gamification/presentation/components/rank_zone_progress_bar.dart';
 import '../../../gamification/domain/rank_calculator.dart';
 import '../../domain/profile_chart_utils.dart';
 
@@ -620,7 +621,6 @@ class _ProfileScreenState extends State<ProfileScreen>
       );
     } else {
       final rankInfo = RankConfig.getRankById(profile.activeRankId);
-      final isMaxRank = profile.activeRankId == RankConfig.hierarchy.last.id;
       final int nowMillis = DateTime.now().millisecondsSinceEpoch;
       final seasonResult = RankCalculator.calculateTrueRankAndSeasons(
         history,
@@ -739,11 +739,10 @@ class _ProfileScreenState extends State<ProfileScreen>
                   ],
                 ),
                 const SizedBox(height: 6),
-                _BMIStyleZoneBar(
+                RankZoneProgressBar(
                   motionValue: _rankProgressMotion,
-                  currentRank: rankInfo,
+                  rank: rankInfo,
                   points: profile.currentRp,
-                  isMaxRank: isMaxRank,
                 ),
               ],
             ),
@@ -940,268 +939,6 @@ class _ProfileScreenState extends State<ProfileScreen>
         );
       }).toList(),
     );
-  }
-}
-
-class _BMIStyleZoneBar extends StatelessWidget {
-  final GymMotionValue motionValue;
-  final RankLevel currentRank;
-  final int points;
-  final bool isMaxRank;
-
-  const _BMIStyleZoneBar({
-    required this.motionValue,
-    required this.currentRank,
-    required this.points,
-    required this.isMaxRank,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final colorMaintain = Theme.of(context).gymColors.goldRank;
-    final colorPromote = Theme.of(context).gymColors.success;
-
-    final double maxRenderRP = isMaxRank
-        ? (currentRank.maintainPoints * 1.5)
-        : (currentRank.promotePoints * 1.2);
-    final double maintainRatio = maxRenderRP > 0
-        ? (currentRank.maintainPoints / maxRenderRP).clamp(0.0, 1.0)
-        : 0.0;
-    final double promoteRatio = maxRenderRP > 0
-        ? (currentRank.promotePoints / maxRenderRP).clamp(0.0, 1.0)
-        : 0.0;
-    final double targetRatio = maxRenderRP > 0
-        ? (points / maxRenderRP).clamp(0.0, 1.0)
-        : 0.0;
-
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final double width = constraints.maxWidth;
-
-        return Column(
-          children: [
-            GymStableValueBuilder(
-              motionValue: motionValue,
-              value: targetRatio,
-              duration: GymMotion.emphasized,
-              builder: (context, value, child) => RepaintBoundary(
-                child: CustomPaint(
-                  size: Size(
-                    width.isInfinite ? 350 : width,
-                    8,
-                  ), // Fix infinite width crash during transitions
-                  painter: _ZoneBarPainter(
-                    currentRatio: value,
-                    maintainRatio: maintainRatio,
-                    promoteRatio: promoteRatio,
-                    isRank1: currentRank.id == 1,
-                    isMaxRank: isMaxRank,
-                    colorDemotion: colorScheme.error,
-                    colorMaintain: colorMaintain,
-                    colorPromote: colorPromote,
-                    colorIndicator: colorScheme.primary,
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 4),
-            SizedBox(
-              height: 16,
-              child: Stack(
-                children: [
-                  if (currentRank.id > 1)
-                    Positioned(
-                      left: (width * maintainRatio) - 24,
-                      child: Text(
-                        "${currentRank.maintainPoints} RP",
-                        style: TextStyle(
-                          color: colorScheme.error,
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          fontFeatures: const [FontFeature.tabularFigures()],
-                        ),
-                      ),
-                    ),
-                  if (!isMaxRank)
-                    Positioned(
-                      left: (width * promoteRatio) - 24,
-                      child: Text(
-                        "${currentRank.promotePoints} RP",
-                        style: TextStyle(
-                          color: colorPromote,
-                          fontSize: 13,
-                          fontWeight: FontWeight.bold,
-                          fontFeatures: const [FontFeature.tabularFigures()],
-                        ),
-                      ),
-                    ),
-                ],
-              ),
-            ),
-          ],
-        );
-      },
-    );
-  }
-}
-
-class _ZoneBarPainter extends CustomPainter {
-  final double currentRatio;
-  final double maintainRatio;
-  final double promoteRatio;
-  final bool isRank1;
-  final bool isMaxRank;
-  final Color colorDemotion;
-  final Color colorMaintain;
-  final Color colorPromote;
-  final Color colorIndicator;
-
-  _ZoneBarPainter({
-    required this.currentRatio,
-    required this.maintainRatio,
-    required this.promoteRatio,
-    required this.isRank1,
-    required this.isMaxRank,
-    required this.colorDemotion,
-    required this.colorMaintain,
-    required this.colorPromote,
-    required this.colorIndicator,
-  });
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..style = PaintingStyle.fill;
-    final linePaint = Paint()
-      ..color = Colors.white
-      ..strokeWidth = 3;
-
-    const double h = 8.0;
-    final double y = size.height / 2;
-    final double top = y - h / 2;
-    final double bottom = y + h / 2;
-    const Radius radius = Radius.circular(h / 2);
-
-    final double xMaintain = size.width * maintainRatio;
-    final double xPromote = size.width * promoteRatio;
-    final double xCurrent = size.width * currentRatio;
-
-    if (isRank1) {
-      paint.color = colorMaintain;
-      canvas.drawRRect(
-        RRect.fromLTRBAndCorners(
-          0,
-          top,
-          xPromote,
-          bottom,
-          topLeft: radius,
-          bottomLeft: radius,
-        ),
-        paint,
-      );
-      paint.color = colorPromote;
-      canvas.drawRRect(
-        RRect.fromLTRBAndCorners(
-          xPromote,
-          top,
-          size.width,
-          bottom,
-          topRight: radius,
-          bottomRight: radius,
-        ),
-        paint,
-      );
-      canvas.drawLine(
-        Offset(xPromote, top),
-        Offset(xPromote, bottom),
-        linePaint,
-      );
-    } else if (isMaxRank) {
-      paint.color = colorDemotion;
-      canvas.drawRRect(
-        RRect.fromLTRBAndCorners(
-          0,
-          top,
-          xMaintain,
-          bottom,
-          topLeft: radius,
-          bottomLeft: radius,
-        ),
-        paint,
-      );
-      paint.color = colorMaintain;
-      canvas.drawRRect(
-        RRect.fromLTRBAndCorners(
-          xMaintain,
-          top,
-          size.width,
-          bottom,
-          topRight: radius,
-          bottomRight: radius,
-        ),
-        paint,
-      );
-      canvas.drawLine(
-        Offset(xMaintain, top),
-        Offset(xMaintain, bottom),
-        linePaint,
-      );
-    } else {
-      paint.color = colorDemotion;
-      canvas.drawRRect(
-        RRect.fromLTRBAndCorners(
-          0,
-          top,
-          xMaintain,
-          bottom,
-          topLeft: radius,
-          bottomLeft: radius,
-        ),
-        paint,
-      );
-      paint.color = colorMaintain;
-      canvas.drawRect(Rect.fromLTRB(xMaintain, top, xPromote, bottom), paint);
-      paint.color = colorPromote;
-      canvas.drawRRect(
-        RRect.fromLTRBAndCorners(
-          xPromote,
-          top,
-          size.width,
-          bottom,
-          topRight: radius,
-          bottomRight: radius,
-        ),
-        paint,
-      );
-      canvas.drawLine(
-        Offset(xMaintain, top),
-        Offset(xMaintain, bottom),
-        linePaint,
-      );
-      canvas.drawLine(
-        Offset(xPromote, top),
-        Offset(xPromote, bottom),
-        linePaint,
-      );
-    }
-
-    paint.color = colorIndicator;
-    canvas.drawCircle(Offset(xCurrent, y), 8, paint);
-    paint.color = Colors.white;
-    canvas.drawCircle(Offset(xCurrent, y), 3, paint);
-  }
-
-  @override
-  bool shouldRepaint(covariant _ZoneBarPainter oldDelegate) {
-    return oldDelegate.currentRatio != currentRatio ||
-        oldDelegate.maintainRatio != maintainRatio ||
-        oldDelegate.promoteRatio != promoteRatio ||
-        oldDelegate.isRank1 != isRank1 ||
-        oldDelegate.isMaxRank != isMaxRank ||
-        oldDelegate.colorDemotion != colorDemotion ||
-        oldDelegate.colorMaintain != colorMaintain ||
-        oldDelegate.colorPromote != colorPromote ||
-        oldDelegate.colorIndicator != colorIndicator;
   }
 }
 
