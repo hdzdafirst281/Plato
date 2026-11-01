@@ -39,6 +39,21 @@ void main() {
     expect(workoutHistoryColumnCount(WorkoutHistoryGrouping.year), 5);
   });
 
+  test('history density adapts for tablet', () {
+    expect(
+      workoutHistoryColumnCount(WorkoutHistoryGrouping.day, isTablet: true),
+      1,
+    );
+    expect(
+      workoutHistoryColumnCount(WorkoutHistoryGrouping.month, isTablet: true),
+      4,
+    );
+    expect(
+      workoutHistoryColumnCount(WorkoutHistoryGrouping.year, isTablet: true),
+      6,
+    );
+  });
+
   test(
     'history mode switch preserves the session near the viewport center',
     () {
@@ -70,6 +85,60 @@ void main() {
         'apr-16': 430,
       }, 300),
       'apr-15',
+    );
+  });
+
+  test('resolveWorkoutSessionStartTime recovers start time when date is midnight', () {
+    final directSession = _session(
+      id: 'has-time',
+      date: DateTime(2025, 2, 20, 17, 30),
+    );
+    expect(
+      resolveWorkoutSessionStartTime(directSession),
+      DateTime(2025, 2, 20, 17, 30),
+    );
+    expect(
+      workoutSessionHasSpecificTime(resolveWorkoutSessionStartTime(directSession)),
+      isTrue,
+    );
+
+    // Midnight start time with endTime and durationSeconds
+    final midnightWithEndTime = WorkoutSession(
+      id: 'midnight-end',
+      name: 'Session',
+      startTime: DateTime(2025, 2, 20).millisecondsSinceEpoch,
+      endTime: DateTime(2025, 2, 20, 18, 30).millisecondsSinceEpoch,
+      totalDurationSeconds: 3600, // 1 hour -> start was 17:30
+      updatedAt: DateTime(2025, 2, 20).millisecondsSinceEpoch,
+      sessionPayload: const WorkoutSessionPayload(exercises: []),
+    );
+    expect(
+      resolveWorkoutSessionStartTime(midnightWithEndTime),
+      DateTime(2025, 2, 20, 17, 30),
+    );
+
+    // Midnight start time without endTime but updatedAt on same day
+    final midnightWithUpdatedAt = WorkoutSession(
+      id: 'midnight-updated',
+      name: 'Session',
+      startTime: DateTime(2025, 2, 20).millisecondsSinceEpoch,
+      totalDurationSeconds: 1800, // 30 min -> start was 08:30
+      updatedAt: DateTime(2025, 2, 20, 9, 0).millisecondsSinceEpoch,
+      sessionPayload: const WorkoutSessionPayload(exercises: []),
+    );
+    expect(
+      resolveWorkoutSessionStartTime(midnightWithUpdatedAt),
+      DateTime(2025, 2, 20, 8, 30),
+    );
+
+    // Truly date-only session (no time on end or updated)
+    final dateOnlySession = _session(
+      id: 'date-only',
+      date: DateTime(2025, 2, 20),
+    );
+    expect(
+      workoutSessionHasSpecificTime(resolveWorkoutSessionStartTime(dateOnlySession)),
+      isFalse,
     );
   });
 }

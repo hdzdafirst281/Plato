@@ -691,8 +691,8 @@ class _FoodEncyclopediaScreenState extends State<FoodEncyclopediaScreen> with Si
     final units = MeasurementFormatter(
       context.read<ProfileCubit>().state.userProfile.measurementPreferences,
     );
-    final unitLabel = (food.measurementUnit == FoodUnit.GRAM) ? t.nutrition.lbl_food_unit_100g(arg1: units.formatFoodMass(100)) :
-                      (food.measurementUnit == FoodUnit.ML) ? t.nutrition.lbl_food_unit_100ml(arg1: units.formatLiquidVolume(100)) :
+    final unitLabel = (food.measurementUnit == FoodUnit.GRAM) ? t.common.arg1(arg1: units.formatFoodMass(100)) :
+                      (food.measurementUnit == FoodUnit.ML) ? t.common.arg1(arg1: units.formatLiquidVolume(100)) :
                       t.nutrition.fmt_food_unit_pieces(arg1: _translateFoodUnit(food.measurementUnit));
 
     final userProfile = context.read<ProfileCubit>().state.userProfile;

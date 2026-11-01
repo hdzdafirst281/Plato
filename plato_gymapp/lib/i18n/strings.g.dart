@@ -4,9 +4,9 @@
 /// To regenerate, run: `dart run slang`
 ///
 /// Locales: 2
-/// Strings: 2956 (1478 per locale)
+/// Strings: 2950 (1475 per locale)
 ///
-/// Built on 2026-10-30 at 16:13 UTC
+/// Built on 2026-11-01 at 07:50 UTC
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -282,6 +282,7 @@ class _StringsCommonEn {
 	String get err_invalid_minute => 'Minutes must be 0-59';
 	String get about_us => 'About Us';
 	String get agree => 'Agree';
+	String arg1({required Object arg1}) => '${arg1}';
 	String get back => 'Back';
 	String get cancel => 'Cancel';
 	String get close => 'Close';
@@ -798,8 +799,6 @@ class _StringsNutritionEn {
 	String get title_food_quick_input => 'How many Calories did you just consume?';
 	String get btn_food_quick_submit => 'Quick Add';
 	String get hint_food_search => 'Search for food...';
-	String lbl_food_unit_100g({required Object arg1}) => '${arg1}';
-	String lbl_food_unit_100ml({required Object arg1}) => '${arg1}';
 	String fmt_food_unit_pieces({required Object arg1}) => '1 ${arg1}';
 	String fmt_goal_current_date({required Object arg1}) => 'Current (${arg1})';
 	String fmt_goal_days_left({required Object days}) => '${days} days left';
@@ -964,7 +963,6 @@ class _StringsOnboardingEn {
 	String msg_err_wt_invalid({required Object arg1, required Object arg2}) => 'Valid weight is between ${arg1} and ${arg2}';
 	String hint_height({required Object arg1}) => 'e.g., ${arg1}';
 	String get lbl_kcal_day => 'Energy (kcal)';
-	String fmt_kg({required Object arg1}) => '${arg1}';
 	String get lbl_macro_carbs => 'Carbs';
 	String get lbl_macro_fat => 'Fat';
 	String get lbl_macro_protein => 'Protein';
@@ -1544,7 +1542,6 @@ class _StringsWorkoutEn {
 	String get lbl_dtl_stat_calories => 'Burned';
 	String get lbl_dtl_stat_rpe => 'RPE';
 	String get lbl_dtl_stat_sets => 'Total Sets';
-	String fmt_dtl_xp_earned({required Object arg1}) => '${arg1}';
 	String get msg_err_folder_name_empty => 'Please enter a folder name';
 	String title_expand_superset({required Object base}) => 'Add exercises to group:\n${base}';
 	String get btn_explore => 'Explore';
@@ -1998,6 +1995,7 @@ class _StringsCommonVi extends _StringsCommonEn {
 	@override String get err_invalid_minute => 'Số phút phải từ 0-59';
 	@override String get about_us => 'Về chúng tôi';
 	@override String get agree => 'Đồng ý';
+	@override String arg1({required Object arg1}) => '${arg1}';
 	@override String get back => 'Quay lại';
 	@override String get cancel => 'Hủy';
 	@override String get close => 'Đóng';
@@ -2514,8 +2512,6 @@ class _StringsNutritionVi extends _StringsNutritionEn {
 	@override String get title_food_quick_input => 'Bạn vừa nạp bao nhiêu Năng lượng?';
 	@override String get btn_food_quick_submit => 'Thêm nhanh';
 	@override String get hint_food_search => 'Tìm kiếm thực phẩm...';
-	@override String lbl_food_unit_100g({required Object arg1}) => '${arg1}';
-	@override String lbl_food_unit_100ml({required Object arg1}) => '${arg1}';
 	@override String fmt_food_unit_pieces({required Object arg1}) => '1 ${arg1}';
 	@override String fmt_goal_current_date({required Object arg1}) => 'Hiện tại (${arg1})';
 	@override String fmt_goal_days_left({required Object days}) => 'Còn ${days} ngày';
@@ -2680,7 +2676,6 @@ class _StringsOnboardingVi extends _StringsOnboardingEn {
 	@override String msg_err_wt_invalid({required Object arg1, required Object arg2}) => 'Cân nặng hợp lệ từ ${arg1} đến ${arg2}';
 	@override String hint_height({required Object arg1}) => 'VD: ${arg1}';
 	@override String get lbl_kcal_day => 'Năng lượng (kcal)';
-	@override String fmt_kg({required Object arg1}) => '${arg1}';
 	@override String get lbl_macro_carbs => 'Tinh bột';
 	@override String get lbl_macro_fat => 'Chất béo';
 	@override String get lbl_macro_protein => 'Đạm';
@@ -2793,7 +2788,7 @@ class _StringsProfileVi extends _StringsProfileEn {
 	@override String fmt_history_sum({required Object arg1, required Object arg2}) => '${arg1} bài tập • ${arg2}';
 	@override String fmt_history_months({required Object arg1}) => '${arg1} tháng hoạt động';
 	@override String fmt_history_total({required Object arg1}) => 'Tổng ${arg1} buổi đã tập';
-	@override String fmt_history_years({required Object arg1}) => '${arg1} năm';
+	@override String fmt_history_years({required Object arg1}) => '${arg1} năm hoạt động';
 	@override String get history_group_day => 'Ngày';
 	@override String get injury_back => 'Đau thắt lưng';
 	@override String get injury_blood_pressure => 'Huyết áp cao';
@@ -3260,7 +3255,6 @@ class _StringsWorkoutVi extends _StringsWorkoutEn {
 	@override String get lbl_dtl_stat_calories => 'Đốt cháy';
 	@override String get lbl_dtl_stat_rpe => 'Độ mệt mỏi';
 	@override String get lbl_dtl_stat_sets => 'Tổng số hiệp';
-	@override String fmt_dtl_xp_earned({required Object arg1}) => '${arg1}';
 	@override String get msg_err_folder_name_empty => 'Vui lòng nhập tên thư mục';
 	@override String title_expand_superset({required Object base}) => 'Thêm bài tập vào nhóm:\n${base}';
 	@override String get btn_explore => 'Khám phá';
@@ -3646,6 +3640,7 @@ extension on Translations {
 			case 'common.err_invalid_minute': return 'Minutes must be 0-59';
 			case 'common.about_us': return 'About Us';
 			case 'common.agree': return 'Agree';
+			case 'common.arg1': return ({required Object arg1}) => '${arg1}';
 			case 'common.back': return 'Back';
 			case 'common.cancel': return 'Cancel';
 			case 'common.close': return 'Close';
@@ -4099,8 +4094,6 @@ extension on Translations {
 			case 'nutrition.title_food_quick_input': return 'How many Calories did you just consume?';
 			case 'nutrition.btn_food_quick_submit': return 'Quick Add';
 			case 'nutrition.hint_food_search': return 'Search for food...';
-			case 'nutrition.lbl_food_unit_100g': return ({required Object arg1}) => '${arg1}';
-			case 'nutrition.lbl_food_unit_100ml': return ({required Object arg1}) => '${arg1}';
 			case 'nutrition.fmt_food_unit_pieces': return ({required Object arg1}) => '1 ${arg1}';
 			case 'nutrition.fmt_goal_current_date': return ({required Object arg1}) => 'Current (${arg1})';
 			case 'nutrition.fmt_goal_days_left': return ({required Object days}) => '${days} days left';
@@ -4256,7 +4249,6 @@ extension on Translations {
 			case 'onboarding.msg_err_wt_invalid': return ({required Object arg1, required Object arg2}) => 'Valid weight is between ${arg1} and ${arg2}';
 			case 'onboarding.hint_height': return ({required Object arg1}) => 'e.g., ${arg1}';
 			case 'onboarding.lbl_kcal_day': return 'Energy (kcal)';
-			case 'onboarding.fmt_kg': return ({required Object arg1}) => '${arg1}';
 			case 'onboarding.lbl_macro_carbs': return 'Carbs';
 			case 'onboarding.lbl_macro_fat': return 'Fat';
 			case 'onboarding.lbl_macro_protein': return 'Protein';
@@ -4764,7 +4756,6 @@ extension on Translations {
 			case 'workout.lbl_dtl_stat_calories': return 'Burned';
 			case 'workout.lbl_dtl_stat_rpe': return 'RPE';
 			case 'workout.lbl_dtl_stat_sets': return 'Total Sets';
-			case 'workout.fmt_dtl_xp_earned': return ({required Object arg1}) => '${arg1}';
 			case 'workout.msg_err_folder_name_empty': return 'Please enter a folder name';
 			case 'workout.title_expand_superset': return ({required Object base}) => 'Add exercises to group:\n${base}';
 			case 'workout.btn_explore': return 'Explore';
@@ -5132,6 +5123,7 @@ extension on _StringsVi {
 			case 'common.err_invalid_minute': return 'Số phút phải từ 0-59';
 			case 'common.about_us': return 'Về chúng tôi';
 			case 'common.agree': return 'Đồng ý';
+			case 'common.arg1': return ({required Object arg1}) => '${arg1}';
 			case 'common.back': return 'Quay lại';
 			case 'common.cancel': return 'Hủy';
 			case 'common.close': return 'Đóng';
@@ -5585,8 +5577,6 @@ extension on _StringsVi {
 			case 'nutrition.title_food_quick_input': return 'Bạn vừa nạp bao nhiêu Năng lượng?';
 			case 'nutrition.btn_food_quick_submit': return 'Thêm nhanh';
 			case 'nutrition.hint_food_search': return 'Tìm kiếm thực phẩm...';
-			case 'nutrition.lbl_food_unit_100g': return ({required Object arg1}) => '${arg1}';
-			case 'nutrition.lbl_food_unit_100ml': return ({required Object arg1}) => '${arg1}';
 			case 'nutrition.fmt_food_unit_pieces': return ({required Object arg1}) => '1 ${arg1}';
 			case 'nutrition.fmt_goal_current_date': return ({required Object arg1}) => 'Hiện tại (${arg1})';
 			case 'nutrition.fmt_goal_days_left': return ({required Object days}) => 'Còn ${days} ngày';
@@ -5742,7 +5732,6 @@ extension on _StringsVi {
 			case 'onboarding.msg_err_wt_invalid': return ({required Object arg1, required Object arg2}) => 'Cân nặng hợp lệ từ ${arg1} đến ${arg2}';
 			case 'onboarding.hint_height': return ({required Object arg1}) => 'VD: ${arg1}';
 			case 'onboarding.lbl_kcal_day': return 'Năng lượng (kcal)';
-			case 'onboarding.fmt_kg': return ({required Object arg1}) => '${arg1}';
 			case 'onboarding.lbl_macro_carbs': return 'Tinh bột';
 			case 'onboarding.lbl_macro_fat': return 'Chất béo';
 			case 'onboarding.lbl_macro_protein': return 'Đạm';
@@ -5846,7 +5835,7 @@ extension on _StringsVi {
 			case 'profile.fmt_history_sum': return ({required Object arg1, required Object arg2}) => '${arg1} bài tập • ${arg2}';
 			case 'profile.fmt_history_months': return ({required Object arg1}) => '${arg1} tháng hoạt động';
 			case 'profile.fmt_history_total': return ({required Object arg1}) => 'Tổng ${arg1} buổi đã tập';
-			case 'profile.fmt_history_years': return ({required Object arg1}) => '${arg1} năm';
+			case 'profile.fmt_history_years': return ({required Object arg1}) => '${arg1} năm hoạt động';
 			case 'profile.history_group_day': return 'Ngày';
 			case 'profile.injury_back': return 'Đau thắt lưng';
 			case 'profile.injury_blood_pressure': return 'Huyết áp cao';
@@ -6250,7 +6239,6 @@ extension on _StringsVi {
 			case 'workout.lbl_dtl_stat_calories': return 'Đốt cháy';
 			case 'workout.lbl_dtl_stat_rpe': return 'Độ mệt mỏi';
 			case 'workout.lbl_dtl_stat_sets': return 'Tổng số hiệp';
-			case 'workout.fmt_dtl_xp_earned': return ({required Object arg1}) => '${arg1}';
 			case 'workout.msg_err_folder_name_empty': return 'Vui lòng nhập tên thư mục';
 			case 'workout.title_expand_superset': return ({required Object base}) => 'Thêm bài tập vào nhóm:\n${base}';
 			case 'workout.btn_explore': return 'Khám phá';

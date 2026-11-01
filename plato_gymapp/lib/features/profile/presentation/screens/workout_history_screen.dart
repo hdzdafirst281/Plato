@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 import 'package:material_symbols_icons/symbols.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_marquee_text.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_motion.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_scroll_to_top_button.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_top_bar.dart';
@@ -17,8 +18,41 @@ import 'package:plato_gymapp/features/workout/data/models/workout_models.dart';
 import 'package:plato_gymapp/features/workout/presentation/components/workout_section_header.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
 import 'package:plato_gymapp/i18n/translation_helper.dart';
+import 'package:responsive_framework/responsive_framework.dart';
 
 enum WorkoutHistoryGrouping { day, month, year }
+
+DateTime resolveWorkoutSessionStartTime(WorkoutSession session) {
+  final start = DateTime.fromMillisecondsSinceEpoch(session.startTime);
+  if (start.hour != 0 || start.minute != 0) {
+    return start;
+  }
+  if (session.endTime != null && session.endTime! > 0) {
+    final end = DateTime.fromMillisecondsSinceEpoch(session.endTime!);
+    if (end.hour != 0 || end.minute != 0) {
+      if (session.totalDurationSeconds > 0) {
+        return end.subtract(Duration(seconds: session.totalDurationSeconds));
+      }
+      return end;
+    }
+  }
+  if (session.updatedAt > 0) {
+    final updated = DateTime.fromMillisecondsSinceEpoch(session.updatedAt);
+    if (updated.year == start.year &&
+        updated.month == start.month &&
+        updated.day == start.day &&
+        (updated.hour != 0 || updated.minute != 0)) {
+      if (session.totalDurationSeconds > 0) {
+        return updated.subtract(Duration(seconds: session.totalDurationSeconds));
+      }
+      return updated;
+    }
+  }
+  return start;
+}
+
+bool workoutSessionHasSpecificTime(DateTime dateTime) =>
+    dateTime.hour != 0 || dateTime.minute != 0;
 
 Map<DateTime, List<WorkoutSession>> groupWorkoutHistory(
   List<WorkoutSession> history,
@@ -26,7 +60,7 @@ Map<DateTime, List<WorkoutSession>> groupWorkoutHistory(
 ) {
   final groups = <DateTime, List<WorkoutSession>>{};
   for (final session in history) {
-    final date = DateTime.fromMillisecondsSinceEpoch(session.startTime);
+    final date = resolveWorkoutSessionStartTime(session);
     final key = switch (grouping) {
       WorkoutHistoryGrouping.day => DateTime(date.year, date.month, date.day),
       WorkoutHistoryGrouping.month => DateTime(date.year, date.month),
@@ -37,12 +71,14 @@ Map<DateTime, List<WorkoutSession>> groupWorkoutHistory(
   return groups;
 }
 
-int workoutHistoryColumnCount(WorkoutHistoryGrouping grouping) =>
-    switch (grouping) {
-      WorkoutHistoryGrouping.day => 1,
-      WorkoutHistoryGrouping.month => 3,
-      WorkoutHistoryGrouping.year => 5,
-    };
+int workoutHistoryColumnCount(
+  WorkoutHistoryGrouping grouping, {
+  bool isTablet = false,
+}) => switch (grouping) {
+  WorkoutHistoryGrouping.day => 1,
+  WorkoutHistoryGrouping.month => isTablet ? 4 : 3,
+  WorkoutHistoryGrouping.year => isTablet ? 6 : 5,
+};
 
 int workoutHistoryAnchorIndex({
   required double scrollOffset,
@@ -99,7 +135,9 @@ class WorkoutHistoryScreen extends StatefulWidget {
   State<WorkoutHistoryScreen> createState() => _WorkoutHistoryScreenState();
 }
 
-class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
+class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _marqueeAnimation;
   WorkoutHistoryGrouping _grouping = WorkoutHistoryGrouping.day;
   List<WorkoutSession>? _lastHistory;
   List<WorkoutSession> _sortedHistory = [];
@@ -108,6 +146,15 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
   final Map<String, GlobalKey> _sessionKeys = {};
   bool _isChangingGrouping = false;
   int _groupingChangeToken = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _marqueeAnimation = AnimationController(
+      vsync: this,
+      duration: GymMarqueeText.cycleDuration,
+    )..repeat();
+  }
 
   final Map<int, Offset> _touchPoints = {};
   double? _pinchStartDistance;
@@ -224,6 +271,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
 
   @override
   void dispose() {
+    _marqueeAnimation.dispose();
     _scrollController.dispose();
     super.dispose();
   }
@@ -277,7 +325,10 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
     if (!identical(rawHistory, _lastHistory)) {
       _lastHistory = rawHistory;
       _sortedHistory = List<WorkoutSession>.from(rawHistory)
-        ..sort((a, b) => b.startTime.compareTo(a.startTime));
+        ..sort(
+          (a, b) => resolveWorkoutSessionStartTime(b)
+              .compareTo(resolveWorkoutSessionStartTime(a)),
+        );
       final ids = rawHistory.map((session) => session.id).toSet();
       _sessionKeys.removeWhere((id, _) => !ids.contains(id));
     }
@@ -290,6 +341,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
       ),
     );
     final locale = TranslationProvider.of(context).flutterLocale.languageCode;
+    final isTablet = ResponsiveBreakpoints.of(context).largerThan(MOBILE);
 
     return Scaffold(
       backgroundColor: colorScheme.surface,
@@ -314,29 +366,77 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
                   children: [
                     GymMotionItem(
                       child: Padding(
-                        padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
+                        padding: EdgeInsets.fromLTRB(
+                          16,
+                          isTablet ? 12 : 16,
+                          16,
+                          isTablet ? 6 : 12,
+                        ),
                         child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                            _HistorySummary(
-                              grouping: _grouping,
-                              groupCount: groups.length,
-                              workoutCount: history.length,
-                            ),
-                            const SizedBox(height: 12),
-                            _GroupingControl(
-                              grouping: _grouping,
-                              onChanged: _selectGrouping,
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              t.profile.desc_workout_history,
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                color: colorScheme.onSurfaceVariant,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w500,
+                            if (isTablet)
+                              Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  Expanded(
+                                    child: _HistorySummary(
+                                      grouping: _grouping,
+                                      groupCount: groups.length,
+                                      workoutCount: history.length,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  ConstrainedBox(
+                                    constraints: const BoxConstraints(
+                                      maxWidth: 360,
+                                    ),
+                                    child: Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      children: [
+                                        _GroupingControl(
+                                          grouping: _grouping,
+                                          onChanged: _selectGrouping,
+                                        ),
+                                        const SizedBox(height: 4),
+                                        Text(
+                                          t.profile.desc_workout_history,
+                                          textAlign: TextAlign.center,
+                                          style: TextStyle(
+                                            color: colorScheme.onSurfaceVariant,
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w500,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              )
+                            else ...[
+                              _HistorySummary(
+                                grouping: _grouping,
+                                groupCount: groups.length,
+                                workoutCount: history.length,
                               ),
-                            ),
+                              const SizedBox(height: 12),
+                              _GroupingControl(
+                                grouping: _grouping,
+                                onChanged: _selectGrouping,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                t.profile.desc_workout_history,
+                                textAlign: TextAlign.center,
+                                style: TextStyle(
+                                  color: colorScheme.onSurfaceVariant,
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
+                            ],
                           ],
                         ),
                       ),
@@ -358,6 +458,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
                               groups: groups,
                               units: units,
                               locale: locale,
+                              isTablet: isTablet,
                             ),
                           ),
                         ),
@@ -379,6 +480,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
     required Map<DateTime, List<WorkoutSession>> groups,
     required MeasurementFormatter units,
     required String locale,
+    required bool isTablet,
   }) {
     if (_sortedHistory.isEmpty) {
       return _HistoryEmptyState(key: key);
@@ -393,6 +495,8 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
         locale: locale,
         onRefresh: _refresh,
         sessionKey: _sessionKey,
+        isTablet: isTablet,
+        marqueeAnimation: _marqueeAnimation,
       );
     }
 
@@ -405,6 +509,8 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
       locale: locale,
       onRefresh: _refresh,
       sessionKey: _sessionKey,
+      isTablet: isTablet,
+      marqueeAnimation: _marqueeAnimation,
     );
   }
 }
@@ -512,6 +618,8 @@ class _DayHistoryList extends StatelessWidget {
   final String locale;
   final RefreshCallback onRefresh;
   final Key Function(String id) sessionKey;
+  final bool isTablet;
+  final Animation<double> marqueeAnimation;
 
   const _DayHistoryList({
     super.key,
@@ -521,6 +629,8 @@ class _DayHistoryList extends StatelessWidget {
     required this.locale,
     required this.onRefresh,
     required this.sessionKey,
+    required this.marqueeAnimation,
+    this.isTablet = false,
   });
 
   @override
@@ -536,29 +646,38 @@ class _DayHistoryList extends StatelessWidget {
         itemCount: history.length,
         itemBuilder: (context, index) {
           final session = history[index];
-          final date = DateTime.fromMillisecondsSinceEpoch(session.startTime);
+          final date = resolveWorkoutSessionStartTime(session);
           final showDate =
               index == 0 ||
               !_isSameDay(
                 date,
-                DateTime.fromMillisecondsSinceEpoch(
-                  history[index - 1].startTime,
-                ),
+                resolveWorkoutSessionStartTime(history[index - 1]),
               );
-          return Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (showDate)
-                _PeriodHeader(label: DateFormat.yMMMMd(locale).format(date)),
-              _WorkoutHistoryCard(
-                key: sessionKey(session.id),
-                session: session,
-                units: units,
-                locale: locale,
-                onTap: () =>
-                    context.push('/workout/workout_detail/${session.id}'),
+          return Center(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                maxWidth: isTablet ? 680 : double.infinity,
               ),
-            ],
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (showDate)
+                    _PeriodHeader(
+                      label: DateFormat.yMMMMEEEEd(locale).format(date),
+                    ),
+                  _WorkoutHistoryCard(
+                    key: sessionKey(session.id),
+                    session: session,
+                    units: units,
+                    locale: locale,
+                    isTablet: isTablet,
+                    marqueeAnimation: marqueeAnimation,
+                    onTap: () =>
+                        context.push('/workout/workout_detail/${session.id}'),
+                  ),
+                ],
+              ),
+            ),
           );
         },
       ),
@@ -579,6 +698,8 @@ class _CompactHistoryGrid extends StatelessWidget {
   final String locale;
   final RefreshCallback onRefresh;
   final Key Function(String id) sessionKey;
+  final bool isTablet;
+  final Animation<double> marqueeAnimation;
 
   const _CompactHistoryGrid({
     super.key,
@@ -589,14 +710,30 @@ class _CompactHistoryGrid extends StatelessWidget {
     required this.locale,
     required this.onRefresh,
     required this.sessionKey,
+    required this.marqueeAnimation,
+    this.isTablet = false,
   });
+
+  String _buildPeriodSubtitle(List<WorkoutSession> sessions) {
+    final sessionCount = sessions.length;
+    final totalSeconds = sessions.fold<int>(
+      0,
+      (sum, session) => sum + session.totalDurationSeconds,
+    );
+    final countLabel = '$sessionCount ${t.profile.lbl_stats_workouts}';
+    final timeLabel = _formatDuration(totalSeconds);
+    return '$countLabel • $timeLabel';
+  }
 
   @override
   Widget build(BuildContext context) {
     final periods = groups.entries.toList()
       ..sort((first, second) => second.key.compareTo(first.key));
-    final columns = workoutHistoryColumnCount(grouping);
+    final columns = workoutHistoryColumnCount(grouping, isTablet: isTablet);
     final isYear = grouping == WorkoutHistoryGrouping.year;
+    final cardExtent = isYear
+        ? (isTablet ? 78.0 : 102.0)
+        : (isTablet ? 128.0 : 154.0);
 
     return RefreshIndicator(
       onRefresh: onRefresh,
@@ -611,9 +748,10 @@ class _CompactHistoryGrid extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 12),
               sliver: SliverToBoxAdapter(
                 child: _PeriodHeader(
-                  label: grouping == WorkoutHistoryGrouping.year
+                  label: isYear
                       ? entry.key.year.toString()
                       : DateFormat.yMMMM(locale).format(entry.key),
+                  subtitle: _buildPeriodSubtitle(entry.value),
                 ),
               ),
             ),
@@ -622,7 +760,7 @@ class _CompactHistoryGrid extends StatelessWidget {
               sliver: SliverGrid(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: columns,
-                  mainAxisExtent: isYear ? 112 : 154,
+                  mainAxisExtent: cardExtent,
                   crossAxisSpacing: isYear ? 6 : 10,
                   mainAxisSpacing: isYear ? 6 : 10,
                 ),
@@ -634,6 +772,7 @@ class _CompactHistoryGrid extends StatelessWidget {
                     grouping: grouping,
                     units: units,
                     locale: locale,
+                    marqueeAnimation: marqueeAnimation,
                     onTap: () =>
                         context.push('/workout/workout_detail/${session.id}'),
                   );
@@ -650,14 +789,26 @@ class _CompactHistoryGrid extends StatelessWidget {
 
 class _PeriodHeader extends StatelessWidget {
   final String label;
+  final String? subtitle;
 
-  const _PeriodHeader({required this.label});
+  const _PeriodHeader({required this.label, this.subtitle});
 
   @override
   Widget build(BuildContext context) {
+    final colorScheme = Theme.of(context).colorScheme;
     return WorkoutSectionHeader(
       title: label,
       padding: const EdgeInsets.fromLTRB(4, 16, 4, 10),
+      trailing: subtitle != null
+          ? Text(
+              subtitle!,
+              style: TextStyle(
+                color: colorScheme.onSurfaceVariant,
+                fontSize: 12,
+                fontWeight: FontWeight.w600,
+              ),
+            )
+          : null,
     );
   }
 }
@@ -668,6 +819,7 @@ class _CompactWorkoutHistoryCard extends StatelessWidget {
   final MeasurementFormatter units;
   final String locale;
   final VoidCallback onTap;
+  final Animation<double> marqueeAnimation;
 
   const _CompactWorkoutHistoryCard({
     super.key,
@@ -676,27 +828,30 @@ class _CompactWorkoutHistoryCard extends StatelessWidget {
     required this.units,
     required this.locale,
     required this.onTap,
+    required this.marqueeAnimation,
   });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final date = DateTime.fromMillisecondsSinceEpoch(session.startTime);
+    final gymColors = Theme.of(context).gymColors;
+    final date = resolveWorkoutSessionStartTime(session);
+    final hasSpecificTime = workoutSessionHasSpecificTime(date);
     final isYear = grouping == WorkoutHistoryGrouping.year;
+    final hasPR = session.prCount > 0;
     final name = t.translateDynamic(session.name).toString();
     final dateLabel = isYear
         ? DateFormat('dd/MM', locale).format(date)
         : date.day.toString().padLeft(2, '0');
-    final volumeOrSets = session.totalVolume > 0
-        ? units.formatWeight(session.totalVolume)
-        : t.profile.fmt_history_sets(arg1: session.totalSets.toString());
 
     return Semantics(
       button: true,
       label: '$name, ${DateFormat.yMMMMd(locale).add_Hm().format(date)}',
       excludeSemantics: true,
       child: Material(
-        color: colorScheme.surface,
+        color: hasPR
+            ? gymColors.goldRank.withValues(alpha: 0.08)
+            : colorScheme.surface,
         borderRadius: BorderRadius.circular(isYear ? 12 : 16),
         child: InkWell(
           onTap: onTap,
@@ -704,58 +859,68 @@ class _CompactWorkoutHistoryCard extends StatelessWidget {
           child: Ink(
             padding: EdgeInsets.all(isYear ? 7 : 11),
             decoration: BoxDecoration(
+              color: hasPR
+                  ? gymColors.goldRank.withValues(alpha: 0.08)
+                  : Colors.transparent,
               borderRadius: BorderRadius.circular(isYear ? 12 : 16),
               border: Border.all(
-                color: colorScheme.outlineVariant.withValues(alpha: 0.35),
+                color: hasPR
+                    ? gymColors.goldRank.withValues(alpha: 0.55)
+                    : colorScheme.outlineVariant.withValues(alpha: 0.35),
+                width: hasPR ? 1.5 : 1.0,
               ),
+              boxShadow: hasPR
+                  ? [
+                      BoxShadow(
+                        color: gymColors.goldRank.withValues(alpha: 0.12),
+                        blurRadius: 6,
+                        offset: const Offset(0, 2),
+                      ),
+                    ]
+                  : null,
             ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  dateLabel,
-                  maxLines: 1,
-                  style: TextStyle(
-                    color: colorScheme.primary,
-                    fontSize: isYear ? 12 : 18,
-                    fontWeight: FontWeight.w900,
-                  ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text(
+                      dateLabel,
+                      maxLines: 1,
+                      style: TextStyle(
+                        color: hasPR ? gymColors.goldRank : colorScheme.primary,
+                        fontSize: isYear ? 12 : 18,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                  ],
                 ),
-                SizedBox(height: isYear ? 3 : 6),
+                SizedBox(height: isYear ? 4 : 6),
                 Expanded(
                   child: Align(
                     alignment: Alignment.topLeft,
-                    child: Text(
+                    child: GymMarqueeText(
                       name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
+                      animation: marqueeAnimation,
                       style: TextStyle(
-                        fontSize: isYear ? 9 : 12,
-                        height: 1.15,
+                        fontSize: isYear ? 11 : 12,
                         fontWeight: FontWeight.w800,
                       ),
                     ),
                   ),
                 ),
-                Text(
-                  DateFormat.Hm(locale).format(date),
-                  maxLines: 1,
-                  style: TextStyle(
-                    color: colorScheme.onSurfaceVariant,
-                    fontSize: isYear ? 9 : 11,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
                 if (!isYear) ...[
-                  const SizedBox(height: 4),
                   Text(
-                    volumeOrSets,
+                    hasSpecificTime
+                        ? '${DateFormat.Hm(locale).format(date)} • ${session.exercises.length} ${locale == 'vi' ? 'bài' : 'ex'}'
+                        : '${session.exercises.length} ${locale == 'vi' ? 'bài' : 'ex'}',
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
                     style: TextStyle(
                       color: colorScheme.onSurfaceVariant,
                       fontSize: 10,
-                      fontWeight: FontWeight.w700,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ],
@@ -781,6 +946,8 @@ class _WorkoutHistoryCard extends StatelessWidget {
   final MeasurementFormatter units;
   final String locale;
   final VoidCallback onTap;
+  final bool isTablet;
+  final Animation<double> marqueeAnimation;
 
   const _WorkoutHistoryCard({
     super.key,
@@ -788,13 +955,19 @@ class _WorkoutHistoryCard extends StatelessWidget {
     required this.units,
     required this.locale,
     required this.onTap,
+    required this.marqueeAnimation,
+    this.isTablet = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final gymColors = Theme.of(context).gymColors;
-    final date = DateTime.fromMillisecondsSinceEpoch(session.startTime);
+    final date = resolveWorkoutSessionStartTime(session);
+    final hasSpecificTime = workoutSessionHasSpecificTime(date);
+    final formattedTime = hasSpecificTime
+        ? DateFormat('dd MMM • HH:mm', locale).format(date)
+        : DateFormat('dd MMM', locale).format(date);
     final exerciseNames = session.exercises
         .take(3)
         .map((item) => t.translateDynamic(item.exercise.name).toString())
@@ -810,6 +983,187 @@ class _WorkoutHistoryCard extends StatelessWidget {
     final volumeOrSets = session.totalVolume > 0
         ? units.formatWeight(session.totalVolume)
         : t.profile.fmt_history_sets(arg1: session.totalSets.toString());
+
+    final iconBadge = Container(
+      width: isTablet ? 44 : 48,
+      height: isTablet ? 44 : 48,
+      alignment: Alignment.center,
+      decoration: BoxDecoration(
+        color: session.prCount > 0
+            ? gymColors.goldRank.withValues(alpha: 0.15)
+            : colorScheme.primary.withValues(alpha: 0.12),
+        borderRadius: BorderRadius.circular(14),
+      ),
+      child: Icon(
+        session.prCount > 0 ? Symbols.emoji_events : Symbols.exercise,
+        color: session.prCount > 0 ? gymColors.goldRank : colorScheme.primary,
+        size: 24,
+      ),
+    );
+
+    final Widget cardBody;
+    if (isTablet) {
+      final metrics2x2 = Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _HistoryMetric(
+                icon: Symbols.schedule,
+                value: _formatDuration(session.totalDurationSeconds),
+              ),
+              const SizedBox(width: 6),
+              _HistoryMetric(
+                icon: Symbols.format_list_bulleted,
+                value: session.exercises.length.toString(),
+              ),
+            ],
+          ),
+          const SizedBox(height: 6),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              _HistoryMetric(icon: Symbols.exercise, value: volumeOrSets),
+              if (session.prCount > 0) ...[
+                const SizedBox(width: 6),
+                _HistoryMetric(
+                  icon: Symbols.emoji_events,
+                  value: session.prCount.toString(),
+                  color: gymColors.goldRank,
+                ),
+              ],
+            ],
+          ),
+        ],
+      );
+
+      cardBody = Row(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          iconBadge,
+          const SizedBox(width: 14),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                GymMarqueeText(
+                  t.translateDynamic(session.name).toString(),
+                  animation: marqueeAnimation,
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w900,
+                    height: 1.25,
+                  ),
+                ),
+                const SizedBox(height: 5),
+                Text(
+                  formattedTime,
+                  style: TextStyle(
+                    color: colorScheme.onSurfaceVariant,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    height: 1.25,
+                  ),
+                ),
+                if (preview.isNotEmpty) ...[
+                  const SizedBox(height: 5),
+                  Text(
+                    preview,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: TextStyle(
+                      color: colorScheme.onSurfaceVariant,
+                      fontSize: 12,
+                      height: 1.25,
+                    ),
+                  ),
+                ],
+              ],
+            ),
+          ),
+          const SizedBox(width: 16),
+          metrics2x2,
+        ],
+      );
+    } else {
+      cardBody = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              iconBadge,
+              const SizedBox(width: 14),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    GymMarqueeText(
+                      t.translateDynamic(session.name).toString(),
+                      animation: marqueeAnimation,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w900,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      formattedTime,
+                      style: TextStyle(
+                        color: colorScheme.onSurfaceVariant,
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Wrap(
+            spacing: 8,
+            runSpacing: 8,
+            children: [
+              _HistoryMetric(
+                icon: Symbols.schedule,
+                value: _formatDuration(session.totalDurationSeconds),
+              ),
+              _HistoryMetric(
+                icon: Symbols.exercise,
+                value: volumeOrSets,
+              ),
+              _HistoryMetric(
+                icon: Symbols.format_list_bulleted,
+                value: session.exercises.length.toString(),
+              ),
+              if (session.prCount > 0)
+                _HistoryMetric(
+                  icon: Symbols.emoji_events,
+                  value: session.prCount.toString(),
+                  color: gymColors.goldRank,
+                ),
+            ],
+          ),
+          if (preview.isNotEmpty) ...[
+            const SizedBox(height: 12),
+            Text(
+              preview,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(
+                color: colorScheme.onSurfaceVariant,
+                fontSize: 13,
+                height: 1.35,
+              ),
+            ),
+          ],
+        ],
+      );
+    }
 
     return Semantics(
       button: true,
@@ -836,105 +1190,11 @@ class _WorkoutHistoryCard extends StatelessWidget {
             onTap: onTap,
             borderRadius: BorderRadius.circular(20),
             child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: 48,
-                        height: 48,
-                        alignment: Alignment.center,
-                        decoration: BoxDecoration(
-                          color: colorScheme.primary.withValues(alpha: 0.12),
-                          borderRadius: BorderRadius.circular(14),
-                        ),
-                        child: Text(
-                          date.day.toString().padLeft(2, '0'),
-                          style: TextStyle(
-                            color: colorScheme.primary,
-                            fontSize: 18,
-                            fontWeight: FontWeight.w900,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              t.translateDynamic(session.name).toString(),
-                              maxLines: 2,
-                              overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.w900,
-                              ),
-                            ),
-                            const SizedBox(height: 4),
-                            Text(
-                              DateFormat(
-                                'EEE, dd MMM • HH:mm',
-                                locale,
-                              ).format(date),
-                              style: TextStyle(
-                                color: colorScheme.onSurfaceVariant,
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Icon(
-                        Symbols.chevron_right,
-                        color: colorScheme.onSurfaceVariant,
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 14),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      _HistoryMetric(
-                        icon: Symbols.schedule,
-                        value: _formatDuration(session.totalDurationSeconds),
-                      ),
-                      _HistoryMetric(
-                        icon: Symbols.exercise,
-                        value: volumeOrSets,
-                      ),
-                      _HistoryMetric(
-                        icon: Symbols.format_list_bulleted,
-                        value: session.exercises.length.toString(),
-                      ),
-                      if (session.prCount > 0)
-                        _HistoryMetric(
-                          icon: Symbols.emoji_events,
-                          value: session.prCount.toString(),
-                          color: gymColors.goldRank,
-                        ),
-                    ],
-                  ),
-                  if (preview.isNotEmpty) ...[
-                    const SizedBox(height: 12),
-                    Text(
-                      preview,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(
-                        color: colorScheme.onSurfaceVariant,
-                        fontSize: 13,
-                        height: 1.35,
-                      ),
-                    ),
-                  ],
-                ],
+              padding: EdgeInsets.symmetric(
+                horizontal: 16,
+                vertical: isTablet ? 12 : 16,
               ),
+              child: cardBody,
             ),
           ),
         ),

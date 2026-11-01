@@ -274,7 +274,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                               crossAxisAlignment: CrossAxisAlignment.center,
                               children: [
                                 Text(
-                                  t.workout.fmt_dtl_xp_earned(
+                                  t.common.arg1(
                                     arg1: session.xpEarned.toString(),
                                   ),
                                   style: TextStyle(
