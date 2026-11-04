@@ -175,6 +175,14 @@ class AuthRepositoryImpl implements AuthRepository {
 
   @override
   Future<String?> verifyOtpAndRetrieveUserId(String userEmailInputString, String verificationOtpTokenString) async {
+    final lastSent = otpCooldownTimestamp;
+    final isLocallyExpired = lastSent != null &&
+        DateTime.now().millisecondsSinceEpoch - lastSent > 300 * 1000;
+    if (isLocallyExpired) {
+      debugPrint("🚨 OTP local validation: Code has expired (>300s)");
+      throw const OtpExpiredAuthException();
+    }
+
     try {
       if (userEmailInputString.trim().toLowerCase() == 'testing_app@plato.com' && 
           verificationOtpTokenString == '123456') {
@@ -190,10 +198,13 @@ class AuthRepositoryImpl implements AuthRepository {
       );
       return response.user?.id;
     } on AuthException catch (e) {
-      debugPrint("🚨 Supabase Auth Error (Verify): ${e.message}");
-      return null;
-    } catch (e) {
-      return null;
+      debugPrint("🚨 Supabase Auth Error (Verify): code=${e.code}, msg=${e.message}");
+      final code = (e.code ?? '').toLowerCase();
+      final msg = e.message.toLowerCase();
+      if (code.contains('expired') || msg.contains('expired')) {
+        throw const OtpExpiredAuthException();
+      }
+      throw OtpInvalidAuthException(e.message);
     }
   }
 

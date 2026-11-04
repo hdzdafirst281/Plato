@@ -38,6 +38,8 @@
     "desc_switch_account_screen": "Enter the email of the account you want to switch to. Current data will be automatically backed up.",
     "msg_syncing_to_cloud": "Synchronizing data to the cloud...",
     "err_target_account_not_found": "Target account does not exist.",
+    "err_verify_failed": "Incorrect verification code. Please try again.",
+    "err_otp_expired": "The verification code has expired. Please request a new code.",
     "title_verify_otp": "Enter Verification Code",
     "msg_verify_success": "Verification successful. Loading profile...",
     "msg_verifying": "Verifying..."

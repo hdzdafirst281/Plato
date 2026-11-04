@@ -21,10 +21,14 @@ class _FakeAuthRepository implements AuthRepository {
 }
 
 class _FakeAuthCubit extends Cubit<AuthState> implements AuthCubit {
-  _FakeAuthCubit() : super(const AuthState());
+  _FakeAuthCubit([AuthState initialState = const AuthState()]) : super(initialState);
 
   @override
   void clearAuthMessage() {}
+
+  void setAuthMessage(String? msg) {
+    emit(state.copyWith(authMessage: msg));
+  }
 
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
@@ -101,5 +105,45 @@ void main() {
 
     expect(find.text('The verification code is valid for 5 minutes.'), findsOneWidget);
     expect(find.byIcon(Symbols.schedule), findsOneWidget);
+  });
+
+  testWidgets('AuthOtpScreen displays localized error banner for verify failed and otp expired', (tester) async {
+    LocaleSettings.setLocale(AppLocale.vi);
+    final authCubit = _FakeAuthCubit(const AuthState(authMessage: 'auth.err_verify_failed'));
+
+    await tester.pumpWidget(
+      TranslationProvider(
+        child: BlocProvider<AuthCubit>.value(
+          value: authCubit,
+          child: buildTestableWidget(
+            child: const AuthOtpScreen(
+              flowType: AuthFlowType.login,
+              initialEmail: 'test@example.com',
+              startAtOtpStep: true,
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.text('Mã xác nhận không chính xác. Vui lòng thử lại.'), findsOneWidget);
+
+    authCubit.setAuthMessage('auth.err_otp_expired');
+    await tester.pumpAndSettle();
+
+    expect(find.text('Mã xác nhận đã hết hạn. Vui lòng gửi lại mã mới.'), findsOneWidget);
+
+    // Switch to English
+    LocaleSettings.setLocale(AppLocale.en);
+    authCubit.setAuthMessage('auth.err_verify_failed');
+    await tester.pumpAndSettle();
+
+    expect(find.text('Incorrect verification code. Please try again.'), findsOneWidget);
+
+    authCubit.setAuthMessage('auth.err_otp_expired');
+    await tester.pumpAndSettle();
+
+    expect(find.text('The verification code has expired. Please request a new code.'), findsOneWidget);
   });
 }

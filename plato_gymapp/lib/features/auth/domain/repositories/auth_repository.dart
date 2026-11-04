@@ -1,5 +1,19 @@
 import '../../data/models/user_models.dart';
 
+class OtpExpiredAuthException implements Exception {
+  final String message;
+  const OtpExpiredAuthException([this.message = 'OTP expired']);
+  @override
+  String toString() => 'OtpExpiredAuthException: $message';
+}
+
+class OtpInvalidAuthException implements Exception {
+  final String message;
+  const OtpInvalidAuthException([this.message = 'OTP invalid']);
+  @override
+  String toString() => 'OtpInvalidAuthException: $message';
+}
+
 abstract class AuthRepository {
   Stream<UserProfile> get profileUpdateStream;
   

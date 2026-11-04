@@ -50,6 +50,15 @@ class _FakeProfileCubit extends Cubit<ProfileState>
     ));
   }
 
+  void setProfile({int? rankId, int? xp}) {
+    emit(state.copyWith(
+      userProfile: state.userProfile.copyWith(
+        activeRankId: rankId ?? state.userProfile.activeRankId,
+        experiencePoints: xp ?? state.userProfile.experiencePoints,
+      ),
+    ));
+  }
+
   @override
   dynamic noSuchMethod(Invocation invocation) => super.noSuchMethod(invocation);
 }
@@ -179,5 +188,27 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(GymTopNotification.isShowing, isFalse);
+  });
+
+  testWidgets('login profile sync with higher XP and rank triggers combined notification even without gamification emit', (tester) async {
+    final gamificationCubit = _FakeGamificationCubit(1);
+    final profileCubit = _FakeProfileCubit(1);
+
+    await tester.pumpWidget(createTestWidget(
+      gamificationCubit: gamificationCubit,
+      profileCubit: profileCubit,
+    ));
+    await tester.pumpAndSettle();
+
+    // 5000 XP corresponds to Level 5 in RewardXpProgress
+    profileCubit.setProfile(rankId: 3, xp: 5000);
+
+    await tester.pump(const Duration(milliseconds: 400));
+    await tester.pumpAndSettle();
+
+    expect(GymTopNotification.isShowing, isTrue);
+    expect(find.text('Level Up! & Rank Up!'), findsOneWidget);
+    expect(find.text('Lv. 1 ➔ 5'), findsOneWidget);
+    expect(find.text('Bronze I ➔ Silver I'), findsOneWidget);
   });
 }

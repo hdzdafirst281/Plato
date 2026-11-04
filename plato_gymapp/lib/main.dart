@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'features/notifications/application/notification_background_worker.dart';
 import 'package:flutter/material.dart';
 import 'features/notifications/application/notification_coordinator.dart';
@@ -39,6 +40,7 @@ import 'features/nutrition/presentation/bloc/nutrition_cubit.dart';
 import 'features/profile/presentation/bloc/profile_cubit.dart';
 import 'features/profile/presentation/bloc/stats_cubit.dart';
 import 'features/gamification/domain/rank_calculator.dart';
+import 'features/gamification/domain/reward_progress.dart';
 import 'features/gamification/presentation/bloc/gamification_cubit.dart';
 import 'features/gamification/presentation/bloc/rank_cubit.dart';
 
@@ -214,8 +216,11 @@ class _GlobalNotificationWrapperState extends State<GlobalNotificationWrapper> {
     super.didChangeDependencies();
     if (!_isInitialized) {
       _isInitialized = true;
-      _lastKnownLevel = context.read<GamificationCubit>().state.stats.level;
-      _lastKnownRankId = context.read<ProfileCubit>().state.userProfile.activeRankId;
+      final profile = context.read<ProfileCubit>().state.userProfile;
+      final profileLevel = RewardXpProgress.at(profile.experiencePoints).$1;
+      final gamificationLevel = context.read<GamificationCubit>().state.stats.level;
+      _lastKnownLevel = math.max(profileLevel, gamificationLevel);
+      _lastKnownRankId = profile.activeRankId;
     }
   }
 
@@ -227,15 +232,16 @@ class _GlobalNotificationWrapperState extends State<GlobalNotificationWrapper> {
 
   void _onGamificationChanged(int currentLevel) {
     if (!_isInitialized) {
-      _lastKnownLevel = currentLevel;
+      _lastKnownLevel = math.max(_lastKnownLevel, currentLevel);
       return;
     }
     _scheduleEvaluation();
   }
 
-  void _onProfileChanged(int currentRankId) {
+  void _onProfileChanged(int currentRankId, int currentProfileLevel) {
     if (!_isInitialized) {
       _lastKnownRankId = currentRankId;
+      _lastKnownLevel = math.max(_lastKnownLevel, currentProfileLevel);
       return;
     }
     _scheduleEvaluation();
@@ -260,8 +266,11 @@ class _GlobalNotificationWrapperState extends State<GlobalNotificationWrapper> {
     _pendingBaseLevel = null;
     _pendingBaseRankId = null;
 
-    final currentLevel = context.read<GamificationCubit>().state.stats.level;
-    final currentRankId = context.read<ProfileCubit>().state.userProfile.activeRankId;
+    final profile = context.read<ProfileCubit>().state.userProfile;
+    final profileLevel = RewardXpProgress.at(profile.experiencePoints).$1;
+    final gamificationLevel = context.read<GamificationCubit>().state.stats.level;
+    final currentLevel = math.max(profileLevel, gamificationLevel);
+    final currentRankId = profile.activeRankId;
 
     final handledThrough = NotificationCoordinator.instance?.levelHandledThrough ?? 0;
     final hasLevelUp = currentLevel > baseLevel && currentLevel > handledThrough;
@@ -554,8 +563,13 @@ class _GlobalNotificationWrapperState extends State<GlobalNotificationWrapper> {
           listener: (context, state) => _onGamificationChanged(state.stats.level),
         ),
         BlocListener<ProfileCubit, ProfileState>(
-          listenWhen: (previous, current) => previous.userProfile.activeRankId != current.userProfile.activeRankId,
-          listener: (context, state) => _onProfileChanged(state.userProfile.activeRankId),
+          listenWhen: (previous, current) =>
+              previous.userProfile.activeRankId != current.userProfile.activeRankId ||
+              previous.userProfile.experiencePoints != current.userProfile.experiencePoints,
+          listener: (context, state) => _onProfileChanged(
+            state.userProfile.activeRankId,
+            RewardXpProgress.at(state.userProfile.experiencePoints).$1,
+          ),
         ),
       ],
       child: widget.child,

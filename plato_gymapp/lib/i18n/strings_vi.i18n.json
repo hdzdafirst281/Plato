@@ -38,6 +38,8 @@
     "desc_switch_account_screen": "Nhập email của tài khoản muốn chuyển đến. Dữ liệu hiện tại sẽ được tự động sao lưu.",
     "msg_syncing_to_cloud": "Đang đồng bộ dữ liệu lên đám mây...",
     "err_target_account_not_found": "Tài khoản đích không tồn tại.",
+    "err_verify_failed": "Mã xác nhận không chính xác. Vui lòng thử lại.",
+    "err_otp_expired": "Mã xác nhận đã hết hạn. Vui lòng gửi lại mã mới.",
     "title_verify_otp": "Nhập mã xác nhận",
     "msg_verify_success": "Xác thực thành công. Đang tải hồ sơ...",
     "msg_verifying": "Đang xác thực..."

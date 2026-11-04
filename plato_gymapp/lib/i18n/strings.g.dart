@@ -4,9 +4,9 @@
 /// To regenerate, run: `dart run slang`
 ///
 /// Locales: 2
-/// Strings: 2952 (1476 per locale)
+/// Strings: 2956 (1478 per locale)
 ///
-/// Built on 2026-11-03 at 06:53 UTC
+/// Built on 2026-11-04 at 10:08 UTC
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -216,6 +216,8 @@ class _StringsAuthEn {
 	String get desc_switch_account_screen => 'Enter the email of the account you want to switch to. Current data will be automatically backed up.';
 	String get msg_syncing_to_cloud => 'Synchronizing data to the cloud...';
 	String get err_target_account_not_found => 'Target account does not exist.';
+	String get err_verify_failed => 'Incorrect verification code. Please try again.';
+	String get err_otp_expired => 'The verification code has expired. Please request a new code.';
 	String get title_verify_otp => 'Enter Verification Code';
 	String get msg_verify_success => 'Verification successful. Loading profile...';
 	String get msg_verifying => 'Verifying...';
@@ -1930,6 +1932,8 @@ class _StringsAuthVi extends _StringsAuthEn {
 	@override String get desc_switch_account_screen => 'Nhập email của tài khoản muốn chuyển đến. Dữ liệu hiện tại sẽ được tự động sao lưu.';
 	@override String get msg_syncing_to_cloud => 'Đang đồng bộ dữ liệu lên đám mây...';
 	@override String get err_target_account_not_found => 'Tài khoản đích không tồn tại.';
+	@override String get err_verify_failed => 'Mã xác nhận không chính xác. Vui lòng thử lại.';
+	@override String get err_otp_expired => 'Mã xác nhận đã hết hạn. Vui lòng gửi lại mã mới.';
 	@override String get title_verify_otp => 'Nhập mã xác nhận';
 	@override String get msg_verify_success => 'Xác thực thành công. Đang tải hồ sơ...';
 	@override String get msg_verifying => 'Đang xác thực...';
@@ -3594,6 +3598,8 @@ extension on Translations {
 			case 'auth.desc_switch_account_screen': return 'Enter the email of the account you want to switch to. Current data will be automatically backed up.';
 			case 'auth.msg_syncing_to_cloud': return 'Synchronizing data to the cloud...';
 			case 'auth.err_target_account_not_found': return 'Target account does not exist.';
+			case 'auth.err_verify_failed': return 'Incorrect verification code. Please try again.';
+			case 'auth.err_otp_expired': return 'The verification code has expired. Please request a new code.';
 			case 'auth.title_verify_otp': return 'Enter Verification Code';
 			case 'auth.msg_verify_success': return 'Verification successful. Loading profile...';
 			case 'auth.msg_verifying': return 'Verifying...';
@@ -5078,6 +5084,8 @@ extension on _StringsVi {
 			case 'auth.desc_switch_account_screen': return 'Nhập email của tài khoản muốn chuyển đến. Dữ liệu hiện tại sẽ được tự động sao lưu.';
 			case 'auth.msg_syncing_to_cloud': return 'Đang đồng bộ dữ liệu lên đám mây...';
 			case 'auth.err_target_account_not_found': return 'Tài khoản đích không tồn tại.';
+			case 'auth.err_verify_failed': return 'Mã xác nhận không chính xác. Vui lòng thử lại.';
+			case 'auth.err_otp_expired': return 'Mã xác nhận đã hết hạn. Vui lòng gửi lại mã mới.';
 			case 'auth.title_verify_otp': return 'Nhập mã xác nhận';
 			case 'auth.msg_verify_success': return 'Xác thực thành công. Đang tải hồ sơ...';
 			case 'auth.msg_verifying': return 'Đang xác thực...';

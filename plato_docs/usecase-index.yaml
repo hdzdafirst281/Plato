@@ -53,6 +53,7 @@ usecases:
       - "plato_gymapp/lib/features/profile/presentation/screens/account_management_screen.dart"
       - "plato_gymapp/lib/features/auth/presentation/bloc/auth_cubit.dart"
       - "plato_gymapp/lib/features/auth/domain/usecases/auth_usecases.dart"
+      - "plato_gymapp/lib/features/auth/domain/repositories/auth_repository.dart"
       - "plato_gymapp/lib/features/auth/data/repositories/auth_repository_impl.dart"
       - "plato_gymapp/lib/core/worker/sync_manager.dart"
       - "plato_gymapp/lib/features/workout/data/repositories/workout_repository.dart"
@@ -91,6 +92,7 @@ usecases:
       - "plato_gymapp/lib/features/profile/presentation/screens/account_management_screen.dart"
       - "plato_gymapp/lib/features/auth/presentation/bloc/auth_cubit.dart"
       - "plato_gymapp/lib/features/auth/domain/usecases/auth_usecases.dart"
+      - "plato_gymapp/lib/features/auth/domain/repositories/auth_repository.dart"
       - "plato_gymapp/lib/features/auth/data/repositories/auth_repository_impl.dart"
       - "plato_gymapp/lib/core/worker/sync_manager.dart"
       - "plato_gymapp/lib/features/workout/data/repositories/workout_repository.dart"
@@ -127,6 +129,7 @@ usecases:
       - "plato_gymapp/lib/features/profile/presentation/screens/account_management_screen.dart"
       - "plato_gymapp/lib/features/auth/presentation/bloc/auth_cubit.dart"
       - "plato_gymapp/lib/features/auth/domain/usecases/auth_usecases.dart"
+      - "plato_gymapp/lib/features/auth/domain/repositories/auth_repository.dart"
       - "plato_gymapp/lib/features/auth/data/repositories/auth_repository_impl.dart"
       - "plato_gymapp/lib/core/worker/sync_manager.dart"
       - "plato_gymapp/lib/features/workout/data/repositories/workout_repository.dart"
@@ -862,6 +865,7 @@ usecases:
       - "plato_gymapp/lib/features/gamification/presentation/components/workout_rewards_content.dart"
       - "plato_gymapp/lib/features/gamification/presentation/components/rank_zone_progress_bar.dart"
       - "plato_gymapp/lib/core/navigation/app_router.dart"
+      - "plato_gymapp/lib/main.dart"
     localization_keys:
       - gamification.tab_quests
       - gamification.title_weekly_quests
@@ -1088,6 +1092,7 @@ usecases:
       - "plato_gymapp/lib/features/workout/presentation/components/workout_components.dart"
       - "plato_gymapp/lib/features/workout/presentation/bloc/active_session_cubit.dart"
       - "plato_gymapp/lib/features/workout/presentation/bloc/session_effect_mixin.dart"
+      - "plato_gymapp/lib/main.dart"
     localization_keys:
       - common.cancel
       - common.open_settings

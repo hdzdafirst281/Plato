@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:freezed_annotation/freezed_annotation.dart';
 import 'package:injectable/injectable.dart';
@@ -153,23 +154,32 @@ class AuthCubit extends Cubit<AuthState> {
 
   // --- XÁC NHẬN OTP & PHÂN LUỒNG XỬ LÝ DỮ LIỆU CHUẨN XÁC ---
   Future<void> verifyOtp(String email, String otpCode) async {
-    emit(state.copyWith(isLoading: true, syncResult: null, authMessage: 'auth.msg_verifying')); 
-    
-    final currentUserId = await _verifyOtpUseCase(
-      email: email, 
-      otpCode: otpCode, 
-      isSwitchAccount: state.currentFlow == AuthFlowType.switchAccount, 
-      isLinkAccount: state.currentFlow == AuthFlowType.link,
-      onProgress: (msg) => emit(state.copyWith(authMessage: msg)),
-    );
+    emit(state.copyWith(isLoading: true, syncResult: null, authMessage: 'auth.msg_verifying'));
 
-    if (currentUserId != null) {
-      emit(state.copyWith(
-        isLoading: false, 
-        userProfile: _authRepo.getProfile(),
-        syncResult: const AuthSyncResult(isSuccess: true, shouldBypassOnboarding: true)
-      ));
-    } else {
+    try {
+      final currentUserId = await _verifyOtpUseCase(
+        email: email,
+        otpCode: otpCode,
+        isSwitchAccount: state.currentFlow == AuthFlowType.switchAccount,
+        isLinkAccount: state.currentFlow == AuthFlowType.link,
+        onProgress: (msg) => emit(state.copyWith(authMessage: msg)),
+      );
+
+      if (currentUserId != null) {
+        emit(state.copyWith(
+          isLoading: false,
+          userProfile: _authRepo.getProfile(),
+          syncResult: const AuthSyncResult(isSuccess: true, shouldBypassOnboarding: true),
+        ));
+      } else {
+        emit(state.copyWith(isLoading: false, authMessage: 'auth.err_verify_failed'));
+      }
+    } on OtpExpiredAuthException {
+      emit(state.copyWith(isLoading: false, authMessage: 'auth.err_otp_expired'));
+    } on OtpInvalidAuthException {
+      emit(state.copyWith(isLoading: false, authMessage: 'auth.err_verify_failed'));
+    } catch (e) {
+      debugPrint("🚨 Lỗi xác thực OTP: $e");
       emit(state.copyWith(isLoading: false, authMessage: 'auth.err_verify_failed'));
     }
   }

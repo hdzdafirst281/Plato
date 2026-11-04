@@ -10,6 +10,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:plato_gymapp/core/bloc/tour/tour_cubit.dart';
 import 'package:plato_gymapp/core/di/injection.dart';
+import 'package:plato_gymapp/features/notifications/application/notification_coordinator.dart';
 import 'package:plato_gymapp/features/gamification/presentation/bloc/gamification_cubit.dart';
 import 'package:plato_gymapp/features/profile/presentation/bloc/profile_cubit.dart';
 import 'package:plato_gymapp/features/workout/presentation/bloc/workout_cubit.dart';
@@ -201,6 +202,7 @@ class _AuthOtpScreenState extends State<AuthOtpScreen> {
           getIt<SharedPreferences>().setBool('isFirstRun', false);
 
           if (context.mounted) {
+            NotificationCoordinator.instance?.levelHandledThrough = 0;
             context.read<ProfileCubit>().refreshProfile();
             context.read<GamificationCubit>().refreshStateFromPrefs();
             context.read<WorkoutCubit>().resetWorkoutState();
@@ -593,13 +595,28 @@ class _AuthOtpScreenState extends State<AuthOtpScreen> {
     final msgLower = msg.toLowerCase();
     // [CẬP NHẬT ĐIỀU KIỆN LỖI]: Nhận diện chính xác tiền tố "err" từ JSON key
     final isError = msgLower.contains("error") || msgLower.contains("lỗi") || msgLower.contains("err");
+
+    final isVietnamese = TranslationProvider.of(context).flutterLocale.languageCode == 'vi';
+    String? fallback;
+    if (msg == 'auth.err_verify_failed') {
+      fallback = isVietnamese
+          ? 'Mã xác nhận không chính xác. Vui lòng thử lại.'
+          : 'Incorrect verification code. Please try again.';
+    } else if (msg == 'auth.err_otp_expired') {
+      fallback = isVietnamese
+          ? 'Mã xác nhận đã hết hạn. Vui lòng gửi lại mã mới.'
+          : 'The verification code has expired. Please request a new code.';
+    }
+
+    final displayText = t.translateDynamic(msg, fallback: fallback);
+
     return Container(
       width: double.infinity, padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: isError ? colorScheme.errorContainer : colorScheme.primary.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(12), border: Border.all(color: isError ? colorScheme.error : colorScheme.primary),
       ),
-      child: Text(t.translateDynamic(msg), textAlign: TextAlign.center, style: TextStyle(color: isError ? colorScheme.error : colorScheme.primary, fontWeight: FontWeight.w600)),
+      child: Text(displayText, textAlign: TextAlign.center, style: TextStyle(color: isError ? colorScheme.error : colorScheme.primary, fontWeight: FontWeight.w600)),
     );
   }
 }

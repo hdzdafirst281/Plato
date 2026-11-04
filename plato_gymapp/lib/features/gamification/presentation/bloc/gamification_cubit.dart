@@ -74,15 +74,21 @@ class GamificationCubit extends Cubit<GamificationState> {
     });
 
     _profileSubscription = _authRepo.profileUpdateStream.listen((profile) {
+      _gamificationRepo.updateStatsAfterXpGain(profile);
+      var updatedLeaderboard = state.leaderboard;
       final currentLeaderboard = state.leaderboard;
       if (currentLeaderboard != null) {
-        final updatedLeaderboard = List<LeaderboardEntry>.from(currentLeaderboard);
-        final index = updatedLeaderboard.indexWhere((e) => e.id == profile.id);
-        if (index != -1 && updatedLeaderboard[index].avatarUrl != profile.avatarUrl) {
-          updatedLeaderboard[index] = updatedLeaderboard[index].copyWith(avatarUrl: profile.avatarUrl);
-          emit(state.copyWith(leaderboard: updatedLeaderboard));
+        final list = List<LeaderboardEntry>.from(currentLeaderboard);
+        final index = list.indexWhere((e) => e.id == profile.id);
+        if (index != -1 && list[index].avatarUrl != profile.avatarUrl) {
+          list[index] = list[index].copyWith(avatarUrl: profile.avatarUrl);
+          updatedLeaderboard = list;
         }
       }
+      emit(state.copyWith(
+        stats: _gamificationRepo.userStats,
+        leaderboard: updatedLeaderboard,
+      ));
     });
   }
 
