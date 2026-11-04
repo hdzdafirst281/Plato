@@ -551,16 +551,16 @@ class ActiveSessionCubit extends Cubit<ActiveSessionState>
         .toList();
 
     final finalDuration = targetDuration ?? state.workoutTimerSeconds;
+    final usesSetRpe = WorkoutEffortPreferences.advancedEnabled(_prefs);
 
     final temporarySession = session.copyWith(
       sessionPayload: session.sessionPayload.copyWith(
         exercises: cleanedExercises,
+        rpePerSetEnabled: usesSetRpe,
       ),
       totalDurationSeconds: finalDuration,
       endTime: DateTime.now().millisecondsSinceEpoch,
-      rpe: WorkoutEffortPreferences.advancedEnabled(_prefs)
-          ? null
-          : (isAutoFinish ? (session.rpe ?? 5) : session.rpe),
+      rpe: usesSetRpe ? null : session.rpe,
     );
 
     final existingHistory = await _workoutRepo.workoutHistoryStream.first;

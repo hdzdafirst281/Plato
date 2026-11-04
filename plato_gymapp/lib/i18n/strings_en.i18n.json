@@ -26,6 +26,7 @@
     "err_network_delete_failed": "Error: Cannot delete account at this time. Please check your network.",
     "desc_otp_instruction": "A verification code has been sent to {arg1}. Please check your inbox.",
     "msg_otp_sent_err": "Connection error: Could not send the code. Please try again later.",
+    "desc_otp_expiration": "The verification code is valid for 5 minutes.",
     "msg_otp_sent_success": "A 6-digit verification code has been sent to your email!",
     "msg_processing": "Processing...",
     "msg_pulling_cloud_data": "Downloading cloud data...",

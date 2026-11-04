@@ -26,6 +26,7 @@
     "err_network_delete_failed": "Lỗi: Không thể xóa tài khoản lúc này. Vui lòng kiểm tra mạng.",
     "desc_otp_instruction": "Mã xác nhận đã được gửi đến {arg1}. Vui lòng kiểm tra hộp thư.",
     "msg_otp_sent_err": "Lỗi kết nối: Không thể gửi mã. Vui lòng thử lại sau.",
+    "desc_otp_expiration": "Mã xác nhận có hiệu lực trong 5 phút.",
     "msg_otp_sent_success": "Đã gửi mã xác nhận 6 số đến thư điện tử của bạn!",
     "msg_processing": "Đang xử lý...",
     "msg_pulling_cloud_data": "Đang tải dữ liệu đám mây...",

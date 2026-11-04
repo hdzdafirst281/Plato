@@ -11,7 +11,6 @@ This is the landing page and informational website for the **Plato** project, de
 ## Project Structure
 This is a multi-page Vite project. The entry points are configured in `vite.config.js`:
 - `index.html`: Home page
-- `about.html`: About Us page
 - `terms.html`: Terms of Service
 - `eula.html`: End User License Agreement
 - `features.html`: Features overview

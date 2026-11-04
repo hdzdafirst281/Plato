@@ -95,8 +95,10 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
     if (foundSession != null && mounted) {
       setState(() {
         _targetSession = foundSession;
-        final dbRpe = foundSession!.rpe?.toDouble() ?? 5.0;
-        _rpeValue = (dbRpe < 1.0 || dbRpe > 10.0) ? 5.0 : dbRpe;
+        final dbRpe = foundSession!.rpe?.toDouble();
+        _rpeValue = dbRpe != null && dbRpe >= 1.0 && dbRpe <= 10.0
+            ? dbRpe
+            : null;
         
         // Chỉ kích hoạt phân tích Background khi chắc chắn đã có Session
         _loadAnalysisFuture = context.read<WorkoutCubit>().getWeeklyLoadAnalysis();
@@ -138,10 +140,11 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
   void _handleGoHome() {
     if (!_advancedEffortEnabled &&
         _targetSession != null &&
-        _targetSession!.id.isNotEmpty) {
+        _targetSession!.id.isNotEmpty &&
+        _rpeValue != null) {
       context.read<WorkoutCubit>().updateSessionRpe(
         _targetSession!.id, 
-        (_rpeValue ?? 5.0).clamp(1.0, 10.0).toInt()
+        _rpeValue!.clamp(1.0, 10.0).toInt()
       );
     }
     
@@ -281,7 +284,7 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
             ? t.workout.title_new_workout 
             : t.translateDynamic(rawName); 
             
-        final currentRpe = _rpeValue ?? 5.0;
+        final currentRpe = _rpeValue;
 
         final isTablet = MediaQuery.of(context).size.width >= 800;
 
@@ -450,7 +453,24 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
     );
   }
 
-  Widget _buildRpeCard(ColorScheme colorScheme, double currentRpe) {
+  void _updateSessionRpe(int value) {
+    final clampedValue = value.clamp(1, 10);
+    setState(() => _rpeValue = clampedValue.toDouble());
+    if (_targetSession != null) {
+      context.read<WorkoutCubit>().updateSessionRpe(
+        _targetSession!.id,
+        clampedValue,
+      );
+    }
+  }
+
+  Widget _buildRpeCard(ColorScheme colorScheme, double? currentRpe) {
+    final currentRpeInt = currentRpe?.toInt();
+    final rpeColor = _getRpeColor(context, currentRpeInt);
+    final rpeLabel = currentRpeInt == null
+        ? t.workout.lbl_dtl_rpe_unrated
+        : t.workout.fmt_dtl_rpe_value(arg1: currentRpeInt);
+
     return Card(
       color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.3),
       shape: RoundedRectangleBorder(
@@ -471,51 +491,63 @@ class _SessionSummaryScreenState extends State<SessionSummaryScreen> with Ticker
                 const SizedBox(width: 16),
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                  decoration: BoxDecoration(color: _getRpeColor(context, currentRpe.toInt()).withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)),
-                  child: Text("${currentRpe.toInt()}/10", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: _getRpeColor(context, currentRpe.toInt()))),
+                  decoration: BoxDecoration(color: rpeColor.withValues(alpha: 0.15), borderRadius: BorderRadius.circular(12)),
+                  child: Text(rpeLabel, style: TextStyle(fontSize: 18, fontWeight: FontWeight.w900, color: rpeColor)),
                 ),
               ],
             ),
             const SizedBox(height: 16),
             LayoutBuilder(
               builder: (context, constraints) {
-                return GestureDetector(
-                  behavior: HitTestBehavior.opaque,
-                  onPanUpdate: (details) {
-                    final dx = details.localPosition.dx;
-                    final width = constraints.maxWidth;
-                    int newValue = ((dx / width) * 10).ceil().clamp(1, 10);
-                    setState(() => _rpeValue = newValue.toDouble());
-                  },
-                  onPanEnd: (details) {
-                    if (_targetSession != null) {
-                      context.read<WorkoutCubit>().updateSessionRpe(_targetSession!.id, _rpeValue!.toInt());
-                    }
-                  },
-                  onTapDown: (details) {
-                    final dx = details.localPosition.dx;
-                    final width = constraints.maxWidth;
-                    int newValue = ((dx / width) * 10).ceil().clamp(1, 10);
-                    setState(() => _rpeValue = newValue.toDouble());
-                    if (_targetSession != null) {
-                      context.read<WorkoutCubit>().updateSessionRpe(_targetSession!.id, newValue);
-                    }
-                  },
-                  child: Row(
-                    children: List.generate(10, (index) {
-                      final value = index + 1;
-                      final isActive = value <= currentRpe;
-                      return Expanded(
-                        child: Container(
-                          height: 12,
-                          margin: const EdgeInsets.symmetric(horizontal: 2),
-                          decoration: BoxDecoration(
-                            color: isActive ? _getRpeColor(context, value) : colorScheme.outlineVariant.withValues(alpha: 0.2),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                        ),
-                      );
-                    }),
+                return Semantics(
+                  slider: true,
+                  label: t.workout.title_ssn_sum_rpe_card,
+                  value: rpeLabel,
+                  onIncrease: () => _updateSessionRpe(
+                    ((currentRpeInt ?? 0) + 1).clamp(1, 10),
+                  ),
+                  onDecrease: () => _updateSessionRpe(
+                    ((currentRpeInt ?? 2) - 1).clamp(1, 10),
+                  ),
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.opaque,
+                    onPanUpdate: (details) {
+                      final dx = details.localPosition.dx;
+                      final width = constraints.maxWidth;
+                      int newValue = ((dx / width) * 10).ceil().clamp(1, 10);
+                      setState(() => _rpeValue = newValue.toDouble());
+                    },
+                    onPanEnd: (details) {
+                      if (_rpeValue != null) {
+                        _updateSessionRpe(_rpeValue!.toInt());
+                      }
+                    },
+                    onTapDown: (details) {
+                      final dx = details.localPosition.dx;
+                      final width = constraints.maxWidth;
+                      int newValue = ((dx / width) * 10).ceil().clamp(1, 10);
+                      _updateSessionRpe(newValue);
+                    },
+                    child: SizedBox(
+                      height: 48,
+                      child: Row(
+                        children: List.generate(10, (index) {
+                          final value = index + 1;
+                          final isActive =
+                              currentRpe != null && value <= currentRpe;
+                          return Expanded(
+                            child: Container(
+                              height: 12,
+                              margin: const EdgeInsets.symmetric(horizontal: 2),
+                              decoration: BoxDecoration(
+                                color: isActive ? _getRpeColor(context, value) : colorScheme.outlineVariant.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                            ),
+                          );
+                        }),
+                      ),
+                    ),
                   ),
                 );
               }

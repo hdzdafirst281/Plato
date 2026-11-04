@@ -4,9 +4,9 @@
 /// To regenerate, run: `dart run slang`
 ///
 /// Locales: 2
-/// Strings: 2950 (1475 per locale)
+/// Strings: 2952 (1476 per locale)
 ///
-/// Built on 2026-11-01 at 07:50 UTC
+/// Built on 2026-11-03 at 06:53 UTC
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -204,6 +204,7 @@ class _StringsAuthEn {
 	String get err_network_delete_failed => 'Error: Cannot delete account at this time. Please check your network.';
 	String desc_otp_instruction({required Object arg1}) => 'A verification code has been sent to ${arg1}. Please check your inbox.';
 	String get msg_otp_sent_err => 'Connection error: Could not send the code. Please try again later.';
+	String get desc_otp_expiration => 'The verification code is valid for 5 minutes.';
 	String get msg_otp_sent_success => 'A 6-digit verification code has been sent to your email!';
 	String get msg_processing => 'Processing...';
 	String get msg_pulling_cloud_data => 'Downloading cloud data...';
@@ -1917,6 +1918,7 @@ class _StringsAuthVi extends _StringsAuthEn {
 	@override String get err_network_delete_failed => 'Lỗi: Không thể xóa tài khoản lúc này. Vui lòng kiểm tra mạng.';
 	@override String desc_otp_instruction({required Object arg1}) => 'Mã xác nhận đã được gửi đến ${arg1}. Vui lòng kiểm tra hộp thư.';
 	@override String get msg_otp_sent_err => 'Lỗi kết nối: Không thể gửi mã. Vui lòng thử lại sau.';
+	@override String get desc_otp_expiration => 'Mã xác nhận có hiệu lực trong 5 phút.';
 	@override String get msg_otp_sent_success => 'Đã gửi mã xác nhận 6 số đến thư điện tử của bạn!';
 	@override String get msg_processing => 'Đang xử lý...';
 	@override String get msg_pulling_cloud_data => 'Đang tải dữ liệu đám mây...';
@@ -3580,6 +3582,7 @@ extension on Translations {
 			case 'auth.err_network_delete_failed': return 'Error: Cannot delete account at this time. Please check your network.';
 			case 'auth.desc_otp_instruction': return ({required Object arg1}) => 'A verification code has been sent to ${arg1}. Please check your inbox.';
 			case 'auth.msg_otp_sent_err': return 'Connection error: Could not send the code. Please try again later.';
+			case 'auth.desc_otp_expiration': return 'The verification code is valid for 5 minutes.';
 			case 'auth.msg_otp_sent_success': return 'A 6-digit verification code has been sent to your email!';
 			case 'auth.msg_processing': return 'Processing...';
 			case 'auth.msg_pulling_cloud_data': return 'Downloading cloud data...';
@@ -5063,6 +5066,7 @@ extension on _StringsVi {
 			case 'auth.err_network_delete_failed': return 'Lỗi: Không thể xóa tài khoản lúc này. Vui lòng kiểm tra mạng.';
 			case 'auth.desc_otp_instruction': return ({required Object arg1}) => 'Mã xác nhận đã được gửi đến ${arg1}. Vui lòng kiểm tra hộp thư.';
 			case 'auth.msg_otp_sent_err': return 'Lỗi kết nối: Không thể gửi mã. Vui lòng thử lại sau.';
+			case 'auth.desc_otp_expiration': return 'Mã xác nhận có hiệu lực trong 5 phút.';
 			case 'auth.msg_otp_sent_success': return 'Đã gửi mã xác nhận 6 số đến thư điện tử của bạn!';
 			case 'auth.msg_processing': return 'Đang xử lý...';
 			case 'auth.msg_pulling_cloud_data': return 'Đang tải dữ liệu đám mây...';

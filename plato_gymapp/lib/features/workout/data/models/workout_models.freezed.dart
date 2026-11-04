@@ -929,6 +929,8 @@ mixin _$WorkoutSessionPayload {
   String? get scheduledWorkoutId => throw _privateConstructorUsedError;
   @JsonKey(name: 'schema_version')
   String get schemaVersion => throw _privateConstructorUsedError;
+  @JsonKey(name: 'rpe_per_set_enabled')
+  bool get rpePerSetEnabled => throw _privateConstructorUsedError;
   @JsonKey(name: 'exercises')
   List<WorkoutExercise> get exercises => throw _privateConstructorUsedError;
   @JsonKey(name: 'muscle_distribution')
@@ -952,6 +954,7 @@ abstract class $WorkoutSessionPayloadCopyWith<$Res> {
   $Res call(
       {@JsonKey(name: 'scheduled_workout_id') String? scheduledWorkoutId,
       @JsonKey(name: 'schema_version') String schemaVersion,
+      @JsonKey(name: 'rpe_per_set_enabled') bool rpePerSetEnabled,
       @JsonKey(name: 'exercises') List<WorkoutExercise> exercises,
       @JsonKey(name: 'muscle_distribution')
       Map<MajorMuscleGroup, double> muscleDistribution,
@@ -974,6 +977,7 @@ class _$WorkoutSessionPayloadCopyWithImpl<$Res,
   $Res call({
     Object? scheduledWorkoutId = freezed,
     Object? schemaVersion = null,
+    Object? rpePerSetEnabled = null,
     Object? exercises = null,
     Object? muscleDistribution = null,
     Object? notes = freezed,
@@ -987,6 +991,10 @@ class _$WorkoutSessionPayloadCopyWithImpl<$Res,
           ? _value.schemaVersion
           : schemaVersion // ignore: cast_nullable_to_non_nullable
               as String,
+      rpePerSetEnabled: null == rpePerSetEnabled
+          ? _value.rpePerSetEnabled
+          : rpePerSetEnabled // ignore: cast_nullable_to_non_nullable
+              as bool,
       exercises: null == exercises
           ? _value.exercises
           : exercises // ignore: cast_nullable_to_non_nullable
@@ -1015,6 +1023,7 @@ abstract class _$$WorkoutSessionPayloadImplCopyWith<$Res>
   $Res call(
       {@JsonKey(name: 'scheduled_workout_id') String? scheduledWorkoutId,
       @JsonKey(name: 'schema_version') String schemaVersion,
+      @JsonKey(name: 'rpe_per_set_enabled') bool rpePerSetEnabled,
       @JsonKey(name: 'exercises') List<WorkoutExercise> exercises,
       @JsonKey(name: 'muscle_distribution')
       Map<MajorMuscleGroup, double> muscleDistribution,
@@ -1035,6 +1044,7 @@ class __$$WorkoutSessionPayloadImplCopyWithImpl<$Res>
   $Res call({
     Object? scheduledWorkoutId = freezed,
     Object? schemaVersion = null,
+    Object? rpePerSetEnabled = null,
     Object? exercises = null,
     Object? muscleDistribution = null,
     Object? notes = freezed,
@@ -1048,6 +1058,10 @@ class __$$WorkoutSessionPayloadImplCopyWithImpl<$Res>
           ? _value.schemaVersion
           : schemaVersion // ignore: cast_nullable_to_non_nullable
               as String,
+      rpePerSetEnabled: null == rpePerSetEnabled
+          ? _value.rpePerSetEnabled
+          : rpePerSetEnabled // ignore: cast_nullable_to_non_nullable
+              as bool,
       exercises: null == exercises
           ? _value._exercises
           : exercises // ignore: cast_nullable_to_non_nullable
@@ -1070,6 +1084,7 @@ class _$WorkoutSessionPayloadImpl implements _WorkoutSessionPayload {
   const _$WorkoutSessionPayloadImpl(
       {@JsonKey(name: 'scheduled_workout_id') this.scheduledWorkoutId,
       @JsonKey(name: 'schema_version') this.schemaVersion = '1.0',
+      @JsonKey(name: 'rpe_per_set_enabled') this.rpePerSetEnabled = false,
       @JsonKey(name: 'exercises')
       final List<WorkoutExercise> exercises = const [],
       @JsonKey(name: 'muscle_distribution')
@@ -1087,6 +1102,9 @@ class _$WorkoutSessionPayloadImpl implements _WorkoutSessionPayload {
   @override
   @JsonKey(name: 'schema_version')
   final String schemaVersion;
+  @override
+  @JsonKey(name: 'rpe_per_set_enabled')
+  final bool rpePerSetEnabled;
   final List<WorkoutExercise> _exercises;
   @override
   @JsonKey(name: 'exercises')
@@ -1112,7 +1130,7 @@ class _$WorkoutSessionPayloadImpl implements _WorkoutSessionPayload {
 
   @override
   String toString() {
-    return 'WorkoutSessionPayload(scheduledWorkoutId: $scheduledWorkoutId, schemaVersion: $schemaVersion, exercises: $exercises, muscleDistribution: $muscleDistribution, notes: $notes)';
+    return 'WorkoutSessionPayload(scheduledWorkoutId: $scheduledWorkoutId, schemaVersion: $schemaVersion, rpePerSetEnabled: $rpePerSetEnabled, exercises: $exercises, muscleDistribution: $muscleDistribution, notes: $notes)';
   }
 
   @override
@@ -1124,6 +1142,8 @@ class _$WorkoutSessionPayloadImpl implements _WorkoutSessionPayload {
                 other.scheduledWorkoutId == scheduledWorkoutId) &&
             (identical(other.schemaVersion, schemaVersion) ||
                 other.schemaVersion == schemaVersion) &&
+            (identical(other.rpePerSetEnabled, rpePerSetEnabled) ||
+                other.rpePerSetEnabled == rpePerSetEnabled) &&
             const DeepCollectionEquality()
                 .equals(other._exercises, _exercises) &&
             const DeepCollectionEquality()
@@ -1137,6 +1157,7 @@ class _$WorkoutSessionPayloadImpl implements _WorkoutSessionPayload {
       runtimeType,
       scheduledWorkoutId,
       schemaVersion,
+      rpePerSetEnabled,
       const DeepCollectionEquality().hash(_exercises),
       const DeepCollectionEquality().hash(_muscleDistribution),
       notes);
@@ -1160,6 +1181,7 @@ abstract class _WorkoutSessionPayload implements WorkoutSessionPayload {
   const factory _WorkoutSessionPayload(
       {@JsonKey(name: 'scheduled_workout_id') final String? scheduledWorkoutId,
       @JsonKey(name: 'schema_version') final String schemaVersion,
+      @JsonKey(name: 'rpe_per_set_enabled') final bool rpePerSetEnabled,
       @JsonKey(name: 'exercises') final List<WorkoutExercise> exercises,
       @JsonKey(name: 'muscle_distribution')
       final Map<MajorMuscleGroup, double> muscleDistribution,
@@ -1175,6 +1197,9 @@ abstract class _WorkoutSessionPayload implements WorkoutSessionPayload {
   @override
   @JsonKey(name: 'schema_version')
   String get schemaVersion;
+  @override
+  @JsonKey(name: 'rpe_per_set_enabled')
+  bool get rpePerSetEnabled;
   @override
   @JsonKey(name: 'exercises')
   List<WorkoutExercise> get exercises;

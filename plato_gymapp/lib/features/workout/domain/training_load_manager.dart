@@ -95,7 +95,8 @@ class TrainingLoadManager {
       // Session RPE là mặc định. Ở Effort nâng cao, dùng trung bình RPE
       // các set đã nhập; nếu cả hai đều trống mới dùng fail-safe 7.
       final double rpeValue =
-          RecoveryLoadCalculator.effectiveSessionRpe(session) ?? 7.0;
+          RecoveryLoadCalculator.effectiveSessionRpe(session) ??
+          RecoveryLoadCalculator.fallbackRpe;
       
       // Fail-safe: Nếu quên bấm giờ, lấy mốc trung bình là 60 phút
       final double durationMinutes = session.totalDurationSeconds > 0 

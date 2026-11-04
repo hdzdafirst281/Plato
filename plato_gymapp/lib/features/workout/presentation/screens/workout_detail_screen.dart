@@ -8,11 +8,8 @@ import 'package:flutter_animate/flutter_animate.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_motion.dart';
-import 'package:plato_gymapp/core/di/injection.dart';
 import 'package:plato_gymapp/core/utils/measurement_units.dart';
 import 'package:plato_gymapp/features/profile/presentation/bloc/profile_cubit.dart';
-import 'package:plato_gymapp/features/workout/data/workout_effort_preferences.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:plato_gymapp/features/workout/data/models/workout_models.dart';
 import 'package:plato_gymapp/features/workout/domain/workout_extensions.dart';
@@ -64,17 +61,8 @@ class WorkoutDetailScreen extends StatefulWidget {
 
 class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
   bool _isExpandedMuscle = false;
-  late final bool _advancedEffortEnabled;
 
   static const bool kShowCaloriesFeature = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _advancedEffortEnabled = WorkoutEffortPreferences.advancedEnabled(
-      getIt<SharedPreferences>(),
-    );
-  }
 
   String _formatDuration(int totalSeconds) {
     final h = totalSeconds ~/ 3600;
@@ -136,6 +124,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
     final totalVolume = session.totalVolume.toInt();
 
     final int sessionPRCount = session.calculateTotalPRs(history);
+    final usesSetRpe = session.usesSetRpe;
     final effectiveRpe = RecoveryLoadCalculator.effectiveSessionRpe(session);
     final effectiveRpeLabel = effectiveRpe == null
         ? null
@@ -326,7 +315,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                           ),
                         ],
                       ),
-                      if (!_advancedEffortEnabled ||
+                      if (!usesSetRpe ||
                           kShowCaloriesFeature ||
                           sessionPRCount > 0) ...[
                         const SizedBox(height: 24),
@@ -343,7 +332,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                               ),
                               const SizedBox(width: 16),
                             ],
-                            if (!_advancedEffortEnabled) ...[
+                            if (!usesSetRpe) ...[
                               Expanded(
                                 child: _DetailSummaryItem(
                                   icon: Symbols.speed,
@@ -916,7 +905,7 @@ class _WorkoutDetailScreenState extends State<WorkoutDetailScreen> {
                                                       fontSize: 16,
                                                     ),
                                                   ),
-                                                  if (_advancedEffortEnabled) ...[
+                                                  if (usesSetRpe) ...[
                                                     const SizedBox(height: 6),
                                                     Semantics(
                                                       label:

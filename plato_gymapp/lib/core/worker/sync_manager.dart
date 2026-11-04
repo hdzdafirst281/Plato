@@ -60,6 +60,7 @@ Map<String, dynamic> _stripWorkoutPayload(Map<String, dynamic> fullPayload) {
   return {
     'scheduled_workout_id': fullPayload['scheduled_workout_id'],
       'schema_version': fullPayload['schema_version'] ?? '1.0',
+      'rpe_per_set_enabled': fullPayload['rpe_per_set_enabled'] == true,
     'muscle_distribution': fullPayload['muscle_distribution'] ?? {},
     'notes': fullPayload['notes'],
     'exercises': exercises,
@@ -95,6 +96,7 @@ Future<List<WorkoutSessionEntity>> _parseRemoteSessionsInIsolate(Map<String, dyn
 
       final fullPayload = {
         'schema_version': strippedPayload['schema_version'] ?? '1.0',
+        'rpe_per_set_enabled': strippedPayload['rpe_per_set_enabled'] == true,
         'muscle_distribution': strippedPayload['muscle_distribution'] ?? {},
         'notes': strippedPayload['notes'],
         'exercises': hydratedExercises,

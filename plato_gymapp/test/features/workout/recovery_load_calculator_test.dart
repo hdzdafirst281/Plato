@@ -3,6 +3,7 @@ import 'package:plato_gymapp/core/database/entities.dart';
 import 'package:plato_gymapp/core/database/enums.dart';
 import 'package:plato_gymapp/features/workout/data/models/workout_models.dart';
 import 'package:plato_gymapp/features/workout/domain/recovery_load_calculator.dart';
+import 'package:plato_gymapp/features/workout/domain/training_load_manager.dart';
 
 void main() {
   Exercise exercise(String id, ExerciseType type) => Exercise(
@@ -125,6 +126,41 @@ void main() {
     );
   });
 
+  test('all Recovery calculations use RPE 7 when ratings are missing', () {
+    final exercise = workoutExercise(ExerciseType.REPS_ONLY, const [
+      ExerciseSet(id: 'unrated', reps: 10, isCompleted: true),
+    ]);
+
+    expect(RecoveryLoadCalculator.fallbackRpe, 7);
+    expect(
+      RecoveryLoadCalculator.resolvedSetRpe(exercise.sets.single, null),
+      7,
+    );
+    expect(
+      RecoveryLoadCalculator.exerciseRpe(exercise, sessionRpe: null),
+      7,
+    );
+  });
+
+  test('ACWR uses the same RPE 7 fallback without changing raw data', () {
+    final session = WorkoutSession(
+      id: 'unrated-session',
+      name: 'Unrated session',
+      startTime: 1,
+      totalDurationSeconds: 3600,
+      updatedAt: 1,
+      sessionPayload: const WorkoutSessionPayload(),
+    );
+
+    final analysis = TrainingLoadManager.analyzeWeeklyLoad(
+      [session],
+      evaluationDateMillis: 1,
+    );
+
+    expect(session.rpe, isNull);
+    expect(analysis.acuteLoad, 420);
+  });
+
   test('effective session RPE falls back to entered set ratings', () {
     final payload = WorkoutSessionPayload(
       exercises: [
@@ -148,5 +184,56 @@ void main() {
       closeTo(7, 0.001),
     );
     expect(RecoveryLoadCalculator.effectiveSessionRpe(basicSession), 9);
+  });
+
+  test('explicit per-set mode survives when every set RPE is empty', () {
+    final session = WorkoutSession(
+      id: 'advanced-empty',
+      name: 'Advanced empty',
+      startTime: 1,
+      updatedAt: 1,
+      sessionPayload: WorkoutSessionPayload(
+        rpePerSetEnabled: true,
+        exercises: [
+          workoutExercise(ExerciseType.REPS_ONLY, const [
+            ExerciseSet(id: 'unrated', reps: 10, isCompleted: true),
+          ]),
+        ],
+      ),
+    );
+
+    expect(session.usesSetRpe, isTrue);
+    expect(session.sessionPayload.toJson()['rpe_per_set_enabled'], isTrue);
+  });
+
+  test('legacy payload infers per-set mode from an entered set RPE', () {
+    final session = WorkoutSession(
+      id: 'legacy-advanced',
+      name: 'Legacy advanced',
+      startTime: 1,
+      updatedAt: 1,
+      sessionPayload: WorkoutSessionPayload(
+        exercises: [
+          workoutExercise(ExerciseType.REPS_ONLY, const [
+            ExerciseSet(id: 'rated', reps: 10, rpe: 6, isCompleted: true),
+          ]),
+        ],
+      ),
+    );
+
+    expect(session.sessionPayload.rpePerSetEnabled, isFalse);
+    expect(session.usesSetRpe, isTrue);
+  });
+
+  test('empty session RPE remains session mode without the explicit flag', () {
+    final session = WorkoutSession(
+      id: 'session-empty',
+      name: 'Session empty',
+      startTime: 1,
+      updatedAt: 1,
+      sessionPayload: const WorkoutSessionPayload(),
+    );
+
+    expect(session.usesSetRpe, isFalse);
   });
 }

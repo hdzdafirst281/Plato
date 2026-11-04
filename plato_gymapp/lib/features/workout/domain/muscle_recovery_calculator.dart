@@ -133,7 +133,7 @@ class MuscleRecoveryCalculator {
       // Effort của nhóm cơ chỉ đến từ các bài tác động lên chính nhóm cơ đó.
       final effectiveRpe = (
         (sessionMuscleRpeLoads[targetMuscle] ??
-                mslTarget * RecoveryLoadCalculator.defaultRecoveryRpe) /
+                mslTarget * RecoveryLoadCalculator.fallbackRpe) /
             mslTarget
       ).clamp(1.0, 10.0);
 

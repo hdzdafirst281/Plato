@@ -32,6 +32,8 @@ import 'package:showcaseview/showcaseview.dart';
 import '../../../../core/utils/tour_keys.dart';
 
 import '../../../../core/navigation/app_routes.dart';
+import '../../../../core/di/injection.dart';
+import '../../../auth/domain/repositories/auth_repository.dart';
 import '../../data/models/workout_models.dart';
 import '../bloc/workout_cubit.dart';
 import '../bloc/editor_cubit.dart';
@@ -53,6 +55,12 @@ class _WorkoutScreenState extends State<WorkoutScreen>
   Timer? _verticalScrollTimer;
   Timer? _tourDelayTimer;
   final bool forceShowTour = false; // Debug flag
+
+  bool get _isTourTargetActive {
+    final isUserLoggedIn = getIt<AuthRepository>().currentUserId != null;
+    return (!context.read<TourCubit>().state.hasSeenWorkout && !isUserLoggedIn) ||
+        forceShowTour;
+  }
 
   List<WorkoutSession>? _lastRawRoutines;
   List<String>? _lastFolderOrder;
@@ -112,6 +120,14 @@ class _WorkoutScreenState extends State<WorkoutScreen>
     final tourCubit = context.read<TourCubit>();
     if (tourCubit.state.hasSeenWorkout && !forceShowTour) return;
 
+    final isUserLoggedIn = getIt<AuthRepository>().currentUserId != null;
+    if (isUserLoggedIn && !forceShowTour) {
+      if (!tourCubit.state.hasSeenWorkout) {
+        tourCubit.completeAllTours();
+      }
+      return;
+    }
+
     AppRouter.isTourActive.value = true;
 
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -127,6 +143,17 @@ class _WorkoutScreenState extends State<WorkoutScreen>
 
   void _startTourSafely(TourCubit tourCubit) {
     if (!mounted) {
+      AppRouter.isTourActive.value = false;
+      return;
+    }
+
+    if (tourCubit.state.hasSeenWorkout && !forceShowTour) {
+      AppRouter.isTourActive.value = false;
+      return;
+    }
+
+    final isUserLoggedIn = getIt<AuthRepository>().currentUserId != null;
+    if (isUserLoggedIn && !forceShowTour) {
       AppRouter.isTourActive.value = false;
       return;
     }
@@ -564,8 +591,7 @@ class _WorkoutScreenState extends State<WorkoutScreen>
     );
 
     Widget exploreBtn = GymTourTarget(
-      isActive:
-          !context.read<TourCubit>().state.hasSeenWorkout || forceShowTour,
+      isActive: _isTourTargetActive,
       tourKey: TourKeys.workoutExploreBtn,
       title: t.explore.title_main.trim(),
       description: t.tour.workout_explore_desc.trim(),
@@ -640,8 +666,7 @@ class _WorkoutScreenState extends State<WorkoutScreen>
         const SizedBox(height: 24),
 
         GymTourTarget(
-          isActive:
-              !context.read<TourCubit>().state.hasSeenWorkout || forceShowTour,
+          isActive: _isTourTargetActive,
           tourKey: TourKeys.workoutRecoveryChart,
           title: t.workout.title_recovery_status.trim(),
           description: t.tour.workout_recovery_desc.trim(),
@@ -838,9 +863,7 @@ class _WorkoutScreenState extends State<WorkoutScreen>
 
         if (folderIndex == 0) {
           headerWidget = GymTourTarget(
-            isActive:
-                !context.read<TourCubit>().state.hasSeenWorkout ||
-                forceShowTour,
+            isActive: _isTourTargetActive,
             tourKey: TourKeys.workoutFolderHeader,
             title: t.tour.workout_folder_title.trim(),
             description: t.tour.workout_folder_desc.trim(),
@@ -965,6 +988,10 @@ class _GlobalFolderHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final isTablet = ResponsiveBreakpoints.of(context).largerThan(MOBILE);
+    final isUserLoggedIn = getIt<AuthRepository>().currentUserId != null;
+    final isTourTargetActive =
+        (!context.read<TourCubit>().state.hasSeenWorkout && !isUserLoggedIn) ||
+        forceShowTour;
     return WorkoutSectionHeader(
       title: t.workout.lbl_default_folder.trim(),
       padding: const EdgeInsets.only(left: 4, right: 4, bottom: 12),
@@ -984,8 +1011,7 @@ class _GlobalFolderHeader extends StatelessWidget {
         ),
       ),
       trailing: GymTourTarget(
-        isActive:
-            !context.read<TourCubit>().state.hasSeenWorkout || forceShowTour,
+        isActive: isTourTargetActive,
         tourKey: TourKeys.workoutFolderAddBtn,
         title: t.tour.workout_folder_add_btn_title.trim(),
         description: t.tour.workout_folder_smart_empty_desc.trim(),

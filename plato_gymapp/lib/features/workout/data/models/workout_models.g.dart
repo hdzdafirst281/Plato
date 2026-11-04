@@ -97,6 +97,7 @@ _$WorkoutSessionPayloadImpl _$$WorkoutSessionPayloadImplFromJson(
     _$WorkoutSessionPayloadImpl(
       scheduledWorkoutId: json['scheduled_workout_id'] as String?,
       schemaVersion: json['schema_version'] as String? ?? '1.0',
+      rpePerSetEnabled: json['rpe_per_set_enabled'] as bool? ?? false,
       exercises: (json['exercises'] as List<dynamic>?)
               ?.map((e) => WorkoutExercise.fromJson(e as Map<String, dynamic>))
               .toList() ??
@@ -115,6 +116,7 @@ Map<String, dynamic> _$$WorkoutSessionPayloadImplToJson(
     <String, dynamic>{
       'scheduled_workout_id': instance.scheduledWorkoutId,
       'schema_version': instance.schemaVersion,
+      'rpe_per_set_enabled': instance.rpePerSetEnabled,
       'exercises': instance.exercises,
       'muscle_distribution': instance.muscleDistribution
           .map((k, e) => MapEntry(_$MajorMuscleGroupEnumMap[k]!, e)),

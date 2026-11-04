@@ -30,8 +30,12 @@ class GymTopNotification {
   static void clear() {
     final entry = _currentEntry;
     _currentEntry = null;
-    if (entry?.mounted == true) entry!.remove();
-    entry?.dispose();
+    if (entry != null) {
+      try {
+        entry.remove();
+      } catch (_) {}
+      entry.dispose();
+    }
     if (_currentCompleter?.isCompleted == false) {
       _currentCompleter!.complete(false);
     }
@@ -68,6 +72,7 @@ class GymTopNotification {
     TextSpan? richMessage,
     Widget? customBody,
     IconData? icon,
+    Widget? leading,
     Color? accentColor,
     Duration duration = const Duration(seconds: 4),
     String? semanticLabel,
@@ -84,6 +89,7 @@ class GymTopNotification {
       richMessage: richMessage,
       customBody: customBody,
       icon: icon,
+      leading: leading,
       accentColor: accentColor,
       duration: duration,
       semanticLabel: semanticLabel,
@@ -107,6 +113,7 @@ class GymTopNotification {
     required TextSpan? richMessage,
     required Widget? customBody,
     required IconData? icon,
+    required Widget? leading,
     required Color? accentColor,
     required Duration duration,
     required String? semanticLabel,
@@ -142,6 +149,7 @@ class GymTopNotification {
         richMessage: richMessage,
         customBody: customBody,
         icon: icon,
+        leading: leading,
         accentColor: accentColor,
         duration: duration,
         semanticLabel: semanticLabel,
@@ -149,7 +157,9 @@ class GymTopNotification {
         actionLabel: actionLabel,
         onAction: onAction,
         onDismissed: () {
-          if (entry.mounted) entry.remove();
+          try {
+            entry.remove();
+          } catch (_) {}
           entry.dispose();
           if (_currentEntry == entry) {
             _currentEntry = null;
@@ -170,6 +180,7 @@ class _TopNotificationOverlay extends StatefulWidget {
   final TextSpan? richMessage;
   final Widget? customBody;
   final IconData? icon;
+  final Widget? leading;
   final Color? accentColor;
   final Duration duration;
   final String? semanticLabel;
@@ -183,6 +194,7 @@ class _TopNotificationOverlay extends StatefulWidget {
     this.richMessage,
     this.customBody,
     required this.icon,
+    this.leading,
     required this.accentColor,
     required this.duration,
     required this.semanticLabel,
@@ -202,6 +214,7 @@ class _TopNotificationOverlayState extends State<_TopNotificationOverlay>
   late final AnimationController _controller;
   late final Animation<Offset> _offsetAnimation;
   late final Animation<double> _scaleAnimation;
+  late final Animation<double> _fadeAnimation;
   Timer? _timer;
   bool _dismissing = false;
   late final bool _reduceMotion;
@@ -219,13 +232,29 @@ class _TopNotificationOverlayState extends State<_TopNotificationOverlay>
           : const Duration(milliseconds: 350),
     );
     _offsetAnimation = Tween<Offset>(
-      begin: const Offset(0, -1.2),
+      begin: const Offset(0, -1.3),
       end: Offset.zero,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutCubic,
+      reverseCurve: Curves.easeInCubic,
+    ));
     _scaleAnimation = Tween<double>(
-      begin: .96,
+      begin: .94,
       end: 1,
-    ).animate(CurvedAnimation(parent: _controller, curve: Curves.easeOutCubic));
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.easeOutCubic,
+      reverseCurve: Curves.easeInCubic,
+    ));
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _controller,
+      curve: const Interval(0.0, 0.7, curve: Curves.easeOut),
+      reverseCurve: const Interval(0.3, 1.0, curve: Curves.easeIn),
+    ));
     _controller.forward();
     if (widget.haptic && !_reduceMotion) {
       HapticFeedback.lightImpact();
@@ -263,71 +292,77 @@ class _TopNotificationOverlayState extends State<_TopNotificationOverlay>
         alignment: Alignment.topCenter,
         child: Material(
           color: Colors.transparent,
-          child: SlideTransition(
-            position: _offsetAnimation,
-            child: ScaleTransition(
-              scale: _scaleAnimation,
-              child: Semantics(
-                container: true,
-                liveRegion: true,
-                excludeSemantics: widget.semanticLabel != null,
-                label: widget.semanticLabel,
-                onDismiss: _dismiss,
-                child: GestureDetector(
-                  onVerticalDragUpdate: (details) {
-                    if ((details.primaryDelta ?? 0) < -2) _dismiss();
-                  },
-                  child: Container(
-                    constraints: const BoxConstraints(
-                      minWidth: 260,
-                      maxWidth: 440,
-                    ),
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(28),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: .2),
-                          blurRadius: 16,
-                          offset: const Offset(0, 8),
+          child: RepaintBoundary(
+            child: FadeTransition(
+              opacity: _fadeAnimation,
+              child: SlideTransition(
+                position: _offsetAnimation,
+                child: ScaleTransition(
+                  scale: _scaleAnimation,
+                  child: Semantics(
+                    container: true,
+                    liveRegion: true,
+                    excludeSemantics: widget.semanticLabel != null,
+                    label: widget.semanticLabel,
+                    onDismiss: _dismiss,
+                    child: GestureDetector(
+                      onVerticalDragUpdate: (details) {
+                        if ((details.primaryDelta ?? 0) < -2) _dismiss();
+                      },
+                      child: Container(
+                        constraints: const BoxConstraints(
+                          minWidth: 260,
+                          maxWidth: 440,
                         ),
-                      ],
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(28),
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 12, sigmaY: 12),
-                        child: Container(
-                          padding: const EdgeInsets.fromLTRB(16, 10, 8, 10),
-                          decoration: BoxDecoration(
-                            color: colors.surface.withValues(alpha: .9),
-                            borderRadius: BorderRadius.circular(28),
-                            border: Border.all(
-                              color: accent.withValues(alpha: .4),
-                              width: 1.2,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(28),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withValues(alpha: .2),
+                              blurRadius: 16,
+                              offset: const Offset(0, 8),
                             ),
-                          ),
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              Row(
-                                crossAxisAlignment: CrossAxisAlignment.center,
+                          ],
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(28),
+                          child: BackdropFilter(
+                            filter: ImageFilter.blur(sigmaX: 8, sigmaY: 8),
+                            child: Container(
+                              padding: const EdgeInsets.fromLTRB(16, 10, 8, 10),
+                              decoration: BoxDecoration(
+                                color: colors.surface.withValues(alpha: .92),
+                                borderRadius: BorderRadius.circular(28),
+                                border: Border.all(
+                                  color: accent.withValues(alpha: .4),
+                                  width: 1.2,
+                                ),
+                              ),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
                                 children: [
-                                  if (widget.icon != null) ...[
-                                    Container(
-                                      padding: const EdgeInsets.all(6),
-                                      decoration: BoxDecoration(
-                                        color: accent.withValues(alpha: .15),
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: Icon(
-                                        widget.icon,
-                                        color: accent,
-                                        size: 20,
-                                      ),
-                                    ),
-                                    const SizedBox(width: 12),
-                                  ],
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      if (widget.leading != null) ...[
+                                        widget.leading!,
+                                        const SizedBox(width: 12),
+                                      ] else if (widget.icon != null) ...[
+                                        Container(
+                                          padding: const EdgeInsets.all(6),
+                                          decoration: BoxDecoration(
+                                            color: accent.withValues(alpha: .15),
+                                            shape: BoxShape.circle,
+                                          ),
+                                          child: Icon(
+                                            widget.icon,
+                                            color: accent,
+                                            size: 20,
+                                          ),
+                                        ),
+                                        const SizedBox(width: 12),
+                                      ],
                                   Expanded(
                                     child:
                                         widget.customBody ??
@@ -378,12 +413,14 @@ class _TopNotificationOverlayState extends State<_TopNotificationOverlay>
                             ],
                           ),
                         ),
+                        ),
                       ),
                     ),
                   ),
                 ),
               ),
             ),
+          ),
           ),
         ),
       ),

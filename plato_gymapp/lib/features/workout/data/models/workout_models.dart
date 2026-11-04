@@ -54,6 +54,7 @@ class WorkoutSessionPayload with _$WorkoutSessionPayload {
   const factory WorkoutSessionPayload({
     @JsonKey(name: 'scheduled_workout_id') String? scheduledWorkoutId,
     @JsonKey(name: 'schema_version') @Default('1.0') String schemaVersion,
+    @JsonKey(name: 'rpe_per_set_enabled') @Default(false) bool rpePerSetEnabled,
     @JsonKey(name: 'exercises') @Default([]) List<WorkoutExercise> exercises,
     @JsonKey(name: 'muscle_distribution') @Default({}) Map<MajorMuscleGroup, double> muscleDistribution,
     @JsonKey(name: 'notes') String? notes,
@@ -87,6 +88,12 @@ class WorkoutSession with _$WorkoutSession {
 
   factory WorkoutSession.fromJson(Map<String, dynamic> json) => _$WorkoutSessionFromJson(json);
   List<WorkoutExercise> get exercises => sessionPayload.exercises;
+
+  /// New sessions persist the mode explicitly; the fallback recognizes older
+  /// per-set RPE payloads created before that flag existed.
+  bool get usesSetRpe =>
+      sessionPayload.rpePerSetEnabled ||
+      exercises.any((exercise) => exercise.sets.any((set) => set.rpe != null));
 }
 
 @freezed

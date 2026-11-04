@@ -475,6 +475,10 @@ usecases:
       - "plato_gymapp/lib/features/workout/presentation/components/workout_components.dart"
       - "plato_gymapp/lib/features/workout/presentation/components/workout_shared_ui.dart"
       - "plato_gymapp/lib/features/workout/presentation/bloc/active_session_cubit.dart"
+      - "plato_gymapp/lib/features/workout/data/models/workout_models.dart"
+      - "plato_gymapp/lib/features/workout/data/models/workout_models.freezed.dart"
+      - "plato_gymapp/lib/features/workout/data/models/workout_models.g.dart"
+      - "plato_gymapp/lib/core/worker/sync_manager.dart"
       - "plato_gymapp/lib/features/workout/presentation/bloc/session_effect_mixin.dart"
       - "plato_gymapp/lib/features/workout/data/workout_settings_preferences.dart"
       - "plato_gymapp/lib/features/workout/data/workout_effort_preferences.dart"
@@ -527,12 +531,14 @@ usecases:
       - "plato_gymapp/lib/features/workout/presentation/bloc/workout_cubit.dart"
       - "plato_gymapp/lib/features/workout/data/repositories/workout_repository.dart"
       - "plato_gymapp/lib/features/workout/domain/training_load_manager.dart"
+      - "plato_gymapp/lib/features/workout/domain/recovery_load_calculator.dart"
       - "plato_gymapp/lib/features/workout/domain/muscle_exposure_calculator.dart"
       - "plato_gymapp/lib/features/profile/presentation/components/bodymap/body_map_repository.dart"
       - "plato_gymapp/lib/features/workout/data/workout_effort_preferences.dart"
     localization_keys:
       - workout.title_ssn_sum_complete
       - workout.title_ssn_sum_rpe_card
+      - workout.lbl_dtl_rpe_unrated
       - workout.lbl_ssn_sum_rpe_min
       - workout.lbl_ssn_sum_rpe_max
       - workout.title_ssn_sum_acwr_card
@@ -565,6 +571,10 @@ usecases:
       - "plato_gymapp/lib/features/workout/presentation/screens/exercise_details_screen.dart"
       - "plato_gymapp/lib/features/workout/presentation/screens/workout_detail_screen.dart"
       - "plato_gymapp/lib/features/workout/presentation/bloc/workout_cubit.dart"
+      - "plato_gymapp/lib/features/workout/data/models/workout_models.dart"
+      - "plato_gymapp/lib/features/workout/data/models/workout_models.freezed.dart"
+      - "plato_gymapp/lib/features/workout/data/models/workout_models.g.dart"
+      - "plato_gymapp/lib/core/worker/sync_manager.dart"
       - "plato_gymapp/lib/features/profile/presentation/bloc/stats_cubit.dart"
       - "plato_gymapp/lib/features/workout/data/repositories/workout_repository.dart"
       - "plato_gymapp/lib/features/workout/domain/workout_extensions.dart"

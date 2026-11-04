@@ -373,6 +373,8 @@ usecases:
   UC15:
     summary: Thực hiện workout từ Routine hoặc buổi trống; áp dụng tùy chọn RPE từng set, nghỉ mặc định,
       giữ màn hình sáng, âm thanh rest timer và xác nhận kết thúc; lưu/khôi phục buổi dở và chạy nền.
+      Chế độ RPE được lưu cùng buổi tập ngay cả khi mọi RPE từng set đều để trống; RPE chưa đánh giá
+      được giữ là null thay vì tự ghi giá trị dự phòng.
       Hệ thống cảnh báo ngưỡng tạ theo e1RM 30 ngày, tính volume/PR/XP và giới hạn XP workout 300/ngày.
       Sau khi lưu, Workout Rewards làm mới và tự nhận quest/rương đủ điều kiện trước khi mở tổng kết.
     importance: Cao
@@ -399,7 +401,8 @@ usecases:
         chưa được đánh dấu đã xem.'
   UC16:
     summary: Sau Workout Rewards, xem số bài, thời lượng, XP, body heatmap nam/nữ từ các working set đã
-      hoàn tất và ACWR. Chỉ hiển thị/chỉnh RPE chung khi chế độ RPE từng set đang tắt.
+      hoàn tất và ACWR. Chỉ hiển thị/chỉnh RPE chung khi chế độ RPE từng set đang tắt; trạng thái chưa
+      đánh giá hiển thị rõ và vẫn là null cho tới khi người dùng chọn.
     importance: Cao
     type: essential
     supporting_actor: Không có
@@ -415,7 +418,8 @@ usecases:
     summary: Xem toàn bộ lịch sử theo nhóm Ngày, Tháng hoặc Năm với mật độ một, ba hoặc năm cột và mở trực tiếp chi tiết các buổi đã tập, bao gồm thời lượng, volume, tổng set, XP, RPE,
       phân bố nhóm cơ, bài tập, dữ liệu set, loại set, thời gian nghỉ, superset và kỷ lục cá nhân; xóa
       buổi tập; tính lại huy hiệu PR theo từng chỉ số; tạo routine mới từ một buổi tập cũ. Không bao gồm
-      sửa RPE trực tiếp từ màn hình lịch sử.
+      sửa RPE trực tiếp từ màn hình lịch sử. RPE chung hiển thị ở header; chế độ RPE từng set thay bằng
+      badge trên từng set, kể cả badge chưa đánh giá.
     importance: Cao
     type: essential
     supporting_actor: Supabase – tiếp nhận yêu cầu xóa lịch sử khi người dùng đã liên kết tài khoản và
@@ -443,7 +447,8 @@ usecases:
   UC18:
     summary: Xem phần trăm phục hồi sáu nhóm cơ theo tải working set, RPE và suy giảm mệt mỏi; nhận tối
       đa hai Routine đủ khác biệt hoặc lời khuyên nghỉ/điều chỉnh. Cân bằng tải dùng cửa sổ 28 ngày,
-      bán rã 14 ngày; Recovery notification có thể gửi một lần/ngày hoặc gộp vào nhắc lịch tập.
+      bán rã 14 ngày; RPE thiếu dùng 7 chỉ trong phép tính. Recovery notification có thể gửi một
+      lần/ngày hoặc gộp vào nhắc lịch tập.
     importance: Thấp
     type: essential
     supporting_actor: Không có

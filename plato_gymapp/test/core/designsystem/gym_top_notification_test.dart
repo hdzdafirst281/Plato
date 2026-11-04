@@ -133,4 +133,39 @@ void main() {
     await tester.pumpAndSettle();
     expect(await result, isTrue);
   });
+
+  testWidgets('leading widget renders when provided', (tester) async {
+    late BuildContext context;
+    const leadingKey = ValueKey('test-leading-badge');
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Builder(
+          builder: (value) {
+            context = value;
+            return const Scaffold(body: SizedBox.expand());
+          },
+        ),
+      ),
+    );
+
+    final result = GymTopNotification.show(
+      context,
+      leading: const SizedBox(
+        key: leadingKey,
+        width: 32,
+        height: 32,
+      ),
+      message: 'Leading test',
+      duration: const Duration(hours: 1),
+      haptic: false,
+    );
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(leadingKey), findsOneWidget);
+    expect(find.text('Leading test'), findsOneWidget);
+
+    await tester.tap(find.byTooltip('Close'));
+    await tester.pumpAndSettle();
+    expect(await result, isTrue);
+  });
 }

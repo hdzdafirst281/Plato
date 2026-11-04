@@ -9,7 +9,7 @@ import 'muscle_exposure_calculator.dart';
 /// analytics. Raw units intentionally stay exercise-specific and only become
 /// comparable after division by that exercise's personal capacity.
 class RecoveryLoadCalculator {
-  static const defaultRecoveryRpe = 8.0;
+  static const fallbackRpe = 7.0;
   static const minObjectiveIntensity = 0.75;
   static const maxObjectiveIntensity = 1.25;
   static const maxAdjustedRelativeLoad = 1.75;
@@ -117,7 +117,7 @@ class RecoveryLoadCalculator {
     if (sessionRpe != null && sessionRpe >= 1 && sessionRpe <= 10) {
       return sessionRpe.toDouble();
     }
-    return defaultRecoveryRpe;
+    return fallbackRpe;
   }
 
   static double exerciseRpe(
@@ -127,7 +127,7 @@ class RecoveryLoadCalculator {
   }) {
     final sets = completedWorkingSets(exercise);
     if (sets.isEmpty) {
-      return sessionRpe?.toDouble() ?? defaultRecoveryRpe;
+      return sessionRpe?.toDouble() ?? fallbackRpe;
     }
 
     var weightedRpe = 0.0;
@@ -144,7 +144,7 @@ class RecoveryLoadCalculator {
     }
     return totalWeight > 0
         ? (weightedRpe / totalWeight).clamp(1.0, 10.0)
-        : defaultRecoveryRpe;
+        : fallbackRpe;
   }
 
   static double? averageEnteredSetRpe(WorkoutSession session) {

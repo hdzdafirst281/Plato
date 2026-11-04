@@ -206,7 +206,7 @@ class _AuthOtpScreenState extends State<AuthOtpScreen> {
             context.read<WorkoutCubit>().resetWorkoutState();
 
             if (state.syncResult!.shouldBypassOnboarding) {
-              context.read<TourCubit>().completeAllTours();
+              await context.read<TourCubit>().completeAllTours();
             }
 
             // 🚀 FIX LỖI 2 (Crash Router): Loại bỏ GoRouterState.of(context) gây lỗi ProviderNotFound
@@ -437,10 +437,48 @@ class _AuthOtpScreenState extends State<AuthOtpScreen> {
   Widget _buildOtpStep(ColorScheme colorScheme, TextTheme textTheme, bool isLoading, {int part = 0}) {
     final double otpBoxHeight = ResponsiveValue<double>(context, defaultValue: 64.0, conditionalValues: [Condition.smallerThan(name: MOBILE, value: 54.0)]).value;
 
+    final isVietnamese = TranslationProvider.of(context).flutterLocale.languageCode == 'vi';
+    final otpExpirationText = t.translateDynamic(
+      'auth.desc_otp_expiration',
+      fallback: isVietnamese
+          ? 'Mã xác nhận có hiệu lực trong 5 phút.'
+          : 'The verification code is valid for 5 minutes.',
+    );
+
     final textChildren = [
       Text(t.auth.title_verify_otp, style: textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold), textAlign: TextAlign.center),
       const SizedBox(height: 8),
       Text(t.auth.desc_otp_instruction(arg1: _emailController.text.trim()), style: textTheme.bodyMedium?.copyWith(color: colorScheme.onSurfaceVariant), textAlign: TextAlign.center),
+      const SizedBox(height: 10),
+      Container(
+        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+        decoration: BoxDecoration(
+          color: colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: colorScheme.outlineVariant.withValues(alpha: 0.3),
+            width: 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Symbols.schedule, size: 16, color: colorScheme.primary),
+            const SizedBox(width: 6),
+            Flexible(
+              child: Text(
+                otpExpirationText,
+                style: textTheme.bodySmall?.copyWith(
+                  color: colorScheme.onSurfaceVariant,
+                  fontWeight: FontWeight.w600,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+          ],
+        ),
+      ),
     ];
 
     final inputChildren = [
