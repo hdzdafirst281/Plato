@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
@@ -43,7 +45,9 @@ DateTime resolveWorkoutSessionStartTime(WorkoutSession session) {
         updated.day == start.day &&
         (updated.hour != 0 || updated.minute != 0)) {
       if (session.totalDurationSeconds > 0) {
-        return updated.subtract(Duration(seconds: session.totalDurationSeconds));
+        return updated.subtract(
+          Duration(seconds: session.totalDurationSeconds),
+        );
       }
       return updated;
     }
@@ -128,6 +132,211 @@ String? workoutHistoryClosestSessionId(
   return closestId;
 }
 
+WorkoutHistoryGrouping? workoutHistoryZoomTarget(
+  WorkoutHistoryGrouping grouping, {
+  required bool zoomIn,
+}) => switch ((grouping, zoomIn)) {
+  (WorkoutHistoryGrouping.year, true) => WorkoutHistoryGrouping.month,
+  (WorkoutHistoryGrouping.month, true) => WorkoutHistoryGrouping.day,
+  (WorkoutHistoryGrouping.day, false) => WorkoutHistoryGrouping.month,
+  (WorkoutHistoryGrouping.month, false) => WorkoutHistoryGrouping.year,
+  _ => null,
+};
+
+Rect workoutHistoryMorphRect(Rect from, Rect to, double progress) =>
+    Rect.lerp(from, to, progress.clamp(0.0, 1.0))!;
+
+class _HistorySnapshot {
+  final ui.Image image;
+  final double pixelRatio;
+  final Size logicalSize;
+  final Map<String, Rect> sessionRects;
+  final Map<String, Rect> periodRects;
+
+  const _HistorySnapshot({
+    required this.image,
+    required this.pixelRatio,
+    required this.logicalSize,
+    required this.sessionRects,
+    required this.periodRects,
+  });
+
+  void dispose() => image.dispose();
+}
+
+class _HistoryMorphPainter extends CustomPainter {
+  final _HistorySnapshot from;
+  final _HistorySnapshot to;
+  final double progress;
+  final double fromScale;
+  final Alignment focalAlignment;
+  final Color backgroundColor;
+
+  const _HistoryMorphPainter({
+    required this.from,
+    required this.to,
+    required this.progress,
+    required this.fromScale,
+    required this.focalAlignment,
+    required this.backgroundColor,
+  });
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final viewport = Offset.zero & size;
+    final focalPoint = focalAlignment.withinRect(viewport);
+    final settledScale = ui.lerpDouble(fromScale, 1, progress) ?? 1;
+    final fromBounds = _scaleRect(viewport, focalPoint, settledScale);
+    final toBounds = viewport;
+
+    canvas.drawRect(viewport, Paint()..color = backgroundColor);
+    _drawBase(canvas, snapshot: to, destination: toBounds, opacity: progress);
+    _drawBase(
+      canvas,
+      snapshot: from,
+      destination: fromBounds,
+      opacity: 1 - progress,
+    );
+
+    _drawElements(
+      canvas,
+      from.sessionRects,
+      to.sessionRects,
+      fromBounds,
+      toBounds,
+    );
+    _drawElements(
+      canvas,
+      from.periodRects,
+      to.periodRects,
+      fromBounds,
+      toBounds,
+    );
+  }
+
+  void _drawElements(
+    Canvas canvas,
+    Map<String, Rect> fromRects,
+    Map<String, Rect> toRects,
+    Rect fromBounds,
+    Rect toBounds,
+  ) {
+    final ids = <String>{...fromRects.keys, ...toRects.keys};
+    for (final id in ids) {
+      final fromRect = fromRects[id];
+      final toRect = toRects[id];
+      if (fromRect != null && toRect != null) {
+        final oldRect = _mapRect(fromRect, from.logicalSize, fromBounds);
+        final newRect = _mapRect(toRect, to.logicalSize, toBounds);
+        final morphRect = workoutHistoryMorphRect(oldRect, newRect, progress);
+        _drawFragment(canvas, to, toRect, morphRect, progress);
+        _drawFragment(canvas, from, fromRect, morphRect, 1 - progress);
+      } else if (fromRect != null) {
+        final oldRect = _mapRect(fromRect, from.logicalSize, fromBounds);
+        _drawFragment(canvas, from, fromRect, oldRect, 1 - progress);
+      } else if (toRect != null) {
+        final newRect = _mapRect(toRect, to.logicalSize, toBounds);
+        _drawFragment(canvas, to, toRect, newRect, progress);
+      }
+    }
+  }
+
+  void _drawBase(
+    Canvas canvas, {
+    required _HistorySnapshot snapshot,
+    required Rect destination,
+    required double opacity,
+  }) {
+    if (opacity <= 0) return;
+    final mask = Path()
+      ..fillType = PathFillType.evenOdd
+      ..addRect(destination);
+    for (final rect in [
+      ...snapshot.sessionRects.values,
+      ...snapshot.periodRects.values,
+    ]) {
+      mask.addRect(_mapRect(rect, snapshot.logicalSize, destination));
+    }
+
+    canvas.save();
+    canvas.clipPath(mask);
+    canvas.drawImageRect(
+      snapshot.image,
+      Rect.fromLTWH(
+        0,
+        0,
+        snapshot.image.width.toDouble(),
+        snapshot.image.height.toDouble(),
+      ),
+      destination,
+      _imagePaint(opacity),
+    );
+    canvas.restore();
+  }
+
+  void _drawFragment(
+    Canvas canvas,
+    _HistorySnapshot snapshot,
+    Rect sourceRect,
+    Rect destination,
+    double opacity,
+  ) {
+    if (opacity <= 0 || destination.isEmpty) return;
+    final source =
+        Rect.fromLTRB(
+          sourceRect.left * snapshot.pixelRatio,
+          sourceRect.top * snapshot.pixelRatio,
+          sourceRect.right * snapshot.pixelRatio,
+          sourceRect.bottom * snapshot.pixelRatio,
+        ).intersect(
+          Rect.fromLTWH(
+            0,
+            0,
+            snapshot.image.width.toDouble(),
+            snapshot.image.height.toDouble(),
+          ),
+        );
+    if (source.isEmpty) return;
+    canvas.drawImageRect(
+      snapshot.image,
+      source,
+      destination,
+      _imagePaint(opacity),
+    );
+  }
+
+  Paint _imagePaint(double opacity) => Paint()
+    ..color = Colors.white.withValues(alpha: opacity.clamp(0.0, 1.0))
+    ..filterQuality = FilterQuality.medium;
+
+  Rect _mapRect(Rect rect, Size sourceSize, Rect destination) {
+    final scaleX = destination.width / sourceSize.width;
+    final scaleY = destination.height / sourceSize.height;
+    return Rect.fromLTRB(
+      destination.left + rect.left * scaleX,
+      destination.top + rect.top * scaleY,
+      destination.left + rect.right * scaleX,
+      destination.top + rect.bottom * scaleY,
+    );
+  }
+
+  Rect _scaleRect(Rect rect, Offset focalPoint, double scale) =>
+      Rect.fromCenter(
+        center: focalPoint + (rect.center - focalPoint) * scale,
+        width: rect.width * scale,
+        height: rect.height * scale,
+      );
+
+  @override
+  bool shouldRepaint(covariant _HistoryMorphPainter oldDelegate) =>
+      oldDelegate.from != from ||
+      oldDelegate.to != to ||
+      oldDelegate.progress != progress ||
+      oldDelegate.fromScale != fromScale ||
+      oldDelegate.focalAlignment != focalAlignment ||
+      oldDelegate.backgroundColor != backgroundColor;
+}
+
 class WorkoutHistoryScreen extends StatefulWidget {
   const WorkoutHistoryScreen({super.key});
 
@@ -136,16 +345,23 @@ class WorkoutHistoryScreen extends StatefulWidget {
 }
 
 class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
-    with SingleTickerProviderStateMixin {
+    with TickerProviderStateMixin {
   late final AnimationController _marqueeAnimation;
+  late final AnimationController _zoomAnimation;
+  Animation<double> _contentScale = const AlwaysStoppedAnimation(1);
   WorkoutHistoryGrouping _grouping = WorkoutHistoryGrouping.day;
   List<WorkoutSession>? _lastHistory;
   List<WorkoutSession> _sortedHistory = [];
   final ScrollController _scrollController = ScrollController();
   final GlobalKey _historyViewportKey = GlobalKey();
+  final GlobalKey _historyBoundaryKey = GlobalKey();
   final Map<String, GlobalKey> _sessionKeys = {};
+  final Map<String, GlobalKey> _periodKeys = {};
   bool _isChangingGrouping = false;
   int _groupingChangeToken = 0;
+  _HistorySnapshot? _transitionFrom;
+  _HistorySnapshot? _transitionTo;
+  double _transitionStartScale = 1;
 
   @override
   void initState() {
@@ -154,31 +370,65 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
       vsync: this,
       duration: GymMarqueeText.cycleDuration,
     )..repeat();
+    _zoomAnimation = AnimationController(
+      vsync: this,
+      duration: GymMotion.content,
+      value: 1,
+    );
   }
 
   final Map<int, Offset> _touchPoints = {};
   double? _pinchStartDistance;
   bool _pinchHandled = false;
+  bool _isPinching = false;
+  double _pinchBaseScale = 1;
+  double _gestureScale = 1;
+  Alignment _gestureAlignment = Alignment.center;
 
   Future<void> _refresh() => SyncManager.syncNow();
 
-  void _selectGrouping(WorkoutHistoryGrouping grouping) =>
-      unawaited(_changeGrouping(grouping));
+  void _selectGrouping(WorkoutHistoryGrouping grouping) {
+    _gestureAlignment = Alignment.center;
+    unawaited(_changeGrouping(grouping));
+  }
 
-  Future<void> _changeGrouping(WorkoutHistoryGrouping grouping) async {
-    if (grouping == _grouping && !_isChangingGrouping) return;
+  Future<void> _changeGrouping(
+    WorkoutHistoryGrouping grouping, {
+    double? gestureScale,
+  }) async {
+    if (grouping == _grouping || _isChangingGrouping) return;
     final anchorId = _centerSessionId();
     final anchorIndex = anchorId == null
         ? _currentAnchorIndex()
         : _sortedHistory.indexWhere((session) => session.id == anchorId);
     final token = ++_groupingChangeToken;
     final reduceMotion = GymMotion.reduceMotion(context);
+    final resumeMarquee = !reduceMotion && _marqueeAnimation.isAnimating;
 
     setState(() => _isChangingGrouping = true);
-    if (!reduceMotion) await Future<void>.delayed(GymMotion.quick);
-    if (!mounted || token != _groupingChangeToken) return;
+    if (resumeMarquee) {
+      _marqueeAnimation.stop();
+      await WidgetsBinding.instance.endOfFrame;
+      if (!mounted || token != _groupingChangeToken) return;
+    }
+    final fromSnapshot = reduceMotion ? null : await _captureHistory();
+    if (!mounted || token != _groupingChangeToken) {
+      fromSnapshot?.dispose();
+      return;
+    }
 
-    setState(() => _grouping = grouping);
+    setState(() {
+      _transitionFrom?.dispose();
+      _transitionTo?.dispose();
+      _transitionFrom = fromSnapshot;
+      _transitionTo = null;
+      _transitionStartScale = gestureScale ?? 1;
+      _grouping = grouping;
+      _isPinching = false;
+      _zoomAnimation.duration = GymMotion.screen;
+      _zoomAnimation.value = reduceMotion ? 1 : 0;
+      _contentScale = const AlwaysStoppedAnimation(1);
+    });
     await WidgetsBinding.instance.endOfFrame;
     if (!mounted || token != _groupingChangeToken) return;
 
@@ -207,8 +457,130 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
       );
     }
 
+    await WidgetsBinding.instance.endOfFrame;
     if (!mounted || token != _groupingChangeToken) return;
-    setState(() => _isChangingGrouping = false);
+    _alignSharedPeriodHeader(fromSnapshot);
+    await WidgetsBinding.instance.endOfFrame;
+    if (!mounted || token != _groupingChangeToken) return;
+    final toSnapshot = reduceMotion ? null : await _captureHistory();
+    if (!mounted || token != _groupingChangeToken) {
+      toSnapshot?.dispose();
+      return;
+    }
+
+    if (fromSnapshot != null && toSnapshot != null) {
+      setState(() => _transitionTo = toSnapshot);
+      try {
+        await _zoomAnimation.forward().orCancel;
+      } on TickerCanceled {
+        return;
+      }
+    } else {
+      toSnapshot?.dispose();
+    }
+    if (!mounted || token != _groupingChangeToken) return;
+
+    final completedFrom = _transitionFrom;
+    final completedTo = _transitionTo;
+    setState(() {
+      _transitionFrom = null;
+      _transitionTo = null;
+      _isChangingGrouping = false;
+      _pinchBaseScale = 1;
+      _gestureScale = 1;
+      _contentScale = const AlwaysStoppedAnimation(1);
+    });
+    completedFrom?.dispose();
+    completedTo?.dispose();
+    if (resumeMarquee) _marqueeAnimation.repeat();
+  }
+
+  void _alignSharedPeriodHeader(_HistorySnapshot? fromSnapshot) {
+    if (fromSnapshot == null || fromSnapshot.periodRects.isEmpty) return;
+    final viewport = _historyBoundaryKey.currentContext?.findRenderObject();
+    final position = _readyScrollPosition;
+    if (viewport is! RenderBox || !viewport.attached || position == null)
+      return;
+
+    final targetRects = _visibleRects(viewport, _periodKeys);
+    final focalY = (_gestureAlignment.y + 1) / 2 * viewport.size.height;
+    String? anchorId;
+    var closestDistance = double.infinity;
+    for (final entry in fromSnapshot.periodRects.entries) {
+      if (!targetRects.containsKey(entry.key)) continue;
+      final distance = (entry.value.center.dy - focalY).abs();
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        anchorId = entry.key;
+      }
+    }
+    if (anchorId == null) return;
+
+    final sourceTop = fromSnapshot.periodRects[anchorId]!.top;
+    final targetTop = targetRects[anchorId]!.top;
+    final offset = (position.pixels + targetTop - sourceTop)
+        .clamp(0.0, position.maxScrollExtent)
+        .toDouble();
+    position.jumpTo(offset);
+  }
+
+  Future<_HistorySnapshot?> _captureHistory() async {
+    for (var attempt = 0; attempt < 3; attempt++) {
+      await WidgetsBinding.instance.endOfFrame;
+      if (!mounted) return null;
+      final renderObject = _historyBoundaryKey.currentContext
+          ?.findRenderObject();
+      if (renderObject is! RenderRepaintBoundary ||
+          !renderObject.attached ||
+          renderObject.debugNeedsPaint) {
+        continue;
+      }
+      try {
+        final pixelRatio = MediaQuery.devicePixelRatioOf(
+          context,
+        ).clamp(1.0, 2.0).toDouble();
+        final sessionRects = _visibleSessionRects(renderObject);
+        final periodRects = _visibleRects(renderObject, _periodKeys);
+        final image = await renderObject.toImage(pixelRatio: pixelRatio);
+        return _HistorySnapshot(
+          image: image,
+          pixelRatio: pixelRatio,
+          logicalSize: renderObject.size,
+          sessionRects: sessionRects,
+          periodRects: periodRects,
+        );
+      } catch (_) {
+        // A frame can become dirty again between the check and toImage.
+      }
+    }
+    return null;
+  }
+
+  Map<String, Rect> _visibleSessionRects(RenderBox viewport) {
+    return _visibleRects(viewport, _sessionKeys);
+  }
+
+  Map<String, Rect> _visibleRects(
+    RenderBox viewport,
+    Map<String, GlobalKey> keys,
+  ) {
+    final viewportRect = Offset.zero & viewport.size;
+    final rects = <String, Rect>{};
+    for (final entry in keys.entries) {
+      final renderObject = entry.value.currentContext?.findRenderObject();
+      if (renderObject is! RenderBox || !renderObject.attached) continue;
+      final topLeft = viewport.globalToLocal(
+        renderObject.localToGlobal(Offset.zero),
+      );
+      final rect = topLeft & renderObject.size;
+      final isFullyVisible =
+          rect.left >= viewportRect.left &&
+          rect.top >= viewportRect.top &&
+          rect.right <= viewportRect.right &&
+          rect.bottom <= viewportRect.bottom;
+      if (isFullyVisible) rects[entry.key] = rect;
+    }
+    return rects;
   }
 
   String? _centerSessionId() {
@@ -232,6 +604,8 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
   GlobalKey _sessionKey(String id) =>
       _sessionKeys.putIfAbsent(id, GlobalKey.new);
 
+  GlobalKey _periodKey(String id) => _periodKeys.putIfAbsent(id, GlobalKey.new);
+
   int _currentAnchorIndex() {
     final position = _readyScrollPosition;
     if (position == null) return 0;
@@ -253,34 +627,29 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
     return readyPosition;
   }
 
-  void _zoomIn() {
-    if (_grouping == WorkoutHistoryGrouping.year) {
-      unawaited(_changeGrouping(WorkoutHistoryGrouping.month));
-    } else if (_grouping == WorkoutHistoryGrouping.month) {
-      unawaited(_changeGrouping(WorkoutHistoryGrouping.day));
-    }
-  }
-
-  void _zoomOut() {
-    if (_grouping == WorkoutHistoryGrouping.day) {
-      unawaited(_changeGrouping(WorkoutHistoryGrouping.month));
-    } else if (_grouping == WorkoutHistoryGrouping.month) {
-      unawaited(_changeGrouping(WorkoutHistoryGrouping.year));
-    }
-  }
-
   @override
   void dispose() {
+    _transitionFrom?.dispose();
+    _transitionTo?.dispose();
+    _zoomAnimation.dispose();
     _marqueeAnimation.dispose();
     _scrollController.dispose();
     super.dispose();
   }
 
   void _onPointerDown(PointerDownEvent event) {
+    if (_isChangingGrouping) return;
     _touchPoints[event.pointer] = event.position;
     if (_touchPoints.length == 2) {
+      _zoomAnimation.stop();
       _pinchStartDistance = _currentPinchDistance();
       _pinchHandled = false;
+      setState(() {
+        _isPinching = true;
+        _pinchBaseScale = _contentScale.value;
+        _gestureScale = _pinchBaseScale;
+        _gestureAlignment = _currentPinchAlignment();
+      });
     }
   }
 
@@ -293,13 +662,22 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
       return;
     }
 
-    final scale = _currentPinchDistance() / _pinchStartDistance!;
-    if (scale >= 1.18) {
+    final rawScale = _currentPinchDistance() / _pinchStartDistance!;
+    final visualScale = (_pinchBaseScale * rawScale)
+        .clamp(0.82, 1.18)
+        .toDouble();
+    setState(() {
+      _gestureScale = visualScale;
+      _gestureAlignment = _currentPinchAlignment();
+    });
+
+    final zoomIn = rawScale >= 1.18;
+    final zoomOut = rawScale <= 0.82;
+    if (zoomIn || zoomOut) {
+      final target = workoutHistoryZoomTarget(_grouping, zoomIn: zoomIn);
+      if (target == null) return;
       _pinchHandled = true;
-      _zoomIn();
-    } else if (scale <= 0.82) {
-      _pinchHandled = true;
-      _zoomOut();
+      unawaited(_changeGrouping(target, gestureScale: visualScale));
     }
   }
 
@@ -307,13 +685,54 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
     _touchPoints.remove(event.pointer);
     if (_touchPoints.length < 2) {
       _pinchStartDistance = null;
+      final shouldSettle = _isPinching && !_pinchHandled;
       _pinchHandled = false;
+      if (shouldSettle) _settlePinchScale();
     }
   }
 
   double _currentPinchDistance() {
     final points = _touchPoints.values.take(2).toList();
     return (points.first - points.last).distance;
+  }
+
+  Alignment _currentPinchAlignment() {
+    final viewport = _historyViewportKey.currentContext?.findRenderObject();
+    if (viewport is! RenderBox || !viewport.attached || viewport.size.isEmpty) {
+      return Alignment.center;
+    }
+    final points = _touchPoints.values.take(2).toList();
+    final focalPoint = viewport.globalToLocal((points.first + points.last) / 2);
+    return Alignment(
+      (focalPoint.dx / viewport.size.width * 2 - 1).clamp(-1.0, 1.0),
+      (focalPoint.dy / viewport.size.height * 2 - 1).clamp(-1.0, 1.0),
+    );
+  }
+
+  void _settlePinchScale() {
+    if (GymMotion.reduceMotion(context)) {
+      setState(() {
+        _isPinching = false;
+        _pinchBaseScale = 1;
+        _gestureScale = 1;
+        _contentScale = const AlwaysStoppedAnimation(1);
+        _zoomAnimation.value = 1;
+      });
+      return;
+    }
+    final scaleCurve = CurvedAnimation(
+      parent: _zoomAnimation,
+      curve: GymMotion.stateCurve,
+    );
+    setState(() {
+      _isPinching = false;
+      _zoomAnimation.duration = GymMotion.quick;
+      _contentScale = Tween<double>(
+        begin: _gestureScale,
+        end: 1,
+      ).animate(scaleCurve);
+    });
+    unawaited(_zoomAnimation.forward(from: 0));
   }
 
   @override
@@ -326,11 +745,13 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
       _lastHistory = rawHistory;
       _sortedHistory = List<WorkoutSession>.from(rawHistory)
         ..sort(
-          (a, b) => resolveWorkoutSessionStartTime(b)
-              .compareTo(resolveWorkoutSessionStartTime(a)),
+          (a, b) => resolveWorkoutSessionStartTime(
+            b,
+          ).compareTo(resolveWorkoutSessionStartTime(a)),
         );
       final ids = rawHistory.map((session) => session.id).toSet();
       _sessionKeys.removeWhere((id, _) => !ids.contains(id));
+      _periodKeys.removeWhere((id, _) => !ids.contains(id));
     }
 
     final history = _sortedHistory;
@@ -446,19 +867,77 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
                         key: _historyViewportKey,
                         child: IgnorePointer(
                           ignoring: _isChangingGrouping,
-                          child: AnimatedOpacity(
-                            opacity: _isChangingGrouping ? 0 : 1,
-                            duration: GymMotion.reduceMotion(context)
-                                ? Duration.zero
-                                : GymMotion.quick,
-                            curve: GymMotion.stateCurve,
-                            child: _buildHistoryContent(
-                              key: ValueKey(_grouping),
-                              history: history,
-                              groups: groups,
-                              units: units,
-                              locale: locale,
-                              isTablet: isTablet,
+                          child: ClipRect(
+                            child: AnimatedBuilder(
+                              animation: _zoomAnimation,
+                              child: RepaintBoundary(
+                                key: _historyBoundaryKey,
+                                child: _buildHistoryContent(
+                                  key: ValueKey(_grouping),
+                                  history: history,
+                                  groups: groups,
+                                  units: units,
+                                  locale: locale,
+                                  isTablet: isTablet,
+                                ),
+                              ),
+                              builder: (context, child) {
+                                final fromSnapshot = _transitionFrom;
+                                final toSnapshot = _transitionTo;
+                                final hasSnapshot =
+                                    _isChangingGrouping && fromSnapshot != null;
+                                final progress = GymMotion.enterCurve.transform(
+                                  _zoomAnimation.value,
+                                );
+                                final contentScale = _isPinching
+                                    ? _gestureScale
+                                    : _contentScale.value;
+
+                                return Stack(
+                                  fit: StackFit.expand,
+                                  children: [
+                                    Opacity(
+                                      opacity: hasSnapshot ? 0.01 : 1,
+                                      child: Transform.scale(
+                                        scale: contentScale,
+                                        alignment: _gestureAlignment,
+                                        child: child,
+                                      ),
+                                    ),
+                                    if (hasSnapshot && toSnapshot == null)
+                                      IgnorePointer(
+                                        child: Transform.scale(
+                                          scale: _transitionStartScale,
+                                          alignment: _gestureAlignment,
+                                          child: RawImage(
+                                            image: fromSnapshot.image,
+                                            fit: BoxFit.fill,
+                                            filterQuality: FilterQuality.medium,
+                                          ),
+                                        ),
+                                      ),
+                                    if (hasSnapshot && toSnapshot != null)
+                                      IgnorePointer(
+                                        child: CustomPaint(
+                                          key: const ValueKey(
+                                            'workout-history-morph',
+                                          ),
+                                          painter: _HistoryMorphPainter(
+                                            from: fromSnapshot,
+                                            to: toSnapshot,
+                                            progress: progress,
+                                            fromScale: _transitionStartScale,
+                                            focalAlignment: _gestureAlignment,
+                                            backgroundColor:
+                                                colorScheme.surface,
+                                          ),
+                                          isComplex: true,
+                                          willChange: true,
+                                        ),
+                                      ),
+                                  ],
+                                );
+                              },
                             ),
                           ),
                         ),
@@ -495,6 +974,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
         locale: locale,
         onRefresh: _refresh,
         sessionKey: _sessionKey,
+        periodKey: _periodKey,
         isTablet: isTablet,
         marqueeAnimation: _marqueeAnimation,
       );
@@ -509,6 +989,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
       locale: locale,
       onRefresh: _refresh,
       sessionKey: _sessionKey,
+      periodKey: _periodKey,
       isTablet: isTablet,
       marqueeAnimation: _marqueeAnimation,
     );
@@ -540,6 +1021,11 @@ class _HistorySummary extends StatelessWidget {
         arg1: groupCount.toString(),
       ),
     };
+    final valueText = Text(
+      value,
+      key: ValueKey(grouping),
+      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
+    );
     return Container(
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
@@ -567,10 +1053,29 @@ class _HistorySummary extends StatelessWidget {
           ),
           const SizedBox(width: 10),
           Expanded(
-            child: Text(
-              value,
-              style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w900),
-            ),
+            child: GymMotion.reduceMotion(context)
+                ? valueText
+                : AnimatedSwitcher(
+                    duration: GymMotion.screen,
+                    reverseDuration: GymMotion.content,
+                    switchInCurve: GymMotion.enterCurve,
+                    switchOutCurve: GymMotion.exitCurve,
+                    layoutBuilder: (currentChild, previousChildren) => Stack(
+                      alignment: Alignment.centerLeft,
+                      children: [...previousChildren, ?currentChild],
+                    ),
+                    transitionBuilder: (child, animation) => FadeTransition(
+                      opacity: animation,
+                      child: SlideTransition(
+                        position: Tween<Offset>(
+                          begin: const Offset(0, 0.2),
+                          end: Offset.zero,
+                        ).animate(animation),
+                        child: child,
+                      ),
+                    ),
+                    child: valueText,
+                  ),
           ),
         ],
       ),
@@ -618,6 +1123,7 @@ class _DayHistoryList extends StatelessWidget {
   final String locale;
   final RefreshCallback onRefresh;
   final Key Function(String id) sessionKey;
+  final Key Function(String id) periodKey;
   final bool isTablet;
   final Animation<double> marqueeAnimation;
 
@@ -629,6 +1135,7 @@ class _DayHistoryList extends StatelessWidget {
     required this.locale,
     required this.onRefresh,
     required this.sessionKey,
+    required this.periodKey,
     required this.marqueeAnimation,
     this.isTablet = false,
   });
@@ -663,17 +1170,21 @@ class _DayHistoryList extends StatelessWidget {
                 children: [
                   if (showDate)
                     _PeriodHeader(
+                      key: periodKey(session.id),
                       label: DateFormat.yMMMMEEEEd(locale).format(date),
                     ),
-                  _WorkoutHistoryCard(
-                    key: sessionKey(session.id),
-                    session: session,
-                    units: units,
-                    locale: locale,
-                    isTablet: isTablet,
-                    marqueeAnimation: marqueeAnimation,
-                    onTap: () =>
-                        context.push('/workout/workout_detail/${session.id}'),
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 12),
+                    child: _WorkoutHistoryCard(
+                      key: sessionKey(session.id),
+                      session: session,
+                      grouping: WorkoutHistoryGrouping.day,
+                      units: units,
+                      locale: locale,
+                      marqueeAnimation: marqueeAnimation,
+                      onTap: () =>
+                          context.push('/workout/workout_detail/${session.id}'),
+                    ),
                   ),
                 ],
               ),
@@ -698,6 +1209,7 @@ class _CompactHistoryGrid extends StatelessWidget {
   final String locale;
   final RefreshCallback onRefresh;
   final Key Function(String id) sessionKey;
+  final Key Function(String id) periodKey;
   final bool isTablet;
   final Animation<double> marqueeAnimation;
 
@@ -710,6 +1222,7 @@ class _CompactHistoryGrid extends StatelessWidget {
     required this.locale,
     required this.onRefresh,
     required this.sessionKey,
+    required this.periodKey,
     required this.marqueeAnimation,
     this.isTablet = false,
   });
@@ -748,6 +1261,7 @@ class _CompactHistoryGrid extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 12),
               sliver: SliverToBoxAdapter(
                 child: _PeriodHeader(
+                  key: periodKey(entry.value.first.id),
                   label: isYear
                       ? entry.key.year.toString()
                       : DateFormat.yMMMM(locale).format(entry.key),
@@ -766,7 +1280,7 @@ class _CompactHistoryGrid extends StatelessWidget {
                 ),
                 delegate: SliverChildBuilderDelegate((context, index) {
                   final session = entry.value[index];
-                  return _CompactWorkoutHistoryCard(
+                  return _WorkoutHistoryCard(
                     key: sessionKey(session.id),
                     session: session,
                     grouping: grouping,
@@ -791,7 +1305,7 @@ class _PeriodHeader extends StatelessWidget {
   final String label;
   final String? subtitle;
 
-  const _PeriodHeader({required this.label, this.subtitle});
+  const _PeriodHeader({super.key, required this.label, this.subtitle});
 
   @override
   Widget build(BuildContext context) {
@@ -813,7 +1327,7 @@ class _PeriodHeader extends StatelessWidget {
   }
 }
 
-class _CompactWorkoutHistoryCard extends StatelessWidget {
+class _WorkoutHistoryCard extends StatelessWidget {
   final WorkoutSession session;
   final WorkoutHistoryGrouping grouping;
   final MeasurementFormatter units;
@@ -821,7 +1335,7 @@ class _CompactWorkoutHistoryCard extends StatelessWidget {
   final VoidCallback onTap;
   final Animation<double> marqueeAnimation;
 
-  const _CompactWorkoutHistoryCard({
+  const _WorkoutHistoryCard({
     super.key,
     required this.session,
     required this.grouping,
@@ -837,12 +1351,58 @@ class _CompactWorkoutHistoryCard extends StatelessWidget {
     final gymColors = Theme.of(context).gymColors;
     final date = resolveWorkoutSessionStartTime(session);
     final hasSpecificTime = workoutSessionHasSpecificTime(date);
+    final isDay = grouping == WorkoutHistoryGrouping.day;
     final isYear = grouping == WorkoutHistoryGrouping.year;
     final hasPR = session.prCount > 0;
     final name = t.translateDynamic(session.name).toString();
-    final dateLabel = isYear
-        ? DateFormat('dd/MM', locale).format(date)
-        : date.day.toString().padLeft(2, '0');
+    final dateLabel = switch (grouping) {
+      WorkoutHistoryGrouping.day =>
+        hasSpecificTime
+            ? DateFormat('dd MMM • HH:mm', locale).format(date)
+            : DateFormat('dd MMM', locale).format(date),
+      WorkoutHistoryGrouping.month => date.day.toString().padLeft(2, '0'),
+      WorkoutHistoryGrouping.year => DateFormat('dd/MM', locale).format(date),
+    };
+    final exerciseCount = session.exercises.length;
+    final coreDetails = [
+      if (!isDay && hasSpecificTime) DateFormat.Hm(locale).format(date),
+      _formatDuration(session.totalDurationSeconds),
+      '$exerciseCount ${locale == 'vi' ? 'bài' : 'ex'}',
+    ].join(' • ');
+    final exerciseNames = session.exercises
+        .take(3)
+        .map((item) => t.translateDynamic(item.exercise.name).toString())
+        .toList();
+    final remainingExercises = exerciseCount - exerciseNames.length;
+    final preview = [
+      ...exerciseNames,
+      if (remainingExercises > 0)
+        t.profile.fmt_history_more_exercises(
+          arg1: remainingExercises.toString(),
+        ),
+    ].join(' • ');
+    final volumeOrSets = session.totalVolume > 0
+        ? units.formatWeight(session.totalVolume)
+        : t.profile.fmt_history_sets(arg1: session.totalSets.toString());
+    final radius = isDay ? 18.0 : (isYear ? 12.0 : 16.0);
+    final padding = isDay ? 16.0 : (isYear ? 7.0 : 11.0);
+    final dateSize = isDay ? 15.0 : (isYear ? 12.0 : 18.0);
+    final nameSize = isDay ? 16.0 : (isYear ? 11.0 : 12.0);
+    final nameWidget = GymMarqueeText(
+      name,
+      animation: marqueeAnimation,
+      style: TextStyle(fontSize: nameSize, fontWeight: FontWeight.w900),
+    );
+    final detailsWidget = Text(
+      coreDetails,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+      style: TextStyle(
+        color: colorScheme.onSurfaceVariant,
+        fontSize: isDay ? 12 : 10,
+        fontWeight: FontWeight.w600,
+      ),
+    );
 
     return Semantics(
       button: true,
@@ -852,17 +1412,17 @@ class _CompactWorkoutHistoryCard extends StatelessWidget {
         color: hasPR
             ? gymColors.goldRank.withValues(alpha: 0.08)
             : colorScheme.surface,
-        borderRadius: BorderRadius.circular(isYear ? 12 : 16),
+        borderRadius: BorderRadius.circular(radius),
         child: InkWell(
           onTap: onTap,
-          borderRadius: BorderRadius.circular(isYear ? 12 : 16),
+          borderRadius: BorderRadius.circular(radius),
           child: Ink(
-            padding: EdgeInsets.all(isYear ? 7 : 11),
+            padding: EdgeInsets.all(padding),
             decoration: BoxDecoration(
               color: hasPR
                   ? gymColors.goldRank.withValues(alpha: 0.08)
                   : Colors.transparent,
-              borderRadius: BorderRadius.circular(isYear ? 12 : 16),
+              borderRadius: BorderRadius.circular(radius),
               border: Border.all(
                 color: hasPR
                     ? gymColors.goldRank.withValues(alpha: 0.55)
@@ -883,46 +1443,74 @@ class _CompactWorkoutHistoryCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
+                    Expanded(
+                      child: Text(
+                        dateLabel,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          color: hasPR
+                              ? gymColors.goldRank
+                              : colorScheme.primary,
+                          fontSize: dateSize,
+                          fontWeight: FontWeight.w900,
+                        ),
+                      ),
+                    ),
+                    if (hasPR) ...[
+                      const SizedBox(width: 4),
+                      Icon(
+                        Symbols.emoji_events,
+                        color: gymColors.goldRank,
+                        size: isYear ? 13 : 16,
+                      ),
+                    ],
+                  ],
+                ),
+                SizedBox(height: isYear ? 4 : 7),
+                if (isDay) ...[
+                  nameWidget,
+                  const SizedBox(height: 6),
+                  detailsWidget,
+                  const SizedBox(height: 12),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: [
+                      _HistoryMetric(
+                        icon: Symbols.exercise,
+                        value: volumeOrSets,
+                      ),
+                      if (hasPR)
+                        _HistoryMetric(
+                          icon: Symbols.emoji_events,
+                          value: session.prCount.toString(),
+                          color: gymColors.goldRank,
+                        ),
+                    ],
+                  ),
+                  if (preview.isNotEmpty) ...[
+                    const SizedBox(height: 10),
                     Text(
-                      dateLabel,
-                      maxLines: 1,
+                      preview,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(
-                        color: hasPR ? gymColors.goldRank : colorScheme.primary,
-                        fontSize: isYear ? 12 : 18,
-                        fontWeight: FontWeight.w900,
+                        color: colorScheme.onSurfaceVariant,
+                        fontSize: 12,
+                        height: 1.3,
                       ),
                     ),
                   ],
-                ),
-                SizedBox(height: isYear ? 4 : 6),
-                Expanded(
-                  child: Align(
-                    alignment: Alignment.topLeft,
-                    child: GymMarqueeText(
-                      name,
-                      animation: marqueeAnimation,
-                      style: TextStyle(
-                        fontSize: isYear ? 11 : 12,
-                        fontWeight: FontWeight.w800,
-                      ),
+                ] else ...[
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.topLeft,
+                      child: nameWidget,
                     ),
                   ),
-                ),
-                if (!isYear) ...[
-                  Text(
-                    hasSpecificTime
-                        ? '${DateFormat.Hm(locale).format(date)} • ${session.exercises.length} ${locale == 'vi' ? 'bài' : 'ex'}'
-                        : '${session.exercises.length} ${locale == 'vi' ? 'bài' : 'ex'}',
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: colorScheme.onSurfaceVariant,
-                      fontSize: 10,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
+                  if (!isYear) detailsWidget,
                 ],
               ],
             ),
@@ -939,268 +1527,6 @@ String _formatDuration(int seconds) {
   return hours > 0
       ? t.common.time_h_m(h: hours.toString(), m: minutes.toString())
       : t.common.time_m(m: minutes.toString());
-}
-
-class _WorkoutHistoryCard extends StatelessWidget {
-  final WorkoutSession session;
-  final MeasurementFormatter units;
-  final String locale;
-  final VoidCallback onTap;
-  final bool isTablet;
-  final Animation<double> marqueeAnimation;
-
-  const _WorkoutHistoryCard({
-    super.key,
-    required this.session,
-    required this.units,
-    required this.locale,
-    required this.onTap,
-    required this.marqueeAnimation,
-    this.isTablet = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final colorScheme = Theme.of(context).colorScheme;
-    final gymColors = Theme.of(context).gymColors;
-    final date = resolveWorkoutSessionStartTime(session);
-    final hasSpecificTime = workoutSessionHasSpecificTime(date);
-    final formattedTime = hasSpecificTime
-        ? DateFormat('dd MMM • HH:mm', locale).format(date)
-        : DateFormat('dd MMM', locale).format(date);
-    final exerciseNames = session.exercises
-        .take(3)
-        .map((item) => t.translateDynamic(item.exercise.name).toString())
-        .toList();
-    final remainingExercises = session.exercises.length - exerciseNames.length;
-    final preview = [
-      ...exerciseNames,
-      if (remainingExercises > 0)
-        t.profile.fmt_history_more_exercises(
-          arg1: remainingExercises.toString(),
-        ),
-    ].join(' • ');
-    final volumeOrSets = session.totalVolume > 0
-        ? units.formatWeight(session.totalVolume)
-        : t.profile.fmt_history_sets(arg1: session.totalSets.toString());
-
-    final iconBadge = Container(
-      width: isTablet ? 44 : 48,
-      height: isTablet ? 44 : 48,
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: session.prCount > 0
-            ? gymColors.goldRank.withValues(alpha: 0.15)
-            : colorScheme.primary.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Icon(
-        session.prCount > 0 ? Symbols.emoji_events : Symbols.exercise,
-        color: session.prCount > 0 ? gymColors.goldRank : colorScheme.primary,
-        size: 24,
-      ),
-    );
-
-    final Widget cardBody;
-    if (isTablet) {
-      final metrics2x2 = Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        children: [
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _HistoryMetric(
-                icon: Symbols.schedule,
-                value: _formatDuration(session.totalDurationSeconds),
-              ),
-              const SizedBox(width: 6),
-              _HistoryMetric(
-                icon: Symbols.format_list_bulleted,
-                value: session.exercises.length.toString(),
-              ),
-            ],
-          ),
-          const SizedBox(height: 6),
-          Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              _HistoryMetric(icon: Symbols.exercise, value: volumeOrSets),
-              if (session.prCount > 0) ...[
-                const SizedBox(width: 6),
-                _HistoryMetric(
-                  icon: Symbols.emoji_events,
-                  value: session.prCount.toString(),
-                  color: gymColors.goldRank,
-                ),
-              ],
-            ],
-          ),
-        ],
-      );
-
-      cardBody = Row(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          iconBadge,
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                GymMarqueeText(
-                  t.translateDynamic(session.name).toString(),
-                  animation: marqueeAnimation,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w900,
-                    height: 1.25,
-                  ),
-                ),
-                const SizedBox(height: 5),
-                Text(
-                  formattedTime,
-                  style: TextStyle(
-                    color: colorScheme.onSurfaceVariant,
-                    fontSize: 12,
-                    fontWeight: FontWeight.w600,
-                    height: 1.25,
-                  ),
-                ),
-                if (preview.isNotEmpty) ...[
-                  const SizedBox(height: 5),
-                  Text(
-                    preview,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: TextStyle(
-                      color: colorScheme.onSurfaceVariant,
-                      fontSize: 12,
-                      height: 1.25,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-          ),
-          const SizedBox(width: 16),
-          metrics2x2,
-        ],
-      );
-    } else {
-      cardBody = Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              iconBadge,
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    GymMarqueeText(
-                      t.translateDynamic(session.name).toString(),
-                      animation: marqueeAnimation,
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w900,
-                      ),
-                    ),
-                    const SizedBox(height: 4),
-                    Text(
-                      formattedTime,
-                      style: TextStyle(
-                        color: colorScheme.onSurfaceVariant,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 14),
-          Wrap(
-            spacing: 8,
-            runSpacing: 8,
-            children: [
-              _HistoryMetric(
-                icon: Symbols.schedule,
-                value: _formatDuration(session.totalDurationSeconds),
-              ),
-              _HistoryMetric(
-                icon: Symbols.exercise,
-                value: volumeOrSets,
-              ),
-              _HistoryMetric(
-                icon: Symbols.format_list_bulleted,
-                value: session.exercises.length.toString(),
-              ),
-              if (session.prCount > 0)
-                _HistoryMetric(
-                  icon: Symbols.emoji_events,
-                  value: session.prCount.toString(),
-                  color: gymColors.goldRank,
-                ),
-            ],
-          ),
-          if (preview.isNotEmpty) ...[
-            const SizedBox(height: 12),
-            Text(
-              preview,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(
-                color: colorScheme.onSurfaceVariant,
-                fontSize: 13,
-                height: 1.35,
-              ),
-            ),
-          ],
-        ],
-      );
-    }
-
-    return Semantics(
-      button: true,
-      label: t.translateDynamic(session.name).toString(),
-      child: Container(
-        margin: const EdgeInsets.only(bottom: 12),
-        decoration: BoxDecoration(
-          color: colorScheme.surface,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: colorScheme.outlineVariant.withValues(alpha: 0.35),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: Colors.black.withValues(alpha: 0.08),
-              blurRadius: 10,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-        child: Material(
-          color: Colors.transparent,
-          child: InkWell(
-            onTap: onTap,
-            borderRadius: BorderRadius.circular(20),
-            child: Padding(
-              padding: EdgeInsets.symmetric(
-                horizontal: 16,
-                vertical: isTablet ? 12 : 16,
-              ),
-              child: cardBody,
-            ),
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 class _HistoryMetric extends StatelessWidget {
