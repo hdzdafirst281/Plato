@@ -6,7 +6,7 @@
 /// Locales: 2
 /// Strings: 2956 (1478 per locale)
 ///
-/// Built on 2026-11-04 at 10:08 UTC
+/// Built on 2026-11-08 at 14:35 UTC
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -1315,7 +1315,7 @@ class _StringsSettingsEn {
 	String get lbl_item_workout_settings => 'Workout Settings';
 	String get desc_item_workout_settings => 'Rest timer, sound, screen & RPE';
 	String get desc_effort_tracking => 'Record RPE after each completed set for more accurate Recovery.';
-	String get lbl_scale_rpe => 'Per-set RPE (1–10)';
+	String get lbl_scale_rpe => 'Per-set RPE';
 	String get title_rpe_info => 'RPE Scale (Rating of Perceived Exertion)';
 	String get desc_rpe_info => 'Rate effort intensity on a scale from 1 to 10:\n• RPE 10: Maximum effort, no reps left\n• RPE 9: 1 rep left in reserve\n• RPE 8: 2 reps left in reserve\n• RPE 7: 3 reps left in reserve';
 	String get title_workout_bg => 'Background & Progress';
@@ -3031,8 +3031,8 @@ class _StringsSettingsVi extends _StringsSettingsEn {
 	@override String get lbl_item_workout_settings => 'Cài đặt buổi tập';
 	@override String get desc_item_workout_settings => 'Thời gian nghỉ, âm báo, màn hình & RPE';
 	@override String get desc_effort_tracking => 'Ghi lại RPE sau mỗi set đã hoàn thành để tính Recovery chính xác hơn.';
-	@override String get lbl_scale_rpe => 'RPE từng set (1–10)';
-	@override String get title_rpe_info => 'Thang đo RPE (Rating of Perceived Exertion)';
+	@override String get lbl_scale_rpe => 'RPE từng set';
+	@override String get title_rpe_info => 'Thang đo mức độ gắng sức';
 	@override String get desc_rpe_info => 'Đánh giá mức độ nặng theo thang điểm 1 đến 10:\n• RPE 10: Hết sức, không thể làm thêm rep nào\n• RPE 9: Còn sức thực hiện đúng 1 rep\n• RPE 8: Còn sức thực hiện thêm 2 reps\n• RPE 7: Còn sức thực hiện thêm 3 reps';
 	@override String get title_workout_bg => 'Chạy nền & Tiến trình';
 	@override String get title_workout_guide => 'Tối ưu hóa phục hồi';
@@ -3490,7 +3490,7 @@ class _StringsNotificationsVi extends _StringsNotificationsEn {
 	@override String get section_progress_motivation => 'Tiến độ và động lực';
 	@override String get lbl_master => 'Thông báo Plato';
 	@override String get desc_master => 'Bật hoặc tắt toàn bộ lời nhắc từ Plato.';
-	@override String get lbl_system_permission => 'Quyền thông báo thiết bị';
+	@override String get lbl_system_permission => 'Quyền thiết bị';
 	@override String get status_permission_allowed => 'Đã cho phép';
 	@override String get status_permission_blocked => 'Bị thiết bị chặn';
 	@override String get status_permission_partial => 'Cần cấp thêm quyền';
@@ -4562,7 +4562,7 @@ extension on Translations {
 			case 'settings.lbl_item_workout_settings': return 'Workout Settings';
 			case 'settings.desc_item_workout_settings': return 'Rest timer, sound, screen & RPE';
 			case 'settings.desc_effort_tracking': return 'Record RPE after each completed set for more accurate Recovery.';
-			case 'settings.lbl_scale_rpe': return 'Per-set RPE (1–10)';
+			case 'settings.lbl_scale_rpe': return 'Per-set RPE';
 			case 'settings.title_rpe_info': return 'RPE Scale (Rating of Perceived Exertion)';
 			case 'settings.desc_rpe_info': return 'Rate effort intensity on a scale from 1 to 10:\n• RPE 10: Maximum effort, no reps left\n• RPE 9: 1 rep left in reserve\n• RPE 8: 2 reps left in reserve\n• RPE 7: 3 reps left in reserve';
 			case 'settings.title_workout_bg': return 'Background & Progress';
@@ -6048,8 +6048,8 @@ extension on _StringsVi {
 			case 'settings.lbl_item_workout_settings': return 'Cài đặt buổi tập';
 			case 'settings.desc_item_workout_settings': return 'Thời gian nghỉ, âm báo, màn hình & RPE';
 			case 'settings.desc_effort_tracking': return 'Ghi lại RPE sau mỗi set đã hoàn thành để tính Recovery chính xác hơn.';
-			case 'settings.lbl_scale_rpe': return 'RPE từng set (1–10)';
-			case 'settings.title_rpe_info': return 'Thang đo RPE (Rating of Perceived Exertion)';
+			case 'settings.lbl_scale_rpe': return 'RPE từng set';
+			case 'settings.title_rpe_info': return 'Thang đo mức độ gắng sức';
 			case 'settings.desc_rpe_info': return 'Đánh giá mức độ nặng theo thang điểm 1 đến 10:\n• RPE 10: Hết sức, không thể làm thêm rep nào\n• RPE 9: Còn sức thực hiện đúng 1 rep\n• RPE 8: Còn sức thực hiện thêm 2 reps\n• RPE 7: Còn sức thực hiện thêm 3 reps';
 			case 'settings.title_workout_bg': return 'Chạy nền & Tiến trình';
 			case 'settings.title_workout_guide': return 'Tối ưu hóa phục hồi';
@@ -6462,7 +6462,7 @@ extension on _StringsVi {
 			case 'notifications.section_progress_motivation': return 'Tiến độ và động lực';
 			case 'notifications.lbl_master': return 'Thông báo Plato';
 			case 'notifications.desc_master': return 'Bật hoặc tắt toàn bộ lời nhắc từ Plato.';
-			case 'notifications.lbl_system_permission': return 'Quyền thông báo thiết bị';
+			case 'notifications.lbl_system_permission': return 'Quyền thiết bị';
 			case 'notifications.status_permission_allowed': return 'Đã cho phép';
 			case 'notifications.status_permission_blocked': return 'Bị thiết bị chặn';
 			case 'notifications.status_permission_partial': return 'Cần cấp thêm quyền';

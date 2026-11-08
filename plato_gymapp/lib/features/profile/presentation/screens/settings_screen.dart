@@ -4,6 +4,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:go_router/go_router.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
+import 'package:plato_gymapp/core/designsystem/components/language_selection_dialog.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_motion.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_snackbar.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_top_bar.dart';
@@ -36,6 +37,8 @@ class SettingsScreen extends StatefulWidget {
 }
 
 class _SettingsScreenState extends State<SettingsScreen> {
+  int _languageTransitionTrigger = 0;
+
   String _notificationCountLabel(int count) =>
       NotificationCopy.text('settings.fmt_notifications_enabled', {
         'count': '$count',
@@ -55,60 +58,27 @@ class _SettingsScreenState extends State<SettingsScreen> {
     }
   }
 
-  void _showLanguageDialog(BuildContext context) {
-    GymDialog.showCustom(
+  Future<void> _showLanguageDialog(BuildContext context) async {
+    final locale = await LanguageSelectionDialog.show(
       context: context,
       useRootNavigator: false,
-      titleWidget: Text(
-        t.settings.title_language_dialog,
-        style: const TextStyle(fontWeight: FontWeight.bold),
-      ),
-      content: ConstrainedBox(
-        constraints: const BoxConstraints(maxWidth: 400),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            ListTile(
-              leading: const Icon(Symbols.language),
-              title: const Text("Tiếng Việt"),
-              trailing:
-                  TranslationProvider.of(context).flutterLocale.languageCode ==
-                      'vi'
-                  ? const Icon(Symbols.check, color: Colors.blue)
-                  : null,
-              onTap: () {
-                LocaleSettings.setLocaleRaw("vi");
-                getIt<SharedPreferences>().setString('app_lang', 'vi');
-                Navigator.of(context, rootNavigator: false).pop();
-              },
-            ),
-            ListTile(
-              leading: const Icon(Symbols.language),
-              title: const Text("English"),
-              trailing:
-                  TranslationProvider.of(context).flutterLocale.languageCode ==
-                      'en'
-                  ? const Icon(Symbols.check, color: Colors.blue)
-                  : null,
-              onTap: () {
-                LocaleSettings.setLocaleRaw("en");
-                getIt<SharedPreferences>().setString('app_lang', 'en');
-                Navigator.of(context, rootNavigator: false).pop();
-              },
-            ),
-          ],
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.of(context, rootNavigator: false).pop(),
-          child: Text(
-            t.common.close,
-            style: const TextStyle(fontWeight: FontWeight.bold),
-          ),
-        ),
-      ],
+      onSelected: (locale) async {
+        try {
+          return await getIt<SharedPreferences>().setString(
+            'app_lang',
+            locale.languageCode,
+          );
+        } catch (_) {
+          return false;
+        }
+      },
     );
+    if (locale == null || !mounted) return;
+
+    setState(() {
+      LocaleSettings.setLocale(locale);
+      _languageTransitionTrigger++;
+    });
   }
 
   void _showMeasurementUnitsDialog(
@@ -377,8 +347,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final notificationService = NotificationCoordinator.instance;
-    final currentLang =
-        TranslationProvider.of(context).flutterLocale.languageCode == 'vi'
+    final localeCode =
+        TranslationProvider.of(context).flutterLocale.languageCode;
+    final currentLang = localeCode == 'vi'
         ? "Tiếng Việt"
         : "English";
 
@@ -403,7 +374,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
       fontSize: 14,
     );
 
-    return Scaffold(
+    final screen = Scaffold(
       backgroundColor: colorScheme.surface,
       appBar: GymTopBar(
         title: t.settings.title_dialog_main,
@@ -596,7 +567,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 // 6. Language
                 ListTile(
                   contentPadding: itemPadding,
-                  leading: const Icon(Symbols.language),
+                  leading: const Icon(Symbols.translate),
                   title: Text(
                     t.settings.lbl_item_language,
                     style: titleStyle,
@@ -726,6 +697,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
         ),
       ),
+    );
+    return LanguageChangeTransition(
+      trigger: _languageTransitionTrigger,
+      child: screen,
     );
   }
 }

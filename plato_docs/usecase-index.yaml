@@ -13,6 +13,7 @@ usecases:
       - "plato_gymapp/lib/features/auth/presentation/screens/custom_splash_screen.dart"
       - "plato_gymapp/lib/core/navigation/app_router.dart"
       - "plato_gymapp/lib/features/auth/presentation/screens/onboarding_screen.dart"
+      - "plato_gymapp/lib/core/designsystem/components/language_selection_dialog.dart"
       - "plato_gymapp/lib/features/auth/presentation/components/onboarding_components.dart"
       - "plato_gymapp/lib/features/auth/presentation/bloc/onboarding_cubit.dart"
       - "plato_gymapp/lib/features/auth/data/models/user_models.dart"
@@ -968,6 +969,7 @@ usecases:
     code_paths:
       - "plato_gymapp/lib/features/profile/presentation/screens/settings_screen.dart"
       - "plato_gymapp/lib/features/auth/presentation/screens/onboarding_screen.dart"
+      - "plato_gymapp/lib/core/designsystem/components/language_selection_dialog.dart"
       - "plato_gymapp/lib/core/designsystem/theme/theme_cubit.dart"
       - "plato_gymapp/lib/i18n/translation_helper.dart"
       - "plato_gymapp/lib/i18n/strings_vi.i18n.json"

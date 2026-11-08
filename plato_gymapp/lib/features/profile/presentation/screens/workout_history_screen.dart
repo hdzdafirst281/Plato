@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'dart:ui' as ui show TextDirection;
 
 import 'package:flutter/material.dart';
@@ -56,6 +57,22 @@ DateTime resolveWorkoutSessionStartTime(WorkoutSession session) {
 
 bool workoutSessionHasSpecificTime(DateTime dateTime) =>
     dateTime.hour != 0 || dateTime.minute != 0;
+
+String workoutHistoryCardHeader(
+  WorkoutSession session,
+  WorkoutHistoryGrouping grouping,
+  String locale,
+) {
+  final date = resolveWorkoutSessionStartTime(session);
+  return switch (grouping) {
+    WorkoutHistoryGrouping.day =>
+      workoutSessionHasSpecificTime(date)
+          ? DateFormat.Hm(locale).format(date)
+          : '--:--',
+    WorkoutHistoryGrouping.month => date.day.toString().padLeft(2, '0'),
+    WorkoutHistoryGrouping.year => DateFormat('dd/MM', locale).format(date),
+  };
+}
 
 Map<DateTime, List<WorkoutSession>> groupWorkoutHistory(
   List<WorkoutSession> history,
@@ -115,20 +132,25 @@ double workoutHistoryOffsetForAnchor({
       .toDouble();
 }
 
-String? workoutHistoryClosestSessionId(
-  Map<String, double> sessionCenters,
-  double viewportCenter,
+double workoutHistoryPinchProgress(double scale) =>
+    ((scale - 1).abs() / 0.28).clamp(0.0, 1.0).toDouble();
+
+String? workoutHistoryLeadingSessionId(
+  Map<String, Rect> sessionRects,
+  Size viewportSize,
 ) {
-  String? closestId;
-  var closestDistance = double.infinity;
-  for (final entry in sessionCenters.entries) {
-    final distance = (entry.value - viewportCenter).abs();
-    if (distance < closestDistance) {
-      closestDistance = distance;
-      closestId = entry.key;
-    }
-  }
-  return closestId;
+  final viewport = Offset.zero & viewportSize;
+  final visible =
+      sessionRects.entries
+          .where((entry) => entry.value.overlaps(viewport))
+          .toList()
+        ..sort((first, second) {
+          final vertical = first.value.top.compareTo(second.value.top);
+          return vertical != 0
+              ? vertical
+              : first.value.left.compareTo(second.value.left);
+        });
+  return visible.isEmpty ? null : visible.first.key;
 }
 
 WorkoutHistoryGrouping? workoutHistoryZoomTarget(
@@ -147,13 +169,27 @@ Rect workoutHistoryMorphRect(Rect from, Rect to, double progress) =>
 
 class _HistoryCardGeometry {
   final Rect rect;
+  final String header;
   final String name;
   final bool hasPR;
 
   const _HistoryCardGeometry({
     required this.rect,
+    required this.header,
     required this.name,
     required this.hasPR,
+  });
+}
+
+class _HistorySessionAnchor {
+  final String id;
+  final double top;
+  final List<String> visibleIds;
+
+  const _HistorySessionAnchor({
+    required this.id,
+    required this.top,
+    required this.visibleIds,
   });
 }
 
@@ -184,6 +220,7 @@ class _HistoryMorphPainter extends CustomPainter {
   final Alignment focalAlignment;
   final Color surfaceColor;
   final Color outlineColor;
+  final Color primaryColor;
   final Color textColor;
   final Color goldColor;
 
@@ -195,6 +232,7 @@ class _HistoryMorphPainter extends CustomPainter {
     required this.focalAlignment,
     required this.surfaceColor,
     required this.outlineColor,
+    required this.primaryColor,
     required this.textColor,
     required this.goldColor,
   });
@@ -230,6 +268,9 @@ class _HistoryMorphPainter extends CustomPainter {
           canvas,
           workoutHistoryMorphRect(oldRect, newRect, progress),
           newCard.name,
+          oldCard.header,
+          newCard.header,
+          progress,
           oldCard.hasPR || newCard.hasPR,
           overlayOpacity,
         );
@@ -238,6 +279,9 @@ class _HistoryMorphPainter extends CustomPainter {
           canvas,
           _mapRect(oldCard.rect, from.logicalSize, fromBounds),
           oldCard.name,
+          oldCard.header,
+          oldCard.header,
+          0,
           oldCard.hasPR,
           (1 - progress) * overlayOpacity,
         );
@@ -246,6 +290,9 @@ class _HistoryMorphPainter extends CustomPainter {
           canvas,
           _mapRect(newCard.rect, to.logicalSize, toBounds),
           newCard.name,
+          newCard.header,
+          newCard.header,
+          1,
           newCard.hasPR,
           progress * overlayOpacity,
         );
@@ -257,13 +304,17 @@ class _HistoryMorphPainter extends CustomPainter {
     Canvas canvas,
     Rect rect,
     String name,
+    String fromHeader,
+    String toHeader,
+    double headerProgress,
     bool hasPR,
     double opacity,
   ) {
     if (opacity <= 0 || rect.isEmpty) return;
     final radius = (rect.shortestSide * 0.14).clamp(12.0, 18.0);
     final padding = (rect.shortestSide * 0.1).clamp(7.0, 16.0);
-    final fontSize = (rect.width * 0.12).clamp(11.0, 16.0);
+    final headerSize = (rect.width * 0.12).clamp(11.0, 16.0);
+    final nameSize = (rect.width * 0.1).clamp(10.0, 16.0);
     final cardColor = hasPR
         ? Color.lerp(surfaceColor, goldColor, 0.08)!
         : surfaceColor;
@@ -281,20 +332,66 @@ class _HistoryMorphPainter extends CustomPainter {
         ..strokeWidth = hasPR ? 1.5 : 1,
     );
 
-    final painter = TextPainter(
-      text: TextSpan(
-        text: name,
-        style: TextStyle(
-          color: (hasPR ? goldColor : textColor).withValues(alpha: opacity),
-          fontSize: fontSize,
-          fontWeight: FontWeight.w900,
-        ),
+    void paintText(
+      String value,
+      Offset offset,
+      TextStyle style,
+      double textOpacity,
+    ) {
+      if (textOpacity <= 0) return;
+      final painter =
+          TextPainter(
+            text: TextSpan(
+              text: value,
+              style: style.copyWith(
+                color: style.color?.withValues(alpha: opacity * textOpacity),
+              ),
+            ),
+            maxLines: 1,
+            ellipsis: '…',
+            textDirection: ui.TextDirection.ltr,
+          )..layout(
+            maxWidth: (rect.width - padding * 2).clamp(0.0, double.infinity),
+          );
+      painter.paint(canvas, offset);
+    }
+
+    final headerStyle = TextStyle(
+      color: primaryColor,
+      fontSize: headerSize,
+      fontWeight: FontWeight.w900,
+    );
+    if (fromHeader == toHeader) {
+      paintText(
+        fromHeader,
+        rect.topLeft + Offset(padding, padding),
+        headerStyle,
+        1,
+      );
+    } else {
+      paintText(
+        fromHeader,
+        rect.topLeft + Offset(padding, padding),
+        headerStyle,
+        1 - headerProgress,
+      );
+      paintText(
+        toHeader,
+        rect.topLeft + Offset(padding, padding),
+        headerStyle,
+        headerProgress,
+      );
+    }
+    paintText(
+      name,
+      rect.topLeft + Offset(padding, padding + headerSize + 5),
+      TextStyle(
+        color: textColor,
+        fontSize: nameSize,
+        fontWeight: FontWeight.w900,
       ),
-      maxLines: 1,
-      ellipsis: '…',
-      textDirection: ui.TextDirection.ltr,
-    )..layout(maxWidth: (rect.width - padding * 2).clamp(0.0, double.infinity));
-    painter.paint(canvas, rect.topLeft + Offset(padding, padding));
+      1,
+    );
   }
 
   void _drawPeriods(
@@ -393,6 +490,7 @@ class _HistoryMorphPainter extends CustomPainter {
       oldDelegate.focalAlignment != focalAlignment ||
       oldDelegate.surfaceColor != surfaceColor ||
       oldDelegate.outlineColor != outlineColor ||
+      oldDelegate.primaryColor != primaryColor ||
       oldDelegate.textColor != textColor ||
       oldDelegate.goldColor != goldColor;
 }
@@ -446,12 +544,20 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
 
   final Map<int, Offset> _touchPoints = {};
   double? _pinchStartDistance;
-  bool _pinchHandled = false;
   bool _isPinching = false;
   double _pinchBaseScale = 1;
   double _gestureScale = 1;
   Alignment _gestureAlignment = Alignment.center;
   final ValueNotifier<int> _pinchVisualTick = ValueNotifier(0);
+  WorkoutHistoryGrouping? _pinchSourceGrouping;
+  WorkoutHistoryGrouping? _pinchTargetGrouping;
+  _HistoryGeometry? _pinchSourceGeometry;
+  _HistorySessionAnchor? _pinchAnchor;
+  double _pinchProgress = 0;
+  bool _pinchTransitionReady = false;
+  bool _pinchReleased = false;
+  bool _isFinishingPinch = false;
+  bool _resumeMarqueeAfterPinch = false;
 
   Future<void> _refresh() => SyncManager.syncNow();
 
@@ -465,7 +571,8 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
     double? gestureScale,
   }) async {
     if (grouping == _grouping || _isChangingGrouping) return;
-    final anchorId = _centerSessionId();
+    final anchor = _leadingSessionAnchor();
+    final anchorId = anchor?.id;
     final anchorIndex = anchorId == null
         ? _currentAnchorIndex()
         : _sortedHistory.indexWhere((session) => session.id == anchorId);
@@ -487,45 +594,13 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
       _zoomAnimation.value = reduceMotion ? 1 : 0;
       _contentScale = const AlwaysStoppedAnimation(1);
     });
-    await WidgetsBinding.instance.endOfFrame;
-    if (!mounted || token != _groupingChangeToken) return;
-
-    final position = _readyScrollPosition;
-    if (position != null) {
-      position.jumpTo(
-        workoutHistoryOffsetForAnchor(
-          anchorIndex: anchorIndex < 0 ? 0 : anchorIndex,
-          maxScrollExtent: position.maxScrollExtent,
-          viewportDimension: position.viewportDimension,
-          itemCount: _sortedHistory.length,
-        ),
-      );
-    }
-
-    await WidgetsBinding.instance.endOfFrame;
-    if (!mounted || token != _groupingChangeToken) return;
-    final anchorContext = anchorId == null
-        ? null
-        : _sessionKeys[anchorId]?.currentContext;
-    if (anchorContext != null && anchorContext.mounted) {
-      await Scrollable.ensureVisible(
-        anchorContext,
-        alignment: 0.5,
-        duration: Duration.zero,
-      );
-    }
-
-    await WidgetsBinding.instance.endOfFrame;
-    if (!mounted || token != _groupingChangeToken) return;
-    _alignSharedPeriodHeader(fromGeometry);
-    await WidgetsBinding.instance.endOfFrame;
-    if (!mounted || token != _groupingChangeToken) return;
+    if (!await _positionGrouping(anchor, anchorIndex, token)) return;
 
     final toGeometry = reduceMotion ? null : _captureGeometry();
     if (fromGeometry != null && toGeometry != null) {
       setState(() => _transitionTo = toGeometry);
       try {
-        await _zoomAnimation.forward().orCancel;
+        await _zoomAnimation.animateTo(1, curve: GymMotion.enterCurve).orCancel;
       } on TickerCanceled {
         return;
       }
@@ -543,34 +618,242 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
     if (resumeMarquee) _marqueeAnimation.repeat();
   }
 
-  void _alignSharedPeriodHeader(_HistoryGeometry? fromGeometry) {
-    if (fromGeometry == null || fromGeometry.periods.isEmpty) return;
-    final viewport = _historyBoundaryKey.currentContext?.findRenderObject();
+  Future<void> _prepareInteractivePinch(
+    WorkoutHistoryGrouping target,
+    double visualScale,
+  ) async {
+    if (_pinchTargetGrouping != null || _isChangingGrouping) return;
+    final sourceGeometry = _pinchSourceGeometry;
+    final anchor = _pinchAnchor;
+    if (sourceGeometry == null) return;
+
+    _pinchTargetGrouping = target;
+    final anchorIndex = anchor == null
+        ? _currentAnchorIndex()
+        : _sortedHistory.indexWhere((session) => session.id == anchor.id);
+    final token = ++_groupingChangeToken;
+    _resumeMarqueeAfterPinch = _marqueeAnimation.isAnimating;
+    if (_resumeMarqueeAfterPinch) _marqueeAnimation.stop();
+
+    setState(() {
+      _isChangingGrouping = true;
+      _transitionFrom = sourceGeometry;
+      _transitionTo = null;
+      _transitionStartScale = visualScale;
+      _grouping = target;
+      _zoomAnimation.duration = GymMotion.screen;
+      _zoomAnimation.value = 0;
+      _contentScale = const AlwaysStoppedAnimation(1);
+    });
+
+    if (!await _positionGrouping(anchor, anchorIndex, token)) return;
+    final targetGeometry = _captureGeometry();
+    if (targetGeometry == null) {
+      _completeInteractivePinch();
+      return;
+    }
+    setState(() {
+      _transitionTo = targetGeometry;
+      _pinchTransitionReady = true;
+      _zoomAnimation.value = _pinchProgress;
+    });
+    if (_pinchReleased) unawaited(_finishInteractivePinch());
+  }
+
+  Future<void> _finishInteractivePinch() async {
+    if (!_pinchTransitionReady || _isFinishingPinch) return;
+    _isFinishingPinch = true;
+    final commit = _pinchProgress >= 0.45;
+    final token = _groupingChangeToken;
+    final targetValue = commit ? 1.0 : 0.0;
+    final remaining = (_zoomAnimation.value - targetValue).abs();
+    _zoomAnimation.duration = Duration(
+      milliseconds: (90 + 150 * remaining).round(),
+    );
+    unawaited(_detailAnimation.animateTo(1, curve: GymMotion.stateCurve));
+    try {
+      await _zoomAnimation
+          .animateTo(targetValue, curve: GymMotion.stateCurve)
+          .orCancel;
+    } on TickerCanceled {
+      return;
+    }
+    if (!mounted || token != _groupingChangeToken) return;
+
+    if (!commit) {
+      final sourceGrouping = _pinchSourceGrouping;
+      final anchor = _pinchAnchor;
+      if (sourceGrouping != null) {
+        final anchorIndex = anchor == null
+            ? _currentAnchorIndex()
+            : _sortedHistory.indexWhere((session) => session.id == anchor.id);
+        setState(() {
+          _grouping = sourceGrouping;
+          _transitionTo = null;
+          _transitionStartScale = 1;
+          _zoomAnimation.value = 0;
+        });
+        if (!await _positionGrouping(anchor, anchorIndex, token)) return;
+      }
+    }
+
+    _completeInteractivePinch();
+  }
+
+  void _completeInteractivePinch() {
+    if (!mounted) return;
+    setState(() {
+      _transitionFrom = null;
+      _transitionTo = null;
+      _isChangingGrouping = false;
+      _isPinching = false;
+      _pinchBaseScale = 1;
+      _gestureScale = 1;
+      _contentScale = const AlwaysStoppedAnimation(1);
+      _detailAnimation.value = 1;
+    });
+    if (_resumeMarqueeAfterPinch) _marqueeAnimation.repeat();
+    _pinchSourceGrouping = null;
+    _pinchTargetGrouping = null;
+    _pinchSourceGeometry = null;
+    _pinchAnchor = null;
+    _pinchProgress = 0;
+    _pinchTransitionReady = false;
+    _pinchReleased = false;
+    _isFinishingPinch = false;
+    _resumeMarqueeAfterPinch = false;
+  }
+
+  Future<bool> _positionGrouping(
+    _HistorySessionAnchor? anchor,
+    int anchorIndex,
+    int token,
+  ) async {
+    await WidgetsBinding.instance.endOfFrame;
+    if (!mounted || token != _groupingChangeToken) return false;
+
     final position = _readyScrollPosition;
-    if (viewport is! RenderBox || !viewport.attached || position == null) {
+    if (position != null) {
+      position.jumpTo(
+        workoutHistoryOffsetForAnchor(
+          anchorIndex: anchorIndex < 0 ? 0 : anchorIndex,
+          maxScrollExtent: position.maxScrollExtent,
+          viewportDimension: position.viewportDimension,
+          itemCount: _sortedHistory.length,
+        ),
+      );
+    }
+
+    await WidgetsBinding.instance.endOfFrame;
+    if (!mounted || token != _groupingChangeToken) return false;
+    final anchorContext = anchor == null
+        ? null
+        : _sessionKeys[anchor.id]?.currentContext;
+    if (anchorContext != null && anchorContext.mounted) {
+      final viewport = _historyBoundaryKey.currentContext?.findRenderObject();
+      final alignment = viewport is RenderBox
+          ? (anchor!.top / viewport.size.height).clamp(0.0, 1.0)
+          : 0.0;
+      await Scrollable.ensureVisible(
+        anchorContext,
+        alignment: alignment,
+        duration: Duration.zero,
+      );
+    }
+
+    await WidgetsBinding.instance.endOfFrame;
+    if (!mounted || token != _groupingChangeToken) return false;
+    if (anchor != null) _restoreSessionAnchor(anchor);
+    await WidgetsBinding.instance.endOfFrame;
+    if (anchor != null) {
+      final viewport = _historyBoundaryKey.currentContext?.findRenderObject();
+      final settledPosition = _readyScrollPosition;
+      if (viewport is RenderBox && settledPosition != null) {
+        _keepAnchorSessionsVisible(anchor, viewport, settledPosition);
+      }
+    }
+    await WidgetsBinding.instance.endOfFrame;
+    return mounted && token == _groupingChangeToken;
+  }
+
+  _HistorySessionAnchor? _leadingSessionAnchor() {
+    final viewport = _historyBoundaryKey.currentContext?.findRenderObject();
+    if (viewport is! RenderBox || !viewport.attached) return null;
+
+    final rects = <String, Rect>{};
+    for (final entry in _sessionKeys.entries) {
+      final renderObject = entry.value.currentContext?.findRenderObject();
+      if (renderObject is! RenderBox || !renderObject.attached) continue;
+      rects[entry.key] =
+          viewport.globalToLocal(renderObject.localToGlobal(Offset.zero)) &
+          renderObject.size;
+    }
+    final id = workoutHistoryLeadingSessionId(rects, viewport.size);
+    final viewportRect = Offset.zero & viewport.size;
+    final visibleIds = rects.entries
+        .where((entry) => entry.value.overlaps(viewportRect))
+        .map((entry) => entry.key)
+        .toList();
+    return id == null
+        ? null
+        : _HistorySessionAnchor(
+            id: id,
+            top: rects[id]!.top,
+            visibleIds: visibleIds,
+          );
+  }
+
+  void _restoreSessionAnchor(_HistorySessionAnchor anchor) {
+    final viewport = _historyBoundaryKey.currentContext?.findRenderObject();
+    final target = _sessionKeys[anchor.id]?.currentContext?.findRenderObject();
+    final position = _readyScrollPosition;
+    if (viewport is! RenderBox ||
+        !viewport.attached ||
+        target is! RenderBox ||
+        !target.attached ||
+        position == null) {
       return;
     }
 
-    final targetRects = _visibleRects(viewport, _periodKeys);
-    final focalY = (_gestureAlignment.y + 1) / 2 * viewport.size.height;
-    String? anchorId;
-    var closestDistance = double.infinity;
-    for (final entry in fromGeometry.periods.entries) {
-      if (!targetRects.containsKey(entry.key)) continue;
-      final distance = (entry.value.rect.center.dy - focalY).abs();
-      if (distance < closestDistance) {
-        closestDistance = distance;
-        anchorId = entry.key;
-      }
-    }
-    if (anchorId == null) return;
-
-    final sourceTop = fromGeometry.periods[anchorId]!.rect.top;
-    final targetTop = targetRects[anchorId]!.top;
-    final offset = (position.pixels + targetTop - sourceTop)
+    final targetTop = viewport
+        .globalToLocal(target.localToGlobal(Offset.zero))
+        .dy;
+    final offset = (position.pixels + targetTop - anchor.top)
         .clamp(0.0, position.maxScrollExtent)
         .toDouble();
     position.jumpTo(offset);
+  }
+
+  void _keepAnchorSessionsVisible(
+    _HistorySessionAnchor anchor,
+    RenderBox viewport,
+    ScrollPosition position,
+  ) {
+    final rects = <Rect>[];
+    for (final id in anchor.visibleIds) {
+      final target = _sessionKeys[id]?.currentContext?.findRenderObject();
+      if (target is RenderBox && target.attached) {
+        rects.add(
+          viewport.globalToLocal(target.localToGlobal(Offset.zero)) &
+              target.size,
+        );
+      }
+    }
+    if (rects.isEmpty) return;
+    final top = rects.map((rect) => rect.top).reduce(math.min);
+    final bottom = rects.map((rect) => rect.bottom).reduce(math.max);
+    if (bottom - top > viewport.size.height) return;
+    final correction = top < 0
+        ? top
+        : bottom > viewport.size.height
+        ? bottom - viewport.size.height
+        : 0.0;
+    if (correction == 0) return;
+    position.jumpTo(
+      (position.pixels + correction)
+          .clamp(0.0, position.maxScrollExtent)
+          .toDouble(),
+    );
   }
 
   _HistoryGeometry? _captureGeometry() {
@@ -582,12 +865,14 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
     final sessionsById = {
       for (final session in _sortedHistory) session.id: session,
     };
+    final locale = TranslationProvider.of(context).flutterLocale.languageCode;
     final cards = <String, _HistoryCardGeometry>{};
     for (final entry in _visibleRects(viewport, _sessionKeys).entries) {
       final session = sessionsById[entry.key];
       if (session == null) continue;
       cards[entry.key] = _HistoryCardGeometry(
         rect: entry.value,
+        header: workoutHistoryCardHeader(session, _grouping, locale),
         name: t.translateDynamic(session.name).toString(),
         hasPR: session.prCount > 0,
       );
@@ -631,24 +916,6 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
       if (isFullyVisible) rects[entry.key] = rect;
     }
     return rects;
-  }
-
-  String? _centerSessionId() {
-    final viewport = _historyViewportKey.currentContext?.findRenderObject();
-    if (viewport is! RenderBox || !viewport.attached) return null;
-    final viewportCenter = viewport
-        .localToGlobal(Offset(0, viewport.size.height / 2))
-        .dy;
-    final centers = <String, double>{};
-    for (final entry in _sessionKeys.entries) {
-      final renderObject = entry.value.currentContext?.findRenderObject();
-      if (renderObject is RenderBox && renderObject.attached) {
-        centers[entry.key] = renderObject
-            .localToGlobal(Offset(0, renderObject.size.height / 2))
-            .dy;
-      }
-    }
-    return workoutHistoryClosestSessionId(centers, viewportCenter);
   }
 
   GlobalKey _sessionKey(String id) =>
@@ -697,7 +964,16 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
       _zoomAnimation.stop();
       _detailAnimation.stop();
       _pinchStartDistance = _currentPinchDistance();
-      _pinchHandled = false;
+      _pinchSourceGrouping = _grouping;
+      _pinchTargetGrouping = null;
+      _pinchSourceGeometry = GymMotion.reduceMotion(context)
+          ? null
+          : _captureGeometry();
+      _pinchAnchor = _leadingSessionAnchor();
+      _pinchProgress = 0;
+      _pinchTransitionReady = false;
+      _pinchReleased = false;
+      _isFinishingPinch = false;
       setState(() {
         _isPinching = true;
         _pinchBaseScale = _contentScale.value;
@@ -712,40 +988,51 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
     _touchPoints[event.pointer] = event.position;
     if (_touchPoints.length != 2 ||
         _pinchStartDistance == null ||
-        _pinchHandled) {
+        _isFinishingPinch) {
       return;
     }
 
     final rawScale = _currentPinchDistance() / _pinchStartDistance!;
     final visualScale = (_pinchBaseScale * rawScale)
-        .clamp(0.82, 1.18)
+        .clamp(0.78, 1.22)
         .toDouble();
-    final detailProgress = rawScale >= 1
-        ? ((rawScale - 1) / 0.18).clamp(0.0, 1.0)
-        : ((1 - rawScale) / 0.18).clamp(0.0, 1.0);
-    _detailAnimation.value =
-        1 - GymMotion.stateCurve.transform(detailProgress.toDouble());
+    _pinchProgress = workoutHistoryPinchProgress(rawScale);
+    _detailAnimation.value = 1 - _pinchProgress;
     _gestureScale = visualScale;
     _gestureAlignment = _currentPinchAlignment();
     _pinchVisualTick.value++;
 
-    final zoomIn = rawScale >= 1.18;
-    final zoomOut = rawScale <= 0.82;
-    if (zoomIn || zoomOut) {
-      final target = workoutHistoryZoomTarget(_grouping, zoomIn: zoomIn);
-      if (target == null) return;
-      _pinchHandled = true;
-      unawaited(_changeGrouping(target, gestureScale: visualScale));
+    if (_pinchTransitionReady) {
+      _zoomAnimation.value = _pinchProgress;
+      return;
     }
+
+    final sourceGrouping = _pinchSourceGrouping;
+    if (sourceGrouping == null || _pinchProgress < 0.08) return;
+    final target = workoutHistoryZoomTarget(
+      sourceGrouping,
+      zoomIn: rawScale > 1,
+    );
+    if (target == null) return;
+    if (GymMotion.reduceMotion(context)) {
+      if (_pinchProgress >= 0.45 && !_isChangingGrouping) {
+        unawaited(_changeGrouping(target));
+      }
+      return;
+    }
+    unawaited(_prepareInteractivePinch(target, visualScale));
   }
 
   void _onPointerEnd(PointerEvent event) {
     _touchPoints.remove(event.pointer);
     if (_touchPoints.length < 2) {
       _pinchStartDistance = null;
-      final shouldSettle = _isPinching && !_pinchHandled;
-      _pinchHandled = false;
-      if (shouldSettle) _settlePinchScale();
+      if (_pinchTargetGrouping != null) {
+        _pinchReleased = true;
+        if (_pinchTransitionReady) unawaited(_finishInteractivePinch());
+      } else if (_isPinching && !_isChangingGrouping) {
+        _settlePinchScale();
+      }
     }
   }
 
@@ -952,9 +1239,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
                                 final toGeometry = _transitionTo;
                                 final hasGeometry =
                                     _isChangingGrouping && fromGeometry != null;
-                                final progress = GymMotion.enterCurve.transform(
-                                  _zoomAnimation.value,
-                                );
+                                final progress = _zoomAnimation.value;
                                 final reveal = _isChangingGrouping
                                     ? const Interval(
                                         0.58,
@@ -962,7 +1247,9 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
                                         curve: GymMotion.enterCurve,
                                       ).transform(_zoomAnimation.value)
                                     : 1.0;
-                                final contentScale = _isPinching
+                                final contentScale = hasGeometry
+                                    ? 1.0
+                                    : _isPinching
                                     ? _gestureScale
                                     : _contentScale.value;
 
@@ -994,6 +1281,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
                                             surfaceColor: colorScheme.surface,
                                             outlineColor:
                                                 colorScheme.outlineVariant,
+                                            primaryColor: colorScheme.primary,
                                             textColor: colorScheme.onSurface,
                                             goldColor: gymColors.goldRank,
                                           ),
@@ -1254,6 +1542,7 @@ class _DayHistoryList extends StatelessWidget {
                       grouping: WorkoutHistoryGrouping.day,
                       units: units,
                       locale: locale,
+                      isTablet: isTablet,
                       marqueeAnimation: marqueeAnimation,
                       detailOpacity: detailOpacity,
                       onTap: () =>
@@ -1369,6 +1658,7 @@ class _CompactHistoryGrid extends StatelessWidget {
                     grouping: grouping,
                     units: units,
                     locale: locale,
+                    isTablet: isTablet,
                     marqueeAnimation: marqueeAnimation,
                     detailOpacity: detailOpacity,
                     onTap: () =>
@@ -1425,6 +1715,7 @@ class _WorkoutHistoryCard extends StatelessWidget {
   final WorkoutHistoryGrouping grouping;
   final MeasurementFormatter units;
   final String locale;
+  final bool isTablet;
   final VoidCallback onTap;
   final Animation<double> marqueeAnimation;
   final Animation<double> detailOpacity;
@@ -1435,6 +1726,7 @@ class _WorkoutHistoryCard extends StatelessWidget {
     required this.grouping,
     required this.units,
     required this.locale,
+    this.isTablet = false,
     required this.onTap,
     required this.marqueeAnimation,
     required this.detailOpacity,
@@ -1450,19 +1742,13 @@ class _WorkoutHistoryCard extends StatelessWidget {
     final isYear = grouping == WorkoutHistoryGrouping.year;
     final hasPR = session.prCount > 0;
     final name = t.translateDynamic(session.name).toString();
-    final dateLabel = switch (grouping) {
-      WorkoutHistoryGrouping.day =>
-        hasSpecificTime
-            ? DateFormat('dd MMM • HH:mm', locale).format(date)
-            : DateFormat('dd MMM', locale).format(date),
-      WorkoutHistoryGrouping.month => date.day.toString().padLeft(2, '0'),
-      WorkoutHistoryGrouping.year => DateFormat('dd/MM', locale).format(date),
-    };
+    final dateLabel = workoutHistoryCardHeader(session, grouping, locale);
     final exerciseCount = session.exercises.length;
-    final coreDetails = [
-      if (!isDay && hasSpecificTime) DateFormat.Hm(locale).format(date),
-      _formatDuration(session.totalDurationSeconds),
-      '$exerciseCount ${locale == 'vi' ? 'bài' : 'ex'}',
+    final exerciseCountLabel =
+        '$exerciseCount ${locale == 'vi' ? 'bài' : 'ex'}';
+    final monthDetails = [
+      if (hasSpecificTime) DateFormat.Hm(locale).format(date),
+      exerciseCountLabel,
     ].join(' • ');
     final exerciseNames = session.exercises
         .take(3)
@@ -1489,12 +1775,12 @@ class _WorkoutHistoryCard extends StatelessWidget {
       style: TextStyle(fontSize: nameSize, fontWeight: FontWeight.w900),
     );
     final detailsWidget = Text(
-      coreDetails,
+      monthDetails,
       maxLines: 1,
       overflow: TextOverflow.ellipsis,
       style: TextStyle(
         color: colorScheme.onSurfaceVariant,
-        fontSize: isDay ? 12 : 10,
+        fontSize: 10,
         fontWeight: FontWeight.w600,
       ),
     );
@@ -1506,7 +1792,7 @@ class _WorkoutHistoryCard extends StatelessWidget {
             maxLines: 1,
             overflow: TextOverflow.ellipsis,
             style: TextStyle(
-              color: hasPR ? gymColors.goldRank : colorScheme.primary,
+              color: colorScheme.primary,
               fontSize: dateSize,
               fontWeight: FontWeight.w900,
             ),
@@ -1561,61 +1847,150 @@ class _WorkoutHistoryCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                nameWidget,
-                SizedBox(height: isYear ? 4 : 6),
                 if (isDay) ...[
-                  FadeTransition(
-                    opacity: detailOpacity,
-                    child: Column(
+                  FadeTransition(opacity: detailOpacity, child: dateWidget),
+                  const SizedBox(height: 6),
+                  if (isTablet)
+                    Row(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        dateWidget,
-                        const SizedBox(height: 6),
-                        detailsWidget,
-                        const SizedBox(height: 12),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            _HistoryMetric(
-                              icon: Symbols.exercise,
-                              value: volumeOrSets,
-                            ),
-                            if (hasPR)
-                              _HistoryMetric(
-                                icon: Symbols.emoji_events,
-                                value: session.prCount.toString(),
-                                color: gymColors.goldRank,
-                              ),
-                          ],
-                        ),
-                        if (preview.isNotEmpty) ...[
-                          const SizedBox(height: 10),
-                          Text(
-                            preview,
-                            maxLines: 2,
-                            overflow: TextOverflow.ellipsis,
-                            style: TextStyle(
-                              color: colorScheme.onSurfaceVariant,
-                              fontSize: 12,
-                              height: 1.3,
-                            ),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              nameWidget,
+                              if (preview.isNotEmpty) ...[
+                                const SizedBox(height: 8),
+                                FadeTransition(
+                                  opacity: detailOpacity,
+                                  child: Text(
+                                    preview,
+                                    maxLines: 2,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      color: colorScheme.onSurfaceVariant,
+                                      fontSize: 12,
+                                      height: 1.3,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ],
                           ),
-                        ],
+                        ),
+                        const SizedBox(width: 16),
+                        FadeTransition(
+                          opacity: detailOpacity,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.end,
+                            children: [
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  _HistoryMetric(
+                                    icon: Symbols.schedule,
+                                    value: _formatDuration(
+                                      session.totalDurationSeconds,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 6),
+                                  _HistoryMetric(
+                                    icon: Symbols.format_list_bulleted,
+                                    value: exerciseCount.toString(),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  _HistoryMetric(
+                                    icon: Symbols.exercise,
+                                    value: volumeOrSets,
+                                  ),
+                                  if (hasPR) ...[
+                                    const SizedBox(width: 6),
+                                    _HistoryMetric(
+                                      icon: Symbols.emoji_events,
+                                      value: session.prCount.toString(),
+                                      color: gymColors.goldRank,
+                                    ),
+                                  ],
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
                       ],
+                    )
+                  else ...[
+                    nameWidget,
+                    const SizedBox(height: 10),
+                    FadeTransition(
+                      opacity: detailOpacity,
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: FittedBox(
+                          alignment: Alignment.centerLeft,
+                          fit: BoxFit.scaleDown,
+                          child: Row(
+                            children: [
+                              _HistoryMetric(
+                                icon: Symbols.exercise,
+                                value: volumeOrSets,
+                              ),
+                              const SizedBox(width: 6),
+                              _HistoryMetric(
+                                icon: Symbols.format_list_bulleted,
+                                value: exerciseCount.toString(),
+                              ),
+                              const SizedBox(width: 6),
+                              _HistoryMetric(
+                                icon: Symbols.schedule,
+                                value: _formatDuration(
+                                  session.totalDurationSeconds,
+                                ),
+                              ),
+                              if (hasPR) ...[
+                                const SizedBox(width: 6),
+                                _HistoryMetric(
+                                  icon: Symbols.emoji_events,
+                                  value: session.prCount.toString(),
+                                  color: gymColors.goldRank,
+                                ),
+                              ],
+                            ],
+                          ),
+                        ),
+                      ),
                     ),
-                  ),
+                    if (preview.isNotEmpty) ...[
+                      const SizedBox(height: 10),
+                      FadeTransition(
+                        opacity: detailOpacity,
+                        child: Text(
+                          preview,
+                          maxLines: 2,
+                          overflow: TextOverflow.ellipsis,
+                          style: TextStyle(
+                            color: colorScheme.onSurfaceVariant,
+                            fontSize: 12,
+                            height: 1.3,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ],
                 ] else ...[
+                  FadeTransition(opacity: detailOpacity, child: dateWidget),
+                  SizedBox(height: isYear ? 4 : 6),
+                  nameWidget,
                   Expanded(
                     child: FadeTransition(
                       opacity: detailOpacity,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          dateWidget,
-                          const Spacer(),
-                          if (!isYear) detailsWidget,
-                        ],
+                      child: Align(
+                        alignment: Alignment.bottomLeft,
+                        child: isYear ? const SizedBox.shrink() : detailsWidget,
                       ),
                     ),
                   ),

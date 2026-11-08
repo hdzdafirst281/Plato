@@ -1032,7 +1032,7 @@
     "lbl_item_workout_settings": "Workout Settings",
     "desc_item_workout_settings": "Rest timer, sound, screen & RPE",
     "desc_effort_tracking": "Record RPE after each completed set for more accurate Recovery.",
-    "lbl_scale_rpe": "Per-set RPE (1–10)",
+    "lbl_scale_rpe": "Per-set RPE",
     "title_rpe_info": "RPE Scale (Rating of Perceived Exertion)",
     "desc_rpe_info": "Rate effort intensity on a scale from 1 to 10:\n• RPE 10: Maximum effort, no reps left\n• RPE 9: 1 rep left in reserve\n• RPE 8: 2 reps left in reserve\n• RPE 7: 3 reps left in reserve",
     "title_workout_bg": "Background & Progress",

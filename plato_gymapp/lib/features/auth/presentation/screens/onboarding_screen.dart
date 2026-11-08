@@ -8,6 +8,7 @@ import 'package:plato_gymapp/i18n/translation_helper.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:material_symbols_icons/symbols.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
+import 'package:plato_gymapp/core/designsystem/components/language_selection_dialog.dart';
 import 'package:plato_gymapp/features/auth/presentation/bloc/auth_cubit.dart';
 import 'package:plato_gymapp/features/auth/presentation/screens/auth_otp_screen.dart';
 import 'package:plato_gymapp/features/profile/presentation/bloc/profile_cubit.dart';
@@ -133,6 +134,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
 
   int _currentStep = 0;
   int _maxStepReached = 0;
+  int _languageTransitionTrigger = 0;
   bool _isTyping = false;
   bool _isProcessingFinal = false;
   bool _isInputVisible = false; 
@@ -793,36 +795,27 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   }
 
   Future<void> _showLanguageDialog(BuildContext context) async {
-    await GymDialog.showCustom(
+    final locale = await LanguageSelectionDialog.show(
       context: context,
-      titleWidget: Text(t.settings.title_language_dialog, style: const TextStyle(fontWeight: FontWeight.bold)),
-      content: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          ListTile(
-            leading: const Icon(Symbols.language),
-            title: const Text('Tiếng Việt'),
-            trailing: LocaleSettings.currentLocale.languageCode == 'vi' ? Icon(Symbols.check, color: Theme.of(context).colorScheme.primary) : null,
-            onTap: () {
-              LocaleSettings.setLocale(AppLocale.vi);
-              SharedPreferences.getInstance().then((prefs) => prefs.setString('app_lang', 'vi'));
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: const Icon(Symbols.language),
-            title: const Text('English'),
-            trailing: LocaleSettings.currentLocale.languageCode == 'en' ? Icon(Symbols.check, color: Theme.of(context).colorScheme.primary) : null,
-            onTap: () {
-              LocaleSettings.setLocale(AppLocale.en);
-              SharedPreferences.getInstance().then((prefs) => prefs.setString('app_lang', 'en'));
-              Navigator.pop(context);
-            },
-          ),
-        ],
-      ),
-      actions: [],
+      showCloseAction: false,
+      onSelected: (locale) async {
+        try {
+          final prefs = await SharedPreferences.getInstance();
+          return await prefs.setString(
+            'app_lang',
+            locale.languageCode,
+          );
+        } catch (_) {
+          return false;
+        }
+      },
     );
+    if (locale == null || !mounted) return;
+
+    setState(() {
+      LocaleSettings.setLocale(locale);
+      _languageTransitionTrigger++;
+    });
   }
 
   List<TextSpan> _buildRichSpans(String text, ColorScheme colorScheme) {
@@ -984,8 +977,7 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
     final double onboardingProgress = (_maxStepReached / 8.0).clamp(0.0, 1.0);
-
-    return Scaffold(
+    final screen = Scaffold(
       // Scaffold mặc định tự động đẩy nội dung khi bàn phím xuất hiện
       resizeToAvoidBottomInset: true, 
       backgroundColor: colorScheme.surface,
@@ -1189,6 +1181,10 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
           ],
         ),
       ),
+    );
+    return LanguageChangeTransition(
+      trigger: _languageTransitionTrigger,
+      child: screen,
     );
   }
 

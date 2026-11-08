@@ -119,6 +119,14 @@ void main() {
     );
   });
 
+  test('pinch progress follows finger distance continuously', () {
+    expect(workoutHistoryPinchProgress(1), 0);
+    expect(workoutHistoryPinchProgress(0.86), closeTo(0.5, 0.0001));
+    expect(workoutHistoryPinchProgress(1.14), closeTo(0.5, 0.0001));
+    expect(workoutHistoryPinchProgress(0.72), 1);
+    expect(workoutHistoryPinchProgress(1.28), 1);
+  });
+
   test(
     'history card morph preserves both layouts and interpolates geometry',
     () {
@@ -180,18 +188,38 @@ void main() {
     );
     await tester.pump(const Duration(milliseconds: 800));
 
+    final listRect = tester.getRect(find.byType(ListView));
+    final sourceVisibleIds = workouts.map((session) => session.id).where((id) {
+      final finder = find.text(id);
+      return finder.evaluate().isNotEmpty &&
+          tester.getRect(finder.first).overlaps(listRect);
+    }).toList();
+    expect(sourceVisibleIds, hasLength(greaterThanOrEqualTo(2)));
+
     final center = tester.getCenter(find.byType(ListView));
     final firstFinger = await tester.createGesture(pointer: 1);
     final secondFinger = await tester.createGesture(pointer: 2);
     await firstFinger.down(center - const Offset(60, 0));
     await secondFinger.down(center + const Offset(60, 0));
     await tester.pump();
+    await firstFinger.moveTo(center - const Offset(45, 0));
+    for (var frame = 0; frame < 8; frame++) {
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    final interactiveMorph = find.byKey(
+      const ValueKey('workout-history-morph'),
+    );
+    expect(interactiveMorph, findsOneWidget);
+    final interactivePainter =
+        tester.widget<CustomPaint>(interactiveMorph).painter as dynamic;
+    expect(interactivePainter.progress as double, closeTo(0.45, 0.08));
+
     await firstFinger.moveTo(center - const Offset(20, 0));
     await tester.pump();
     await firstFinger.up();
     await secondFinger.up();
 
-    var sawMorph = false;
+    var sawMorph = interactiveMorph.evaluate().isNotEmpty;
     for (var frame = 0; frame < 40; frame++) {
       await tester.pump(const Duration(milliseconds: 16));
       sawMorph =
@@ -207,6 +235,22 @@ void main() {
     );
     expect(sawMorph, isTrue);
     expect(control.selected, {WorkoutHistoryGrouping.month});
+    final gridRect = tester.getRect(find.byType(CustomScrollView));
+    for (final id in sourceVisibleIds) {
+      final finder = find.text(id);
+      expect(finder, findsOneWidget);
+      final rect = tester.getRect(finder);
+      expect(
+        rect.overlaps(gridRect),
+        isTrue,
+        reason: '$id should remain visible: card=$rect viewport=$gridRect',
+      );
+    }
+    final monthVisibleIds = workouts.map((session) => session.id).where((id) {
+      final finder = find.text(id);
+      return finder.evaluate().isNotEmpty &&
+          tester.getRect(finder.first).overlaps(gridRect);
+    }).toList();
 
     final gridCenter = tester.getCenter(find.byType(CustomScrollView));
     final thirdFinger = await tester.createGesture(pointer: 3);
@@ -235,6 +279,81 @@ void main() {
     );
     expect(sawYearMorph, isTrue);
     expect(control.selected, {WorkoutHistoryGrouping.year});
+    final yearRect = tester.getRect(find.byType(CustomScrollView));
+    for (final id in monthVisibleIds) {
+      final finder = find.text(id);
+      expect(finder, findsOneWidget);
+      expect(
+        tester.getRect(finder).overlaps(yearRect),
+        isTrue,
+        reason: '$id should remain visible in year mode',
+      );
+    }
+
+    final yearCenter = tester.getCenter(find.byType(CustomScrollView));
+    final fifthFinger = await tester.createGesture(pointer: 5);
+    final sixthFinger = await tester.createGesture(pointer: 6);
+    await fifthFinger.down(yearCenter - const Offset(60, 0));
+    await sixthFinger.down(yearCenter + const Offset(60, 0));
+    await tester.pump();
+    await fifthFinger.moveTo(yearCenter - const Offset(75, 0));
+    for (var frame = 0; frame < 8; frame++) {
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+    await fifthFinger.up();
+    await sixthFinger.up();
+    for (var frame = 0; frame < 30; frame++) {
+      await tester.pump(const Duration(milliseconds: 16));
+    }
+
+    control = tester.widget<SegmentedButton<WorkoutHistoryGrouping>>(
+      find.byType(SegmentedButton<WorkoutHistoryGrouping>),
+    );
+    expect(control.selected, {WorkoutHistoryGrouping.year});
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('tablet day card renders the 2x2 metrics layout', (tester) async {
+    await initializeDateFormatting('en');
+    await initializeDateFormatting('vi');
+    tester.view.physicalSize = const Size(800, 1024);
+    tester.view.devicePixelRatio = 1;
+    addTearDown(tester.view.resetPhysicalSize);
+    addTearDown(tester.view.resetDevicePixelRatio);
+
+    final statsCubit = _FakeStatsCubit([
+      _session(id: 'tablet-session', date: DateTime(2026, 11, 3, 18, 45)),
+    ]);
+    final profileCubit = _FakeProfileCubit();
+    addTearDown(statsCubit.close);
+    addTearDown(profileCubit.close);
+
+    await tester.pumpWidget(
+      TranslationProvider(
+        child: MultiBlocProvider(
+          providers: [
+            BlocProvider<StatsCubit>.value(value: statsCubit),
+            BlocProvider<ProfileCubit>.value(value: profileCubit),
+          ],
+          child: MaterialApp(
+            theme: AppTheme.darkTheme,
+            builder: (context, child) => ResponsiveBreakpoints.builder(
+              breakpoints: const [
+                Breakpoint(start: 0, end: 450, name: MOBILE),
+                Breakpoint(start: 451, end: 800, name: TABLET),
+                Breakpoint(start: 801, end: double.infinity, name: DESKTOP),
+              ],
+              child: child!,
+            ),
+            home: const WorkoutHistoryScreen(),
+          ),
+        ),
+      ),
+    );
+    await tester.pump(const Duration(milliseconds: 800));
+
+    expect(find.text('18:45'), findsOneWidget);
+    expect(find.text('tablet-session'), findsOneWidget);
     expect(tester.takeException(), isNull);
   });
 
@@ -261,14 +380,32 @@ void main() {
     },
   );
 
-  test('history anchor uses the rendered session closest to center', () {
+  test('history anchor uses the leading visible session', () {
     expect(
-      workoutHistoryClosestSessionId({
-        'apr-14': 180,
-        'apr-15': 305,
-        'apr-16': 430,
-      }, 300),
-      'apr-15',
+      workoutHistoryLeadingSessionId({
+        'offscreen': const Rect.fromLTWH(0, -80, 100, 40),
+        'oct-31': const Rect.fromLTWH(0, 20, 100, 80),
+        'oct-30': const Rect.fromLTWH(110, 20, 100, 80),
+        'oct-28': const Rect.fromLTWH(0, 110, 100, 80),
+      }, const Size(320, 500)),
+      'oct-31',
+    );
+  });
+
+  test('card header follows the selected grouping', () {
+    final session = _session(id: 'header', date: DateTime(2026, 11, 3, 18, 45));
+
+    expect(
+      workoutHistoryCardHeader(session, WorkoutHistoryGrouping.day, 'vi'),
+      '18:45',
+    );
+    expect(
+      workoutHistoryCardHeader(session, WorkoutHistoryGrouping.month, 'vi'),
+      '03',
+    );
+    expect(
+      workoutHistoryCardHeader(session, WorkoutHistoryGrouping.year, 'vi'),
+      '03/11',
     );
   });
 

@@ -903,7 +903,7 @@ class _PodiumView extends StatelessWidget {
             gradientColors: gradientColors,
             rankColor: rankColor,
             rankId: rankId, // Truyền rankId xuống
-            animDelay: GymMotion.screen.inMilliseconds + index * 200,
+            animDelay: GymMotion.screen.inMilliseconds + (3 - rank) * 200,
             marqueeAnimation: marqueeAnimation,
             motionValue: motionValueFor(user.id),
           );
@@ -1026,7 +1026,7 @@ class _PodiumColumn extends StatelessWidget {
     return GymStableValueBuilder(
       motionValue: motionValue,
       value: 1,
-      duration: GymMotion.emphasized,
+      duration: GymMotion.visualization,
       delay: Duration(milliseconds: animDelay),
       curve: Curves.linear,
       builder: (context, value, child) {
