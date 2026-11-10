@@ -23,6 +23,7 @@ import '../../../../core/designsystem/components/streak_icon.dart';
 import 'package:plato_gymapp/core/designsystem/theme/app_theme.dart';
 import 'package:plato_gymapp/core/designsystem/theme/colors.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_dialog.dart';
+import 'package:plato_gymapp/core/designsystem/components/gym_marquee_text.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_time_picker.dart';
 import 'package:plato_gymapp/core/designsystem/components/gym_motion.dart';
 
@@ -52,12 +53,20 @@ class CalendarScreen extends StatefulWidget {
   State<CalendarScreen> createState() => _CalendarScreenState();
 }
 
-class _CalendarScreenState extends State<CalendarScreen> {
+class _CalendarScreenState extends State<CalendarScreen>
+    with SingleTickerProviderStateMixin {
   bool _openedInitialSchedule = false;
   CalendarViewMode _viewMode = CalendarViewMode.MONTH;
 
+  AnimationController? _marqueeAnimation;
   late PageController _monthPageController;
   late PageController _yearPageController;
+
+  AnimationController get _marqueeAnimationController =>
+      _marqueeAnimation ??= AnimationController(
+        vsync: this,
+        duration: GymMarqueeText.cycleDuration,
+      )..repeat();
 
   // Xử lý ẩn lịch sử quá khứ
   int _earliestMonthOffset = 0;
@@ -124,6 +133,7 @@ class _CalendarScreenState extends State<CalendarScreen> {
 
     _monthPageController.dispose();
     _yearPageController.dispose();
+    _marqueeAnimation?.dispose();
     super.dispose();
   }
 
@@ -755,6 +765,8 @@ class _CalendarScreenState extends State<CalendarScreen> {
                                     return _MonthCalendarGrid(
                                       activeDate: date,
                                       mappedItems: _mappedItemsCache,
+                                      marqueeAnimation:
+                                          _marqueeAnimationController,
                                       isDesktop: isDesktop,
                                       childAspectRatio: childAspectRatio,
                                       forceShowTour: forceShowTour,
@@ -2651,6 +2663,7 @@ class _StripedPatternPainter extends CustomPainter {
 class _MonthCalendarGrid extends StatelessWidget {
   final DateTime activeDate;
   final Map<DateTime, List<dynamic>> mappedItems;
+  final Animation<double> marqueeAnimation;
   final bool isDesktop;
   final double childAspectRatio;
   final bool forceShowTour;
@@ -2660,6 +2673,7 @@ class _MonthCalendarGrid extends StatelessWidget {
   const _MonthCalendarGrid({
     required this.activeDate,
     required this.mappedItems,
+    required this.marqueeAnimation,
     required this.isDesktop,
     required this.childAspectRatio,
     this.forceShowTour = false,
@@ -2857,16 +2871,14 @@ class _MonthCalendarGrid extends StatelessWidget {
                                                 left: Radius.circular(4),
                                               ),
                                         ),
-                                        child: Text(
+                                        child: GymMarqueeText(
                                           t.translateDynamic(realRoutineName),
+                                          animation: marqueeAnimation,
                                           style: const TextStyle(
-                                            fontSize: 8,
+                                            fontSize: 9,
                                             color: Colors.white,
                                             fontWeight: FontWeight.bold,
                                           ),
-                                          maxLines: 1,
-                                          softWrap: false,
-                                          overflow: TextOverflow.clip,
                                         ),
                                       );
                                     }),

@@ -22,7 +22,9 @@ abstract class AppModule {
 
     final callback = Callback(
       onOpen: (sqflite.Database database) async {
-        await database.rawQuery('PRAGMA journal_mode=WAL');
+        if (defaultTargetPlatform != TargetPlatform.android) {
+          await database.rawQuery('PRAGMA journal_mode=WAL');
+        }
         debugPrint("🛠️ [DEBUG DB] 2. Callback onOpen được gọi!");
         try {
           const int currentSqlVersion = 5;

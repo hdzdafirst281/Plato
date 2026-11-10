@@ -125,6 +125,12 @@ void main() {
     expect(workoutHistoryPinchProgress(1.14), closeTo(0.5, 0.0001));
     expect(workoutHistoryPinchProgress(0.72), 1);
     expect(workoutHistoryPinchProgress(1.28), 1);
+    expect(workoutHistoryTargetReveal(0.92), 0);
+    expect(workoutHistoryTargetReveal(0.96), closeTo(0.5, 0.0001));
+    expect(workoutHistoryTargetReveal(1), 1);
+    expect(workoutHistoryHeaderSlideProgress(0), 0);
+    expect(workoutHistoryHeaderSlideProgress(0.5), closeTo(0.5, 0.0001));
+    expect(workoutHistoryHeaderSlideProgress(1), 1);
   });
 
   test(
@@ -216,6 +222,24 @@ void main() {
 
     await firstFinger.moveTo(center - const Offset(20, 0));
     await tester.pump();
+    final targetOpacities = tester
+        .widgetList<Opacity>(
+          find.ancestor(
+            of: find.text('session-0'),
+            matching: find.byType(Opacity),
+          ),
+        )
+        .map((widget) => widget.opacity);
+    expect(targetOpacities.any((opacity) => opacity == 1), isTrue);
+    final headerFades = tester
+        .widgetList<FadeTransition>(
+          find.ancestor(
+            of: find.text('31'),
+            matching: find.byType(FadeTransition),
+          ),
+        )
+        .map((widget) => widget.opacity.value);
+    expect(headerFades.any((opacity) => opacity == 1), isTrue);
     await firstFinger.up();
     await secondFinger.up();
 

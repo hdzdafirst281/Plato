@@ -152,7 +152,11 @@ Future<bool> _executeCoreSyncLogic({
       backgroundDb = await $FloorAppDatabase
           .databaseBuilder('plato_app_database.db')
           .addMigrations([migration2to3, migration3to4, migration4to5, migration5to6, migration6to7])
-          .addCallback(Callback(onOpen: (db) async => await db.rawQuery('PRAGMA journal_mode=WAL')))
+          .addCallback(Callback(onOpen: (db) async {
+            if (defaultTargetPlatform != TargetPlatform.android) {
+              await db.rawQuery('PRAGMA journal_mode=WAL');
+            }
+          }))
           .build();
       database = backgroundDb;
     } else {

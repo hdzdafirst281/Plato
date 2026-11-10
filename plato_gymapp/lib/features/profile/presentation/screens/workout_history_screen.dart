@@ -135,6 +135,16 @@ double workoutHistoryOffsetForAnchor({
 double workoutHistoryPinchProgress(double scale) =>
     ((scale - 1).abs() / 0.28).clamp(0.0, 1.0).toDouble();
 
+double workoutHistoryTargetReveal(double progress) {
+  final value = ((progress - 0.92) / 0.08).clamp(0.0, 1.0).toDouble();
+  return value * value * (3 - 2 * value);
+}
+
+double workoutHistoryHeaderSlideProgress(double progress) {
+  final value = progress.clamp(0.0, 1.0).toDouble();
+  return value * value * (3 - 2 * value);
+}
+
 String? workoutHistoryLeadingSessionId(
   Map<String, Rect> sessionRects,
   Size viewportSize,
@@ -202,11 +212,13 @@ class _HistoryPeriodGeometry {
 
 class _HistoryGeometry {
   final Size logicalSize;
+  final WorkoutHistoryGrouping grouping;
   final Map<String, _HistoryCardGeometry> cards;
   final Map<String, _HistoryPeriodGeometry> periods;
 
   const _HistoryGeometry({
     required this.logicalSize,
+    required this.grouping,
     required this.cards,
     required this.periods,
   });
@@ -221,8 +233,10 @@ class _HistoryMorphPainter extends CustomPainter {
   final Color surfaceColor;
   final Color outlineColor;
   final Color primaryColor;
+  final Color tertiaryColor;
   final Color textColor;
   final Color goldColor;
+  final TextStyle periodTextStyle;
 
   const _HistoryMorphPainter({
     required this.from,
@@ -233,8 +247,10 @@ class _HistoryMorphPainter extends CustomPainter {
     required this.surfaceColor,
     required this.outlineColor,
     required this.primaryColor,
+    required this.tertiaryColor,
     required this.textColor,
     required this.goldColor,
+    required this.periodTextStyle,
   });
 
   @override
@@ -243,9 +259,7 @@ class _HistoryMorphPainter extends CustomPainter {
     final focalPoint = focalAlignment.withinRect(viewport);
     final settledScale = fromScale + (1 - fromScale) * progress;
     final fromBounds = _scaleRect(viewport, focalPoint, settledScale);
-    final overlayOpacity = progress <= 0.78
-        ? 1.0
-        : (1 - (progress - 0.78) / 0.22).clamp(0.0, 1.0);
+    final overlayOpacity = 1 - workoutHistoryTargetReveal(progress);
 
     _drawCards(canvas, fromBounds, viewport, overlayOpacity);
     _drawPeriods(canvas, fromBounds, viewport, overlayOpacity);
@@ -408,59 +422,101 @@ class _HistoryMorphPainter extends CustomPainter {
         final oldRect = _mapRect(oldPeriod.rect, from.logicalSize, fromBounds);
         final newRect = _mapRect(newPeriod.rect, to.logicalSize, toBounds);
         final rect = workoutHistoryMorphRect(oldRect, newRect, progress);
-        _drawPeriodLabel(
+        _drawPeriodHeader(
           canvas,
-          rect.topLeft,
+          rect,
           oldPeriod.label,
-          (1 - progress) * overlayOpacity,
-        );
-        _drawPeriodLabel(
-          canvas,
-          rect.topLeft,
           newPeriod.label,
-          progress * overlayOpacity,
+          progress,
+          overlayOpacity,
         );
       } else if (oldPeriod != null) {
         final rect = _mapRect(oldPeriod.rect, from.logicalSize, fromBounds);
-        _drawPeriodLabel(
+        _drawPeriodHeader(
           canvas,
-          rect.topLeft,
+          rect,
           oldPeriod.label,
+          oldPeriod.label,
+          0,
           (1 - progress) * overlayOpacity,
         );
       } else if (newPeriod != null) {
         final rect = _mapRect(newPeriod.rect, to.logicalSize, toBounds);
-        _drawPeriodLabel(
+        _drawPeriodHeader(
           canvas,
-          rect.topLeft,
+          rect,
           newPeriod.label,
+          newPeriod.label,
+          1,
           progress * overlayOpacity,
         );
       }
     }
   }
 
-  void _drawPeriodLabel(
+  void _drawPeriodHeader(
     Canvas canvas,
-    Offset position,
-    String label,
+    Rect rect,
+    String fromLabel,
+    String toLabel,
+    double labelProgress,
     double opacity,
   ) {
-    if (opacity <= 0) return;
-    final painter = TextPainter(
-      text: TextSpan(
-        text: label,
-        style: TextStyle(
-          color: textColor.withValues(alpha: opacity),
-          fontSize: 16,
-          fontWeight: FontWeight.w900,
+    if (opacity <= 0 || rect.isEmpty) return;
+    final barRect = Rect.fromLTWH(rect.left + 4, rect.top + 16, 4, 34);
+    canvas.drawRRect(
+      RRect.fromRectAndRadius(barRect, const Radius.circular(999)),
+      Paint()
+        ..shader = LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [
+            primaryColor.withValues(alpha: opacity),
+            tertiaryColor.withValues(alpha: opacity),
+          ],
+        ).createShader(barRect),
+    );
+
+    final labelRect = Rect.fromLTWH(
+      barRect.right + 10,
+      barRect.top,
+      (rect.right - barRect.right - 14).clamp(0.0, double.infinity),
+      barRect.height,
+    );
+    if (labelRect.isEmpty) return;
+
+    void paintLabel(String label, double dy) {
+      final painter = TextPainter(
+        text: TextSpan(
+          text: label,
+          style: periodTextStyle.copyWith(
+            color: textColor.withValues(alpha: opacity),
+          ),
         ),
-      ),
-      maxLines: 1,
-      ellipsis: '…',
-      textDirection: ui.TextDirection.ltr,
-    )..layout(maxWidth: 280);
-    painter.paint(canvas, position + const Offset(4, 16));
+        maxLines: 1,
+        ellipsis: '…',
+        textDirection: ui.TextDirection.ltr,
+      )..layout(maxWidth: labelRect.width);
+      painter.paint(
+        canvas,
+        Offset(
+          labelRect.left,
+          labelRect.top + (labelRect.height - painter.height) / 2 + dy,
+        ),
+      );
+    }
+
+    canvas.save();
+    canvas.clipRect(labelRect);
+    if (fromLabel == toLabel) {
+      paintLabel(fromLabel, 0);
+    } else {
+      final slide = workoutHistoryHeaderSlideProgress(labelProgress);
+      final direction = to.grouping.index > from.grouping.index ? -1.0 : 1.0;
+      paintLabel(fromLabel, direction * labelRect.height * slide);
+      paintLabel(toLabel, -direction * labelRect.height * (1 - slide));
+    }
+    canvas.restore();
   }
 
   Rect _mapRect(Rect rect, Size sourceSize, Rect destination) {
@@ -491,8 +547,10 @@ class _HistoryMorphPainter extends CustomPainter {
       oldDelegate.surfaceColor != surfaceColor ||
       oldDelegate.outlineColor != outlineColor ||
       oldDelegate.primaryColor != primaryColor ||
+      oldDelegate.tertiaryColor != tertiaryColor ||
       oldDelegate.textColor != textColor ||
-      oldDelegate.goldColor != goldColor;
+      oldDelegate.goldColor != goldColor ||
+      oldDelegate.periodTextStyle != periodTextStyle;
 }
 
 class WorkoutHistoryScreen extends StatefulWidget {
@@ -655,6 +713,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
     setState(() {
       _transitionTo = targetGeometry;
       _pinchTransitionReady = true;
+      _detailAnimation.value = 1;
       _zoomAnimation.value = _pinchProgress;
     });
     if (_pinchReleased) unawaited(_finishInteractivePinch());
@@ -890,6 +949,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
 
     return _HistoryGeometry(
       logicalSize: viewport.size,
+      grouping: _grouping,
       cards: cards,
       periods: periods,
     );
@@ -997,7 +1057,9 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
         .clamp(0.78, 1.22)
         .toDouble();
     _pinchProgress = workoutHistoryPinchProgress(rawScale);
-    _detailAnimation.value = 1 - _pinchProgress;
+    if (!_pinchTransitionReady) {
+      _detailAnimation.value = 1 - _pinchProgress;
+    }
     _gestureScale = visualScale;
     _gestureAlignment = _currentPinchAlignment();
     _pinchVisualTick.value++;
@@ -1241,11 +1303,9 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
                                     _isChangingGrouping && fromGeometry != null;
                                 final progress = _zoomAnimation.value;
                                 final reveal = _isChangingGrouping
-                                    ? const Interval(
-                                        0.58,
-                                        1,
-                                        curve: GymMotion.enterCurve,
-                                      ).transform(_zoomAnimation.value)
+                                    ? workoutHistoryTargetReveal(
+                                        _zoomAnimation.value,
+                                      )
                                     : 1.0;
                                 final contentScale = hasGeometry
                                     ? 1.0
@@ -1282,8 +1342,23 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
                                             outlineColor:
                                                 colorScheme.outlineVariant,
                                             primaryColor: colorScheme.primary,
+                                            tertiaryColor: colorScheme.tertiary,
                                             textColor: colorScheme.onSurface,
                                             goldColor: gymColors.goldRank,
+                                            periodTextStyle:
+                                                Theme.of(context)
+                                                    .textTheme
+                                                    .titleLarge
+                                                    ?.copyWith(
+                                                      color:
+                                                          colorScheme.onSurface,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                    ) ??
+                                                const TextStyle(
+                                                  fontSize: 22,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
                                           ),
                                           isComplex: false,
                                           willChange: true,

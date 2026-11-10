@@ -17,6 +17,10 @@
         android:allowBackup="false"
         android:fullBackupContent="false"
         android:enableOnBackInvokedCallback="true">
+
+        <meta-data
+            android:name="com.tekartik.sqflite.wal_enabled"
+            android:value="true" />
         
         <service 
             android:name="id.flutter.flutter_background_service.BackgroundService" 
