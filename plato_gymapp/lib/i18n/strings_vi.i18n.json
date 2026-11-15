@@ -1034,7 +1034,7 @@
     "desc_effort_tracking": "Ghi lại RPE sau mỗi set đã hoàn thành để tính Recovery chính xác hơn.",
     "lbl_scale_rpe": "RPE từng set",
     "title_rpe_info": "Thang đo mức độ gắng sức",
-    "desc_rpe_info": "Đánh giá mức độ nặng theo thang điểm 1 đến 10:\n• RPE 10: Hết sức, không thể làm thêm rep nào\n• RPE 9: Còn sức thực hiện đúng 1 rep\n• RPE 8: Còn sức thực hiện thêm 2 reps\n• RPE 7: Còn sức thực hiện thêm 3 reps",
+    "desc_rpe_info": "Đánh giá mức độ gắng sức sau mỗi set đã hoàn thành theo thang điểm 1 đến 10:\n• RPE 1-4: Nhẹ, còn nhiều sức để thực hiện thêm hiệp\n• RPE 5-7: Vừa đến nặng, vẫn còn sức thực hiện thêm một vài hiệp\n• RPE 8-10: Rất nặng đến tối đa, chỉ còn ít hoặc không thể thực hiện thêm hiệp",
     "title_workout_bg": "Chạy nền & Tiến trình",
     "title_workout_guide": "Tối ưu hóa phục hồi",
     "desc_workout_guide": "Dữ liệu gắng sức giúp Plato tính toán điểm Phục hồi (Recovery) và Tải trọng (Strain) chính xác hơn cho cơ bắp của bạn.",

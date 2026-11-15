@@ -289,6 +289,97 @@ void main() {
     expect(tester.widget<Opacity>(find.byType(Opacity)).opacity, 0.6);
   });
 
+  testWidgets('podium waits for entrance then reveals ranks 3, 2, 1', (
+    tester,
+  ) async {
+    var active = false;
+    late StateSetter rebuild;
+    final motions = {
+      for (final rank in [3, 2, 1]) rank: GymMotionValue(),
+    };
+    final values = <int, double>{};
+
+    await tester.pumpWidget(
+      subject(
+        child: StatefulBuilder(
+          builder: (context, setState) {
+            rebuild = setState;
+            return GymMotionScope(
+              active: active,
+              child: Row(
+                children: [
+                  for (final rank in [2, 1, 3])
+                    GymStableValueBuilder(
+                      motionValue: motions[rank]!,
+                      value: 1,
+                      waitForEntrance: true,
+                      delay: GymMotion.visualization * (3 - rank),
+                      curve: Curves.linear,
+                      builder: (context, value, child) {
+                        values[rank] = value;
+                        return const SizedBox();
+                      },
+                    ),
+                ],
+              ),
+            );
+          },
+        ),
+      ),
+    );
+
+    // A hidden leaderboard must not consume its podium delays.
+    await tester.pump(const Duration(seconds: 3));
+    expect(values.values, everyElement(0));
+    rebuild(() => active = true);
+    await tester.pump();
+    await tester.pump(GymMotion.sequenceStartDelay);
+    await tester.pump();
+    await tester.pump(GymMotion.sequence);
+    expect(values.values, everyElement(0));
+    await tester.pump(const Duration(milliseconds: 16));
+    await tester.pump();
+
+    for (final rank in [3, 2, 1]) {
+      await tester.pump(const Duration(milliseconds: 100));
+      expect(values[rank], greaterThan(0), reason: 'rank $rank is rising');
+      for (var waiting = rank - 1; waiting >= 1; waiting--) {
+        expect(values[waiting], 0, reason: 'rank $waiting must wait');
+      }
+      await tester.pump(const Duration(milliseconds: 700));
+      expect(values[rank], 1, reason: 'rank $rank finishes its own step');
+      await tester.pump();
+    }
+
+    rebuild(() {});
+    await tester.pump();
+    expect(values.values, everyElement(1));
+    expect(tester.takeException(), isNull);
+  });
+
+  testWidgets('entrance-gated values respect reduced motion', (tester) async {
+    double? renderedValue;
+    await tester.pumpWidget(
+      subject(
+        disableAnimations: true,
+        child: GymMotionScope(
+          active: false,
+          child: GymStableValueBuilder(
+            motionValue: GymMotionValue(),
+            value: 1,
+            waitForEntrance: true,
+            delay: const Duration(seconds: 2),
+            builder: (context, value, child) {
+              renderedValue = value;
+              return const SizedBox();
+            },
+          ),
+        ),
+      ),
+    );
+    expect(renderedValue, 1);
+  });
+
   testWidgets('inactive screen scope waits for activation', (tester) async {
     var active = false;
     late StateSetter setHostState;

@@ -58,7 +58,8 @@ class _WorkoutScreenState extends State<WorkoutScreen>
 
   bool get _isTourTargetActive {
     final isUserLoggedIn = getIt<AuthRepository>().currentUserId != null;
-    return (!context.read<TourCubit>().state.hasSeenWorkout && !isUserLoggedIn) ||
+    return (!context.read<TourCubit>().state.hasSeenWorkout &&
+            !isUserLoggedIn) ||
         forceShowTour;
   }
 
@@ -67,6 +68,7 @@ class _WorkoutScreenState extends State<WorkoutScreen>
   AppLocale? _lastLocale;
   List<String> _cachedSortedFolders = [];
   Map<String, List<WorkoutSession>> _cachedGroupedRoutines = {};
+  final Map<MajorMuscleGroup, GymMotionValue> _recoveryMotions = {};
 
   @override
   void initState() {
@@ -464,88 +466,85 @@ class _WorkoutScreenState extends State<WorkoutScreen>
     return MainTabMotionScope(
       tabIndex: 0,
       child: Scaffold(
+        backgroundColor: colorScheme.surface,
+        appBar: AppBar(
+          toolbarHeight: 56,
           backgroundColor: colorScheme.surface,
-          appBar: AppBar(
-            toolbarHeight: 56,
-            backgroundColor: colorScheme.surface,
-            elevation: 0,
-            scrolledUnderElevation: 0,
-            automaticallyImplyLeading: false,
-            centerTitle: true,
-            titleSpacing: 16,
-            title: GymMotionItem(
-              effect: GymMotionEffect.fadeDown,
-              child: Image.asset(
-                Theme.of(context).brightness == Brightness.dark
-                    ? 'assets/logo/logo_themedark.png'
-                    : 'assets/logo/logo_themelight.png',
-                key: ValueKey(Theme.of(context).brightness),
-                height: 36,
-                cacheHeight: 108,
-                fit: BoxFit.contain,
-              ),
+          elevation: 0,
+          scrolledUnderElevation: 0,
+          automaticallyImplyLeading: false,
+          centerTitle: true,
+          titleSpacing: 16,
+          title: GymMotionItem(
+            effect: GymMotionEffect.fadeDown,
+            child: Image.asset(
+              Theme.of(context).brightness == Brightness.dark
+                  ? 'assets/logo/logo_themedark.png'
+                  : 'assets/logo/logo_themelight.png',
+              key: ValueKey(Theme.of(context).brightness),
+              height: 36,
+              cacheHeight: 108,
+              fit: BoxFit.contain,
             ),
           ),
-          body: Stack(
-            children: [
-              SafeArea(
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: 1200),
-                    child: isTablet
-                        ? Row(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Expanded(
-                                flex: 4,
-                                child: _buildDashboardPanel(
-                                  context,
-                                  colorScheme,
-                                ),
-                              ),
-                              const SizedBox(width: 24),
-                              Expanded(flex: 6, child: mainList),
-                            ],
-                          )
-                        : mainList,
-                  ),
+        ),
+        body: Stack(
+          children: [
+            SafeArea(
+              child: Center(
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(maxWidth: 1200),
+                  child: isTablet
+                      ? Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Expanded(
+                              flex: 4,
+                              child: _buildDashboardPanel(context, colorScheme),
+                            ),
+                            const SizedBox(width: 24),
+                            Expanded(flex: 6, child: mainList),
+                          ],
+                        )
+                      : mainList,
                 ),
               ),
+            ),
 
-              // 2. VÙNG CẢM BIẾN CUỘN LÊN (Đỉnh màn hình)
-              Positioned(
-                top: 0,
-                left: 0,
-                right: 0,
-                height: 120,
-                child: DragTarget<String>(
-                  // Trả về false để xuyên thấu xuống dưới, không chiếm quyền nhận data
-                  onWillAcceptWithDetails: (_) {
-                    _startVerticalScroll(-12.0);
-                    return false;
-                  },
-                  onLeave: (_) => _stopVerticalScroll(),
-                  builder: (context, _, _) => const SizedBox.expand(),
-                ),
+            // 2. VÙNG CẢM BIẾN CUỘN LÊN (Đỉnh màn hình)
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              height: 120,
+              child: DragTarget<String>(
+                // Trả về false để xuyên thấu xuống dưới, không chiếm quyền nhận data
+                onWillAcceptWithDetails: (_) {
+                  _startVerticalScroll(-12.0);
+                  return false;
+                },
+                onLeave: (_) => _stopVerticalScroll(),
+                builder: (context, _, _) => const SizedBox.expand(),
               ),
+            ),
 
-              // 3. VÙNG CẢM BIẾN CUỘN XUỐNG (Đáy màn hình)
-              Positioned(
-                bottom: 0,
-                left: 0,
-                right: 0,
-                height: 160,
-                child: DragTarget<String>(
-                  onWillAcceptWithDetails: (_) {
-                    _startVerticalScroll(12.0);
-                    return false;
-                  },
-                  onLeave: (_) => _stopVerticalScroll(),
-                  builder: (context, _, _) => const SizedBox.expand(),
-                ),
+            // 3. VÙNG CẢM BIẾN CUỘN XUỐNG (Đáy màn hình)
+            Positioned(
+              bottom: 0,
+              left: 0,
+              right: 0,
+              height: 160,
+              child: DragTarget<String>(
+                onWillAcceptWithDetails: (_) {
+                  _startVerticalScroll(12.0);
+                  return false;
+                },
+                onLeave: (_) => _stopVerticalScroll(),
+                builder: (context, _, _) => const SizedBox.expand(),
               ),
-            ],
-          ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -688,7 +687,11 @@ class _WorkoutScreenState extends State<WorkoutScreen>
                       : Column(
                           crossAxisAlignment: CrossAxisAlignment.stretch,
                           children: [
-                            RecoveryBarChart(recoveryDataList: recoveryData),
+                            RecoveryBarChart(
+                              recoveryDataList: recoveryData,
+                              motionValueFor: (muscle) => _recoveryMotions
+                                  .putIfAbsent(muscle, GymMotionValue.new),
+                            ),
                             const SizedBox(height: 24),
                             const RecoveryRecommendations(),
                           ],

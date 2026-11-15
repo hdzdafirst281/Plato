@@ -1034,7 +1034,7 @@
     "desc_effort_tracking": "Record RPE after each completed set for more accurate Recovery.",
     "lbl_scale_rpe": "Per-set RPE",
     "title_rpe_info": "RPE Scale (Rating of Perceived Exertion)",
-    "desc_rpe_info": "Rate effort intensity on a scale from 1 to 10:\n• RPE 10: Maximum effort, no reps left\n• RPE 9: 1 rep left in reserve\n• RPE 8: 2 reps left in reserve\n• RPE 7: 3 reps left in reserve",
+    "desc_rpe_info": "Rate effort after each completed set on a scale from 1 to 10:\n• RPE 1-4: Light effort, with plenty of reps left\n• RPE 5-7: Moderate to hard effort, with several reps left\n• RPE 8-10: Very hard to maximal effort, with few or no reps left",
     "title_workout_bg": "Background & Progress",
     "title_workout_guide": "Recovery Optimization",
     "desc_workout_guide": "Effort metrics help Plato accurately calculate muscle Recovery and Strain scores for your body.",

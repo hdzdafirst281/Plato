@@ -989,8 +989,13 @@ class RecoveryUIData {
 
 class RecoveryBarChart extends StatelessWidget {
   final List<RecoveryUIData> recoveryDataList;
+  final GymMotionValue Function(MajorMuscleGroup muscle) motionValueFor;
 
-  const RecoveryBarChart({super.key, required this.recoveryDataList});
+  const RecoveryBarChart({
+    super.key,
+    required this.recoveryDataList,
+    required this.motionValueFor,
+  });
 
   void _showInfoDialog(BuildContext context, ColorScheme colorScheme) {
     GymDialog.showCustom(
@@ -1157,8 +1162,10 @@ class RecoveryBarChart extends StatelessWidget {
               children: recoveryDataList
                   .map(
                     (data) => SegmentedRecoveryBar(
+                      key: ValueKey(data.muscle),
                       recoveryUIDataItem: data,
                       labelWidth: finalLabelWidth,
+                      motionValue: motionValueFor(data.muscle),
                     ),
                   )
                   .toList(),
@@ -1173,11 +1180,13 @@ class RecoveryBarChart extends StatelessWidget {
 class SegmentedRecoveryBar extends StatefulWidget {
   final RecoveryUIData recoveryUIDataItem;
   final double labelWidth;
+  final GymMotionValue motionValue;
 
   const SegmentedRecoveryBar({
     super.key,
     required this.recoveryUIDataItem,
     required this.labelWidth,
+    required this.motionValue,
   });
 
   @override
@@ -1274,6 +1283,7 @@ class _SegmentedRecoveryBarState extends State<SegmentedRecoveryBar> {
                   color: progressColor,
                   trackColor: colorScheme.outlineVariant.withValues(alpha: 0.3),
                   height: 14.0,
+                  motionValue: widget.motionValue,
                 ),
                 if (timeString.isNotEmpty)
                   Text(

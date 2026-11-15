@@ -121,10 +121,10 @@ void main() {
 
   test('pinch progress follows finger distance continuously', () {
     expect(workoutHistoryPinchProgress(1), 0);
-    expect(workoutHistoryPinchProgress(0.86), closeTo(0.5, 0.0001));
-    expect(workoutHistoryPinchProgress(1.14), closeTo(0.5, 0.0001));
-    expect(workoutHistoryPinchProgress(0.72), 1);
-    expect(workoutHistoryPinchProgress(1.28), 1);
+    expect(workoutHistoryPinchProgress(0.7), closeTo(0.5, 0.0001));
+    expect(workoutHistoryPinchProgress(1.3), closeTo(0.5, 0.0001));
+    expect(workoutHistoryPinchProgress(0.4), 1);
+    expect(workoutHistoryPinchProgress(1.6), 1);
     expect(workoutHistoryTargetReveal(0.92), 0);
     expect(workoutHistoryTargetReveal(0.96), closeTo(0.5, 0.0001));
     expect(workoutHistoryTargetReveal(1), 1);
@@ -208,7 +208,8 @@ void main() {
     await firstFinger.down(center - const Offset(60, 0));
     await secondFinger.down(center + const Offset(60, 0));
     await tester.pump();
-    await firstFinger.moveTo(center - const Offset(45, 0));
+    await firstFinger.moveTo(center - const Offset(42, 0));
+    await secondFinger.moveTo(center + const Offset(42, 0));
     for (var frame = 0; frame < 8; frame++) {
       await tester.pump(const Duration(milliseconds: 16));
     }
@@ -218,9 +219,21 @@ void main() {
     expect(interactiveMorph, findsOneWidget);
     final interactivePainter =
         tester.widget<CustomPaint>(interactiveMorph).painter as dynamic;
-    expect(interactivePainter.progress as double, closeTo(0.45, 0.08));
+    expect(interactivePainter.progress as double, closeTo(0.5, 0.08));
+    final sourceCards = (interactivePainter.from as dynamic).cards as Map;
+    final targetCards = (interactivePainter.to as dynamic).cards as Map;
+    expect((sourceCards['session-0'] as dynamic).details, isNotEmpty);
+    expect((targetCards['session-0'] as dynamic).details, isNotEmpty);
+    final targetPeriods = (interactivePainter.to as dynamic).periods as Map;
+    expect(
+      targetPeriods.values.any(
+        (period) => (period as dynamic).subtitle != null,
+      ),
+      isTrue,
+    );
 
-    await firstFinger.moveTo(center - const Offset(20, 0));
+    await firstFinger.moveTo(center - const Offset(24, 0));
+    await secondFinger.moveTo(center + const Offset(24, 0));
     await tester.pump();
     final targetOpacities = tester
         .widgetList<Opacity>(
@@ -240,24 +253,10 @@ void main() {
         )
         .map((widget) => widget.opacity.value);
     expect(headerFades.any((opacity) => opacity == 1), isTrue);
-    await firstFinger.up();
-    await secondFinger.up();
-
-    var sawMorph = interactiveMorph.evaluate().isNotEmpty;
-    for (var frame = 0; frame < 40; frame++) {
-      await tester.pump(const Duration(milliseconds: 16));
-      sawMorph =
-          sawMorph ||
-          find
-              .byKey(const ValueKey('workout-history-morph'))
-              .evaluate()
-              .isNotEmpty;
-    }
 
     var control = tester.widget<SegmentedButton<WorkoutHistoryGrouping>>(
       find.byType(SegmentedButton<WorkoutHistoryGrouping>),
     );
-    expect(sawMorph, isTrue);
     expect(control.selected, {WorkoutHistoryGrouping.month});
     final gridRect = tester.getRect(find.byType(CustomScrollView));
     for (final id in sourceVisibleIds) {
@@ -276,33 +275,21 @@ void main() {
           tester.getRect(finder.first).overlaps(gridRect);
     }).toList();
 
-    final gridCenter = tester.getCenter(find.byType(CustomScrollView));
-    final thirdFinger = await tester.createGesture(pointer: 3);
-    final fourthFinger = await tester.createGesture(pointer: 4);
-    await thirdFinger.down(gridCenter - const Offset(60, 0));
-    await fourthFinger.down(gridCenter + const Offset(60, 0));
-    await tester.pump();
-    await thirdFinger.moveTo(gridCenter - const Offset(20, 0));
-    await tester.pump();
-    await thirdFinger.up();
-    await fourthFinger.up();
-
-    var sawYearMorph = false;
-    for (var frame = 0; frame < 40; frame++) {
+    await firstFinger.moveTo(center - const Offset(16, 0));
+    for (var frame = 0; frame < 8; frame++) {
       await tester.pump(const Duration(milliseconds: 16));
-      sawYearMorph =
-          sawYearMorph ||
-          find
-              .byKey(const ValueKey('workout-history-morph'))
-              .evaluate()
-              .isNotEmpty;
     }
+    await firstFinger.moveTo(center - const Offset(9.6, 0));
+    await secondFinger.moveTo(center + const Offset(9.6, 0));
+    await tester.pump();
 
     control = tester.widget<SegmentedButton<WorkoutHistoryGrouping>>(
       find.byType(SegmentedButton<WorkoutHistoryGrouping>),
     );
-    expect(sawYearMorph, isTrue);
     expect(control.selected, {WorkoutHistoryGrouping.year});
+    await firstFinger.up();
+    await secondFinger.up();
+    await tester.pump();
     final yearRect = tester.getRect(find.byType(CustomScrollView));
     for (final id in monthVisibleIds) {
       final finder = find.text(id);

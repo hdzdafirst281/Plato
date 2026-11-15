@@ -1,8 +1,8 @@
+import 'package:go_router/go_router.dart';
 import 'package:flutter/material.dart';
 import 'package:material_symbols_icons/symbols.dart';
-import 'package:video_player/video_player.dart';
 import 'package:plato_gymapp/i18n/strings.g.dart';
-import 'package:go_router/go_router.dart';
+import 'package:video_player/video_player.dart';
 
 import '../../../../core/designsystem/components/gym_top_bar.dart';
 import '../../../../core/designsystem/components/gym_motion.dart';
@@ -26,51 +26,55 @@ class TutorialScreen extends StatelessWidget {
           stage: 1,
           child: SafeArea(
             child: Column(
-            children: [
-              TabBar(
-                isScrollable: true, // Thêm isScrollable để tránh bị ép chữ nếu màn hình nhỏ
-                tabAlignment: TabAlignment.start, // Căn lề trái khi scrollable
-                labelColor: colorScheme.primary,
-                unselectedLabelColor: colorScheme.onSurfaceVariant,
-                indicatorColor: colorScheme.primary,
-                dividerColor: colorScheme.outlineVariant.withValues(alpha: 0.3),
-                tabs: [
-                  Tab(text: t.workout.title_main),
-                  Tab(text: t.workout.title_log_main), // NEW: Tab Log Workout
-                  Tab(text: t.nutrition.title_main),
-                  Tab(text: t.profile.btn_menu_cal),
-                ],
-              ),
-              Expanded(
-                child: TabBarView(
-                  physics: const BouncingScrollPhysics(),
-                  children: [
-                    _TutorialTabContent(
-                      videoPath: 'assets/videos/workout_vid.mp4',
-                      title: t.settings.tutorial_workout_title,
-                      description: t.settings.tutorial_workout_desc,
-                    ),
-                    // NEW: Nội dung hướng dẫn Log Workout
-                    _TutorialTabContent(
-                      videoPath: 'assets/videos/logworkout_vid.mp4',
-                      title: t.settings.tutorial_logworkout_title,
-                      description: t.settings.tutorial_logworkout_desc,
-                    ),
-                    _TutorialTabContent(
-                      videoPath: 'assets/videos/nutrition_vid.mp4',
-                      title: t.settings.tutorial_nutrition_title,
-                      description: t.settings.tutorial_nutrition_desc,
-                    ),
-                    _TutorialTabContent(
-                      videoPath: 'assets/videos/calendar_vid.mp4',
-                      title: t.settings.tutorial_cal_title,
-                      description: t.settings.tutorial_cal_desc,
-                    ),
+              children: [
+                TabBar(
+                  isScrollable:
+                      true, // Thêm isScrollable để tránh bị ép chữ nếu màn hình nhỏ
+                  tabAlignment:
+                      TabAlignment.start, // Căn lề trái khi scrollable
+                  labelColor: colorScheme.primary,
+                  unselectedLabelColor: colorScheme.onSurfaceVariant,
+                  indicatorColor: colorScheme.primary,
+                  dividerColor: colorScheme.outlineVariant.withValues(
+                    alpha: 0.3,
+                  ),
+                  tabs: [
+                    Tab(text: t.workout.title_main),
+                    Tab(text: t.workout.title_log_main), // NEW: Tab Log Workout
+                    Tab(text: t.nutrition.title_main),
+                    Tab(text: t.profile.btn_menu_cal),
                   ],
                 ),
-              ),
-            ],
-          ),
+                Expanded(
+                  child: TabBarView(
+                    physics: const BouncingScrollPhysics(),
+                    children: [
+                      _TutorialTabContent(
+                        videoPath: 'assets/videos/workout_vid.mp4',
+                        title: t.settings.tutorial_workout_title,
+                        description: t.settings.tutorial_workout_desc,
+                      ),
+                      // NEW: Nội dung hướng dẫn Log Workout
+                      _TutorialTabContent(
+                        videoPath: 'assets/videos/logworkout_vid.mp4',
+                        title: t.settings.tutorial_logworkout_title,
+                        description: t.settings.tutorial_logworkout_desc,
+                      ),
+                      _TutorialTabContent(
+                        videoPath: 'assets/videos/nutrition_vid.mp4',
+                        title: t.settings.tutorial_nutrition_title,
+                        description: t.settings.tutorial_nutrition_desc,
+                      ),
+                      _TutorialTabContent(
+                        videoPath: 'assets/videos/calendar_vid.mp4',
+                        title: t.settings.tutorial_cal_title,
+                        description: t.settings.tutorial_cal_desc,
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -102,18 +106,20 @@ class _TutorialTabContentState extends State<_TutorialTabContent> {
   void initState() {
     super.initState();
     _controller = VideoPlayerController.asset(widget.videoPath)
-      ..initialize().then((_) {
-        if (mounted) {
-          setState(() => _isInitialized = true);
-          _controller.setLooping(true);
-          // Auto-play khi vào tab
-          _controller.play();
-        }
-      }).catchError((error) {
-        if (mounted) {
-          setState(() => _hasError = true);
-        }
-      });
+      ..initialize()
+          .then((_) {
+            if (mounted) {
+              setState(() => _isInitialized = true);
+              _controller.setLooping(true);
+              // Auto-play khi vào tab
+              _controller.play();
+            }
+          })
+          .catchError((error) {
+            if (mounted) {
+              setState(() => _hasError = true);
+            }
+          });
   }
 
   @override
@@ -127,7 +133,9 @@ class _TutorialTabContentState extends State<_TutorialTabContent> {
   @override
   Widget build(BuildContext context) {
     final colorScheme = Theme.of(context).colorScheme;
-    final screenHeight = MediaQuery.of(context).size.height; // Lấy chiều cao màn hình
+    final screenHeight = MediaQuery.of(
+      context,
+    ).size.height; // Lấy chiều cao màn hình
 
     return SingleChildScrollView(
       physics: const BouncingScrollPhysics(),
@@ -137,35 +145,54 @@ class _TutorialTabContentState extends State<_TutorialTabContent> {
         children: [
           Text(
             widget.title,
-            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w900, color: colorScheme.onSurface),
+            style: TextStyle(
+              fontSize: 22,
+              fontWeight: FontWeight.w900,
+              color: colorScheme.onSurface,
+            ),
           ),
           const SizedBox(height: 12),
           Text(
             widget.description,
-            style: TextStyle(fontSize: 15, height: 1.5, color: colorScheme.onSurfaceVariant),
+            style: TextStyle(
+              fontSize: 15,
+              height: 1.5,
+              color: colorScheme.onSurfaceVariant,
+            ),
           ),
           const SizedBox(height: 32),
-          
+
           // Container chứa Video Player ĐÃ FIX CHIỀU CAO
           Container(
             constraints: BoxConstraints(
-              maxHeight: screenHeight * 0.75, // Giới hạn chiều cao tối đa là 35% màn hình
+              maxHeight:
+                  screenHeight *
+                  0.75, // Giới hạn chiều cao tối đa là 35% màn hình
             ),
             decoration: BoxDecoration(
               color: colorScheme.surface,
               borderRadius: BorderRadius.circular(24),
-              border: Border.all(color: colorScheme.outlineVariant.withValues(alpha: 0.4)),
+              border: Border.all(
+                color: colorScheme.outlineVariant.withValues(alpha: 0.4),
+              ),
               boxShadow: [
-                BoxShadow(color: Colors.black.withValues(alpha: 0.1), blurRadius: 16, offset: const Offset(0, 8))
-              ]
+                BoxShadow(
+                  color: Colors.black.withValues(alpha: 0.1),
+                  blurRadius: 16,
+                  offset: const Offset(0, 8),
+                ),
+              ],
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(24),
               child: Container(
                 color: colorScheme.surface,
-                child: Center( // Căn giữa video để không bị méo khi thu nhỏ
+                child: Center(
+                  // Căn giữa video để không bị méo khi thu nhỏ
                   child: AspectRatio(
-                    aspectRatio: _isInitialized ? _controller.value.aspectRatio : 16 / 9,
+                    aspectRatio: _isInitialized
+                        ? _controller.value.aspectRatio
+                        : 16 / 9,
                     child: RepaintBoundary(
                       child: _buildVideoContent(colorScheme),
                     ),
@@ -204,37 +231,54 @@ class _TutorialTabContentState extends State<_TutorialTabContent> {
           VideoPlayer(_controller),
           Positioned(
             bottom: 12,
+            left: 12,
             right: 12,
             child: ValueListenableBuilder(
               valueListenable: _controller,
               builder: (context, VideoPlayerValue value, child) {
-                return GestureDetector(
-                  onTap: () {
-                    value.isPlaying ? _controller.pause() : _controller.play();
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.black.withValues(alpha: 0.6),
-                      shape: BoxShape.circle,
-                    ),
-                    child: Icon(
-                      value.isPlaying ? Symbols.pause : Symbols.play_arrow,
-                      color: Colors.white,
-                      size: 24,
-                      fill: 1.0,
-                    ),
+                return DecoratedBox(
+                  decoration: BoxDecoration(
+                    color: Colors.black.withValues(alpha: 0.68),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Row(
+                    children: [
+                      IconButton(
+                        key: const ValueKey('tutorial_video_play_pause'),
+                        onPressed: () => value.isPlaying
+                            ? _controller.pause()
+                            : _controller.play(),
+                        icon: Icon(
+                          value.isPlaying ? Symbols.pause : Symbols.play_arrow,
+                          color: Colors.white,
+                          size: 24,
+                          fill: 1.0,
+                        ),
+                      ),
+                      Expanded(
+                        child: VideoProgressIndicator(
+                          _controller,
+                          key: const ValueKey('tutorial_video_scrubber'),
+                          allowScrubbing: true,
+                          padding: const EdgeInsets.symmetric(vertical: 18),
+                          colors: VideoProgressColors(
+                            playedColor: colorScheme.primary,
+                            bufferedColor: Colors.white54,
+                            backgroundColor: Colors.white24,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                    ],
                   ),
                 );
               },
             ),
-          )
+          ),
         ],
       );
     }
 
-    return Center(
-      child: CircularProgressIndicator(color: colorScheme.primary),
-    );
+    return Center(child: CircularProgressIndicator(color: colorScheme.primary));
   }
 }

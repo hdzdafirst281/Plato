@@ -460,16 +460,13 @@ class _GamificationScreenState extends State<GamificationScreen>
         padding: const EdgeInsets.only(bottom: 24, top: 16),
         children: [
           if (all.length >= 3) ...[
-            GymMotionItem(
-              stage: 2,
-              effect: GymMotionEffect.fadeScale,
-              child: _PodiumView(
-                top3: all.take(3).toList(),
-                activeRankId: userProfile.activeRankId,
-                marqueeAnimation: _marqueeController,
-                motionValueFor: (userId) =>
-                    _podiumMotions.putIfAbsent(userId, GymMotionValue.new),
-              ),
+            // Podium owns its entrance; GymMotionItem would remount its timers.
+            _PodiumView(
+              top3: all.take(3).toList(),
+              activeRankId: userProfile.activeRankId,
+              marqueeAnimation: _marqueeController,
+              motionValueFor: (userId) =>
+                  _podiumMotions.putIfAbsent(userId, GymMotionValue.new),
             ),
 
             const SizedBox(height: 32),

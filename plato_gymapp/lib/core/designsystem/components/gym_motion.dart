@@ -346,6 +346,8 @@ class GymStableValueBuilder extends StatefulWidget {
   final Curve curve;
   final Widget? child;
   final GymMotionValueBuilder builder;
+  /// Starts [delay] only after the nearest screen entrance has completed.
+  final bool waitForEntrance;
 
   const GymStableValueBuilder({
     super.key,
@@ -356,6 +358,7 @@ class GymStableValueBuilder extends StatefulWidget {
     this.duration = GymMotion.visualization,
     this.delay = Duration.zero,
     this.curve = GymMotion.enterCurve,
+    this.waitForEntrance = false,
     this.child,
   });
 
@@ -373,6 +376,7 @@ class _GymStableValueBuilderState extends State<GymStableValueBuilder>
   Timer? _delayTimer;
   bool _scheduled = false;
   bool _isFirstRun = false;
+  Animation<double>? _entrance;
 
   @override
   void initState() {
@@ -397,7 +401,19 @@ class _GymStableValueBuilderState extends State<GymStableValueBuilder>
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    final entrance = widget.waitForEntrance
+        ? _GymMotionTimeline.maybeOf(context)?.animation
+        : null;
+    if (_entrance != entrance) {
+      _entrance?.removeStatusListener(_onEntranceStatus);
+      _entrance = entrance;
+      _entrance?.addStatusListener(_onEntranceStatus);
+    }
     _tryStart();
+  }
+
+  void _onEntranceStatus(AnimationStatus status) {
+    if (status == AnimationStatus.completed) _tryStart();
   }
 
   @override
@@ -433,6 +449,7 @@ class _GymStableValueBuilderState extends State<GymStableValueBuilder>
       return;
     }
 
+    if (_entrance != null && !_entrance!.isCompleted) return;
     if (!TickerMode.valuesOf(context).enabled) return;
     _scheduled = true;
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -473,6 +490,7 @@ class _GymStableValueBuilderState extends State<GymStableValueBuilder>
   @override
   void dispose() {
     _delayTimer?.cancel();
+    _entrance?.removeStatusListener(_onEntranceStatus);
     widget.motionValue._value = _currentValue;
     _controller.dispose();
     super.dispose();

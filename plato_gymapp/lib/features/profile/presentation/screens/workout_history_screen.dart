@@ -74,6 +74,48 @@ String workoutHistoryCardHeader(
   };
 }
 
+List<String> _workoutHistoryCardDetailLines(
+  WorkoutSession session,
+  WorkoutHistoryGrouping grouping,
+  MeasurementFormatter units,
+  String locale,
+) {
+  if (grouping == WorkoutHistoryGrouping.year) return const [];
+  final date = resolveWorkoutSessionStartTime(session);
+  final exerciseCount = session.exercises.length;
+  final exerciseCountLabel = '$exerciseCount ${locale == 'vi' ? 'bài' : 'ex'}';
+  if (grouping == WorkoutHistoryGrouping.month) {
+    return [
+      [
+        if (workoutSessionHasSpecificTime(date))
+          DateFormat.Hm(locale).format(date),
+        exerciseCountLabel,
+      ].join(' • '),
+    ];
+  }
+
+  final volumeOrSets = session.totalVolume > 0
+      ? units.formatWeight(session.totalVolume)
+      : t.profile.fmt_history_sets(arg1: session.totalSets.toString());
+  final values = [
+    volumeOrSets,
+    exerciseCountLabel,
+    _formatDuration(session.totalDurationSeconds),
+    if (session.prCount > 0) session.prCount.toString(),
+  ].join(' • ');
+  final exerciseNames = session.exercises
+      .take(3)
+      .map((item) => t.translateDynamic(item.exercise.name).toString())
+      .toList();
+  final remainingExercises = exerciseCount - exerciseNames.length;
+  final preview = [
+    ...exerciseNames,
+    if (remainingExercises > 0)
+      t.profile.fmt_history_more_exercises(arg1: remainingExercises.toString()),
+  ].join(' • ');
+  return [values, if (preview.isNotEmpty) preview];
+}
+
 Map<DateTime, List<WorkoutSession>> groupWorkoutHistory(
   List<WorkoutSession> history,
   WorkoutHistoryGrouping grouping,
@@ -132,8 +174,14 @@ double workoutHistoryOffsetForAnchor({
       .toDouble();
 }
 
-double workoutHistoryPinchProgress(double scale) =>
-    ((scale - 1).abs() / 0.28).clamp(0.0, 1.0).toDouble();
+const workoutHistoryPinchTravel = 0.6;
+
+double workoutHistoryPinchProgress(double scale) {
+  final progress = ((scale - 1).abs() / workoutHistoryPinchTravel)
+      .clamp(0.0, 1.0)
+      .toDouble();
+  return progress >= 1 - 1e-9 ? 1 : progress;
+}
 
 double workoutHistoryTargetReveal(double progress) {
   final value = ((progress - 0.92) / 0.08).clamp(0.0, 1.0).toDouble();
@@ -181,12 +229,14 @@ class _HistoryCardGeometry {
   final Rect rect;
   final String header;
   final String name;
+  final List<String> details;
   final bool hasPR;
 
   const _HistoryCardGeometry({
     required this.rect,
     required this.header,
     required this.name,
+    required this.details,
     required this.hasPR,
   });
 }
@@ -206,8 +256,13 @@ class _HistorySessionAnchor {
 class _HistoryPeriodGeometry {
   final Rect rect;
   final String label;
+  final String? subtitle;
 
-  const _HistoryPeriodGeometry({required this.rect, required this.label});
+  const _HistoryPeriodGeometry({
+    required this.rect,
+    required this.label,
+    required this.subtitle,
+  });
 }
 
 class _HistoryGeometry {
@@ -235,6 +290,7 @@ class _HistoryMorphPainter extends CustomPainter {
   final Color primaryColor;
   final Color tertiaryColor;
   final Color textColor;
+  final Color detailColor;
   final Color goldColor;
   final TextStyle periodTextStyle;
 
@@ -249,6 +305,7 @@ class _HistoryMorphPainter extends CustomPainter {
     required this.primaryColor,
     required this.tertiaryColor,
     required this.textColor,
+    required this.detailColor,
     required this.goldColor,
     required this.periodTextStyle,
   });
@@ -281,9 +338,8 @@ class _HistoryMorphPainter extends CustomPainter {
         _drawCard(
           canvas,
           workoutHistoryMorphRect(oldRect, newRect, progress),
-          newCard.name,
-          oldCard.header,
-          newCard.header,
+          oldCard,
+          newCard,
           progress,
           oldCard.hasPR || newCard.hasPR,
           overlayOpacity,
@@ -292,9 +348,8 @@ class _HistoryMorphPainter extends CustomPainter {
         _drawCard(
           canvas,
           _mapRect(oldCard.rect, from.logicalSize, fromBounds),
-          oldCard.name,
-          oldCard.header,
-          oldCard.header,
+          oldCard,
+          oldCard,
           0,
           oldCard.hasPR,
           (1 - progress) * overlayOpacity,
@@ -303,9 +358,8 @@ class _HistoryMorphPainter extends CustomPainter {
         _drawCard(
           canvas,
           _mapRect(newCard.rect, to.logicalSize, toBounds),
-          newCard.name,
-          newCard.header,
-          newCard.header,
+          newCard,
+          newCard,
           1,
           newCard.hasPR,
           progress * overlayOpacity,
@@ -317,18 +371,45 @@ class _HistoryMorphPainter extends CustomPainter {
   void _drawCard(
     Canvas canvas,
     Rect rect,
-    String name,
-    String fromHeader,
-    String toHeader,
-    double headerProgress,
+    _HistoryCardGeometry fromCard,
+    _HistoryCardGeometry toCard,
+    double contentProgress,
     bool hasPR,
     double opacity,
   ) {
     if (opacity <= 0 || rect.isEmpty) return;
-    final radius = (rect.shortestSide * 0.14).clamp(12.0, 18.0);
-    final padding = (rect.shortestSide * 0.1).clamp(7.0, 16.0);
-    final headerSize = (rect.width * 0.12).clamp(11.0, 16.0);
-    final nameSize = (rect.width * 0.1).clamp(10.0, 16.0);
+    final layoutProgress = workoutHistoryHeaderSlideProgress(contentProgress);
+    double modeValue(
+      WorkoutHistoryGrouping grouping, {
+      required double day,
+      required double month,
+      required double year,
+    }) => switch (grouping) {
+      WorkoutHistoryGrouping.day => day,
+      WorkoutHistoryGrouping.month => month,
+      WorkoutHistoryGrouping.year => year,
+    };
+    double morphValue(double fromValue, double toValue) =>
+        fromValue + (toValue - fromValue) * layoutProgress;
+
+    final radius = morphValue(
+      modeValue(from.grouping, day: 18, month: 16, year: 12),
+      modeValue(to.grouping, day: 18, month: 16, year: 12),
+    );
+    const padding = 10.0;
+    final headerSize = morphValue(
+      modeValue(from.grouping, day: 15, month: 18, year: 12),
+      modeValue(to.grouping, day: 15, month: 18, year: 12),
+    );
+    final nameSize = morphValue(
+      modeValue(from.grouping, day: 16, month: 12, year: 11),
+      modeValue(to.grouping, day: 16, month: 12, year: 11),
+    );
+    final headerGap = morphValue(
+      modeValue(from.grouping, day: 6, month: 6, year: 4),
+      modeValue(to.grouping, day: 6, month: 6, year: 4),
+    );
+    final nameTop = rect.top + padding + headerSize * 1.2 + headerGap;
     final cardColor = hasPR
         ? Color.lerp(surfaceColor, goldColor, 0.08)!
         : surfaceColor;
@@ -375,30 +456,30 @@ class _HistoryMorphPainter extends CustomPainter {
       fontSize: headerSize,
       fontWeight: FontWeight.w900,
     );
-    if (fromHeader == toHeader) {
+    if (fromCard.header == toCard.header) {
       paintText(
-        fromHeader,
+        fromCard.header,
         rect.topLeft + Offset(padding, padding),
         headerStyle,
         1,
       );
     } else {
       paintText(
-        fromHeader,
+        fromCard.header,
         rect.topLeft + Offset(padding, padding),
         headerStyle,
-        1 - headerProgress,
+        1 - contentProgress,
       );
       paintText(
-        toHeader,
+        toCard.header,
         rect.topLeft + Offset(padding, padding),
         headerStyle,
-        headerProgress,
+        contentProgress,
       );
     }
     paintText(
-      name,
-      rect.topLeft + Offset(padding, padding + headerSize + 5),
+      toCard.name,
+      Offset(rect.left + padding, nameTop),
       TextStyle(
         color: textColor,
         fontSize: nameSize,
@@ -406,6 +487,81 @@ class _HistoryMorphPainter extends CustomPainter {
       ),
       1,
     );
+
+    final detailSize = morphValue(
+      modeValue(from.grouping, day: 11, month: 10, year: 10),
+      modeValue(to.grouping, day: 11, month: 10, year: 10),
+    );
+    final lineHeight = detailSize * 1.35;
+    final detailProgress = workoutHistoryHeaderSlideProgress(contentProgress);
+    final defaultDetailsTop = nameTop + nameSize * 1.2 + 10;
+
+    double detailsTopFor(WorkoutHistoryGrouping grouping, int lineCount) =>
+        grouping == WorkoutHistoryGrouping.month
+        ? rect.bottom - padding - lineHeight * math.max(1, lineCount)
+        : defaultDetailsTop;
+
+    final fromDetailsTop = detailsTopFor(
+      from.grouping,
+      fromCard.details.length,
+    );
+    final toDetailsTop = detailsTopFor(to.grouping, toCard.details.length);
+    final detailsTop =
+        fromDetailsTop + (toDetailsTop - fromDetailsTop) * detailProgress;
+    final detailsRect = Rect.fromLTRB(
+      rect.left + padding,
+      detailsTop,
+      rect.right - padding,
+      rect.bottom - padding,
+    );
+    if (!detailsRect.isEmpty) {
+      final lineCount = math.max(
+        fromCard.details.length,
+        toCard.details.length,
+      );
+
+      void paintDetail(String value, int line, double dy, double textOpacity) {
+        if (value.isEmpty || textOpacity <= 0) return;
+        paintText(
+          value,
+          Offset(detailsRect.left, detailsRect.top + lineHeight * line + dy),
+          TextStyle(
+            color: detailColor,
+            fontSize: detailSize,
+            fontWeight: FontWeight.w600,
+          ),
+          textOpacity,
+        );
+      }
+
+      canvas.save();
+      canvas.clipRect(detailsRect);
+      for (var line = 0; line < lineCount; line++) {
+        final oldValue = line < fromCard.details.length
+            ? fromCard.details[line]
+            : '';
+        final newValue = line < toCard.details.length
+            ? toCard.details[line]
+            : '';
+        if (oldValue == newValue) {
+          paintDetail(oldValue, line, 0, 1);
+          continue;
+        }
+        paintDetail(
+          oldValue,
+          line,
+          -lineHeight * detailProgress,
+          1 - detailProgress,
+        );
+        paintDetail(
+          newValue,
+          line,
+          lineHeight * (1 - detailProgress),
+          detailProgress,
+        );
+      }
+      canvas.restore();
+    }
   }
 
   void _drawPeriods(
@@ -427,6 +583,8 @@ class _HistoryMorphPainter extends CustomPainter {
           rect,
           oldPeriod.label,
           newPeriod.label,
+          oldPeriod.subtitle,
+          newPeriod.subtitle,
           progress,
           overlayOpacity,
         );
@@ -437,6 +595,8 @@ class _HistoryMorphPainter extends CustomPainter {
           rect,
           oldPeriod.label,
           oldPeriod.label,
+          oldPeriod.subtitle,
+          oldPeriod.subtitle,
           0,
           (1 - progress) * overlayOpacity,
         );
@@ -447,6 +607,8 @@ class _HistoryMorphPainter extends CustomPainter {
           rect,
           newPeriod.label,
           newPeriod.label,
+          newPeriod.subtitle,
+          newPeriod.subtitle,
           1,
           progress * overlayOpacity,
         );
@@ -459,11 +621,20 @@ class _HistoryMorphPainter extends CustomPainter {
     Rect rect,
     String fromLabel,
     String toLabel,
+    String? fromSubtitle,
+    String? toSubtitle,
     double labelProgress,
     double opacity,
   ) {
     if (opacity <= 0 || rect.isEmpty) return;
-    final barRect = Rect.fromLTWH(rect.left + 4, rect.top + 16, 4, 34);
+    final rowHeight = math.max(34.0, rect.height - 26);
+    final rowTop = rect.top + 16;
+    final barRect = Rect.fromLTWH(
+      rect.left + 4,
+      rowTop + (rowHeight - 34) / 2,
+      4,
+      34,
+    );
     canvas.drawRRect(
       RRect.fromRectAndRadius(barRect, const Radius.circular(999)),
       Paint()
@@ -477,15 +648,48 @@ class _HistoryMorphPainter extends CustomPainter {
         ).createShader(barRect),
     );
 
-    final labelRect = Rect.fromLTWH(
-      barRect.right + 10,
-      barRect.top,
-      (rect.right - barRect.right - 14).clamp(0.0, double.infinity),
-      barRect.height,
+    TextPainter subtitlePainter(String value, double textOpacity) =>
+        TextPainter(
+          text: TextSpan(
+            text: value,
+            style: TextStyle(
+              color: detailColor.withValues(alpha: opacity * textOpacity),
+              fontSize: 12,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
+          maxLines: 1,
+          ellipsis: '…',
+          textDirection: ui.TextDirection.ltr,
+        )..layout(maxWidth: rect.width * 0.42);
+
+    final fromSubtitleWidth = fromSubtitle == null
+        ? 0.0
+        : subtitlePainter(fromSubtitle, 1).width;
+    final toSubtitleWidth = toSubtitle == null
+        ? 0.0
+        : subtitlePainter(toSubtitle, 1).width;
+    final subtitleWidth = math.max(fromSubtitleWidth, toSubtitleWidth);
+    final labelLeft = barRect.right + 10;
+    final fullLabelWidth = (rect.right - 4 - labelLeft).clamp(
+      0.0,
+      double.infinity,
+    );
+    final fromLabelWidth =
+        (fullLabelWidth - (fromSubtitleWidth > 0 ? fromSubtitleWidth + 8 : 0))
+            .clamp(0.0, double.infinity);
+    final toLabelWidth =
+        (fullLabelWidth - (toSubtitleWidth > 0 ? toSubtitleWidth + 8 : 0))
+            .clamp(0.0, double.infinity);
+    final labelRect = Rect.fromLTRB(
+      labelLeft,
+      rowTop,
+      rect.right - 4,
+      rowTop + rowHeight,
     );
     if (labelRect.isEmpty) return;
 
-    void paintLabel(String label, double dy) {
+    void paintLabel(String label, double dy, double maxWidth) {
       final painter = TextPainter(
         text: TextSpan(
           text: label,
@@ -493,10 +697,10 @@ class _HistoryMorphPainter extends CustomPainter {
             color: textColor.withValues(alpha: opacity),
           ),
         ),
-        maxLines: 1,
+        maxLines: 2,
         ellipsis: '…',
         textDirection: ui.TextDirection.ltr,
-      )..layout(maxWidth: labelRect.width);
+      )..layout(maxWidth: maxWidth);
       painter.paint(
         canvas,
         Offset(
@@ -509,12 +713,49 @@ class _HistoryMorphPainter extends CustomPainter {
     canvas.save();
     canvas.clipRect(labelRect);
     if (fromLabel == toLabel) {
-      paintLabel(fromLabel, 0);
+      final slide = workoutHistoryHeaderSlideProgress(labelProgress);
+      paintLabel(
+        fromLabel,
+        0,
+        fromLabelWidth + (toLabelWidth - fromLabelWidth) * slide,
+      );
     } else {
       final slide = workoutHistoryHeaderSlideProgress(labelProgress);
       final direction = to.grouping.index > from.grouping.index ? -1.0 : 1.0;
-      paintLabel(fromLabel, direction * labelRect.height * slide);
-      paintLabel(toLabel, -direction * labelRect.height * (1 - slide));
+      paintLabel(fromLabel, direction * rowHeight * slide, fromLabelWidth);
+      paintLabel(toLabel, -direction * rowHeight * (1 - slide), toLabelWidth);
+    }
+    canvas.restore();
+
+    if (subtitleWidth <= 0) return;
+    final subtitleRect = Rect.fromLTWH(
+      rect.right - 4 - subtitleWidth,
+      rowTop,
+      subtitleWidth,
+      rowHeight,
+    );
+
+    void paintSubtitle(String? value, double dy, double textOpacity) {
+      if (value == null || textOpacity <= 0) return;
+      final painter = subtitlePainter(value, textOpacity);
+      painter.paint(
+        canvas,
+        Offset(
+          subtitleRect.right - painter.width,
+          subtitleRect.top + (subtitleRect.height - painter.height) / 2 + dy,
+        ),
+      );
+    }
+
+    canvas.save();
+    canvas.clipRect(subtitleRect);
+    if (fromSubtitle == toSubtitle) {
+      paintSubtitle(fromSubtitle, 0, 1);
+    } else {
+      final slide = workoutHistoryHeaderSlideProgress(labelProgress);
+      final direction = to.grouping.index > from.grouping.index ? -1.0 : 1.0;
+      paintSubtitle(fromSubtitle, direction * rowHeight * slide, 1 - slide);
+      paintSubtitle(toSubtitle, -direction * rowHeight * (1 - slide), slide);
     }
     canvas.restore();
   }
@@ -549,6 +790,7 @@ class _HistoryMorphPainter extends CustomPainter {
       oldDelegate.primaryColor != primaryColor ||
       oldDelegate.tertiaryColor != tertiaryColor ||
       oldDelegate.textColor != textColor ||
+      oldDelegate.detailColor != detailColor ||
       oldDelegate.goldColor != goldColor ||
       oldDelegate.periodTextStyle != periodTextStyle;
 }
@@ -575,6 +817,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
   final Map<String, GlobalKey> _sessionKeys = {};
   final Map<String, GlobalKey> _periodKeys = {};
   final Map<String, String> _periodLabels = {};
+  final Map<String, String?> _periodSubtitles = {};
   bool _isChangingGrouping = false;
   int _groupingChangeToken = 0;
   _HistoryGeometry? _transitionFrom;
@@ -612,6 +855,8 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
   _HistoryGeometry? _pinchSourceGeometry;
   _HistorySessionAnchor? _pinchAnchor;
   double _pinchProgress = 0;
+  bool _pinchTargetReached = false;
+  bool _pinchStepCompleted = false;
   bool _pinchTransitionReady = false;
   bool _pinchReleased = false;
   bool _isFinishingPinch = false;
@@ -690,8 +935,9 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
         ? _currentAnchorIndex()
         : _sortedHistory.indexWhere((session) => session.id == anchor.id);
     final token = ++_groupingChangeToken;
-    _resumeMarqueeAfterPinch = _marqueeAnimation.isAnimating;
-    if (_resumeMarqueeAfterPinch) _marqueeAnimation.stop();
+    final marqueeWasAnimating = _marqueeAnimation.isAnimating;
+    _resumeMarqueeAfterPinch = _resumeMarqueeAfterPinch || marqueeWasAnimating;
+    if (marqueeWasAnimating) _marqueeAnimation.stop();
 
     setState(() {
       _isChangingGrouping = true;
@@ -716,18 +962,55 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
       _detailAnimation.value = 1;
       _zoomAnimation.value = _pinchProgress;
     });
-    if (_pinchReleased) unawaited(_finishInteractivePinch());
+    if (_pinchReleased) {
+      unawaited(_finishInteractivePinch());
+    } else if (_pinchTargetReached) {
+      _continueInteractivePinch();
+    }
+  }
+
+  void _continueInteractivePinch() {
+    final settledGeometry = _transitionTo;
+    if (!_pinchTransitionReady ||
+        !_pinchTargetReached ||
+        settledGeometry == null ||
+        _touchPoints.length != 2) {
+      return;
+    }
+
+    setState(() {
+      _transitionFrom = null;
+      _transitionTo = null;
+      _isChangingGrouping = false;
+      _pinchBaseScale = 1;
+      _gestureScale = 1;
+      _contentScale = const AlwaysStoppedAnimation(1);
+      _detailAnimation.value = 1;
+      _zoomAnimation.value = 0;
+    });
+    _pinchSourceGrouping = _grouping;
+    _pinchTargetGrouping = null;
+    _pinchSourceGeometry = settledGeometry;
+    _pinchAnchor = _leadingSessionAnchor();
+    _pinchStartDistance = _currentPinchDistance();
+    _pinchProgress = 0;
+    _pinchTargetReached = false;
+    _pinchStepCompleted = true;
+    _pinchTransitionReady = false;
+    _pinchReleased = false;
+    _isFinishingPinch = false;
+    _pinchVisualTick.value++;
   }
 
   Future<void> _finishInteractivePinch() async {
     if (!_pinchTransitionReady || _isFinishingPinch) return;
     _isFinishingPinch = true;
-    final commit = _pinchProgress >= 0.45;
+    final commit = _pinchTargetReached || _pinchProgress >= 0.5;
     final token = _groupingChangeToken;
     final targetValue = commit ? 1.0 : 0.0;
     final remaining = (_zoomAnimation.value - targetValue).abs();
     _zoomAnimation.duration = Duration(
-      milliseconds: (90 + 150 * remaining).round(),
+      milliseconds: (120 + 220 * remaining).round(),
     );
     unawaited(_detailAnimation.animateTo(1, curve: GymMotion.stateCurve));
     try {
@@ -777,6 +1060,8 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
     _pinchSourceGeometry = null;
     _pinchAnchor = null;
     _pinchProgress = 0;
+    _pinchTargetReached = false;
+    _pinchStepCompleted = false;
     _pinchTransitionReady = false;
     _pinchReleased = false;
     _isFinishingPinch = false;
@@ -925,6 +1210,9 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
       for (final session in _sortedHistory) session.id: session,
     };
     final locale = TranslationProvider.of(context).flutterLocale.languageCode;
+    final units = MeasurementFormatter(
+      context.read<ProfileCubit>().state.userProfile.measurementPreferences,
+    );
     final cards = <String, _HistoryCardGeometry>{};
     for (final entry in _visibleRects(viewport, _sessionKeys).entries) {
       final session = sessionsById[entry.key];
@@ -933,6 +1221,12 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
         rect: entry.value,
         header: workoutHistoryCardHeader(session, _grouping, locale),
         name: t.translateDynamic(session.name).toString(),
+        details: _workoutHistoryCardDetailLines(
+          session,
+          _grouping,
+          units,
+          locale,
+        ),
         hasPR: session.prCount > 0,
       );
     }
@@ -944,6 +1238,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
       periods[entry.key] = _HistoryPeriodGeometry(
         rect: entry.value,
         label: label,
+        subtitle: _periodSubtitles[entry.key],
       );
     }
 
@@ -981,8 +1276,9 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
   GlobalKey _sessionKey(String id) =>
       _sessionKeys.putIfAbsent(id, GlobalKey.new);
 
-  GlobalKey _periodKey(String id, String label) {
+  GlobalKey _periodKey(String id, String label, String? subtitle) {
     _periodLabels[id] = label;
+    _periodSubtitles[id] = subtitle;
     return _periodKeys.putIfAbsent(id, GlobalKey.new);
   }
 
@@ -1031,6 +1327,8 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
           : _captureGeometry();
       _pinchAnchor = _leadingSessionAnchor();
       _pinchProgress = 0;
+      _pinchTargetReached = false;
+      _pinchStepCompleted = false;
       _pinchTransitionReady = false;
       _pinchReleased = false;
       _isFinishingPinch = false;
@@ -1056,9 +1354,17 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
     final visualScale = (_pinchBaseScale * rawScale)
         .clamp(0.78, 1.22)
         .toDouble();
-    _pinchProgress = workoutHistoryPinchProgress(rawScale);
+    final nextProgress = workoutHistoryPinchProgress(rawScale);
+    _pinchTargetReached = _pinchTargetReached || nextProgress >= 1;
+    _pinchProgress = _pinchTargetReached ? 1 : nextProgress;
+    final sourceGrouping = _pinchSourceGrouping;
+    final target = sourceGrouping == null
+        ? null
+        : workoutHistoryZoomTarget(sourceGrouping, zoomIn: rawScale > 1);
     if (!_pinchTransitionReady) {
-      _detailAnimation.value = 1 - _pinchProgress;
+      _detailAnimation.value = target == null && _pinchTargetGrouping == null
+          ? 1
+          : 1 - _pinchProgress;
     }
     _gestureScale = visualScale;
     _gestureAlignment = _currentPinchAlignment();
@@ -1066,18 +1372,14 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
 
     if (_pinchTransitionReady) {
       _zoomAnimation.value = _pinchProgress;
+      if (_pinchTargetReached) _continueInteractivePinch();
       return;
     }
 
-    final sourceGrouping = _pinchSourceGrouping;
     if (sourceGrouping == null || _pinchProgress < 0.08) return;
-    final target = workoutHistoryZoomTarget(
-      sourceGrouping,
-      zoomIn: rawScale > 1,
-    );
     if (target == null) return;
     if (GymMotion.reduceMotion(context)) {
-      if (_pinchProgress >= 0.45 && !_isChangingGrouping) {
+      if (_pinchProgress >= 0.5 && !_isChangingGrouping) {
         unawaited(_changeGrouping(target));
       }
       return;
@@ -1092,6 +1394,8 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
       if (_pinchTargetGrouping != null) {
         _pinchReleased = true;
         if (_pinchTransitionReady) unawaited(_finishInteractivePinch());
+      } else if (_pinchStepCompleted) {
+        _completeInteractivePinch();
       } else if (_isPinching && !_isChangingGrouping) {
         _settlePinchScale();
       }
@@ -1163,6 +1467,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
       _sessionKeys.removeWhere((id, _) => !ids.contains(id));
       _periodKeys.removeWhere((id, _) => !ids.contains(id));
       _periodLabels.removeWhere((id, _) => !ids.contains(id));
+      _periodSubtitles.removeWhere((id, _) => !ids.contains(id));
     }
 
     final history = _sortedHistory;
@@ -1344,6 +1649,8 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen>
                                             primaryColor: colorScheme.primary,
                                             tertiaryColor: colorScheme.tertiary,
                                             textColor: colorScheme.onSurface,
+                                            detailColor:
+                                                colorScheme.onSurfaceVariant,
                                             goldColor: gymColors.goldRank,
                                             periodTextStyle:
                                                 Theme.of(context)
@@ -1555,7 +1862,7 @@ class _DayHistoryList extends StatelessWidget {
   final String locale;
   final RefreshCallback onRefresh;
   final Key Function(String id) sessionKey;
-  final Key Function(String id, String label) periodKey;
+  final Key Function(String id, String label, String? subtitle) periodKey;
   final bool isTablet;
   final Animation<double> marqueeAnimation;
   final Animation<double> detailOpacity;
@@ -1605,7 +1912,7 @@ class _DayHistoryList extends StatelessWidget {
                 children: [
                   if (showDate)
                     _PeriodHeader(
-                      key: periodKey(session.id, periodLabel),
+                      key: periodKey(session.id, periodLabel, null),
                       label: periodLabel,
                       detailOpacity: detailOpacity,
                     ),
@@ -1647,7 +1954,7 @@ class _CompactHistoryGrid extends StatelessWidget {
   final String locale;
   final RefreshCallback onRefresh;
   final Key Function(String id) sessionKey;
-  final Key Function(String id, String label) periodKey;
+  final Key Function(String id, String label, String? subtitle) periodKey;
   final bool isTablet;
   final Animation<double> marqueeAnimation;
   final Animation<double> detailOpacity;
@@ -1709,6 +2016,7 @@ class _CompactHistoryGrid extends StatelessWidget {
                   key: periodKey(
                     entry.value.first.id,
                     _buildPeriodLabel(entry.key),
+                    _buildPeriodSubtitle(entry.value),
                   ),
                   label: _buildPeriodLabel(entry.key),
                   subtitle: _buildPeriodSubtitle(entry.value),

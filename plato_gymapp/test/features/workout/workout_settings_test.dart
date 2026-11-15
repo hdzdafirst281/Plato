@@ -98,6 +98,10 @@ void main() {
     await tester.pumpAndSettle();
     expect(tester.takeException(), isNull, reason: 'effort info dialog');
     expect(find.textContaining(t.settings.title_rpe_info), findsOneWidget);
+    expect(
+      find.descendant(of: find.byType(Dialog), matching: find.byType(Card)),
+      findsNothing,
+    );
     await tester.tap(find.text(t.common.understood));
     await tester.pumpAndSettle();
 

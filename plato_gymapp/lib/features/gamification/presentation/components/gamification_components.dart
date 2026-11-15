@@ -903,7 +903,7 @@ class _PodiumView extends StatelessWidget {
             gradientColors: gradientColors,
             rankColor: rankColor,
             rankId: rankId, // Truyền rankId xuống
-            animDelay: GymMotion.screen.inMilliseconds + (3 - rank) * 200,
+            animDelay: (3 - rank) * GymMotion.visualization.inMilliseconds,
             marqueeAnimation: marqueeAnimation,
             motionValue: motionValueFor(user.id),
           );
@@ -1028,6 +1028,7 @@ class _PodiumColumn extends StatelessWidget {
       value: 1,
       duration: GymMotion.visualization,
       delay: Duration(milliseconds: animDelay),
+      waitForEntrance: true,
       curve: Curves.linear,
       builder: (context, value, child) {
         final avatarProgress = Curves.easeOutCubic.transform(

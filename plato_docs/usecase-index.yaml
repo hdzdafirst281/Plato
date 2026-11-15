@@ -545,6 +545,10 @@ usecases:
       - workout.lbl_dtl_rpe_unrated
       - workout.lbl_ssn_sum_rpe_min
       - workout.lbl_ssn_sum_rpe_max
+      - settings.lbl_scale_rpe
+      - settings.desc_effort_tracking
+      - settings.title_rpe_info
+      - settings.desc_rpe_info
       - workout.title_ssn_sum_acwr_card
       - workout.fmt_ssn_sum_acwr_ratio
       - workout.fmt_ssn_sum_acwr_stats
@@ -899,6 +903,7 @@ usecases:
       - leaderboard_cache
       - leaderboard_avatar
     code_paths:
+      - "plato_gymapp/lib/core/designsystem/components/gym_motion.dart"
       - "plato_gymapp/lib/features/gamification/presentation/screens/gamification_screen.dart"
       - "plato_gymapp/lib/features/gamification/presentation/components/gamification_components.dart"
       - "plato_gymapp/lib/features/gamification/presentation/bloc/gamification_cubit.dart"

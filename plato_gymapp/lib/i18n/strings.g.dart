@@ -6,7 +6,7 @@
 /// Locales: 2
 /// Strings: 2956 (1478 per locale)
 ///
-/// Built on 2026-11-10 at 09:31 UTC
+/// Built on 2026-11-12 at 10:02 UTC
 
 // coverage:ignore-file
 // ignore_for_file: type=lint
@@ -1317,7 +1317,7 @@ class _StringsSettingsEn {
 	String get desc_effort_tracking => 'Record RPE after each completed set for more accurate Recovery.';
 	String get lbl_scale_rpe => 'Per-set RPE';
 	String get title_rpe_info => 'RPE Scale (Rating of Perceived Exertion)';
-	String get desc_rpe_info => 'Rate effort intensity on a scale from 1 to 10:\n• RPE 10: Maximum effort, no reps left\n• RPE 9: 1 rep left in reserve\n• RPE 8: 2 reps left in reserve\n• RPE 7: 3 reps left in reserve';
+	String get desc_rpe_info => 'Rate effort after each completed set on a scale from 1 to 10:\n• RPE 1-4: Light effort, with plenty of reps left\n• RPE 5-7: Moderate to hard effort, with several reps left\n• RPE 8-10: Very hard to maximal effort, with few or no reps left';
 	String get title_workout_bg => 'Background & Progress';
 	String get title_workout_guide => 'Recovery Optimization';
 	String get desc_workout_guide => 'Effort metrics help Plato accurately calculate muscle Recovery and Strain scores for your body.';
@@ -3033,7 +3033,7 @@ class _StringsSettingsVi extends _StringsSettingsEn {
 	@override String get desc_effort_tracking => 'Ghi lại RPE sau mỗi set đã hoàn thành để tính Recovery chính xác hơn.';
 	@override String get lbl_scale_rpe => 'RPE từng set';
 	@override String get title_rpe_info => 'Thang đo mức độ gắng sức';
-	@override String get desc_rpe_info => 'Đánh giá mức độ nặng theo thang điểm 1 đến 10:\n• RPE 10: Hết sức, không thể làm thêm rep nào\n• RPE 9: Còn sức thực hiện đúng 1 rep\n• RPE 8: Còn sức thực hiện thêm 2 reps\n• RPE 7: Còn sức thực hiện thêm 3 reps';
+	@override String get desc_rpe_info => 'Đánh giá mức độ gắng sức sau mỗi set đã hoàn thành theo thang điểm 1 đến 10:\n• RPE 1-4: Nhẹ, còn nhiều sức để thực hiện thêm hiệp\n• RPE 5-7: Vừa đến nặng, vẫn còn sức thực hiện thêm một vài hiệp\n• RPE 8-10: Rất nặng đến tối đa, chỉ còn ít hoặc không thể thực hiện thêm hiệp';
 	@override String get title_workout_bg => 'Chạy nền & Tiến trình';
 	@override String get title_workout_guide => 'Tối ưu hóa phục hồi';
 	@override String get desc_workout_guide => 'Dữ liệu gắng sức giúp Plato tính toán điểm Phục hồi (Recovery) và Tải trọng (Strain) chính xác hơn cho cơ bắp của bạn.';
@@ -4564,7 +4564,7 @@ extension on Translations {
 			case 'settings.desc_effort_tracking': return 'Record RPE after each completed set for more accurate Recovery.';
 			case 'settings.lbl_scale_rpe': return 'Per-set RPE';
 			case 'settings.title_rpe_info': return 'RPE Scale (Rating of Perceived Exertion)';
-			case 'settings.desc_rpe_info': return 'Rate effort intensity on a scale from 1 to 10:\n• RPE 10: Maximum effort, no reps left\n• RPE 9: 1 rep left in reserve\n• RPE 8: 2 reps left in reserve\n• RPE 7: 3 reps left in reserve';
+			case 'settings.desc_rpe_info': return 'Rate effort after each completed set on a scale from 1 to 10:\n• RPE 1-4: Light effort, with plenty of reps left\n• RPE 5-7: Moderate to hard effort, with several reps left\n• RPE 8-10: Very hard to maximal effort, with few or no reps left';
 			case 'settings.title_workout_bg': return 'Background & Progress';
 			case 'settings.title_workout_guide': return 'Recovery Optimization';
 			case 'settings.desc_workout_guide': return 'Effort metrics help Plato accurately calculate muscle Recovery and Strain scores for your body.';
@@ -6050,7 +6050,7 @@ extension on _StringsVi {
 			case 'settings.desc_effort_tracking': return 'Ghi lại RPE sau mỗi set đã hoàn thành để tính Recovery chính xác hơn.';
 			case 'settings.lbl_scale_rpe': return 'RPE từng set';
 			case 'settings.title_rpe_info': return 'Thang đo mức độ gắng sức';
-			case 'settings.desc_rpe_info': return 'Đánh giá mức độ nặng theo thang điểm 1 đến 10:\n• RPE 10: Hết sức, không thể làm thêm rep nào\n• RPE 9: Còn sức thực hiện đúng 1 rep\n• RPE 8: Còn sức thực hiện thêm 2 reps\n• RPE 7: Còn sức thực hiện thêm 3 reps';
+			case 'settings.desc_rpe_info': return 'Đánh giá mức độ gắng sức sau mỗi set đã hoàn thành theo thang điểm 1 đến 10:\n• RPE 1-4: Nhẹ, còn nhiều sức để thực hiện thêm hiệp\n• RPE 5-7: Vừa đến nặng, vẫn còn sức thực hiện thêm một vài hiệp\n• RPE 8-10: Rất nặng đến tối đa, chỉ còn ít hoặc không thể thực hiện thêm hiệp';
 			case 'settings.title_workout_bg': return 'Chạy nền & Tiến trình';
 			case 'settings.title_workout_guide': return 'Tối ưu hóa phục hồi';
 			case 'settings.desc_workout_guide': return 'Dữ liệu gắng sức giúp Plato tính toán điểm Phục hồi (Recovery) và Tải trọng (Strain) chính xác hơn cho cơ bắp của bạn.';

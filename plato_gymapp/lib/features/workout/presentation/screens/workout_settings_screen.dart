@@ -97,10 +97,22 @@ class _WorkoutSettingsScreenState extends State<WorkoutSettingsScreen> {
             style: TextStyle(color: colorScheme.onSurfaceVariant, fontSize: 14),
           ),
           const SizedBox(height: 16),
-          _infoCard(
-            title: t.settings.title_rpe_info,
-            message: t.settings.desc_rpe_info,
-            color: colorScheme.primary,
+          Text(
+            t.settings.title_rpe_info,
+            style: TextStyle(
+              color: colorScheme.primary,
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            t.settings.desc_rpe_info,
+            style: TextStyle(
+              color: colorScheme.onSurfaceVariant,
+              fontSize: 14,
+              height: 1.5,
+            ),
           ),
         ],
       ),
@@ -202,46 +214,6 @@ class _WorkoutSettingsScreenState extends State<WorkoutSettingsScreen> {
           ),
         ),
       ],
-    );
-  }
-
-  Widget _infoCard({
-    required String title,
-    required String message,
-    Color? color,
-  }) {
-    final colors = Theme.of(context).colorScheme;
-    final accent = color ?? colors.primary;
-    return Card(
-      elevation: 0,
-      color: accent.withValues(alpha: 0.15),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-      margin: EdgeInsets.zero,
-      child: Padding(
-        padding: const EdgeInsets.all(12),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              title,
-              style: TextStyle(
-                color: accent,
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-              ),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              message,
-              style: TextStyle(
-                color: colors.onSurfaceVariant,
-                fontSize: 13,
-                height: 1.4,
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 
